@@ -7,4 +7,6 @@
 <b>Рекомендации к ТЗ</b>: <br>
 Поддержать быстрый поиск и фильтр по тегам, экспорт(импорт) в удобные форматы
 ---
-Analogs: [QOwnNotes](https://github.com/pbek/QOwnNotes) 
+Analogs: <br> 
+QT/QML: [QOwnNotes](https://github.com/pbek/QOwnNotes) <br>
+C++: [notes](https://github.com/nuttyartist/notes), [vnote](https://github.com/vnotex/vnote)
