@@ -1,0 +1,9 @@
+C:/Users/Ice/QT_KR/QT_note/QT_note/build/CMakeFiles/QT_note.dir
+C:/Users/Ice/QT_KR/QT_note/QT_note/build/CMakeFiles/edit_cache.dir
+C:/Users/Ice/QT_KR/QT_note/QT_note/build/CMakeFiles/rebuild_cache.dir
+C:/Users/Ice/QT_KR/QT_note/QT_note/build/CMakeFiles/list_install_components.dir
+C:/Users/Ice/QT_KR/QT_note/QT_note/build/CMakeFiles/install.dir
+C:/Users/Ice/QT_KR/QT_note/QT_note/build/CMakeFiles/install/local.dir
+C:/Users/Ice/QT_KR/QT_note/QT_note/build/CMakeFiles/install/strip.dir
+C:/Users/Ice/QT_KR/QT_note/QT_note/build/CMakeFiles/QT_note_autogen_timestamp_deps.dir
+C:/Users/Ice/QT_KR/QT_note/QT_note/build/CMakeFiles/QT_note_autogen.dir
