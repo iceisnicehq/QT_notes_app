@@ -6,14 +6,167 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>1000</width>
+    <height>700</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Notes App</string>
   </property>
-  <widget class="QWidget" name="centralwidget"/>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="mainLayout">
+    <item>
+     <widget class="QSplitter" name="mainSplitter">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <!-- Левая панель -->
+      <widget class="QWidget" name="leftPanel">
+       <layout class="QVBoxLayout" name="leftLayout">
+        <item>
+         <widget class="QLabel" name="foldersLabel">
+          <property name="text">
+           <string>Папки</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QListWidget" name="foldersList"/>
+        </item>
+        <item>
+         <widget class="QLabel" name="tagsLabel">
+          <property name="text">
+           <string>Теги</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QListWidget" name="tagsList"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="settingsButton">
+          <property name="text">
+           <string>⚙ Настройки</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <!-- Центральная панель -->
+      <widget class="QWidget" name="centerPanel">
+       <layout class="QVBoxLayout" name="centerLayout">
+        <item>
+         <layout class="QHBoxLayout" name="searchLayout">
+          <item>
+           <widget class="QLineEdit" name="searchEdit">
+            <property name="placeholderText">
+             <string>Поиск...</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="addNoteButton">
+            <property name="text">
+             <string>＋</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="toggleLeftPanelButton">
+            <property name="text">
+             <string>⮜</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QListWidget" name="notesList"/>
+        </item>
+       </layout>
+      </widget>
+      <!-- Правая панель -->
+      <widget class="QWidget" name="rightPanel">
+       <layout class="QVBoxLayout" name="rightLayout">
+        <item>
+         <layout class="QHBoxLayout" name="noteHeaderLayout">
+          <item>
+           <widget class="QLabel" name="noteTitleLabel">
+            <property name="text">
+             <string>Название заметки</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="headerSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="editDateLabel">
+            <property name="text">
+             <string>Изменено: --.--.----</string>
+            </property>
+            <property name="toolTip">
+             <string>Создано: --.--.----</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="menuButton">
+            <property name="text">
+             <string>⋮</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="noteTitleEdit">
+          <property name="placeholderText">
+           <string>Введите название...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTextEdit" name="noteBodyEdit">
+          <property name="placeholderText">
+           <string>Текст заметки...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="tagsLayout">
+          <item>
+           <widget class="QLabel" name="noteTagsLabel">
+            <property name="text">
+             <string>Теги:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="noteTagsEdit">
+            <property name="placeholderText">
+             <string>Добавьте теги...</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
   <widget class="QMenuBar" name="menubar"/>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>

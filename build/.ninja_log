@@ -1,0 +1,13 @@
+# ninja log v6
+2723	2845	7698416055115805	QT_note.exe	af614f6fbefc2974
+580	2723	7698416033681287	CMakeFiles/QT_note.dir/mainwindow.cpp.obj	38ad9235f3abfc2
+577	2198	7698416033661232	CMakeFiles/QT_note.dir/main.cpp.obj	eaa740bfebc6cd52
+159	569	7698416033182935	C:/Users/Ice/QT_KR/QT_note/build/QT_note_autogen/mocs_compilation.cpp	acf1f48b685bce48
+159	569	7698416033182935	C:/Users/Ice/QT_KR/QT_note/build/QT_note_autogen/timestamp	acf1f48b685bce48
+159	569	7698416033182935	QT_note_autogen/mocs_compilation.cpp	acf1f48b685bce48
+159	569	7698416033182935	QT_note_autogen/timestamp	acf1f48b685bce48
+575	2106	7698416033631084	CMakeFiles/QT_note.dir/QT_note_autogen/mocs_compilation.cpp.obj	15cb8603f3a404cd
+18	167	7698416076093432	C:/Users/Ice/QT_KR/QT_note/build/CMakeFiles/cmake.verify_globs	85d1281cce1210e1
+168	639	7698416080955408	build.ninja	958aa0bc30f4aa09
+168	639	7698416080955408	C:/Users/Ice/QT_KR/QT_note/build/cmake_install.cmake	958aa0bc30f4aa09
+18	173	7698416081807462	C:/Users/Ice/QT_KR/QT_note/build/CMakeFiles/cmake.verify_globs	85d1281cce1210e1
