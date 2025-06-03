@@ -48,7 +48,7 @@ Item {
                 wrapMode: Text.WordWrap
                 maximumLineCount: 5
                 elide: Text.ElideRight
-                font.pixelSize: Theme.fontSizeMedium
+                font.pixelSize: Theme.fontSizeSmall
                 color: "#e8eaed"
                 width: parent.width
             }
@@ -66,7 +66,8 @@ Item {
                 Repeater {
                     model: tags.split(" ")
                     delegate: Rectangle {
-                        color: "#32353a"  // Dark gray background
+                        visible: index < 2
+                        color: "#32353a"
                         radius: 12
                         height: tagText.implicitHeight + Theme.paddingSmall
                         width: Math.min(tagText.implicitWidth + Theme.paddingMedium, parent.width)
@@ -74,7 +75,7 @@ Item {
                         Text {
                             id: tagText
                             text: modelData
-                            color: "#c5c8d0"  // Light gray text
+                            color: "#c5c8d0"
                             font.pixelSize: Theme.fontSizeExtraSmall
                             elide: Text.ElideRight
                             anchors.centerIn: parent
@@ -83,6 +84,26 @@ Item {
                             width: parent.width - Theme.paddingMedium
                             wrapMode: Text.NoWrap
                         }
+                    }
+                }
+
+                // "+N" indicator for remaining tags
+                Rectangle {
+                    visible: tags.split(" ").length > 2
+                    color: "#32353a"
+                    radius: 12
+                    height: tagText.implicitHeight + Theme.paddingSmall
+                    width: tagText.implicitWidth + Theme.paddingMedium
+
+                    Text {
+                        id: tagText
+                        text: "+" + (tags.split(" ").length - 2)
+                        color: "#c5c8d0"
+                        font.pixelSize: Theme.fontSizeExtraSmall
+                        anchors.centerIn: parent
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                        wrapMode: Text.NoWrap
                     }
                 }
             }

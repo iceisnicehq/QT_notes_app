@@ -7,7 +7,7 @@ Page {
     id: mainPage
     objectName: "mainPage"
     allowedOrientations: Orientation.All
-    backgroundColor: "#121318"
+    backgroundColor: "#121218"
     property int noteMargin: 20
 
     // Properties to track scroll behavior
@@ -38,7 +38,7 @@ Page {
             width: parent.width - (noteMargin * 2)
             height: parent.height
             anchors.centerIn: parent
-            color: "#2e2f34"
+            color: "#1c1d29"
             radius: 80
 
             SearchField {
@@ -52,9 +52,9 @@ Page {
                 }
 
                 leftItem: Icon {
-                    source: "image://theme/icon-m-menu"
-                    width: Theme.fontSizeExtraLargeBase
-                    height: Theme.fontSizeExtraLargeBase * 1.3
+                    source: "../icons/menu.svg"
+                    width: Theme.fontSizeExtraLarge * 1.1
+                    height: Theme.fontSizeExtraLarge * 0.95
                     IconButton {
                          anchors.fill: parent
                         onClicked: {
