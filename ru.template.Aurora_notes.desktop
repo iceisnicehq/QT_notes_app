@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+X-Nemo-Application-Type=silica-qt5
+Icon=ru.template.Aurora_notes
+Exec=/usr/bin/ru.template.Aurora_notes
+Name=Notes
+Name[ru]=Заметки
+
+[X-Application]
+Permissions=
+OrganizationName=ru.template
+ApplicationName=Aurora_notes
+ExecDBus=/usr/bin/ru.template.Aurora_notes
