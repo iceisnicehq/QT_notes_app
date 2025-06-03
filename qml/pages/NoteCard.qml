@@ -92,11 +92,11 @@ Item {
                     visible: tags.split(" ").length > 2
                     color: "#32353a"
                     radius: 12
-                    height: tagText.implicitHeight + Theme.paddingSmall
-                    width: tagText.implicitWidth + Theme.paddingMedium
+                    height: tagCount.implicitHeight + Theme.paddingSmall
+                    width: tagCount.implicitWidth + Theme.paddingMedium
 
                     Text {
-                        id: tagText
+                        id: tagCount
                         text: "+" + (tags.split(" ").length - 2)
                         color: "#c5c8d0"
                         font.pixelSize: Theme.fontSizeExtraSmall

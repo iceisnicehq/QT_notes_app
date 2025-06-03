@@ -4,6 +4,7 @@ import Sailfish.Silica 1.0
 import "Database.js" as DB
 
 Page {
+
     id: mainPage
     objectName: "mainPage"
     allowedOrientations: Orientation.All
@@ -13,7 +14,31 @@ Page {
     // Properties to track scroll behavior
     property bool headerVisible: true
     property real previousContentY: 0
+    property bool panelOpen: false
 
+    Component {
+        id: rippleComponent
+        Rectangle {
+            id: ripple
+            property real startX
+            property real startY
+            width: 0; height: width
+            radius: width/2
+            color: Qt.rgba(1, 1, 1, 0.2)
+
+            NumberAnimation on width {
+                from: 0
+                to: parent.width * 2.5
+                duration: 600
+            }
+
+            NumberAnimation on opacity {
+                from: 0.8
+                to: 0
+                duration: 600
+            }
+        }
+    }
     // Search Bar Area - Positioned above the Flickable
     Item {
         id: searchBarArea
@@ -45,50 +70,73 @@ Page {
                 id: searchField
                 anchors.fill: parent
                 placeholderText: "Search notes..."
-
+                highlighted: false
+//                focusOutBehavior: FocusBehavior.ClearPageFocus
                 // ... (rest of your SearchField is unchanged)
                 EnterKey.onClicked: {
                     console.log("Searching for:", text)
                 }
-
-                leftItem: Icon {
-                    source: "../icons/menu.svg"
+                // Left menu button
+                leftItem: Item {
                     width: Theme.fontSizeExtraLarge * 1.1
                     height: Theme.fontSizeExtraLarge * 0.95
-                    IconButton {
-                         anchors.fill: parent
+                    clip: false  // Important: do not clip!
+
+                    Icon {
+                        id: menuIcon
+                        source: "../icons/menu.svg"
+                        anchors.centerIn: parent
+                        width: parent.width
+                        height: parent.height
+                    }
+
+                    RippleEffect {
+                        id: menuRipple
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
                         onClicked: {
-                            pageStack.push(Qt.resolvedUrl("AboutPage.qml"))
+                            panelOpen = true
                             console.log("Menu button clicked")
                         }
+                        onPressed: menuRipple.ripple(mouseX, mouseY)
                     }
                 }
 
-                rightItem: Row {
-                    spacing: Theme.paddingSmall
-                    IconButton {
-                        icon.source: "image://theme/icon-m-add"
-                        width: Theme.fontSizeMedium
-                        height: Theme.fontSizeMedium
-                        anchors.verticalCenter: parent.verticalCenter
-                        onClicked: {
-                            console.log("Create new note clicked")
-                        }
+                // Right plus button
+                rightItem: Item {
+                    width: Theme.fontSizeExtraLarge * 1.1
+                    height: Theme.fontSizeExtraLarge * 1.1
+                    clip: false  // Important: do not clip!
+
+                    Icon {
+                        id: plusIcon
+                        source: "../icons/plus.svg"
+                        anchors.centerIn: parent
+                        width: parent.width
+                        height: parent.height
                     }
-                    IconButton {
-                        icon.source: "image://theme/icon-m-view-list"
-                        width: Theme.fontSizeMedium
-                        height: Theme.fontSizeMedium
-                        anchors.verticalCenter: parent.verticalCenter
-                        onClicked: {
-                            console.log("Second button clicked")
-                        }
+
+                    RippleEffect {
+                        id: plusRipple
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: console.log("Plus button clicked")
+                        onPressed: plusRipple.ripple(mouseX, mouseY)
                     }
                 }
             }
         }
     }
-
+    SidePanel {
+        id: sidePanel
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        open: panelOpen
+    }
     // The main scrollable area
     SilicaFlickable {
         id: flickable
