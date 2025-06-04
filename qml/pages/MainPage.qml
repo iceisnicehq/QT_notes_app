@@ -1,7 +1,8 @@
 // MainPage.qml
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import "Database.js" as DB
+import QtQuick.LocalStorage 2.0
+import "DatabaseManager.js" as DB
 
 Page {
 
@@ -15,29 +16,15 @@ Page {
     property bool headerVisible: true
     property real previousContentY: 0
     property bool panelOpen: false
+    property var allNotes: []
+    property var allTags: []
 
-    Component {
-        id: rippleComponent
-        Rectangle {
-            id: ripple
-            property real startX
-            property real startY
-            width: 0; height: width
-            radius: width/2
-            color: Qt.rgba(1, 1, 1, 0.2)
-
-            NumberAnimation on width {
-                from: 0
-                to: parent.width * 2.5
-                duration: 600
-            }
-
-            NumberAnimation on opacity {
-                from: 0.8
-                to: 0
-                duration: 600
-            }
-        }
+    Component.onCompleted: {
+        refreshData();
+    }
+    function refreshData() {
+        allNotes = DB.getAllNotes();
+        allTags = DB.getAllTags();
     }
     // Search Bar Area - Positioned above the Flickable
     Item {
@@ -97,8 +84,8 @@ Page {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
-                            panelOpen = true
-                            console.log("Menu button clicked")
+                            mainPage.panelOpen = true
+                            console.log("Menu button clicked → panelOpen = true")
                         }
                         onPressed: menuRipple.ripple(mouseX, mouseY)
                     }
@@ -136,6 +123,7 @@ Page {
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         open: panelOpen
+        tags: allTags
     }
     // The main scrollable area
     SilicaFlickable {
@@ -184,7 +172,7 @@ Page {
                     id: pinnedNotes
                     width: parent.width
                     height: contentHeight
-                    model: DB.notes.filter(function(note) { return note.pinned; })
+                    model: allNotes.filter(function(note) { return note.pinned; })
                     delegate: NoteCard {
                         anchors {
                             left: parent.left
@@ -222,7 +210,7 @@ Page {
                     width: parent.width
                     spacing: 0  // We'll handle spacing within the delegate
                     height: contentHeight
-                    model: DB.notes.filter(function(note) { return !note.pinned; })
+                    model: allNotes.filter(function(note) { return !note.pinned; })
                     delegate: NoteCard {
                         anchors {
                             left: parent.left

@@ -1,9 +1,11 @@
 // SidePanel.qml
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import QtQuick.LocalStorage 2.0
+import "DatabaseManager.js" as DB
 
 Item {
-    id: root
+    id: sidePanel
     anchors.fill: parent
     z: 1000 // Ensure it's on top of everything
     visible: opacity > 0
@@ -11,6 +13,7 @@ Item {
 
     property bool open: false
     property string currentPage: "notes"
+    property var tags: []
 
     Behavior on opacity {
         NumberAnimation { duration: 300; easing.type: Easing.OutQuad }
@@ -28,7 +31,7 @@ Item {
         anchors.fill: parent
         enabled: open
         onClicked: {
-            root.open = false
+            mainPage.panelOpen = false
         }
     }
 
@@ -80,7 +83,7 @@ Item {
                             rightMargin: Theme.paddingLarge
                             verticalCenter: parent.verticalCenter
                         }
-                        onClicked: root.open = false
+                        onClicked: sidePanel.open = false
                     }
                 }
 
@@ -102,10 +105,10 @@ Item {
                     NavigationButton {
                         icon: "../icons/notes.svg"
                         text: "Notes"
-                        selected: root.currentPage === "notes"
+                        selected: sidePanel.currentPage === "notes"
                         onClicked: {
-                            root.currentPage = "notes"
-                            root.open = false
+                            sidePanel.currentPage = "notes"
+                            sidePanel.open = false
                         }
                     }
 
@@ -113,10 +116,10 @@ Item {
                     NavigationButton {
                         icon: "../icons/reminders.svg"
                         text: "Reminders"
-                        selected: root.currentPage === "reminders"
+                        selected: sidePanel.currentPage === "reminders"
                         onClicked: {
-                            root.currentPage = "reminders"
-                            root.open = false
+                            sidePanel.currentPage = "reminders"
+                            sidePanel.open = false
                         }
                     }
                 }
@@ -157,21 +160,21 @@ Item {
                             }
                             onClicked: {
                                 pageStack.push(Qt.resolvedUrl("TagEditPage.qml"))
-                                root.open = false
+                                sidePanel.open = false
                             }
                         }
                     }
 
                     // Tags List
                     Repeater {
-                        model: DB.tags
+                        model: tags
                         delegate: NavigationButton {
                             icon: "../icons/tag.svg"
                             text: modelData
                             maxTextWidth: panelContent.width - 100
                             onClicked: {
                                 console.log("Tag selected:", modelData)
-                                root.open = false
+                                sidePanel.open = false
                                 // pageStack.push(Qt.resolvedUrl("TagNotesPage.qml"), {tag: modelData})
                             }
                         }
@@ -183,7 +186,7 @@ Item {
                         text: "Add Tag"
                         onClicked: {
                             pageStack.push(Qt.resolvedUrl("TagEditPage.qml"))
-                            root.open = false
+                            sidePanel.open = false
                         }
                     }
                 }
@@ -204,41 +207,41 @@ Item {
                     NavigationButton {
                         icon: "../icons/archive.svg"
                         text: "Archive"
-                        selected: root.currentPage === "archive"
+                        selected: sidePanel.currentPage === "archive"
                         onClicked: {
-                            root.currentPage = "archive"
-                            root.open = false
+                            sidePanel.currentPage = "archive"
+                            sidePanel.open = false
                         }
                     }
 
                     NavigationButton {
                         icon: "../icons/trash.svg"
                         text: "Trash"
-                        selected: root.currentPage === "trash"
+                        selected: sidePanel.currentPage === "trash"
                         onClicked: {
-                            root.currentPage = "trash"
-                            root.open = false
+                            sidePanel.currentPage = "trash"
+                            sidePanel.open = false
                         }
                     }
 
                     NavigationButton {
                         icon: "../icons/settings.svg"
                         text: "Settings"
-                        selected: root.currentPage === "settings"
+                        selected: sidePanel.currentPage === "settings"
                         onClicked: {
-                            root.currentPage = "settings"
-                            root.open = false
+                            sidePanel.currentPage = "settings"
+                            sidePanel.open = false
                         }
                     }
 
                     NavigationButton {
                         icon: "../icons/about.svg"
                         text: "About"
-                        selected: root.currentPage === "about"
+                        selected: sidePanel.currentPage === "about"
                         onClicked: {
-                            root.currentPage = "about"
+                            sidePanel.currentPage = "about"
                             pageStack.push(Qt.resolvedUrl("AboutPage.qml"))
-                            root.open = false
+                            sidePanel.open = false
                         }
                     }
                 }
