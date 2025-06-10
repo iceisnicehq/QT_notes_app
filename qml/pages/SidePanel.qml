@@ -50,17 +50,41 @@ Item {
             }
         }
 
+        // The main scrollable area of the side panel
         SilicaFlickable {
+            id: sidePanelFlickable // <-- Give the Flickable an ID
             anchors.fill: parent
-            contentHeight: contentColumn.height
+            contentHeight: contentColumn.height // This drives the scrollability
+            // --- ADD THESE CONSOLE.LOGS ---
+            Component.onCompleted: {
+                console.log("SidePanelFlickable - ON COMPLETED:");
+                console.log("  Height:", height);
+                console.log("  ContentHeight:", contentHeight);
+                console.log("  Should Scrollbar be visible (contentHeight > height)?", contentHeight > height);
+            }
 
+            onContentHeightChanged: {
+                console.log("SidePanelFlickable - contentHeight CHANGED:");
+                console.log("  New ContentHeight:", contentHeight);
+                console.log("  Current Height:", height);
+                console.log("  Should Scrollbar be visible?", contentHeight > height);
+            }
+
+            onHeightChanged: {
+                console.log("SidePanelFlickable - Height CHANGED:");
+                console.log("  New Height:", height);
+                console.log("  Current ContentHeight:", contentHeight);
+                console.log("  Should Scrollbar be visible?", contentHeight > height);
+            }
+            // --- END CONSOLE.LOGS ---
             Column {
                 id: contentColumn
                 width: parent.width
                 spacing: Theme.paddingMedium
 
-                // Header
+                // Header of the SidePanel
                 Item {
+                    id: sidePanelHeader // <-- Give the header an ID for the scrollbar
                     width: parent.width
                     height: Theme.itemSizeLarge
 
@@ -250,6 +274,13 @@ Item {
                     }
                 }
             }
+        }
+
+        // --- Include your custom ScrollBar here ---
+        ScrollBar {
+            // You can still give it an ID if you want to reference it later, e.g., id: myPageScrollBar
+            flickableSource: sidePanelFlickable // Pass the ID of your SilicaFlickable
+            topAnchorItem: sidePanelHeader // Pass the ID of your header/search bar Item
         }
     }
 }

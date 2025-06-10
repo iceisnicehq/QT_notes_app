@@ -2,40 +2,38 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.LocalStorage 2.0
-import "DatabaseManager.js" as DB
+import "DatabaseManager.js" as DB // Still needed for DB operations on destruction
 
-Page { // Changed from 'Page' to 'SilicaPage' for Sailfish theme consistency
+Page { // Correctly using Page from Sailfish.Silica
     id: newNotePage
-    ToastManager {
-        id: toast
-    }
+
     property var onNoteSavedOrDeleted: null // Callback to refresh main page
 
     // These properties will hold the *current* state of the note as the user types
-    property int noteId: -1 // Will remain -1 until saved for the first time or loaded
+    property int noteId: -1 // Will be -1 for new notes, or actual ID for editing
     property string noteTitle: ""
     property string noteContent: ""
     property var noteTags: [] // Will be an array of strings
     property bool noteIsPinned: false // Default to not pinned
 
-    // Function to show toast notification using the global ToastManager
-    function showToast(message) {
-        if (root && root.toastManager) {
-            root.toastManager.show(message);
-        } else {
-            console.warn("ToastManager not found or not accessible via 'root'. Cannot show toast:", message);
-            console.log("TOAST:", message);
-        }
-    }
-
-    // --- No Component.onCompleted database call for adding initial note ---
-    // The note will only be added/saved when the page is destroyed.
+    // --- REMOVED: ToastManager and showToast function ---
 
     Component.onCompleted: {
         // Automatically focus the content area and open keyboard
         noteContentInput.forceActiveFocus();
         Qt.inputMethod.show();
-        console.log("NewNotePage opened. Ready for input.");
+        console.log("NewNotePage opened.");
+
+        // Pre-fill fields if editing an existing note
+        if (noteId !== -1) {
+            noteTitleInput.text = noteTitle;
+            noteContentInput.text = noteContent;
+            // Set initial color for pin icon if editing
+            pinIconButton.icon.color = noteIsPinned ? Theme.highlightColor : Theme.primaryColor;
+            console.log("NewNotePage opened in EDIT mode for ID:", noteId);
+        } else {
+            console.log("NewNotePage opened in CREATE mode.");
+        }
     }
 
     // This is crucial: save/delete on page destruction (pop from stack)
@@ -47,27 +45,24 @@ Page { // Changed from 'Page' to 'SilicaPage' for Sailfish theme consistency
 
         if (trimmedTitle === "" && trimmedContent === "") {
             // If both title and content are empty, delete the note if it was ever created
-            // Since we're not creating it on entry, it's safer to just *not save* it.
-            // If noteId was assigned from an *existing* note being edited, then delete.
-            // For *new* notes, if it's empty, we simply do nothing.
-            if (noteId !== -1) { // This condition would only be true if editing an existing note
+            if (noteId !== -1) { // This condition would only be true if editing an an existing note
                 DB.deleteNote(noteId); // Sync call
-                console.log("Empty existing note deleted with ID:", noteId);
+                console.log("Debug: Empty existing note deleted with ID:", noteId);
             } else {
-                console.log("New empty note not saved.");
+                console.log("Debug: New empty note not saved.");
             }
-            showToast("Пустая заметка не была сохранена");
+            // --- REMOVED TOAST CALL ---
         } else {
             // If there's content, save or update the note
             if (noteId === -1) { // This is a brand new note
                 var newId = DB.addNote(noteIsPinned, noteTitle, noteContent, noteTags); // Sync call
-                noteId = newId; // Update local ID, though page is destroying
-                console.log("New note added with ID:", noteId);
-                showToast("Заметка сохранена!"); // Notify user that it was saved
-            } else { // This is an existing note being updated (if you implement editing later)
+                // noteId = newId; // No need to update local ID as page is destroying
+                console.log("Debug: New note added with ID:", newId);
+                // --- REMOVED TOAST CALL ---
+            } else { // This is an existing note being updated
                 DB.updateNote(noteId, noteIsPinned, noteTitle, noteContent, noteTags); // Sync call
-                console.log("Note updated with ID:", noteId);
-                showToast("Заметка обновлена!"); // Notify user that it was updated
+                console.log("Debug: Note updated with ID:", noteId);
+                // --- REMOVED TOAST CALL ---
             }
         }
 
@@ -81,12 +76,13 @@ Page { // Changed from 'Page' to 'SilicaPage' for Sailfish theme consistency
     // --- Page Header ---
     PageHeader {
         id: header
-        title: "New Note" // You can make this dynamic based on title input
+        // --- DYNAMIC TITLE: based on whether it's a new note or existing ---
+        title: newNotePage.noteId === -1 ? "New Note" : "Edit Note"
 
         // Left: Close Button
         IconButton {
             id: closeButton
-            icon.source: "../icons/back.svg" // Common back icon, or use close.svg
+            icon.source: "../icons/back.svg"
             anchors {
                 left: parent.left
                 verticalCenter: parent.verticalCenter
@@ -107,23 +103,22 @@ Page { // Changed from 'Page' to 'SilicaPage' for Sailfish theme consistency
             spacing: Theme.paddingMedium
 
             IconButton {
+                id: pinIconButton // Added ID to reference it in Component.onCompleted
                 icon.source: "../icons/pin.svg"
                 onClicked: {
                     noteIsPinned = !noteIsPinned; // Toggle pin status
                     icon.color = noteIsPinned ? Theme.highlightColor : Theme.primaryColor;
-                    showToast("Note is now " + (noteIsPinned ? "pinned" : "unpinned"));
+                    // --- REMOVED TOAST CALL ---
                 }
-                // No need for Component.onCompleted here for icon color on a new note
-                // as `noteIsPinned` starts as false and won't be changed before interaction.
-                // If you were loading an existing note, you'd set initial color.
+                // Initial icon color set in Component.onCompleted above for consistency
             }
             IconButton {
-                icon.source: "../icons/pin.svg" // Placeholder
-                onClicked: showToast("Pin button 2 clicked (placeholder)");
+                icon.source: "../icons/pin.svg"
+                onClicked: console.log("Pin button 2 clicked (placeholder)");
             }
             IconButton {
-                icon.source: "../icons/pin.svg" // Placeholder
-                onClicked: showToast("Pin button 3 clicked (placeholder)");
+                icon.source: "../icons/pin.svg"
+                onClicked: console.log("Pin button 3 clicked (placeholder)");
             }
         }
     }
@@ -138,7 +133,10 @@ Page { // Changed from 'Page' to 'SilicaPage' for Sailfish theme consistency
             id: columnLayout
             width: parent.width
             spacing: Theme.paddingMedium
-            //padding: Theme.paddingLarge // Re-added padding for better aesthetics
+            // --- REMOVED 'padding' property from Column ---
+            // As discussed, Column does not have a padding property.
+            // If you need content padding, wrap this column in an Item/Rectangle with padding
+            // or apply margins to the children.
 
             // Title Input
             TextField {
@@ -157,7 +155,6 @@ Page { // Changed from 'Page' to 'SilicaPage' for Sailfish theme consistency
             TextArea {
                 id: noteContentInput
                 width: parent.width
-                // Adjust height dynamically, or give it a minimum height
                 height: Math.max(parent.height - noteTitleInput.height - Theme.paddingMedium * 4, Theme.itemSizeExtraLarge * 3) // Minimum height
                 placeholderText: "Note"
                 label: "Note"

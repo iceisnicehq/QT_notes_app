@@ -155,9 +155,9 @@ function insertTestData() {
     initDatabase();
     db.transaction(function(tx) {
         // Clear tables first
-//        tx.executeSql('DELETE FROM Notes');
-//        tx.executeSql('DELETE FROM Tags');
-//        tx.executeSql('DELETE FROM NoteTags');
+        tx.executeSql('DELETE FROM Notes');
+        tx.executeSql('DELETE FROM Tags');
+        tx.executeSql('DELETE FROM NoteTags');
 
         // Add all notes from Data.notes
         // Make sure 'Data' object is defined if you use this

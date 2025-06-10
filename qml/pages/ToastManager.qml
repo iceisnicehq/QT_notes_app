@@ -1,17 +1,37 @@
-// ToastManager.qml
 import QtQuick 2.0
 
+/**
+  * adapted from StackOverflow:
+  * http://stackoverflow.com/questions/26879266/make-toast-in-android-by-qml
+  * @brief Manager that creates Toasts dynamically
+  */
 ListView {
+    /**
+      * Public
+      */
+
+    /**
+      * @brief Shows a Toast
+      *
+      * @param {string} text Text to show
+      * @param {real} duration Duration to show in milliseconds, defaults to 3000
+      */
     function show(text, duration) {
-        model.insert(0, {text: text, duration: duration})
+        model.insert(0, {text: text, duration: duration});
     }
 
+    /**
+      * Private
+      */
+
     id: root
+
     z: Infinity
     spacing: 5
     anchors.fill: parent
     anchors.bottomMargin: 10
     verticalLayoutDirection: ListView.BottomToTop
+
     interactive: false
 
     displaced: Transition {
@@ -21,12 +41,14 @@ ListView {
         }
     }
 
-    delegate: Toast { // Ensure this path is correct if Toast.qml is in a different folder
+    delegate: Toast {
         Component.onCompleted: {
-            // The original logic here was a bit redundant.
-            // The `duration` is already passed in the model.
-            // Directly call show with the model data.
-            show(text, duration);
+            if (typeof duration === "undefined") {
+                show(text);
+            }
+            else {
+                show(text, duration);
+            }
         }
     }
 

@@ -20,6 +20,18 @@ Page {
     property var allNotes: []
     property var allTags: []
 
+    ToastManager {
+        id: toastManager // The ToastManager now lives directly within MainPage
+    }
+//    Timer {
+//        interval: 1000
+//        repeat: true
+//        running: true
+//        property int i: 0
+//        onTriggered: {
+//            toast.show("This timer has triggered " + (++i) + " times!");
+//        }
+//    }
     Component.onCompleted: {
         DB.initDatabase()
         DB.insertTestData()  // ← Adds test data
@@ -115,11 +127,16 @@ Page {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
+                            // --- CREATE NOTE: Push NewNotePage without pre-filling data ---
                             pageStack.push(Qt.resolvedUrl("NewNotePage.qml"), {
-                                // Pass a callback function to refresh the main page's data
-                                onNoteSavedOrDeleted: refreshData
+                                onNoteSavedOrDeleted: refreshData,
+                                noteId: -1, // Explicitly pass -1 for new notes
+                                noteTitle: "",
+                                noteContent: "",
+                                noteIsPinned: false,
+                                noteTags: []
                             });
-                            console.log("Opening NewNotePage");
+                            console.log("Opening NewNotePage in CREATE mode.");
                         }
                         onPressed: plusRipple.ripple(mouseX, mouseY)
                     }
@@ -193,6 +210,22 @@ Page {
                         title: modelData.title
                         content: modelData.content
                         tags: modelData.tags.join(' ')
+
+                        // --- ADDED: MouseArea to make NoteCard clickable for editing ---
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                pageStack.push(Qt.resolvedUrl("NewNotePage.qml"), {
+                                    onNoteSavedOrDeleted: refreshData,
+                                    noteId: modelData.id,        // Pass existing ID
+                                    noteTitle: modelData.title,  // Pass existing title
+                                    noteContent: modelData.content, // Pass existing content
+                                    noteIsPinned: modelData.pinned, // Pass existing pinned status
+                                    noteTags: modelData.tags     // Pass existing tags
+                                });
+                                console.log("Opening NewNotePage in EDIT mode for ID:", modelData.id);
+                            }
+                        }
                     }
                 }
             }
@@ -231,9 +264,31 @@ Page {
                         title: modelData.title
                         content: modelData.content
                         tags: modelData.tags.join(' ')
+
+                        // --- ADDED: MouseArea to make NoteCard clickable for editing ---
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                pageStack.push(Qt.resolvedUrl("NewNotePage.qml"), {
+                                    onNoteSavedOrDeleted: refreshData,
+                                    noteId: modelData.id,        // Pass existing ID
+                                    noteTitle: modelData.title,  // Pass existing title
+                                    noteContent: modelData.content, // Pass existing content
+                                    noteIsPinned: modelData.pinned, // Pass existing pinned status
+                                    noteTags: modelData.tags     // Pass existing tags
+                                });
+                                console.log("Opening NewNotePage in EDIT mode for ID:", modelData.id);
+                            }
+                        }
                     }
                 }
             }
         }
+    }
+    // --- YOUR SCROLLBAR GOES RIGHT HERE, as a direct child of Page ---
+    ScrollBar {
+        // You can still give it an ID if you want to reference it later, e.g., id: myPageScrollBar
+        flickableSource: flickable // Pass the ID of your SilicaFlickable
+        topAnchorItem: searchBarArea // Pass the ID of your header/search bar Item
     }
 }
