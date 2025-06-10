@@ -112,7 +112,7 @@ Item {
                         selected: sidePanel.currentPage === "notes"
                         onClicked: {
                             sidePanel.currentPage = "notes"
-                            sidePanel.open = false
+                            mainPage.panelOpen = false
                         }
                     }
 
@@ -123,7 +123,7 @@ Item {
                         selected: sidePanel.currentPage === "reminders"
                         onClicked: {
                             sidePanel.currentPage = "reminders"
-                            sidePanel.open = false
+                            mainPage.panelOpen = false
                         }
                     }
                 }
@@ -164,7 +164,7 @@ Item {
                             }
                             onClicked: {
                                 pageStack.push(Qt.resolvedUrl("TagEditPage.qml"))
-                                sidePanel.open = false
+                                mainPage.panelOpen = false
                             }
                         }
                     }
@@ -178,7 +178,7 @@ Item {
                             maxTextWidth: panelContent.width - 100
                             onClicked: {
                                 console.log("Tag selected:", modelData)
-                                sidePanel.open = false
+                                mainPage.panelOpen = false
                                 // pageStack.push(Qt.resolvedUrl("TagNotesPage.qml"), {tag: modelData})
                             }
                         }
@@ -190,7 +190,7 @@ Item {
                         text: "Add Tag"
                         onClicked: {
                             pageStack.push(Qt.resolvedUrl("TagEditPage.qml"))
-                            sidePanel.open = false
+                            mainPage.panelOpen = false
                         }
                     }
                 }
@@ -214,7 +214,7 @@ Item {
                         selected: sidePanel.currentPage === "archive"
                         onClicked: {
                             sidePanel.currentPage = "archive"
-                            sidePanel.open = false
+                            mainPage.panelOpen = false
                         }
                     }
 
@@ -224,7 +224,7 @@ Item {
                         selected: sidePanel.currentPage === "trash"
                         onClicked: {
                             sidePanel.currentPage = "trash"
-                            sidePanel.open = false
+                            mainPage.panelOpen = false
                         }
                     }
 
@@ -234,7 +234,7 @@ Item {
                         selected: sidePanel.currentPage === "settings"
                         onClicked: {
                             sidePanel.currentPage = "settings"
-                            sidePanel.open = false
+                            mainPage.panelOpen = false
                         }
                     }
 
