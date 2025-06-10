@@ -1,5 +1,4 @@
-.pragma library
-
+// DatabaseManager.js
 var db = null;
 var dbName = "AuroraNotesDB";
 var dbVersion = "1.0";
@@ -8,34 +7,39 @@ var dbSize = 1000000;
 
 function initDatabase() {
     if (db) return;
-    db = LocalStorage.openDatabaseSync(dbName, dbVersion, dbDescription, dbSize);
-    db.transaction(function(tx) {
-        tx.executeSql(
-            'CREATE TABLE IF NOT EXISTS Notes (' +
-            'id INTEGER PRIMARY KEY AUTOINCREMENT, ' +
-            'pinned BOOLEAN NOT NULL DEFAULT 0, ' +
-            'title TEXT NOT NULL, ' +
-            'content TEXT NOT NULL, ' +
-            'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, ' +
-            'updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP' +
-            ')'
-        );
-        tx.executeSql(
-            'CREATE TABLE IF NOT EXISTS Tags (' +
-            'id INTEGER PRIMARY KEY AUTOINCREMENT, ' +
-            'name TEXT UNIQUE NOT NULL' +
-            ')'
-        );
-        tx.executeSql(
-            'CREATE TABLE IF NOT EXISTS NoteTags (' +
-            'note_id INTEGER NOT NULL, ' +
-            'tag_id INTEGER NOT NULL, ' +
-            'PRIMARY KEY (note_id, tag_id), ' +
-            'FOREIGN KEY(note_id) REFERENCES Notes(id) ON DELETE CASCADE, ' +
-            'FOREIGN KEY(tag_id) REFERENCES Tags(id) ON DELETE CASCADE' +
-            ')'
-        );
-    });
+    try {
+        db = LocalStorage.openDatabaseSync(dbName, dbVersion, dbDescription, dbSize);
+        db.transaction(function(tx) {
+            tx.executeSql(
+                'CREATE TABLE IF NOT EXISTS Notes (' +
+                'id INTEGER PRIMARY KEY AUTOINCREMENT, ' +
+                'pinned BOOLEAN NOT NULL DEFAULT 0, ' +
+                'title TEXT NOT NULL, ' +
+                'content TEXT NOT NULL, ' +
+                'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, ' +
+                'updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP' +
+                ')'
+            );
+            tx.executeSql(
+                'CREATE TABLE IF NOT EXISTS Tags (' +
+                'id INTEGER PRIMARY KEY AUTOINCREMENT, ' +
+                'name TEXT UNIQUE NOT NULL' +
+                ')'
+            );
+            tx.executeSql(
+                'CREATE TABLE IF NOT EXISTS NoteTags (' +
+                'note_id INTEGER NOT NULL, ' +
+                'tag_id INTEGER NOT NULL, ' +
+                'PRIMARY KEY (note_id, tag_id), ' +
+                'FOREIGN KEY(note_id) REFERENCES Notes(id) ON DELETE CASCADE, ' +
+                'FOREIGN KEY(tag_id) REFERENCES Tags(id) ON DELETE CASCADE' +
+                ')'
+            );
+        });
+        console.log("Database initialized successfully.");
+    } catch (e) {
+        console.error("Failed to open or initialize database: " + e);
+    }
 }
 
 // Internal helpers
@@ -64,7 +68,7 @@ function addTagToNoteInternal(tx, noteId, tagName) {
     );
 }
 
-// Public functions
+// Public functions (No Promises)
 function getAllNotes() {
     initDatabase();
     var notes = [];
@@ -103,16 +107,17 @@ function getAllTags() {
     return tags;
 }
 
+// *** Crucial Fix Here ***
 function addNote(pinned, title, content, tags) {
     initDatabase();
-    var noteId;
+    var returnedNoteId = -1; // Initialize variable to store the ID
     db.transaction(function(tx) {
-        noteId = addNoteInternal(tx, pinned, title, content);
+        returnedNoteId = addNoteInternal(tx, pinned, title, content); // Assign ID here
         for (var i = 0; i < tags.length; i++) {
-            addTagToNoteInternal(tx, noteId, tags[i]);
+            addTagToNoteInternal(tx, returnedNoteId, tags[i]);
         }
     });
-    return noteId;
+    return returnedNoteId; // Now this will return the actual ID after the transaction completes
 }
 
 function updateNote(id, pinned, title, content, tags) {
@@ -127,6 +132,7 @@ function updateNote(id, pinned, title, content, tags) {
             addTagToNoteInternal(tx, id, tags[i]);
         }
     });
+    // No return value needed for update
 }
 
 function deleteNote(id) {
@@ -134,6 +140,7 @@ function deleteNote(id) {
     db.transaction(function(tx) {
         tx.executeSql('DELETE FROM Notes WHERE id = ?', [id]);
     });
+    // No return value needed for delete
 }
 
 function togglePinned(id, pinned) {
@@ -141,25 +148,29 @@ function togglePinned(id, pinned) {
     db.transaction(function(tx) {
         tx.executeSql('UPDATE Notes SET pinned = ? WHERE id = ?', [pinned, id]);
     });
+    // No return value needed for toggle
 }
-
-
 
 function insertTestData() {
     initDatabase();
     db.transaction(function(tx) {
         // Clear tables first
-        tx.executeSql('DELETE FROM Notes');
-        tx.executeSql('DELETE FROM Tags');
-        tx.executeSql('DELETE FROM NoteTags');
+//        tx.executeSql('DELETE FROM Notes');
+//        tx.executeSql('DELETE FROM Tags');
+//        tx.executeSql('DELETE FROM NoteTags');
 
         // Add all notes from Data.notes
-        for (var i = 0; i < Data.notes.length; i++) {
-            var note = Data.notes[i];
-            var noteId = addNoteInternal(tx, note.pinned, note.title, note.content);
-            for (var j = 0; j < note.tags.length; j++) {
-                addTagToNoteInternal(tx, noteId, note.tags[j]);
+        // Make sure 'Data' object is defined if you use this
+        if (typeof Data !== 'undefined' && Data.notes) {
+            for (var i = 0; i < Data.notes.length; i++) {
+                var note = Data.notes[i];
+                var noteId = addNoteInternal(tx, note.pinned, note.title, note.content);
+                for (var j = 0; j < note.tags.length; j++) {
+                    addTagToNoteInternal(tx, noteId, note.tags[j]);
+                }
             }
+        } else {
+            console.warn("Data.notes not found for insertTestData.");
         }
     });
 }

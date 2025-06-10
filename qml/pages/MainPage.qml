@@ -115,12 +115,11 @@ Page {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
-                            var title = "New Note"
-                            var content = "This is a new note."
-                            var tags = ["new"] // Optional: default tag
-                            DB.addNote(false, title, content, tags)
-                            refreshData()
-                            console.log("New note added:", title)
+                            pageStack.push(Qt.resolvedUrl("NewNotePage.qml"), {
+                                // Pass a callback function to refresh the main page's data
+                                onNoteSavedOrDeleted: refreshData
+                            });
+                            console.log("Opening NewNotePage");
                         }
                         onPressed: plusRipple.ripple(mouseX, mouseY)
                     }

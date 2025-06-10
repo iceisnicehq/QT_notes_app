@@ -42,12 +42,12 @@
 <context>
     <name>MainPage</name>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="172"/>
+        <location filename="../qml/pages/MainPage.qml" line="171"/>
         <source>Pinned</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="209"/>
+        <location filename="../qml/pages/MainPage.qml" line="208"/>
         <source>Others</source>
         <translation type="unfinished"></translation>
     </message>

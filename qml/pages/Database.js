@@ -4,9 +4,15 @@
 var notes = [
             {
                 "pinned": true,
-                "title": "Shopping List",
+                "title": "Shoppsing List",
                 "content": "Milk\nEggs\nBread\nButter\nCheeseasd123asd123asd123asd123asd123asd123\nApples\nBananas\nOrange Juice\nChicken\nRice",
                 "tags": ["#Work", "#shoppingssssssssssssss1312123123123123213123123213123324234", "#shopping2", "#home", "#home123"]
+            },
+            {
+                "pinned": true,
+                "title": "sList",
+                "content": "Milk\nEggs\nBread\nButter\nCheeseasd123asd123asd123asd123asd123asd123\nApples\nBananas\nOrange Juice\nChicken\nRice",
+                "tags": []
             },
             {
                 "pinned": true,
