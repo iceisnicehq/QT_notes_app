@@ -78,12 +78,16 @@ Item {
                     IconButton {
                         id: closeButton
                         icon.source: "../icons/close.svg"
+                        width: Theme.fontSizeExtraLarge * 1.1
+                        height: Theme.fontSizeExtraLarge * 1.1
                         anchors {
                             right: parent.right
                             rightMargin: Theme.paddingLarge
                             verticalCenter: parent.verticalCenter
                         }
-                        onClicked: sidePanel.open = false
+                        onClicked: {
+                            mainPage.panelOpen = false
+                        }
                     }
                 }
 
@@ -182,7 +186,7 @@ Item {
 
                     // Add Tag Button
                     NavigationButton {
-                        icon: "../icons/add.svg"
+                        icon: "../icons/plus.svg"
                         text: "Add Tag"
                         onClicked: {
                             pageStack.push(Qt.resolvedUrl("TagEditPage.qml"))
@@ -241,7 +245,7 @@ Item {
                         onClicked: {
                             sidePanel.currentPage = "about"
                             pageStack.push(Qt.resolvedUrl("AboutPage.qml"))
-                            sidePanel.open = false
+                            mainPage.panelOpen = false
                         }
                     }
                 }

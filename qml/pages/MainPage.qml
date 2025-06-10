@@ -1,7 +1,8 @@
 // MainPage.qml
+import QtQuick.LocalStorage 2.0
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import QtQuick.LocalStorage 2.0
+import "Database.js" as Data          // <-- здесь будет доступен массив Data.notes
 import "DatabaseManager.js" as DB
 
 Page {
@@ -20,7 +21,9 @@ Page {
     property var allTags: []
 
     Component.onCompleted: {
-        refreshData();
+        DB.initDatabase()
+        DB.insertTestData()  // ← Adds test data
+        refreshData()
     }
     function refreshData() {
         allNotes = DB.getAllNotes();
@@ -111,7 +114,14 @@ Page {
 
                     MouseArea {
                         anchors.fill: parent
-                        onClicked: console.log("Plus button clicked")
+                        onClicked: {
+                            var title = "New Note"
+                            var content = "This is a new note."
+                            var tags = ["new"] // Optional: default tag
+                            DB.addNote(false, title, content, tags)
+                            refreshData()
+                            console.log("New note added:", title)
+                        }
                         onPressed: plusRipple.ripple(mouseX, mouseY)
                     }
                 }
