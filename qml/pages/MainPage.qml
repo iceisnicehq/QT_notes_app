@@ -128,13 +128,15 @@ Page {
                     anchors.fill: parent
                     onClicked: {
                         // --- CREATE NOTE: Push NewNotePage without pre-filling data ---
-                        pageStack.push(Qt.resolvedUrl("NewNotePage.qml"), {
+                        pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
                             onNoteSavedOrDeleted: refreshData,
                             noteId: -1, // Explicitly pass -1 for new notes
                             noteTitle: "",
                             noteContent: "",
                             noteIsPinned: false,
-                            noteTags: []
+                            noteTags: [],
+                            noteCreationDate: new Date(), // New notes start with current date
+                            noteEditDate: new Date()      // New notes start with current date
                         });
                         console.log("Opening NewNotePage in CREATE mode.");
                     }
@@ -215,13 +217,15 @@ Page {
                         MouseArea {
                             anchors.fill: parent
                             onClicked: {
-                                pageStack.push(Qt.resolvedUrl("NewNotePage.qml"), {
+                                pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
                                     onNoteSavedOrDeleted: refreshData,
                                     noteId: modelData.id,        // Pass existing ID
                                     noteTitle: modelData.title,  // Pass existing title
                                     noteContent: modelData.content, // Pass existing content
                                     noteIsPinned: modelData.pinned, // Pass existing pinned status
-                                    noteTags: modelData.tags     // Pass existing tags
+                                    noteTags: modelData.tags,     // Pass existing tags
+                                    noteCreationDate: new Date(modelData.created_at + "Z"), // Pass existing creation date
+                                    noteEditDate: new Date(modelData.updated_at + "Z")
                                 });
                                 console.log("Opening NewNotePage in EDIT mode for ID:", modelData.id);
                             }
@@ -269,13 +273,15 @@ Page {
                         MouseArea {
                             anchors.fill: parent
                             onClicked: {
-                                pageStack.push(Qt.resolvedUrl("NewNotePage.qml"), {
+                                pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
                                     onNoteSavedOrDeleted: refreshData,
                                     noteId: modelData.id,        // Pass existing ID
                                     noteTitle: modelData.title,  // Pass existing title
                                     noteContent: modelData.content, // Pass existing content
                                     noteIsPinned: modelData.pinned, // Pass existing pinned status
-                                    noteTags: modelData.tags     // Pass existing tags
+                                    noteTags: modelData.tags,     // Pass existing tags
+                                    noteCreationDate: new Date(modelData.created_at + "Z"), // Pass existing creation date
+                                    noteEditDate: new Date(modelData.updated_at + "Z")      // Pass existing edit date
                                 });
                                 console.log("Opening NewNotePage in EDIT mode for ID:", modelData.id);
                             }

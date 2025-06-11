@@ -70,26 +70,41 @@ Item {
                     Label {
                         text: "Aurora Notes"
                         color: "#e2e3e8"
-                        font.pixelSize: Theme.fontSizeLarge
+                        font.pixelSize: Theme.fontSizeExtraLarge
+                        font.bold: true
                         anchors {
                             left: parent.left
                             leftMargin: Theme.paddingLarge
                             verticalCenter: parent.verticalCenter
                         }
                     }
-
-                    IconButton {
-                        id: closeButton
-                        icon.source: "../icons/close.svg"
+                    Item {
                         width: Theme.fontSizeExtraLarge * 1.1
                         height: Theme.fontSizeExtraLarge * 1.1
+                        clip: false  // Important: do not clip!
                         anchors {
                             right: parent.right
                             rightMargin: Theme.paddingLarge
                             verticalCenter: parent.verticalCenter
                         }
-                        onClicked: {
-                            mainPage.panelOpen = false
+                        RippleEffect {
+                            id: closeRipple
+                        }
+                        Icon {
+                            id: pinIconButton
+                            source: "../icons/close.svg"
+                            anchors.centerIn: parent
+                            width: parent.width
+                            height: parent.height
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onPressed: closeRipple.ripple(mouseX, mouseY)
+                            onClicked: {
+                                mainPage.panelOpen = false
+                            }
+
                         }
                     }
                 }
@@ -129,88 +144,6 @@ Item {
                             mainPage.panelOpen = false
                         }
                     }
-                }
-
-                // Delimiter
-                Rectangle {
-                    width: parent.width - Theme.paddingLarge * 2
-                    height: 1
-                    color: "#2a2b38"
-                    anchors.horizontalCenter: parent.horizontalCenter
-                }
-
-                // Tags Section
-                Column {
-                    width: parent.width
-                    spacing: Theme.paddingSmall
-
-                    Item {
-                        width: parent.width
-                        height: Theme.itemSizeSmall
-
-                        SectionHeader {
-                            text: "Tags"
-                            font.pixelSize: Theme.fontSizeSmall
-                            color: "#a0a1ab"
-                            anchors.left: parent.left
-                            anchors.leftMargin: Theme.paddingLarge
-                            horizontalAlignment: Text.AlignLeft
-                        }
-
-                        IconButton {
-                            id: editButton
-                            icon.source: "../icons/edit.svg"
-                            anchors {
-                                right: parent.right
-                                rightMargin: Theme.paddingLarge
-                                verticalCenter: parent.verticalCenter
-                            }
-                            onClicked: {
-                                pageStack.push(Qt.resolvedUrl("TagEditPage.qml"))
-                                mainPage.panelOpen = false
-                            }
-                        }
-                    }
-
-                    // Tags List
-                    Repeater {
-                        model: tags
-                        delegate: NavigationButton {
-                            icon: "../icons/tag.svg"
-                            text: modelData
-                            maxTextWidth: panelContent.width - 100
-                            onClicked: {
-                                console.log("Tag selected:", modelData)
-                                mainPage.panelOpen = false
-                                // pageStack.push(Qt.resolvedUrl("TagNotesPage.qml"), {tag: modelData})
-                            }
-                        }
-                    }
-
-                    // Add Tag Button
-                    NavigationButton {
-                        icon: "../icons/plus.svg"
-                        text: "Add Tag"
-                        onClicked: {
-                            pageStack.push(Qt.resolvedUrl("TagEditPage.qml"))
-                            mainPage.panelOpen = false
-                        }
-                    }
-                }
-
-                // Delimiter
-                Rectangle {
-                    width: parent.width - Theme.paddingLarge * 2
-                    height: 1
-                    color: "#2a2b38"
-                    anchors.horizontalCenter: parent.horizontalCenter
-                }
-
-                // Other Navigation
-                Column {
-                    width: parent.width
-                    spacing: Theme.paddingSmall
-
                     NavigationButton {
                         icon: "../icons/archive.svg"
                         text: "Archive"
@@ -248,6 +181,94 @@ Item {
                         onClicked: {
                             sidePanel.currentPage = "about"
                             pageStack.push(Qt.resolvedUrl("AboutPage.qml"))
+                            mainPage.panelOpen = false
+                        }
+                    }
+                }
+
+//                Column {
+//                    width: parent.width
+//                    spacing: Theme.paddingSmall
+
+//                }
+                // Delimiter
+                Rectangle {
+                    width: parent.width - Theme.paddingLarge * 2
+                    height: 1
+                    color: "#2a2b38"
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+
+                // Tags Section
+                Column {
+                    width: parent.width
+                    spacing: Theme.paddingSmall
+
+                    Item {
+                        width: parent.width
+                        height: Theme.itemSizeSmall
+
+                        SectionHeader {
+                            text: "Tags"
+                            font.pixelSize: Theme.fontSizeSmall
+                            color: "#a0a1ab"
+                            anchors.left: parent.left
+                            anchors.leftMargin: Theme.paddingLarge
+                            horizontalAlignment: Text.AlignLeft
+                        }
+                        Item {
+                            width: Theme.fontSizeMedium * 1.1
+                            height: Theme.fontSizeMedium * 1.1
+                            clip: false  // Important: do not clip!
+                            anchors {
+                                right: parent.right
+                                rightMargin: Theme.paddingLarge
+                                verticalCenter: parent.verticalCenter
+                            }
+                            RippleEffect {
+                                id: editRipple
+                            }
+                            Icon {
+                                id: editButton
+                                source: "../icons/edit.svg"
+                                anchors.centerIn: parent
+                                width: parent.width
+                                height: parent.height
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                onPressed: editRipple.ripple(mouseX, mouseY)
+                                onClicked: {
+                                    pageStack.push(Qt.resolvedUrl("TagEditPage.qml"))
+                                    mainPage.panelOpen = false
+                                }
+
+                            }
+                        }
+                    }
+
+                    // Tags List
+                    Repeater {
+                        model: tags
+                        delegate: NavigationButton {
+                            icon: "../icons/tag.svg"
+                            text: modelData
+                            maxTextWidth: panelContent.width - 100
+                            onClicked: {
+                                console.log("Tag selected:", modelData)
+                                mainPage.panelOpen = false
+                                // pageStack.push(Qt.resolvedUrl("TagNotesPage.qml"), {tag: modelData})
+                            }
+                        }
+                    }
+
+                    // Add Tag Button
+                    NavigationButton {
+                        icon: "../icons/plus.svg"
+                        text: "Add Tag"
+                        onClicked: {
+                            pageStack.push(Qt.resolvedUrl("TagEditPage.qml"))
                             mainPage.panelOpen = false
                         }
                     }
