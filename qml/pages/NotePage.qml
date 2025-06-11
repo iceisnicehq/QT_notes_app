@@ -82,7 +82,7 @@ Page {
 
          Column {
              anchors.centerIn: parent
-             spacing: Theme.paddingExtraSmall
+             //spacing: Theme.paddingExtraSmall
 
              Label {
                  text: newNotePage.noteId === -1 ? "New Note" : "Edit Note"
@@ -279,55 +279,184 @@ Page {
     Rectangle {
         id: bottomToolbar
         width: parent.width
-        height: Theme.itemSizeSmall // Made toolbar thinner (Theme.itemSizeSmall is usually smaller than ExtraLarge)
+        height: Theme.itemSizeSmall // Made toolbar thinner
         anchors.bottom: parent.bottom
         color: "#1c261d" // Semi-transparent for overlay effect
         z: 10 // Ensure it's above the main flickable and other content
 
+        // Left group: Palette and Text Edit
         Row {
-            width: parent.width
-            height: parent.height
-            spacing: Theme.paddingMedium // Space between buttons
+            id: leftToolbarButtons
+            anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter
-            anchors.left: parent.left; anchors.leftMargin: Theme.paddingLarge
-            anchors.right: parent.right; anchors.rightMargin: Theme.paddingLarge
+            anchors.leftMargin: Theme.paddingLarge // Matches your search bar's left padding
+            spacing: Theme.paddingMedium
 
-            // Left group: Palette and Text Edit
-            IconButton { icon.source: "../icons/palette.svg"; onClicked: console.log("Change color/theme"); }
-            IconButton { icon.source: "../icons/text_edit.svg"; onClicked: console.log("Text Edit Options"); }
-
-            // Spacer to push middle buttons to center
-//            Item {
-//                Layout.fillWidth: true
-//            }
-
-            // Middle group: Undo and Redo
-            IconButton { icon.source: "../icons/undo.svg"; onClicked: console.log("Undo"); }
-            IconButton { icon.source: "../icons/redo.svg"; onClicked: console.log("Redo"); }
-
-            // Spacer to push right buttons to right
-//            Item {
-//                Layout.fillWidth: true
-//            }
-
-            // Right group: Archive and Delete
-            IconButton { icon.source: "../icons/archive.svg"; onClicked: {
-                console.log("Archive Note");
-                // Implement archive logic here if needed
-                // For now, let's just pop the page as if it were saved/archived
-                pageStack.pop();
-            }}
-            IconButton { icon.source: "../icons/delete.svg"; onClicked: {
-                console.log("Delete Note");
-                if (newNotePage.noteId !== -1) {
-                    DB.deleteNote(newNotePage.noteId);
-                    console.log("Note deleted with ID:", newNotePage.noteId);
-                    if (onNoteSavedOrDeleted) {
-                        onNoteSavedOrDeleted();
+            // Palette Button
+            Item {
+                width: Theme.fontSizeExtraLarge * 1.1
+                height: Theme.fontSizeExtraLarge * 1.1
+                clip: false
+                RippleEffect { id: paletteRipple }
+                Icon {
+                    id: paletteIcon
+                    source: "../icons/palette.svg"
+                    anchors.centerIn: parent
+                    width: parent.width
+                    height: parent.height
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    onPressed: paletteRipple.ripple(mouseX, mouseY)
+                    onClicked: {
+                        console.log("Change color/theme");
+                        toastManager.show("Change color/theme clicked!");
                     }
                 }
-                pageStack.pop(); // Pop the page after deletion
-            }}
+            }
+
+            // Text Edit Button
+            Item {
+                width: Theme.fontSizeExtraLarge * 1.1
+                height: Theme.fontSizeExtraLarge * 1.1
+                clip: false
+                RippleEffect { id: textEditRipple }
+                Icon {
+                    id: textEditIcon
+                    source: "../icons/text_edit.svg"
+                    anchors.centerIn: parent
+                    width: parent.width
+                    height: parent.height
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    onPressed: textEditRipple.ripple(mouseX, mouseY)
+                    onClicked: {
+                        console.log("Text Edit Options");
+                        toastManager.show("Text edit options clicked!");
+                    }
+                }
+            }
+        }
+
+        // Middle group: Undo and Redo
+        Row {
+            id: middleToolbarButtons
+            anchors.centerIn: parent // Center this row horizontally and vertically
+            spacing: Theme.paddingMedium
+
+            // Undo Button
+            Item {
+                width: Theme.fontSizeExtraLarge * 1.1
+                height: Theme.fontSizeExtraLarge * 1.1
+                clip: false
+                RippleEffect { id: undoRipple }
+                Icon {
+                    id: undoIcon
+                    source: "../icons/undo.svg"
+                    anchors.centerIn: parent
+                    width: parent.width
+                    height: parent.height
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    onPressed: undoRipple.ripple(mouseX, mouseY)
+                    onClicked: {
+                        console.log("Undo");
+                        toastManager.show("Undo action triggered!");
+                    }
+                }
+            }
+
+            // Redo Button
+            Item {
+                width: Theme.fontSizeExtraLarge * 1.1
+                height: Theme.fontSizeExtraLarge * 1.1
+                clip: false
+                RippleEffect { id: redoRipple }
+                Icon {
+                    id: redoIcon
+                    source: "../icons/redo.svg"
+                    anchors.centerIn: parent
+                    width: parent.width
+                    height: parent.height
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    onPressed: redoRipple.ripple(mouseX, mouseY)
+                    onClicked: {
+                        console.log("Redo");
+                        toastManager.show("Redo action triggered!");
+                    }
+                }
+            }
+        }
+
+
+        // Right group: Archive and Delete
+        Row {
+            id: rightToolbarButtons
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.rightMargin: Theme.paddingLarge // Matches your search bar's right padding
+            spacing: Theme.paddingMedium
+
+            // Archive Button
+            Item {
+                width: Theme.fontSizeExtraLarge * 1.1
+                height: Theme.fontSizeExtraLarge * 1.1
+                clip: false
+                RippleEffect { id: archiveRipple }
+                Icon {
+                    id: archiveIcon
+                    source: "../icons/archive.svg"
+                    anchors.centerIn: parent
+                    width: parent.width
+                    height: parent.height
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    onPressed: archiveRipple.ripple(mouseX, mouseY)
+                    onClicked: {
+                        console.log("Archive Note");
+                        toastManager.show("Note archived!");
+                        // Implement archive logic here if needed
+                        pageStack.pop();
+                    }
+                }
+            }
+
+            // Delete Button
+            Item {
+                width: Theme.fontSizeExtraLarge * 1.1
+                height: Theme.fontSizeExtraLarge * 1.1
+                clip: false
+                RippleEffect { id: deleteRipple }
+                Icon {
+                    id: deleteIcon
+                    source: "../icons/delete.svg"
+                    anchors.centerIn: parent
+                    width: parent.width
+                    height: parent.height
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    onPressed: deleteRipple.ripple(mouseX, mouseY)
+                    onClicked: {
+                        console.log("Delete Note");
+                        toastManager.show("Note deleted!");
+
+                        if (newNotePage.noteId !== -1) {
+                            DB.deleteNote(newNotePage.noteId);
+                            console.log("Note deleted with ID:", newNotePage.noteId);
+                            if (onNoteSavedOrDeleted) {
+                                onNoteSavedOrDeleted();
+                            }
+                        }
+                        pageStack.pop(); // Pop the page after deletion
+                    }
+                }
+            }
         }
     }
     ScrollBar {
