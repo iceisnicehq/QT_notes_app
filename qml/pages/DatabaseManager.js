@@ -174,3 +174,76 @@ function insertTestData() {
         }
     });
 }
+
+function getAllTagsWithCounts() {
+    initDatabase();
+    var tagsWithCounts = [];
+    db.readTransaction(function(tx) {
+        var result = tx.executeSql(
+            'SELECT t.name, COUNT(nt.note_id) as count ' +
+            'FROM Tags t ' +
+            'LEFT JOIN NoteTags nt ON t.id = nt.tag_id ' +
+            'GROUP BY t.name ' +
+            'ORDER BY t.name ASC' // Default sort, will be re-sorted in QML by count
+        );
+        for (var i = 0; i < result.rows.length; i++) {
+            tagsWithCounts.push({
+                name: result.rows.item(i).name,
+                count: result.rows.item(i).count
+            });
+        }
+    });
+    return tagsWithCounts;
+}
+
+// Function to add a new tag
+function addTag(tagName) {
+    initDatabase();
+    var tagId = -1;
+    db.transaction(function(tx) {
+        var result = tx.executeSql('SELECT id FROM Tags WHERE name = ?', [tagName]);
+        if (result.rows.length === 0) {
+            tx.executeSql('INSERT INTO Tags (name) VALUES (?)', [tagName]);
+            var newTag = tx.executeSql('SELECT last_insert_rowid() as id');
+            tagId = newTag.rows.item(0).id;
+            console.log("Tag '" + tagName + "' added with ID:", tagId);
+        } else {
+            console.log("Tag '" + tagName + "' already exists.");
+            tagId = result.rows.item(0).id;
+        }
+    });
+    return tagId;
+}
+
+// Function to update a tag name
+function updateTagName(oldName, newName) {
+    initDatabase();
+    db.transaction(function(tx) {
+        // First get the ID of the tag to be updated
+        var oldTagResult = tx.executeSql('SELECT id FROM Tags WHERE name = ?', [oldName]);
+        if (oldTagResult.rows.length > 0) {
+            var tagId = oldTagResult.rows.item(0).id;
+            tx.executeSql('UPDATE Tags SET name = ? WHERE id = ?', [newName, tagId]);
+            console.log("Tag '" + oldName + "' updated to '" + newName + "'");
+        } else {
+            console.warn("Attempted to update non-existent tag:", oldName);
+        }
+    });
+}
+
+// Function to delete a tag (and related NoteTags entries due to CASCADE)
+function deleteTag(tagName) {
+    initDatabase();
+    db.transaction(function(tx) {
+        // Get tag ID
+        var tagResult = tx.executeSql('SELECT id FROM Tags WHERE name = ?', [tagName]);
+        if (tagResult.rows.length > 0) {
+            var tagId = tagResult.rows.item(0).id;
+            tx.executeSql('DELETE FROM Tags WHERE id = ?', [tagId]);
+            console.log("Tag '" + tagName + "' deleted.");
+        } else {
+            console.warn("Attempted to delete non-existent tag:", tagName);
+        }
+    });
+}
+

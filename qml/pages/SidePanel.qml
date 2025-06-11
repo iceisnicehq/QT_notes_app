@@ -240,14 +240,27 @@ Item {
                                 anchors.fill: parent
                                 onPressed: editRipple.ripple(mouseX, mouseY)
                                 onClicked: {
-                                    pageStack.push(Qt.resolvedUrl("TagEditPage.qml"))
+                                    pageStack.push(Qt.resolvedUrl("TagEditPage.qml"), {
+                                        onTagsChanged: mainPage.refreshData // Pass callback to refresh main page data
+                                    })
                                     mainPage.panelOpen = false
                                 }
 
                             }
                         }
                     }
-
+                    // Add Tag Button
+                    NavigationButton {
+                        icon: "../icons/plus.svg"
+                        text: "Add Tag"
+                        onClicked: {
+                            pageStack.push(Qt.resolvedUrl("TagEditPage.qml"), {
+                                onTagsChanged: mainPage.refreshData, // Pass callback
+                                creatingNewTag: true // Optionally start directly in new tag creation mode
+                            })
+                            mainPage.panelOpen = false
+                        }
+                    }
                     // Tags List
                     Repeater {
                         model: tags
@@ -263,15 +276,6 @@ Item {
                         }
                     }
 
-                    // Add Tag Button
-                    NavigationButton {
-                        icon: "../icons/plus.svg"
-                        text: "Add Tag"
-                        onClicked: {
-                            pageStack.push(Qt.resolvedUrl("TagEditPage.qml"))
-                            mainPage.panelOpen = false
-                        }
-                    }
                 }
             }
         }
