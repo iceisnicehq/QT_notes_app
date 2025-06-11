@@ -36,7 +36,7 @@ Item {
                 // --- MODIFIED: Logic to handle empty/null title ---
                 // 1. Display "no name" if root.title is empty, null, or just whitespace.
                 // 2. Set font to italic if the title is considered empty.
-                text: (root.title && root.title.trim()) ? root.title : "No Name"
+                text: (root.title && root.title.trim()) ? root.title : "Empty"
                 font.italic: !(root.title && root.title.trim())
 
                 // --- ADDED: Ensure title text is not parsed as HTML ---
@@ -57,8 +57,8 @@ Item {
             Text {
                 id: contentText
                 // --- MODIFIED: Bind to the new root.content property ---
-                text: root.content
-
+                text: (root.content && root.content.trim()) ? root.content : "Empty"
+                font.italic: !(root.content && root.content.trim())
                 // --- ADDED: This is the key change to fix the HTML issue ---
                 // It forces the text to be rendered literally, ignoring tags like <b>.
                 textFormat: Text.PlainText
@@ -102,6 +102,7 @@ Item {
                             verticalAlignment: Text.AlignVCenter
                             width: parent.width - Theme.paddingMedium
                             wrapMode: Text.NoWrap
+                            textFormat: Text.PlainText
                         }
                     }
                 }

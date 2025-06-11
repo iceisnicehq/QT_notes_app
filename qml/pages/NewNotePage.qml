@@ -96,7 +96,7 @@ Page {
              }
              Icon {
                  id: closeButton
-                 source: "../icons/back.svg"
+                 source: newNotePage.noteId === -1 ?  "../icons/check.svg" :  "../icons/back.svg"
                  anchors.centerIn: parent
                  width: parent.width
                  height: parent.height
@@ -221,6 +221,7 @@ Page {
                             elide: Text.ElideRight
                             width: parent.width - Theme.paddingMedium
                             wrapMode: Text.NoWrap
+                            textFormat: Text.PlainText
                         }
 
                         MouseArea {

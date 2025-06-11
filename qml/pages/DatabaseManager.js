@@ -15,7 +15,7 @@ function initDatabase() {
                 'id INTEGER PRIMARY KEY AUTOINCREMENT, ' +
                 'pinned BOOLEAN NOT NULL DEFAULT 0, ' +
                 'title TEXT, ' +
-                'content TEXT NOT NULL, ' +
+                'content TEXT, ' +
                 'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, ' +
                 'updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP' +
                 ')'
@@ -73,7 +73,7 @@ function getAllNotes() {
     initDatabase();
     var notes = [];
     db.readTransaction(function(tx) {
-        var result = tx.executeSql('SELECT * FROM Notes ORDER BY created_at DESC');
+        var result = tx.executeSql('SELECT * FROM Notes ORDER BY updated_at DESC');
         for (var i = 0; i < result.rows.length; i++) {
             var note = result.rows.item(i);
             note.tags = getTagsForNote(tx, note.id);
