@@ -20,16 +20,16 @@ Page {
     property var allNotes: []
     property var allTags: []
 
-    ToastManager {
-        id: toastManager // The ToastManager now lives directly within MainPage
-    }
+//    ToastManager {
+//        id: toastManager // The ToastManager now lives directly within MainPage
+//    }
 //    Timer {
 //        interval: 1000
 //        repeat: true
 //        running: true
 //        property int i: 0
 //        onTriggered: {
-//            toast.show("This timer has triggered " + (++i) + " times!");
+//            toastManager.show("This timer has triggered " + (++i) + " times!");
 //        }
 //    }
     Component.onCompleted: {
@@ -79,68 +79,68 @@ Page {
                     console.log("Searching for:", text)
                 }
                 // Left menu button
-                leftItem: Item {
-                    width: Theme.fontSizeExtraLarge * 1.1
-                    height: Theme.fontSizeExtraLarge * 0.95
-                    clip: false  // Important: do not clip!
+            leftItem: Item {
+                width: Theme.fontSizeExtraLarge * 1.1
+                height: Theme.fontSizeExtraLarge * 0.95
+                clip: false  // Important: do not clip!
 
-                    Icon {
-                        id: menuIcon
-                        source: "../icons/menu.svg"
-                        anchors.centerIn: parent
-                        width: parent.width
-                        height: parent.height
-                    }
-
-                    RippleEffect {
-                        id: menuRipple
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: {
-                            mainPage.panelOpen = true
-                            console.log("Menu button clicked → panelOpen = true")
-                        }
-                        onPressed: menuRipple.ripple(mouseX, mouseY)
-                    }
+                Icon {
+                    id: menuIcon
+                    source: "../icons/menu.svg"
+                    anchors.centerIn: parent
+                    width: parent.width
+                    height: parent.height
                 }
 
-                // Right plus button
-                rightItem: Item {
-                    width: Theme.fontSizeExtraLarge * 1.1
-                    height: Theme.fontSizeExtraLarge * 1.1
-                    clip: false  // Important: do not clip!
-
-                    Icon {
-                        id: plusIcon
-                        source: "../icons/plus.svg"
-                        anchors.centerIn: parent
-                        width: parent.width
-                        height: parent.height
-                    }
-
-                    RippleEffect {
-                        id: plusRipple
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: {
-                            // --- CREATE NOTE: Push NewNotePage without pre-filling data ---
-                            pageStack.push(Qt.resolvedUrl("NewNotePage.qml"), {
-                                onNoteSavedOrDeleted: refreshData,
-                                noteId: -1, // Explicitly pass -1 for new notes
-                                noteTitle: "",
-                                noteContent: "",
-                                noteIsPinned: false,
-                                noteTags: []
-                            });
-                            console.log("Opening NewNotePage in CREATE mode.");
-                        }
-                        onPressed: plusRipple.ripple(mouseX, mouseY)
-                    }
+                RippleEffect {
+                    id: menuRipple
                 }
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        mainPage.panelOpen = true
+                        console.log("Menu button clicked → panelOpen = true")
+                    }
+                    onPressed: menuRipple.ripple(mouseX, mouseY)
+                }
+            }
+
+            // Right plus button
+            rightItem: Item {
+                width: Theme.fontSizeExtraLarge * 1.1
+                height: Theme.fontSizeExtraLarge * 1.1
+                clip: false  // Important: do not clip!
+
+                Icon {
+                    id: plusIcon
+                    source: "../icons/plus.svg"
+                    anchors.centerIn: parent
+                    width: parent.width
+                    height: parent.height
+                }
+
+                RippleEffect {
+                    id: plusRipple
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        // --- CREATE NOTE: Push NewNotePage without pre-filling data ---
+                        pageStack.push(Qt.resolvedUrl("NewNotePage.qml"), {
+                            onNoteSavedOrDeleted: refreshData,
+                            noteId: -1, // Explicitly pass -1 for new notes
+                            noteTitle: "",
+                            noteContent: "",
+                            noteIsPinned: false,
+                            noteTags: []
+                        });
+                        console.log("Opening NewNotePage in CREATE mode.");
+                    }
+                    onPressed: plusRipple.ripple(mouseX, mouseY)
+                }
+            }
             }
         }
     }

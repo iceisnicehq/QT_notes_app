@@ -6,8 +6,11 @@ Item {
     id: root
     width: parent ? parent.width : 360
     height: cardColumn.implicitHeight + Theme.paddingLarge * 2 + 20 // Adjusted bottom margin
-    property alias title: titleText.text
-    property alias content: contentText.text
+
+    // --- MODIFIED: Changed from 'alias' to 'property' ---
+    // Using a real property allows us to add logic before displaying the text.
+    property string title: ""
+    property string content: ""
     property var tags: [] // This property receives a string like "tag1 tag2" or ""
 
     Rectangle {
@@ -30,11 +33,20 @@ Item {
             // Title
             Text {
                 id: titleText
-                text: ""
+                // --- MODIFIED: Logic to handle empty/null title ---
+                // 1. Display "no name" if root.title is empty, null, or just whitespace.
+                // 2. Set font to italic if the title is considered empty.
+                text: (root.title && root.title.trim()) ? root.title : "No Name"
+                font.italic: !(root.title && root.title.trim())
+
+                // --- ADDED: Ensure title text is not parsed as HTML ---
+                textFormat: Text.PlainText
+
                 color: "#e8eaed"
                 font.pixelSize: Theme.fontSizeLarge
                 font.bold: true
-                wrapMode: Text.WordWrap
+                wrapMode: Text.Wrap
+                width: parent.width
             }
             Rectangle {
                 width: parent.width
@@ -44,7 +56,13 @@ Item {
             // Content (max 5 lines with ellipsis)
             Text {
                 id: contentText
-                text: ""
+                // --- MODIFIED: Bind to the new root.content property ---
+                text: root.content
+
+                // --- ADDED: This is the key change to fix the HTML issue ---
+                // It forces the text to be rendered literally, ignoring tags like <b>.
+                textFormat: Text.PlainText
+
                 wrapMode: Text.WordWrap
                 maximumLineCount: 5
                 elide: Text.ElideRight
@@ -62,14 +80,12 @@ Item {
                 id: tagsFlow
                 width: parent.width
                 spacing: Theme.paddingSmall
-                // --- ADDED: Make the entire Flow invisible if tags string is empty ---
-                visible: tags.trim().length > 0 // Checks if the trimmed tags string has content
+                visible: tags.trim().length > 0
 
                 Repeater {
-                    // Split the tags string into an array for the model
                     model: tags.split(" ")
                     delegate: Rectangle {
-                        visible: index < 2 // Only show the first two tags
+                        visible: index < 2
                         color: "#32353a"
                         radius: 12
                         height: tagText.implicitHeight + Theme.paddingSmall
@@ -90,9 +106,7 @@ Item {
                     }
                 }
 
-                // "+N" indicator for remaining tags
                 Rectangle {
-                    // This will only be visible if the tags string (split into array) has more than 2 elements
                     visible: tags.split(" ").length > 2
                     color: "#32353a"
                     radius: 12

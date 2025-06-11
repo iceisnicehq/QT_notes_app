@@ -5,7 +5,7 @@ var notes = [
             {
                 "pinned": true,
                 "title": "Shoppsing List",
-                "content": "Milk\nEggs\nBread\nButter\nCheeseasd123asd123asd123asd123asd123asd123\nApples\nBananas\nOrange Juice\nChicken\nRice",
+                "content": "Milk\nEggs\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nButter\nCheeseasd123asd123asd123asd123asd123asd123\nApples\nBananas\nOrange Juice\nChicken\nRice",
                 "tags": ["#Work", "#shoppingssssssssssssss1312123123123123213123123213123324234", "#shopping2", "#home", "#home123"]
             },
             {

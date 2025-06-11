@@ -14,7 +14,7 @@ function initDatabase() {
                 'CREATE TABLE IF NOT EXISTS Notes (' +
                 'id INTEGER PRIMARY KEY AUTOINCREMENT, ' +
                 'pinned BOOLEAN NOT NULL DEFAULT 0, ' +
-                'title TEXT NOT NULL, ' +
+                'title TEXT, ' +
                 'content TEXT NOT NULL, ' +
                 'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, ' +
                 'updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP' +
