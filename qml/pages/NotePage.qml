@@ -160,6 +160,7 @@ Page {
         color: newNotePage.noteColor // <-- ИЗМЕНЕНО: теперь цвет хедера привязан к noteColor
         anchors.top: parent.top
         z: 2
+
         Column {
             anchors.centerIn: parent
             Label {
@@ -332,8 +333,7 @@ Page {
         width: parent.width
         height: Theme.itemSizeSmall
         anchors.bottom: parent.bottom
-        color: "#1c261d"
-        z: 10
+        color: newNotePage.noteColor
 
         Row {
             id: leftToolbarButtons
