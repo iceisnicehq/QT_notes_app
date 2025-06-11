@@ -17,6 +17,7 @@ Page {
     property date noteCreationDate: new Date()
     property date noteEditDate: new Date()
     property string noteColor: "#121218"
+    property bool noteModified: false // New property to track if content was changed
 
     readonly property var colorPalette: [
         "#121218", // Dark Grey (default)
@@ -41,10 +42,12 @@ Page {
             noteContentInput.text = noteContent;
             console.log("NewNotePage opened in EDIT mode for ID:", noteId);
             console.log("Note color on open:", noteColor);
+            noteModified = false; // Reset modification flag when opening existing note
         } else {
             noteContentInput.forceActiveFocus();
             Qt.inputMethod.show();
             console.log("NewNotePage opened in CREATE mode. Default color:", noteColor);
+            noteModified = true; // New notes are considered modified from the start for saving
         }
     }
 
@@ -55,24 +58,34 @@ Page {
         var trimmedContent = noteContentInput.text.trim(); // Use current input text
 
         if (trimmedTitle === "" && trimmedContent === "") {
+            // Note is empty
             if (noteId !== -1) {
+                // It's an existing note that became empty, so delete it
                 DB.deleteNote(noteId);
                 console.log("Debug: Empty existing note deleted with ID:", noteId);
             } else {
+                // It's a new empty note, so do nothing (don't save)
                 console.log("Debug: New empty note not saved.");
             }
         } else {
-            // Update the note properties before saving
-            newNotePage.noteTitle = noteTitleInput.text;
-            newNotePage.noteContent = noteContentInput.text;
-            newNotePage.noteEditDate = new Date(); // Update edit date on destruction
-
+            // Note has content
             if (noteId === -1) {
+                // It's a new note with content, always add it
+                newNotePage.noteTitle = noteTitleInput.text;
+                newNotePage.noteContent = noteContentInput.text;
                 var newId = DB.addNote(noteIsPinned, newNotePage.noteTitle, newNotePage.noteContent, noteTags, noteColor);
                 console.log("Debug: New note added with ID:", newId + ", Color: " + noteColor);
             } else {
-                DB.updateNote(noteId, noteIsPinned, newNotePage.noteTitle, newNotePage.noteContent, noteTags, noteColor);
-                console.log("Debug: Note updated with ID:", noteId + ", Color: " + noteColor);
+                // It's an existing note with content, only update if modified
+                if (noteModified) {
+                    newNotePage.noteTitle = noteTitleInput.text;
+                    newNotePage.noteContent = noteContentInput.text;
+                    newNotePage.noteEditDate = new Date(); // Update edit date only if content changed
+                    DB.updateNote(noteId, noteIsPinned, newNotePage.noteTitle, newNotePage.noteContent, noteTags, noteColor);
+                    console.log("Debug: Note updated with ID:", noteId + ", Color: " + noteColor);
+                } else {
+                    console.log("Debug: Note with ID:", noteId, " not modified, skipping update.");
+                }
             }
         }
 
@@ -160,6 +173,7 @@ Page {
                 onPressed: pinRipple.ripple(mouseX, mouseY)
                 onClicked: {
                     noteIsPinned = !noteIsPinned;
+                    newNotePage.noteModified = true; // Set flag when pin state changes
                     var msg = noteIsPinned ? "The note was pinned" : "The note was unpinned"
                     toastManager.show(msg)
                 }
@@ -378,6 +392,39 @@ Page {
                     }
                 }
             }
+
+            // New "Add Tag" Button
+            Item {
+                width: Theme.fontSizeExtraLarge * 1.1
+                height: Theme.fontSizeExtraLarge * 1.1
+                clip: false
+                RippleEffect { id: addTagRipple }
+                Icon {
+                    id: addTagIcon
+                    source: "../icons/tag.svg" // Using tag.svg as requested
+                    anchors.centerIn: parent
+                    width: parent.width
+                    height: parent.height
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    onPressed: addTagRipple.ripple(mouseX, mouseY)
+                    onClicked: {
+                        console.log("Add Tag button clicked.");
+                        // Push to TagEditPage, passing current noteId and a callback
+                        pageStack.push(Qt.resolvedUrl("TagEditPage.qml"), {
+                            noteId: newNotePage.noteId,
+                            onTagsChanged: function() {
+                                // This function will be called from TagEditPage when tags are updated
+                                // For now, we'll just mark the note as modified
+                                newNotePage.noteModified = true;
+                                // In a more complex app, you might re-fetch noteTags here from DB
+                                // For this example, we assume `mainPage.refreshData` will handle full reload
+                            }
+                        });
+                    }
+                }
+            }
         }
 
         Row {
@@ -471,7 +518,10 @@ Page {
                 width: parent.width
                 placeholderText: "Title"
                 text: newNotePage.noteTitle
-                onTextChanged: newNotePage.noteTitle = text // Update property on change
+                onTextChanged: {
+                    newNotePage.noteTitle = text;
+                    newNotePage.noteModified = true; // Set flag on change
+                }
                 font.pixelSize: Theme.fontSizeLarge
                 color: "#e8eaed"
                 font.bold: true
@@ -485,7 +535,10 @@ Page {
                 height: implicitHeight > 0 ? implicitHeight : Theme.itemSizeExtraLarge * 3
                 placeholderText: "Note"
                 text: newNotePage.noteContent
-                onTextChanged: newNotePage.noteContent = text // Update property on change
+                onTextChanged: {
+                    newNotePage.noteContent = text;
+                    newNotePage.noteModified = true; // Set flag on change
+                }
                 wrapMode: Text.Wrap
                 font.pixelSize: Theme.fontSizeMedium
                 color: "#e8eaed"
@@ -496,7 +549,7 @@ Page {
                 id: tagsFlow
                 width: parent.width
                 spacing: Theme.paddingMedium
-                visible: newNotePage.noteTags.length > 0
+                visible: newNotePage.noteTags.length > 0 // Only visible if there are tags
 
                 Repeater {
                     model: newNotePage.noteTags
@@ -534,10 +587,21 @@ Page {
                         }
                     }
                 }
+
             }
 
-            Item { width: parent.width; height: Theme.paddingLarge * 2 }
         }
+        // "No tags" message
+        Label {
+            id: noTagsLabel
+            text: "<i>No tags</i>" // Italic text
+            visible: newNotePage.noteTags.length === 0 // Visible only if no tags
+            font.pixelSize: Theme.fontSizeSmall
+            color: Theme.secondaryColor
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: contentColumn.bottom // Position below the flow area
+        }
+        Item { width: parent.width; height: Theme.paddingLarge * 2 }
     }
 
     // Overlay for Panel Background
@@ -575,7 +639,7 @@ Page {
     // This Rectangle defines the color selection palette that slides up from the bottom.
     // It is now statically positioned at the bottom, and its appearance/disappearance
     // is controlled purely by its opacity property, allowing for a smooth fade effect.
-    // Its background color dynamically matches the currently selected noteColor.
+    // It uses an inner Rectangle with clipping to achieve rounded top corners and sharp bottom edges.
     Rectangle {
         id: colorSelectionPanel
         width: parent.width
@@ -696,6 +760,7 @@ Page {
                                 anchors.fill: parent
                                 onClicked: {
                                     newNotePage.noteColor = modelData;
+                                    newNotePage.noteModified = true; // Set flag on color change!
                                     colorSelectionPanel.opacity = 0; // Hide the panel after selection
                                 }
                             }
