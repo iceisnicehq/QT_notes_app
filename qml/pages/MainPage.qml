@@ -13,28 +13,15 @@ Page {
     backgroundColor: "#121218"
     property int noteMargin: 20
 
-    // Properties to track scroll behavior
     property bool headerVisible: true
     property real previousContentY: 0
     property bool panelOpen: false
     property var allNotes: []
     property var allTags: []
 
-//    ToastManager {
-//        id: toastManager // The ToastManager now lives directly within MainPage
-//    }
-//    Timer {
-//        interval: 1000
-//        repeat: true
-//        running: true
-//        property int i: 0
-//        onTriggered: {
-//            toastManager.show("This timer has triggered " + (++i) + " times!");
-//        }
-//    }
     Component.onCompleted: {
         DB.initDatabase()
-        DB.insertTestData()  // ← Adds test data
+        DB.insertTestData()  // ← Adds test data. This will also update the 'color' column if it's missing.
         refreshData()
     }
     function refreshData() {
@@ -46,17 +33,14 @@ Page {
         id: searchBarArea
         width: parent.width
         height: 80
-        z: 2 // Ensures the header appears ON TOP of the list content
+        z: 2
 
-        // Animate the y-position based on the headerVisible property
         y: headerVisible ? 0 : -height
 
-        // THIS IS THE FIX: The Behavior is now simplified to always be active.
         Behavior on y {
-            // The "enabled" condition has been removed.
             NumberAnimation {
-                duration: 250 // You can adjust this duration for speed
-                easing.type: Easing.OutQuad // A nice easing for this effect
+                duration: 250
+                easing.type: Easing.OutQuad
             }
         }
 
@@ -73,16 +57,13 @@ Page {
                 anchors.fill: parent
                 placeholderText: "Search notes..."
                 highlighted: false
-//                focusOutBehavior: FocusBehavior.ClearPageFocus
-                // ... (rest of your SearchField is unchanged)
                 EnterKey.onClicked: {
                     console.log("Searching for:", text)
                 }
-                // Left menu button
             leftItem: Item {
                 width: Theme.fontSizeExtraLarge * 1.1
                 height: Theme.fontSizeExtraLarge * 0.95
-                clip: false  // Important: do not clip!
+                clip: false
 
                 Icon {
                     id: menuIcon
@@ -106,11 +87,10 @@ Page {
                 }
             }
 
-            // Right plus button
             rightItem: Item {
                 width: Theme.fontSizeExtraLarge * 1.1
                 height: Theme.fontSizeExtraLarge * 1.1
-                clip: false  // Important: do not clip!
+                clip: false
 
                 Icon {
                     id: plusIcon
@@ -130,13 +110,14 @@ Page {
                         // --- CREATE NOTE: Push NewNotePage without pre-filling data ---
                         pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
                             onNoteSavedOrDeleted: refreshData,
-                            noteId: -1, // Explicitly pass -1 for new notes
+                            noteId: -1,
                             noteTitle: "",
                             noteContent: "",
                             noteIsPinned: false,
                             noteTags: [],
-                            noteCreationDate: new Date(), // New notes start with current date
-                            noteEditDate: new Date()      // New notes start with current date
+                            noteCreationDate: new Date(),
+                            noteEditDate: new Date(),
+                            noteColor: "#121218" // ADDED: Default color for new notes
                         });
                         console.log("Opening NewNotePage in CREATE mode.");
                     }
@@ -153,14 +134,12 @@ Page {
         open: panelOpen
         tags: allTags
     }
-    // The main scrollable area
     SilicaFlickable {
         id: flickable
         anchors.fill: parent
         contentHeight: column.height
         topMargin: searchBarArea.height
 
-        // The logic for showing/hiding the header remains the same
         onContentYChanged: {
             var scrollY = flickable.contentY;
 
@@ -212,22 +191,23 @@ Page {
                         title: modelData.title
                         content: modelData.content
                         tags: modelData.tags.join(' ')
+                        cardColor: modelData.color || "#1c1d29" // ADDED: Pass color to NoteCard, with fallback
 
-                        // --- ADDED: MouseArea to make NoteCard clickable for editing ---
                         MouseArea {
                             anchors.fill: parent
                             onClicked: {
                                 pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
                                     onNoteSavedOrDeleted: refreshData,
-                                    noteId: modelData.id,        // Pass existing ID
-                                    noteTitle: modelData.title,  // Pass existing title
-                                    noteContent: modelData.content, // Pass existing content
-                                    noteIsPinned: modelData.pinned, // Pass existing pinned status
-                                    noteTags: modelData.tags,     // Pass existing tags
-                                    noteCreationDate: new Date(modelData.created_at + "Z"), // Pass existing creation date
-                                    noteEditDate: new Date(modelData.updated_at + "Z")
+                                    noteId: modelData.id,
+                                    noteTitle: modelData.title,
+                                    noteContent: modelData.content,
+                                    noteIsPinned: modelData.pinned,
+                                    noteTags: modelData.tags,
+                                    noteCreationDate: new Date(modelData.created_at + "Z"),
+                                    noteEditDate: new Date(modelData.updated_at + "Z"),
+                                    noteColor: modelData.color // ADDED: Pass noteColor
                                 });
-                                console.log("Opening NewNotePage in EDIT mode for ID:", modelData.id);
+                                console.log("Opening NewNotePage in EDIT mode for ID:", modelData.id + ", Color:", modelData.color);
                             }
                         }
                     }
@@ -236,10 +216,9 @@ Page {
 
             // Other Notes Section
             Column {
-                // ... (rest of your code is unchanged) ...
                 id: othersSection
                 width: parent.width
-                spacing: 0 // Adjust as needed
+                spacing: 0
 
                 SectionHeader {
                     text: qsTr("Others")
@@ -254,7 +233,7 @@ Page {
                     id: otherNotes
 
                     width: parent.width
-                    spacing: 0  // We'll handle spacing within the delegate
+                    spacing: 0
                     height: contentHeight
                     model: allNotes.filter(function(note) { return !note.pinned; })
                     delegate: NoteCard {
@@ -268,22 +247,23 @@ Page {
                         title: modelData.title
                         content: modelData.content
                         tags: modelData.tags.join(' ')
+                        cardColor: modelData.color || "#1c1d29" // ADDED: Pass color to NoteCard, with fallback
 
-                        // --- ADDED: MouseArea to make NoteCard clickable for editing ---
                         MouseArea {
                             anchors.fill: parent
                             onClicked: {
                                 pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
                                     onNoteSavedOrDeleted: refreshData,
-                                    noteId: modelData.id,        // Pass existing ID
-                                    noteTitle: modelData.title,  // Pass existing title
-                                    noteContent: modelData.content, // Pass existing content
-                                    noteIsPinned: modelData.pinned, // Pass existing pinned status
-                                    noteTags: modelData.tags,     // Pass existing tags
-                                    noteCreationDate: new Date(modelData.created_at + "Z"), // Pass existing creation date
-                                    noteEditDate: new Date(modelData.updated_at + "Z")      // Pass existing edit date
+                                    noteId: modelData.id,
+                                    noteTitle: modelData.title,
+                                    noteContent: modelData.content,
+                                    noteIsPinned: modelData.pinned,
+                                    noteTags: modelData.tags,
+                                    noteCreationDate: new Date(modelData.created_at + "Z"),
+                                    noteEditDate: new Date(modelData.updated_at + "Z"),
+                                    noteColor: modelData.color // ADDED: Pass noteColor
                                 });
-                                console.log("Opening NewNotePage in EDIT mode for ID:", modelData.id);
+                                console.log("Opening NewNotePage in EDIT mode for ID:", modelData.id + ", Color:", modelData.color);
                             }
                         }
                     }
@@ -291,10 +271,8 @@ Page {
             }
         }
     }
-    // --- YOUR SCROLLBAR GOES RIGHT HERE, as a direct child of Page ---
     ScrollBar {
-        // You can still give it an ID if you want to reference it later, e.g., id: myPageScrollBar
-        flickableSource: flickable // Pass the ID of your SilicaFlickable
-        topAnchorItem: searchBarArea // Pass the ID of your header/search bar Item
+        flickableSource: flickable
+        topAnchorItem: searchBarArea
     }
 }

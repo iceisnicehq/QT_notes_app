@@ -160,6 +160,7 @@ Page {
         color: newNotePage.noteColor // <-- ИЗМЕНЕНО: теперь цвет хедера привязан к noteColor
         anchors.top: parent.top
         z: 2
+        
         Column {
             anchors.centerIn: parent
             Label {

@@ -7,15 +7,15 @@ Item {
     width: parent ? parent.width : 360
     height: cardColumn.implicitHeight + Theme.paddingLarge * 2 + 20 // Adjusted bottom margin
 
-    // --- MODIFIED: Changed from 'alias' to 'property' ---
-    // Using a real property allows us to add logic before displaying the text.
     property string title: ""
     property string content: ""
     property var tags: [] // This property receives a string like "tag1 tag2" or ""
+    property string cardColor: "#1c1d29" // ADDED: New property for card background color, default to a neutral grey
 
     Rectangle {
         anchors.fill: parent
-        color: "transparent"
+        // MODIFIED: Use cardColor for the background
+        color: root.cardColor // Use the new property for background color
         radius: 20
         border.color: "#43484e"
         border.width: 2
@@ -33,15 +33,9 @@ Item {
             // Title
             Text {
                 id: titleText
-                // --- MODIFIED: Logic to handle empty/null title ---
-                // 1. Display "no name" if root.title is empty, null, or just whitespace.
-                // 2. Set font to italic if the title is considered empty.
                 text: (root.title && root.title.trim()) ? root.title : "Empty"
                 font.italic: !(root.title && root.title.trim())
-
-                // --- ADDED: Ensure title text is not parsed as HTML ---
                 textFormat: Text.PlainText
-
                 color: "#e8eaed"
                 font.pixelSize: Theme.fontSizeLarge
                 font.bold: true
@@ -56,13 +50,9 @@ Item {
             // Content (max 5 lines with ellipsis)
             Text {
                 id: contentText
-                // --- MODIFIED: Bind to the new root.content property ---
                 text: (root.content && root.content.trim()) ? root.content : "Empty"
                 font.italic: !(root.content && root.content.trim())
-                // --- ADDED: This is the key change to fix the HTML issue ---
-                // It forces the text to be rendered literally, ignoring tags like <b>.
                 textFormat: Text.PlainText
-
                 wrapMode: Text.WordWrap
                 maximumLineCount: 5
                 elide: Text.ElideRight

@@ -3,11 +3,12 @@
 
 var notes = [
             {
-                "pinned": true,
-                "title": "Shoppsing List",
-                "content": "Milk\nEggs\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nButter\nCheeseasd123asd123asd123asd123asd123asd123\nApples\nBananas\nOrange Juice\nChicken\nRice",
-                "tags": ["#Work", "#shoppingssssssssssssss1312123123123123213123123213123324234", "#shopping2", "#home", "#home123"]
-            },
+                         "pinned": true,
+                         "title": "Shoppsing List",
+                         "content": "Milk\nEggs\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nBread\nButter\nCheeseasd123asd123asd123asd123asd123asd123\nApples\nBananas\nOrange Juice\nChicken\nRice",
+                         "tags": ["#Work", "#shoppingssssssssssssss1312123123123123213123123213123324234", "#shopping2", "#home", "#home123"],
+                         "color": "#3a2c2c" // ADDED: Example color for this note
+                     },
             {
                 "pinned": true,
                 "title": "sList",
