@@ -41,7 +41,7 @@ Rectangle {
 
     readonly property real defaultTime: 3000
     property real time: defaultTime
-    readonly property real fadeTime: 250
+    readonly property real fadeTime: 300
 
     property real margin: 10
 

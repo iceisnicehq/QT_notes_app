@@ -61,9 +61,9 @@ Item {
                 onClicked: {
                     // This click handler will activate editing mode if not already editing
                     isEditing = true;
-                    editingTagName = tagName; // Initialize TextField with current name
-                    tagListItem.startEditing(); // Signal to parent
-                    tagInputField.forceActiveFocus(true); // Focus the TextField to show keyboard
+                    editingTagName = tagName;
+                    tagListItem.startEditing();
+                    tagInputField.forceActiveFocus(true);
                 }
             }
 

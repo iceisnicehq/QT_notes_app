@@ -29,12 +29,22 @@ Page {
     }
 
     function refreshTags() {
-        allTagsWithCounts = DB.getAllTagsWithCounts();
-        // Sort tags by count in descending order
-        allTagsWithCounts.sort(function(a, b) {
+        // Crucial: Create a new array object to force Repeater re-evaluation
+        // Set to empty first to ensure binding updates if needed, then re-populate
+        allTagsWithCounts = [];
+        var fetchedTags = DB.getAllTagsWithCounts();
+        // Sort tags by count in descending order as before
+        fetchedTags.sort(function(a, b) {
             return b.count - a.count;
         });
-        console.log("Tags refreshed:", JSON.stringify(allTagsWithCounts));
+        allTagsWithCounts = fetchedTags; // Re-assign the new, sorted list
+        console.log("Tags refreshed and re-assigned:", JSON.stringify(allTagsWithCounts));
+
+        // Also, ensure the parentPage.onTagsChanged is called in TagEditPage.qml after refreshTags
+        // if it's meant to notify the main page.
+        // However, looking at your TagEditPage code, onTagsChanged is passed down,
+        // so it's already called from TagListItem's success paths.
+        // The main focus here is just the `allTagsWithCounts = [];` then `allTagsWithCounts = fetchedTags;`
     }
 
     // Header Area - Positioned above the Flickable
