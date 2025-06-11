@@ -51,8 +51,8 @@ Page {
     Component.onDestruction: {
         console.log("NewNotePage being destroyed. Attempting to save/delete note.");
 
-        var trimmedTitle = noteTitle.trim();
-        var trimmedContent = noteContent.trim();
+        var trimmedTitle = noteTitleInput.text.trim(); // Use current input text
+        var trimmedContent = noteContentInput.text.trim(); // Use current input text
 
         if (trimmedTitle === "" && trimmedContent === "") {
             if (noteId !== -1) {
@@ -62,11 +62,16 @@ Page {
                 console.log("Debug: New empty note not saved.");
             }
         } else {
+            // Update the note properties before saving
+            newNotePage.noteTitle = noteTitleInput.text;
+            newNotePage.noteContent = noteContentInput.text;
+            newNotePage.noteEditDate = new Date(); // Update edit date on destruction
+
             if (noteId === -1) {
-                var newId = DB.addNote(noteIsPinned, noteTitle, noteContent, noteTags, noteColor);
+                var newId = DB.addNote(noteIsPinned, newNotePage.noteTitle, newNotePage.noteContent, noteTags, noteColor);
                 console.log("Debug: New note added with ID:", newId + ", Color: " + noteColor);
             } else {
-                DB.updateNote(noteId, noteIsPinned, noteTitle, noteContent, noteTags, noteColor);
+                DB.updateNote(noteId, noteIsPinned, newNotePage.noteTitle, newNotePage.noteContent, noteTags, noteColor);
                 console.log("Debug: Note updated with ID:", noteId + ", Color: " + noteColor);
             }
         }
@@ -80,7 +85,7 @@ Page {
         id: toastManager
     }
 
-    // --- Custom Page Header ---
+    // Custom Page Header
     Rectangle {
         id: header
         width: parent.width
@@ -157,26 +162,23 @@ Page {
                     noteIsPinned = !noteIsPinned;
                     var msg = noteIsPinned ? "The note was pinned" : "The note was unpinned"
                     toastManager.show(msg)
-                    noteContentInput.forceActiveFocus();
-                    Qt.inputMethod.show();
                 }
             }
         }
     }
 
-    // --- Нижний тулбар (всегда на дне) ---
+    // Нижний тулбар (всегда на дне)
     Rectangle {
         id: bottomToolbar
         width: parent.width
         height: Theme.itemSizeSmall
-        // ИСПРАВЛЕНИЕ: Используем привязку к нижней части родителя
-        // и корректируем позицию, если клавиатура видна.
+        // Используем привязку к нижней части родителя и корректируем позицию, если клавиатура видна.
         // Это более надежно, чем динамическое изменение y.
         anchors.bottom: parent.bottom
-        color: "#1c1d29" // Фиксированный цвет, чтобы не сливался с noteColor
+        color: newNotePage.noteColor
         z: 10 // Важно: панель выбора цвета будет иметь z: 11, чтобы быть выше тулбара
 
-        // ИСПРАВЛЕНИЕ: Перемещаем логику поднятия тулбара при появлении клавиатуры сюда.
+        // Перемещаем логику поднятия тулбара при появлении клавиатуры сюда.
         // Привязываем нижнюю границу тулбара к верхней границе клавиатуры.
         // Если клавиатура не видна, bottomToolbar.y будет равен parent.height - height
         // (то есть, находиться внизу экрана).
@@ -211,19 +213,15 @@ Page {
                     anchors.fill: parent
                     onPressed: paletteRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        console.log("Change color/theme - showing panel");
-                        // Устанавливаем положение colorSelectionPanel для анимации
-                        if (!colorSelectionPanel.visible) {
-                            // Изначальное положение для появления: прямо над тулбаром
-                            colorSelectionPanel.y = bottomToolbar.y - colorSelectionPanel.height;
-                            Qt.inputMethod.hide(); // Скрываем клавиатуру при открытии панели
+                        console.log("Change color/theme - toggling panel visibility");
+                        Qt.inputMethod.hide(); // Hide keyboard first
+
+                        // Toggle panel opacity for fade in/out
+                        if (colorSelectionPanel.opacity > 0.01) { // If panel is currently visible or fading in
+                            colorSelectionPanel.opacity = 0; // Start fade out
                         } else {
-                            // Если панель уже видна, мы просто скроем ее,
-                            // и анимация вернет ее за пределы экрана.
-                            noteContentInput.forceActiveFocus(); // Возвращаем фокус
-                            Qt.inputMethod.show(); // Показываем клавиатуру
+                            colorSelectionPanel.opacity = 1; // Start fade in
                         }
-                        colorSelectionPanel.visible = !colorSelectionPanel.visible;
                     }
                 }
             }
@@ -247,8 +245,6 @@ Page {
                     onClicked: {
                         console.log("Text Edit Options");
                         toastManager.show("Text edit options clicked!");
-                        noteContentInput.forceActiveFocus();
-                        Qt.inputMethod.show();
                     }
                 }
             }
@@ -270,8 +266,6 @@ Page {
                     onClicked: {
                         console.log("Align Left");
                         noteContentInput.horizontalAlignment = Text.AlignLeft;
-                        noteContentInput.forceActiveFocus();
-                        Qt.inputMethod.show();
                     }
                 }
             }
@@ -293,8 +287,6 @@ Page {
                     onClicked: {
                         console.log("Align Center");
                         noteContentInput.horizontalAlignment = Text.AlignHCenter;
-                        noteContentInput.forceActiveFocus();
-                        Qt.inputMethod.show();
                     }
                 }
             }
@@ -316,8 +308,6 @@ Page {
                     onClicked: {
                         console.log("Align Right");
                         noteContentInput.horizontalAlignment = Text.AlignRight;
-                        noteContentInput.forceActiveFocus();
-                        Qt.inputMethod.show();
                     }
                 }
             }
@@ -339,8 +329,6 @@ Page {
                     onClicked: {
                         console.log("Align Justify");
                         noteContentInput.horizontalAlignment = Text.AlignJustify;
-                        noteContentInput.forceActiveFocus();
-                        Qt.inputMethod.show();
                     }
                 }
             }
@@ -362,9 +350,8 @@ Page {
                     onPressed: undoRipple.ripple(mouseX, mouseY)
                     onClicked: {
                         console.log("Undo");
+                        // Add actual undo logic here
                         toastManager.show("Undo action triggered!");
-                        noteContentInput.forceActiveFocus();
-                        Qt.inputMethod.show();
                     }
                 }
             }
@@ -386,9 +373,8 @@ Page {
                     onPressed: redoRipple.ripple(mouseX, mouseY)
                     onClicked: {
                         console.log("Redo");
+                        // Add actual redo logic here
                         toastManager.show("Redo action triggered!");
-                        noteContentInput.forceActiveFocus();
-                        Qt.inputMethod.show();
                     }
                 }
             }
@@ -419,6 +405,7 @@ Page {
                     onClicked: {
                         console.log("Archive Note");
                         toastManager.show("Note archived!");
+                        // Add archive logic here, e.g., setting a flag in DB
                         pageStack.pop();
                     }
                 }
@@ -482,10 +469,9 @@ Page {
             TextField {
                 id: noteTitleInput
                 width: parent.width
-                // anchors.horizontalCenter: parent.horizontalCenter // Уже центрируется родительской колонкой
                 placeholderText: "Title"
                 text: newNotePage.noteTitle
-                onTextChanged: newNotePage.noteTitle = text
+                onTextChanged: newNotePage.noteTitle = text // Update property on change
                 font.pixelSize: Theme.fontSizeLarge
                 color: "#e8eaed"
                 font.bold: true
@@ -496,11 +482,10 @@ Page {
             TextArea {
                 id: noteContentInput
                 width: parent.width
-                // anchors.horizontalCenter: parent.horizontalCenter // Уже центрируется родительской колонкой
                 height: implicitHeight > 0 ? implicitHeight : Theme.itemSizeExtraLarge * 3
                 placeholderText: "Note"
                 text: newNotePage.noteContent
-                onTextChanged: newNotePage.noteContent = text
+                onTextChanged: newNotePage.noteContent = text // Update property on change
                 wrapMode: Text.Wrap
                 font.pixelSize: Theme.fontSizeMedium
                 color: "#e8eaed"
@@ -510,7 +495,6 @@ Page {
             Flow {
                 id: tagsFlow
                 width: parent.width
-                // anchors.horizontalCenter: parent.horizontalCenter // Уже центрируется родительской колонкой
                 spacing: Theme.paddingMedium
                 visible: newNotePage.noteTags.length > 0
 
@@ -556,128 +540,167 @@ Page {
         }
     }
 
-    // НОВАЯ ПАНЕЛЬ ВЫБОРА ЦВЕТА (ВЫЕЗЖАЮЩАЯ СНИЗУ)
+    // Overlay for Panel Background
+    // This Rectangle creates a semi-transparent dark overlay over the main page content
+    // when the color selection panel is active. Its visibility and opacity are directly
+    // tied to the panel's opacity to create a coordinated fade effect. Clicking this
+    // overlay will close the color panel.
+    Rectangle {
+        id: overlayRect
+        anchors.fill: parent // Covers the entire page
+        color: "#000000" // Pure black color
+        // Visible only when the colorSelectionPanel is animating or fully opaque
+        visible: colorSelectionPanel.opacity > 0.01
+        // Opacity scales with the colorSelectionPanel's opacity, up to a max of 40%
+        opacity: colorSelectionPanel.opacity * 0.4
+
+        z: 10.5 // Positioned above main content but below the color selection panel
+
+        // No Behavior on opacity needed here as it directly reflects colorSelectionPanel's opacity
+
+        MouseArea {
+            anchors.fill: parent
+            // Enable mouse area only when the overlay is visually present
+            enabled: overlayRect.visible
+            onClicked: {
+                // If the color selection panel is visible (or fading in), fade it out
+                if (colorSelectionPanel.opacity > 0.01) {
+                    colorSelectionPanel.opacity = 0;
+                }
+            }
+        }
+    }
+
+    // Color Selection Panel
+    // This Rectangle defines the color selection palette that slides up from the bottom.
+    // It is now statically positioned at the bottom, and its appearance/disappearance
+    // is controlled purely by its opacity property, allowing for a smooth fade effect.
+    // Its background color dynamically matches the currently selected noteColor.
     Rectangle {
         id: colorSelectionPanel
         width: parent.width
-        // Высота вычисляется на основе содержимого, чтобы не было лишнего пространства
-        // ВАЖНО: при использовании implicitHeight для родителя, убедитесь, что дочерние элементы
-        // имеют свои implicitHeight. Для Flow implicitHeight может быть не сразу доступен.
-        // Лучше использовать явную высоту или более сложный расчет для Flow, если он не работает как ожидается.
-        height: colorTitle.implicitHeight + colorFlow.implicitHeight + cancelBtn.implicitHeight + Theme.paddingMedium * 4
+        // Define radius here for consistent use
+        property real panelRadius: Theme.itemSizeSmall / 2
+
+        // The visible height of the panel (this rectangle will act as a clipping mask)
+        // It should be the content height plus the radius for the top curve
+        height: colorPanelContentColumn.implicitHeight + Theme.paddingMedium * 2 + panelRadius
+
         anchors.horizontalCenter: parent.horizontalCenter
-        // !!! ИЗМЕНЕНИЕ ЗДЕСЬ: Изначальная позиция - за пределами экрана
-        y: parent.height // Панель изначально скрыта за пределами экрана
-        z: 11
-        visible: false // Изначально скрыта
+        // Fixed position at the bottom of the screen
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 0 // Keep it snapped to the very bottom
 
-        radius: Theme.itemSizeSmall / 2
-        color: "#282a36" // Цвет фона панели
+        z: 11 // Always on top of other elements when active
 
-        // Анимация для выезда/заезда панели
-        Behavior on y {
-            NumberAnimation {
-                duration: 250
-                easing.type: Easing.OutCubic
-            }
+        // Initial state: completely transparent and not visible
+        opacity: 0
+        visible: opacity > 0.01 // Only visible when fading in or fully opaque
+
+        color: "transparent" // The clipping parent should be transparent
+        clip: true // Crucial: clips anything outside this rectangle's bounds
+
+        // Animation for opacity changes (fade in/out)
+        Behavior on opacity {
+            NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
         }
 
-        // При изменении видимости анимируем Y
-        // Это более надежный способ, чем привязка в Behavior on visible,
-        // так как visible может изменяться извне, и анимация должна быть связана с этим.
-        onVisibleChanged: {
-            if (visible) {
-                // Если панель становится видимой, анимируем ее к позиции над тулбаром
-                colorSelectionPanel.y = bottomToolbar.y - colorSelectionPanel.height;
-            } else {
-                // Если панель становится невидимой, анимируем ее обратно за пределы экрана
-                colorSelectionPanel.y = newNotePage.height;
-            }
-        }
+        // This inner rectangle holds the actual content and applies the rounding.
+        // Its height is extended by 2*radius, and its y-position is 0,
+        // so its bottom rounded part extends beyond the clipping parent and is hidden.
+        Rectangle {
+            id: colorPanelVisualBody
+            width: parent.width
+            // Height needs to be the content height + 2 * radius (for top and bottom curves)
+            height: colorPanelContentColumn.implicitHeight + Theme.paddingMedium * 2 + 2 * colorSelectionPanel.panelRadius
+            color: newNotePage.noteColor // This takes the dynamic color
+            radius: colorSelectionPanel.panelRadius // Apply radius to all corners of this inner rectangle
 
+            // Position this inner rectangle at y=0, so its top aligns with the clipping parent's top.
+            // The bottom part will then extend below the clipping parent and be hidden.
+            y: 0
 
-        Column {
-            id: colorPanelContent
-            anchors.fill: parent
-            anchors.margins: Theme.paddingMedium
-            spacing: Theme.paddingMedium
+            Column {
+                id: colorPanelContentColumn // Renamed for clarity, was colorPanelContent
+                width: parent.width
+                height: implicitHeight // Let column determine its height
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.topMargin: colorSelectionPanel.panelRadius // Add margin equal to radius for content clearance
+                anchors.bottomMargin: Theme.paddingMedium // Ensure consistent padding for content
+                spacing: Theme.paddingMedium
 
-            Label {
-                id: colorTitle
-                text: "Select Note Color"
-                font.pixelSize: Theme.fontSizeLarge
-                color: "#e8eaed"
-                anchors.horizontalCenter: parent.horizontalCenter
-            }
+                Label {
+                    id: colorTitle
+                    text: "Select Note Color"
+                    font.pixelSize: Theme.fontSizeLarge
+                    color: "#e8eaed"
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
 
-            Flow {
-                id: colorFlow
-                width: parent.width // Use the full width of the parent column
-                spacing: Theme.paddingSmall // Space between color circles
-                anchors.horizontalCenter: parent.horizontalCenter
-                layoutDirection: Qt.LeftToRight
+                Flow {
+                    id: colorFlow
+                    width: parent.width // Use the full width of the parent column
+                    spacing: Theme.paddingSmall // Space between color circles
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    layoutDirection: Qt.LeftToRight
 
-                // Определяем количество столбцов для сетки цветов
-                readonly property int columns: 6 // Увеличиваем до 6, чтобы круги были немного больше
-                // Вычисляем ширину элемента на основе доступной ширины и желаемых столбцов/отступов
-                readonly property real itemWidth: (parent.width - (spacing * (columns - 1))) / columns
+                    // Determine the number of columns for the color grid
+                    readonly property int columns: 6
+                    // Calculate item width based on available width, desired columns, and spacing
+                    readonly property real itemWidth: (parent.width - (spacing * (columns - 1))) / columns
 
-                Repeater {
-                    model: newNotePage.colorPalette
-                    delegate: Item {
-                        width: parent.itemWidth // Используем вычисленную itemWidth из Flow
-                        height: parent.itemWidth // Делаем квадратным
+                    Repeater {
+                        model: newNotePage.colorPalette
+                        delegate: Item {
+                            width: parent.itemWidth // Use calculated itemWidth from Flow
+                            height: parent.itemWidth // Make it square
 
-                        Rectangle {
-                            anchors.fill: parent
-                            color: modelData // Цвет самого круга
-                            radius: parent.width / 2 // Делает круглым, если width == height
-                            border.color: (newNotePage.noteColor === modelData) ? Theme.highlightColor : "transparent"
-                            border.width: (newNotePage.noteColor === modelData) ? 3 : 0 // Ширина границы для выделенного
-
-                            // Галочка для выбранного цвета
-                            // Добавляем фон для галочки
+                            // Outer circle (white for selected, grey for others)
                             Rectangle {
-                                visible: newNotePage.noteColor === modelData
-                                anchors.centerIn: parent
-                                width: parent.width * 0.7 // Размер фона для галочки
-                                height: parent.height * 0.7
-                                radius: width / 2 // Делаем круглым
-                                color: Qt.darker(modelData, 1.2) // Делаем его немного темнее основного цвета
-                                border.color: Theme.highlightColor // Добавляем яркую обводку
-                                border.width: 2
+                                anchors.fill: parent
+                                radius: width / 2 // Make it round
+                                color: (newNotePage.noteColor === modelData) ? "white" : "#707070" // White if selected, grey otherwise
+                                border.color: "transparent" // No border on the outer circle
+                            }
 
-                                Icon {
-                                    source: "../icons/check.svg"
+                            // Inner circle (the actual color swatch)
+                            Rectangle {
+                                anchors.centerIn: parent
+                                width: parent.width * 0.95 // Made inner circle larger to create a thinner outer ring
+                                height: parent.height * 0.95 // Made inner circle larger to create a thinner outer ring
+                                radius: width / 2
+                                color: modelData // The actual color from the palette
+                                border.color: "transparent" // No border on the color swatch itself
+
+                                // Checkmark for selected color (inside the color swatch)
+                                Rectangle {
+                                    visible: newNotePage.noteColor === modelData
                                     anchors.centerIn: parent
-                                    width: parent.width * 0.6
-                                    height: parent.height * 0.6
-                                    color: "white" // Делаем галочку белой для контраста
+                                    width: parent.width * 0.7 // Size of checkmark background
+                                    height: parent.height * 0.7
+                                    radius: width / 2
+                                    color: modelData // Use the color itself for the checkmark background
+
+                                    Icon {
+                                        source: "../icons/check.svg"
+                                        anchors.centerIn: parent
+                                        width: parent.width * 0.75
+                                        height: parent.height * 0.75
+                                        color: "white" // White checkmark
+                                    }
+                                }
+                            }
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    newNotePage.noteColor = modelData;
+                                    colorSelectionPanel.opacity = 0; // Hide the panel after selection
                                 }
                             }
                         }
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                newNotePage.noteColor = modelData;
-                                colorSelectionPanel.visible = false; // Скрываем панель
-                                noteContentInput.forceActiveFocus(); // Возвращаем фокус на поле ввода
-                                Qt.inputMethod.show(); // Показываем клавиатуру
-                            }
-                        }
                     }
-                }
-            }
-            // Кнопка "Cancel" находится внизу
-            Button {
-                id: cancelBtn
-                text: "Cancel"
-                anchors.horizontalCenter: parent.horizontalCenter
-                width: parent.width * 0.6 // Ширина кнопки, чтобы не занимала всю ширину
-                onClicked: {
-                    colorSelectionPanel.visible = false; // Скрываем панель
-                    noteContentInput.forceActiveFocus(); // Возвращаем фокус на поле ввода
-                    Qt.inputMethod.show(); // Показываем клавиатуру
                 }
             }
         }
