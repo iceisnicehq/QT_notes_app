@@ -129,7 +129,7 @@ Page {
                                 anchors.fill: parent
                                 onClicked: {
                                     newNotePage.noteColor = modelData;
-                                    toastManager.show("Color changed to: " + modelData);
+                                    //toastManager.show("Color changed to: " + modelData);
                                     colorPickerDialog.close();
                                     noteContentInput.forceActiveFocus();
                                     Qt.inputMethod.show();
