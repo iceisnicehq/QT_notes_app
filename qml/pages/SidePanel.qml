@@ -160,6 +160,7 @@ Item {
                         selected: sidePanel.currentPage === "trash"
                         onClicked: {
                             sidePanel.currentPage = "trash"
+                            pageStack.push(Qt.resolvedUrl("TrashPage.qml"))
                             mainPage.panelOpen = false
                         }
                     }
