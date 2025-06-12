@@ -228,7 +228,7 @@ Page {
                     onPressed: paletteRipple.ripple(mouseX, mouseY)
                     onClicked: {
                         console.log("Change color/theme - toggling panel visibility");
-                        Qt.inputMethod.hide(); // Hide keyboard first
+                        //Qt.inputMethod.hide(); // Hide keyboard first
 
                         // Toggle panel opacity for fade in/out
                         if (colorSelectionPanel.opacity > 0.01) { // If panel is currently visible or fading in
@@ -627,10 +627,10 @@ Page {
         width: parent.width
         property real panelRadius: Theme.itemSizeSmall / 2
         height: colorPanelContentColumn.implicitHeight + Theme.paddingMedium * 2 + panelRadius
-
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 0
+
+        // Removed anchors.bottomMargin to eliminate gap
+        anchors.bottom: bottomToolbar.top
 
         z: 11
 
@@ -767,7 +767,9 @@ Page {
         height: parent.height * 0.5 // Give it a fixed max height for scrolling
 
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: parent.bottom // Anchored to the bottom, similar to color panel
+
+        // Removed anchors.bottomMargin to eliminate gap
+        anchors.bottom: bottomToolbar.top
 
         z: 12 // Higher z-index to appear above color panel and other content
 
@@ -796,10 +798,50 @@ Page {
 
         // --- Tag Panel Internal Layout ---
         // Header for the Tag Panel (with back button and title)
-        Item {
+        Rectangle { // Changed from Item to Rectangle to allow color property
             id: tagPanelHeader
-        }
+            width: parent.width
+            height: Theme.itemSizeMedium // Standard header height
+            color: newNotePage.noteColor // Match note color
+            anchors.top: parent.top
+            z: 1 // Ensure it's above the list but within the panel
 
+            Label {
+                text: "Select Tags"
+                font.pixelSize: Theme.fontSizeLarge
+                color: "#e8eaed"
+                anchors.centerIn: parent
+            }
+
+            // Optional: A "Done" or "Close" button for the panel
+            Item {
+                width: Theme.fontSizeExtraLarge * 1.1
+                height: Theme.fontSizeExtraLarge * 1.1
+                clip: false
+                anchors { right: parent.right; verticalCenter: parent.verticalCenter; rightMargin: Theme.paddingLarge }
+                RippleEffect { id: closeTagPanelRipple }
+                Icon {
+                    source: "../icons/check.svg" // Using check.svg for 'Done'
+                    anchors.centerIn: parent
+                    width: parent.width
+                    height: parent.height
+                    color: "#e8eaed" // White or light color
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    onPressed: closeTagPanelRipple.ripple(mouseX, mouseY)
+                    onClicked: {
+                        tagSelectionPanel.opacity = 0; // Hide the panel
+                        // If tags were modified, ensure they are saved on note destruction or explicitly here
+                        if (newNotePage.noteModified) {
+                            console.log("Tags modified, ensuring note save on panel close.");
+                            // The noteModified flag will trigger the save logic on page destruction.
+                            // No explicit save needed here, just hide the panel.
+                        }
+                    }
+                }
+            }
+        }
         // ListModel for tags in this panel (scoped to tagSelectionPanel)
         ListModel {
             id: availableTagsModel
@@ -818,7 +860,6 @@ Page {
                 // For new notes, use the transient noteTags property from newNotePage
                 noteSpecificTags = newNotePage.noteTags;
             }
-
             // Populate the ListModel with all tags and their checked status.
             for (var i = 0; i < allTags.length; i++) {
                 var tagName = allTags[i];
@@ -830,7 +871,6 @@ Page {
             }
             console.log("TagSelectionPanel: Loaded tags for display in panel. Model items:", availableTagsModel.count);
         }
-
         // Flickable for the tags list within the panel
         SilicaFlickable {
             id: tagsPanelFlickable
@@ -840,9 +880,7 @@ Page {
             anchors.bottom: parent.bottom // Fills the remaining space in tagSelectionPanel
             anchors.left: parent.left
             anchors.right: parent.right
-
             contentHeight: tagsPanelListView.contentHeight // Ensure flickable content matches list view height
-
             ListView {
                 id: tagsPanelListView
                 width: parent.width
@@ -850,23 +888,18 @@ Page {
                 model: availableTagsModel
                 orientation: ListView.Vertical
                 spacing: Theme.paddingSmall
-
                 delegate: BackgroundItem {
                     id: tagPanelDelegateRoot
                     width: parent.width
                     height: Theme.itemSizeMedium
                     clip: true // Ensure ripple effect is clipped to the item's bounds
-
                     RippleEffect { id: tagPanelDelegateRipple }
-
                     MouseArea {
                         anchors.fill: parent
                         onPressed: tagPanelDelegateRipple.ripple(mouseX, mouseY) // Trigger ripple on the whole row
                         onClicked: {
                             var newCheckedState = !model.isChecked;
                             availableTagsModel.set(index, { name: model.name, isChecked: newCheckedState }); // Update internal model
-
-                            // CRITICAL: Update the main noteTags property and DB immediately
                             if (newNotePage.noteId === -1) {
                                 // Case: New note (not yet saved to DB)
                                 // Update newNotePage.noteTags array directly
@@ -882,7 +915,6 @@ Page {
                                 }
                                 console.log("New note's tags updated directly:", JSON.stringify(newNotePage.noteTags));
                             } else {
-                                // Case: Existing note (saved in DB)
                                 if (newCheckedState) {
                                     DB.addTagToNote(newNotePage.noteId, model.name);
                                     console.log("Added tag '" + model.name + "' to note ID " + newNotePage.noteId);
@@ -897,14 +929,12 @@ Page {
                             newNotePage.noteModified = true; // Mark the main note as modified
                         }
                     }
-
                     Row {
                         id: tagPanelRow
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.left: parent.left; anchors.leftMargin: Theme.paddingLarge
                         anchors.right: parent.right; anchors.rightMargin: Theme.paddingLarge
                         spacing: Theme.paddingMedium
-
                         Icon {
                             id: tagPanelTagIcon
                             source: "../icons/tag-white.svg" // Ensure this SVG is designed for tinting
@@ -914,7 +944,6 @@ Page {
                             anchors.verticalCenter: parent.verticalCenter
                             fillMode: Image.PreserveAspectFit
                         }
-
                         Label {
                             id: tagPanelTagNameLabel
                             text: model.name
@@ -925,14 +954,12 @@ Page {
                             // Calculate width based on available space and other elements
                             width: parent.width - tagPanelTagIcon.width - tagPanelCheckButtonContainer.width - (tagPanelRow.spacing * 2)
                         }
-
                         Item { // Container for the checkmark icon
                             id: tagPanelCheckButtonContainer
                             width: Theme.iconSizeMedium
                             height: Theme.iconSizeMedium
                             anchors.verticalCenter: parent.verticalCenter
                             clip: false
-
                             Image {
                                 id: tagPanelCheckIcon
                                 source: model.isChecked ? "../icons/box-checked.svg" : "../icons/box.svg"
@@ -946,7 +973,6 @@ Page {
                 }
             }
         }
-        // ScrollBar for the tag panel's flickable
         ScrollBar {
             flickableSource: tagsPanelFlickable
             anchors.top: tagsPanelFlickable.top // Anchor it to the flickable itself
