@@ -12,7 +12,7 @@ Page {
     property int noteId: -1
     property string noteTitle: ""
     property string noteContent: ""
-    property var noteTags: []
+    property var noteTags: [] // This property holds the array of tag strings
     property bool noteIsPinned: false
     property date noteCreationDate: new Date()
     property date noteEditDate: new Date()
@@ -410,19 +410,14 @@ Page {
                     anchors.fill: parent
                     onPressed: addTagRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        console.log("Add Tag button clicked.");
-                        // Push to TagEditPage, passing current noteId and a callback
-                        pageStack.push(Qt.resolvedUrl("NoteTags.qml"), {
-                            noteId: newNotePage.noteId,
-                            noteBackgroundColor: newNotePage.noteColor, // <--- ADD THIS LINE
-                            onTagsChanged: function() {
-                                // This function will be called from TagEditPage when tags are updated
-                                // For now, we'll just mark the note as modified
-                                newNotePage.noteModified = true;
-                                // In a more complex app, you might re-fetch noteTags here from DB
-                                // For this example, we assume `mainPage.refreshData` will handle full reload
-                            }
-                        });
+                        console.log("Add Tag button clicked. Opening tag selection panel.");
+                        Qt.inputMethod.hide(); // Hide keyboard first
+                        // Toggle the panel opacity (and thus visibility)
+                        if (tagSelectionPanel.opacity > 0.01) {
+                            tagSelectionPanel.opacity = 0; // Start fade out
+                        } else {
+                            tagSelectionPanel.opacity = 1; // Start fade in
+                        }
                     }
                 }
             }
@@ -497,22 +492,17 @@ Page {
         id: mainContentFlickable
         anchors.fill: parent
         anchors.topMargin: header.height
-        // ИСПРАВЛЕНИЕ: Нижний отступ теперь динамически вычисляется:
-        // он равен высоте тулбара, когда клавиатуры нет,
-        // и равен высоте тулбара + высоте клавиатуры, когда клавиатура видна.
-        // Это гарантирует, что тулбар не будет перекрывать контент и не будет пробелов.
         anchors.bottomMargin: bottomToolbar.height + (Qt.inputMethod.visible ? Qt.inputMethod.keyboardRectangle.height : 0)
         contentHeight: contentColumn.implicitHeight
 
-        // Плавная анимация для нижнего отступа
         Behavior on anchors.bottomMargin {
             NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
         }
 
         Column {
             id: contentColumn
-            width: parent.width * 0.98 // Добавил отступы по горизонтали
-            anchors.horizontalCenter: parent.horizontalCenter // Центрируем колонку
+            width: parent.width * 0.98
+            anchors.horizontalCenter: parent.horizontalCenter
 
             TextField {
                 id: noteTitleInput
@@ -521,7 +511,7 @@ Page {
                 text: newNotePage.noteTitle
                 onTextChanged: {
                     newNotePage.noteTitle = text;
-                    newNotePage.noteModified = true; // Set flag on change
+                    newNotePage.noteModified = true;
                 }
                 font.pixelSize: Theme.fontSizeLarge
                 color: "#e8eaed"
@@ -539,7 +529,7 @@ Page {
                 text: newNotePage.noteContent
                 onTextChanged: {
                     newNotePage.noteContent = text;
-                    newNotePage.noteModified = true; // Set flag on change
+                    newNotePage.noteModified = true;
                 }
                 wrapMode: Text.Wrap
                 font.pixelSize: Theme.fontSizeMedium
@@ -551,7 +541,7 @@ Page {
                 id: tagsFlow
                 width: parent.width
                 spacing: Theme.paddingMedium
-                visible: newNotePage.noteTags.length > 0 // Only visible if there are tags
+                visible: newNotePage.noteTags.length > 0
 
                 Repeater {
                     model: newNotePage.noteTags
@@ -583,64 +573,47 @@ Page {
                             onReleased: {
                                 tagRectangle.color = tagRectangle.normalColor
                                 console.log("Tag clicked for editing:", modelData)
-                                // Push to TagEditPage, passing current noteId and a callback
-                                pageStack.push(Qt.resolvedUrl("NoteTags.qml"), {
-                                    noteId: newNotePage.noteId,
-                                    noteBackgroundColor: newNotePage.noteColor, // <--- ADD THIS LINE
-                                    onTagsChanged: function() {
-                                        // This function will be called from TagEditPage when tags are updated
-                                        // For now, we'll just mark the note as modified
-                                        newNotePage.noteModified = true;
-                                        // In a more complex app, you might re-fetch noteTags here from DB
-                                        // For this example, we assume `mainPage.refreshData` will handle full reload
-                                    }
-                                });
+                                // Open the tag selection panel when a tag is clicked
+                                Qt.inputMethod.hide();
+                                if (tagSelectionPanel.opacity > 0.01) {
+                                    tagSelectionPanel.opacity = 0;
+                                } else {
+                                    tagSelectionPanel.opacity = 1;
+                                }
                             }
                             onCanceled: tagRectangle.color = tagRectangle.normalColor
                         }
                     }
                 }
-
             }
             Item { width: parent.width; height: Theme.paddingLarge * 2 }
         }
         // "No tags" message
         Label {
             id: noTagsLabel
-            text: "No tags" // Italic text
+            text: "No tags"
             font.italic: true
-            visible: newNotePage.noteTags.length === 0 // Visible only if no tags
+            visible: newNotePage.noteTags.length === 0
             font.pixelSize: Theme.fontSizeSmall
             color: Theme.secondaryColor
             anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top: contentColumn.bottom // Position below the flow area
+            anchors.top: contentColumn.bottom
         }
     }
 
-    // Overlay for Panel Background
-    // This Rectangle creates a semi-transparent dark overlay over the main page content
-    // when the color selection panel is active. Its visibility and opacity are directly
-    // tied to the panel's opacity to create a coordinated fade effect. Clicking this
-    // overlay will close the color panel.
+    // Overlay for Color Selection Panel Background
     Rectangle {
         id: overlayRect
-        anchors.fill: parent // Covers the entire page
-        color: "#000000" // Pure black color
-        // Visible only when the colorSelectionPanel is animating or fully opaque
+        anchors.fill: parent
+        color: "#000000"
         visible: colorSelectionPanel.opacity > 0.01
-        // Opacity scales with the colorSelectionPanel's opacity, up to a max of 40%
         opacity: colorSelectionPanel.opacity * 0.4
-
-        z: 10.5 // Positioned above main content but below the color selection panel
-
-        // No Behavior on opacity needed here as it directly reflects colorSelectionPanel's opacity
+        z: 10.5
 
         MouseArea {
             anchors.fill: parent
-            // Enable mouse area only when the overlay is visually present
             enabled: overlayRect.visible
             onClicked: {
-                // If the color selection panel is visible (or fading in), fade it out
                 if (colorSelectionPanel.opacity > 0.01) {
                     colorSelectionPanel.opacity = 0;
                 }
@@ -649,63 +622,46 @@ Page {
     }
 
     // Color Selection Panel
-    // This Rectangle defines the color selection palette that slides up from the bottom.
-    // It is now statically positioned at the bottom, and its appearance/disappearance
-    // is controlled purely by its opacity property, allowing for a smooth fade effect.
-    // It uses an inner Rectangle with clipping to achieve rounded top corners and sharp bottom edges.
     Rectangle {
         id: colorSelectionPanel
         width: parent.width
-        // Define radius here for consistent use
         property real panelRadius: Theme.itemSizeSmall / 2
-
-        // The visible height of the panel (this rectangle will act as a clipping mask)
-        // It should be the content height plus the radius for the top curve
         height: colorPanelContentColumn.implicitHeight + Theme.paddingMedium * 2 + panelRadius
 
         anchors.horizontalCenter: parent.horizontalCenter
-        // Fixed position at the bottom of the screen
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: 0 // Keep it snapped to the very bottom
+        anchors.bottomMargin: 0
 
-        z: 11 // Always on top of other elements when active
+        z: 11
 
-        // Initial state: completely transparent and not visible
         opacity: 0
-        visible: opacity > 0.01 // Only visible when fading in or fully opaque
+        visible: opacity > 0.01
 
-        color: "transparent" // The clipping parent should be transparent
-        clip: true // Crucial: clips anything outside this rectangle's bounds
+        color: "transparent"
+        clip: true
 
-        // Animation for opacity changes (fade in/out)
         Behavior on opacity {
             NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
         }
 
-        // This inner rectangle holds the actual content and applies the rounding.
-        // Its height is extended by 2*radius, and its y-position is 0,
-        // so its bottom rounded part extends beyond the clipping parent and is hidden.
         Rectangle {
             id: colorPanelVisualBody
             width: parent.width
-            // Height needs to be the content height + 2 * radius (for top and bottom curves)
             height: colorPanelContentColumn.implicitHeight + Theme.paddingMedium * 2 + 2 * colorSelectionPanel.panelRadius
-            color: newNotePage.noteColor // This takes the dynamic color
-            radius: colorSelectionPanel.panelRadius // Apply radius to all corners of this inner rectangle
+            color: newNotePage.noteColor
+            radius: colorSelectionPanel.panelRadius
 
-            // Position this inner rectangle at y=0, so its top aligns with the clipping parent's top.
-            // The bottom part will then extend below the clipping parent and be hidden.
             y: 0
 
             Column {
-                id: colorPanelContentColumn // Renamed for clarity, was colorPanelContent
+                id: colorPanelContentColumn
                 width: parent.width
-                height: implicitHeight // Let column determine its height
+                height: implicitHeight
                 anchors.top: parent.top
                 anchors.left: parent.left
                 anchors.right: parent.right
-                anchors.topMargin: colorSelectionPanel.panelRadius // Add margin equal to radius for content clearance
-                anchors.bottomMargin: Theme.paddingMedium // Ensure consistent padding for content
+                anchors.topMargin: colorSelectionPanel.panelRadius
+                anchors.bottomMargin: Theme.paddingMedium
                 spacing: Theme.paddingMedium
 
                 Label {
@@ -718,54 +674,49 @@ Page {
 
                 Flow {
                     id: colorFlow
-                    width: parent.width // Use the full width of the parent column
-                    spacing: Theme.paddingSmall // Space between color circles
+                    width: parent.width
+                    spacing: Theme.paddingSmall
                     anchors.horizontalCenter: parent.horizontalCenter
                     layoutDirection: Qt.LeftToRight
 
-                    // Determine the number of columns for the color grid
                     readonly property int columns: 6
-                    // Calculate item width based on available width, desired columns, and spacing
                     readonly property real itemWidth: (parent.width - (spacing * (columns - 1))) / columns
 
                     Repeater {
                         model: newNotePage.colorPalette
                         delegate: Item {
-                            width: parent.itemWidth // Use calculated itemWidth from Flow
-                            height: parent.itemWidth // Make it square
+                            width: parent.itemWidth
+                            height: parent.itemWidth
 
-                            // Outer circle (white for selected, grey for others)
                             Rectangle {
                                 anchors.fill: parent
-                                radius: width / 2 // Make it round
-                                color: (newNotePage.noteColor === modelData) ? "white" : "#707070" // White if selected, grey otherwise
-                                border.color: "transparent" // No border on the outer circle
+                                radius: width / 2
+                                color: (newNotePage.noteColor === modelData) ? "white" : "#707070"
+                                border.color: "transparent"
                             }
 
-                            // Inner circle (the actual color swatch)
                             Rectangle {
                                 anchors.centerIn: parent
-                                width: parent.width * 0.95 // Made inner circle larger to create a thinner outer ring
-                                height: parent.height * 0.95 // Made inner circle larger to create a thinner outer ring
+                                width: parent.width * 0.95
+                                height: parent.height * 0.95
                                 radius: width / 2
-                                color: modelData // The actual color from the palette
-                                border.color: "transparent" // No border on the color swatch itself
+                                color: modelData
+                                border.color: "transparent"
 
-                                // Checkmark for selected color (inside the color swatch)
                                 Rectangle {
                                     visible: newNotePage.noteColor === modelData
                                     anchors.centerIn: parent
-                                    width: parent.width * 0.7 // Size of checkmark background
+                                    width: parent.width * 0.7
                                     height: parent.height * 0.7
                                     radius: width / 2
-                                    color: modelData // Use the color itself for the checkmark background
+                                    color: modelData
 
                                     Icon {
                                         source: "../icons/check.svg"
                                         anchors.centerIn: parent
                                         width: parent.width * 0.75
                                         height: parent.height * 0.75
-                                        color: "white" // White checkmark
+                                        color: "white"
                                     }
                                 }
                             }
@@ -773,8 +724,8 @@ Page {
                                 anchors.fill: parent
                                 onClicked: {
                                     newNotePage.noteColor = modelData;
-                                    newNotePage.noteModified = true; // Set flag on color change!
-                                    colorSelectionPanel.opacity = 0; // Hide the panel after selection
+                                    newNotePage.noteModified = true;
+                                    colorSelectionPanel.opacity = 0;
                                 }
                             }
                         }
@@ -786,5 +737,222 @@ Page {
     ScrollBar {
         flickableSource: mainContentFlickable
         topAnchorItem: header
+    }
+
+    // Overlay for Tag Panel Background
+    Rectangle {
+        id: tagOverlayRect
+        anchors.fill: parent
+        color: "#000000"
+        visible: tagSelectionPanel.opacity > 0.01
+        opacity: tagSelectionPanel.opacity * 0.4
+        z: 11.5 // Just below tagSelectionPanel, above colorSelectionPanel and main content
+
+        MouseArea {
+            anchors.fill: parent
+            enabled: tagOverlayRect.visible
+            onClicked: {
+                if (tagSelectionPanel.opacity > 0.01) {
+                    tagSelectionPanel.opacity = 0;
+                }
+            }
+        }
+    }
+
+    // --- NEW: Tag Selection Panel (Integrated from NoteTags.qml) ---
+    Rectangle {
+        id: tagSelectionPanel
+        // CRITICAL FIX: Make it a floating dialog by reducing width and centering
+        width: parent.width
+        height: parent.height * 0.5 // Give it a fixed max height for scrolling
+
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom // Anchored to the bottom, similar to color panel
+
+        z: 12 // Higher z-index to appear above color panel and other content
+
+        opacity: 0 // Start hidden
+        visible: opacity > 0.01 // Only visible when fading in or fully opaque
+
+        color: newNotePage.noteColor // The clipping parent should be transparent
+        clip: true // Crucial for rounded corners and containing content/ripple
+
+        Behavior on opacity {
+            NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
+        }
+
+        // When the panel becomes visible, load the tags
+        onVisibleChanged: {
+            if (visible) {
+                // Ensure noteId is valid before loading tags for an existing note
+                if (newNotePage.noteId !== -1) {
+                    loadTagsForTagPanel(); // Call the specific load function
+                } else {
+                    // For new notes, just load all tags (they haven't been saved yet)
+                    loadTagsForTagPanel();
+                }
+            }
+        }
+
+        // --- Tag Panel Internal Layout ---
+        // Header for the Tag Panel (with back button and title)
+        Item {
+            id: tagPanelHeader
+        }
+
+        // ListModel for tags in this panel (scoped to tagSelectionPanel)
+        ListModel {
+            id: availableTagsModel
+            // Each item will have 'name' (string) and 'isChecked' (boolean).
+        }
+
+        // Function to load tags for this panel (now within tagSelectionPanel)
+        function loadTagsForTagPanel() {
+            availableTagsModel.clear(); // Clear existing model data
+            var allTags = DB.getAllTags(); // Get all tag names from the DB
+            var noteSpecificTags = [];
+
+            if (newNotePage.noteId !== -1) { // Reference newNotePage's noteId
+                noteSpecificTags = DB.getTagsForNote(null, newNotePage.noteId);
+            } else {
+                // For new notes, use the transient noteTags property from newNotePage
+                noteSpecificTags = newNotePage.noteTags;
+            }
+
+            // Populate the ListModel with all tags and their checked status.
+            for (var i = 0; i < allTags.length; i++) {
+                var tagName = allTags[i];
+                var isChecked = noteSpecificTags.indexOf(tagName) !== -1;
+                availableTagsModel.append({
+                    name: tagName,
+                    isChecked: isChecked
+                });
+            }
+            console.log("TagSelectionPanel: Loaded tags for display in panel. Model items:", availableTagsModel.count);
+        }
+
+        // Flickable for the tags list within the panel
+        SilicaFlickable {
+            id: tagsPanelFlickable
+            width: parent.width
+            // CRITICAL FIX: Give the flickable a fixed height by anchoring it between header and bottom
+            anchors.top: tagPanelHeader.bottom
+            anchors.bottom: parent.bottom // Fills the remaining space in tagSelectionPanel
+            anchors.left: parent.left
+            anchors.right: parent.right
+
+            contentHeight: tagsPanelListView.contentHeight // Ensure flickable content matches list view height
+
+            ListView {
+                id: tagsPanelListView
+                width: parent.width
+                height: contentHeight // ListView height should be its own contentHeight for correct scrolling
+                model: availableTagsModel
+                orientation: ListView.Vertical
+                spacing: Theme.paddingSmall
+
+                delegate: BackgroundItem {
+                    id: tagPanelDelegateRoot
+                    width: parent.width
+                    height: Theme.itemSizeMedium
+                    clip: true // Ensure ripple effect is clipped to the item's bounds
+
+                    RippleEffect { id: tagPanelDelegateRipple }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onPressed: tagPanelDelegateRipple.ripple(mouseX, mouseY) // Trigger ripple on the whole row
+                        onClicked: {
+                            var newCheckedState = !model.isChecked;
+                            availableTagsModel.set(index, { name: model.name, isChecked: newCheckedState }); // Update internal model
+
+                            // CRITICAL: Update the main noteTags property and DB immediately
+                            if (newNotePage.noteId === -1) {
+                                // Case: New note (not yet saved to DB)
+                                // Update newNotePage.noteTags array directly
+                                if (newCheckedState) {
+                                    if (newNotePage.noteTags.indexOf(model.name) === -1) {
+                                        newNotePage.noteTags.push(model.name);
+                                    }
+                                } else {
+                                    var idx = newNotePage.noteTags.indexOf(model.name);
+                                    if (idx !== -1) {
+                                        newNotePage.noteTags.splice(idx, 1);
+                                    }
+                                }
+                                console.log("New note's tags updated directly:", JSON.stringify(newNotePage.noteTags));
+                            } else {
+                                // Case: Existing note (saved in DB)
+                                if (newCheckedState) {
+                                    DB.addTagToNote(newNotePage.noteId, model.name);
+                                    console.log("Added tag '" + model.name + "' to note ID " + newNotePage.noteId);
+                                } else {
+                                    DB.deleteTagFromNote(newNotePage.noteId, model.name);
+                                    console.log("Removed tag '" + model.name + "' from note ID " + newNotePage.noteId);
+                                }
+                                // After DB operation, re-fetch tags for main page's Flow
+                                newNotePage.noteTags = DB.getTagsForNote(null, newNotePage.noteId);
+                                console.log("NewNotePage: main tagsFlow updated after DB change:", JSON.stringify(newNotePage.noteTags));
+                            }
+                            newNotePage.noteModified = true; // Mark the main note as modified
+                        }
+                    }
+
+                    Row {
+                        id: tagPanelRow
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.left: parent.left; anchors.leftMargin: Theme.paddingLarge
+                        anchors.right: parent.right; anchors.rightMargin: Theme.paddingLarge
+                        spacing: Theme.paddingMedium
+
+                        Icon {
+                            id: tagPanelTagIcon
+                            source: "../icons/tag-white.svg" // Ensure this SVG is designed for tinting
+                            color: "#e2e3e8" // Desired white/off-white color
+                            width: Theme.iconSizeMedium
+                            height: Theme.iconSizeMedium
+                            anchors.verticalCenter: parent.verticalCenter
+                            fillMode: Image.PreserveAspectFit
+                        }
+
+                        Label {
+                            id: tagPanelTagNameLabel
+                            text: model.name
+                            color: "#e2e3e8" // Desired text color
+                            font.pixelSize: Theme.fontSizeMedium
+                            anchors.verticalCenter: parent.verticalCenter
+                            elide: Text.ElideRight
+                            // Calculate width based on available space and other elements
+                            width: parent.width - tagPanelTagIcon.width - tagPanelCheckButtonContainer.width - (tagPanelRow.spacing * 2)
+                        }
+
+                        Item { // Container for the checkmark icon
+                            id: tagPanelCheckButtonContainer
+                            width: Theme.iconSizeMedium
+                            height: Theme.iconSizeMedium
+                            anchors.verticalCenter: parent.verticalCenter
+                            clip: false
+
+                            Image {
+                                id: tagPanelCheckIcon
+                                source: model.isChecked ? "../icons/box-checked.svg" : "../icons/box.svg"
+                                anchors.centerIn: parent
+                                width: parent.width
+                                height: parent.height
+                                fillMode: Image.PreserveAspectFit
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // ScrollBar for the tag panel's flickable
+        ScrollBar {
+            flickableSource: tagsPanelFlickable
+            anchors.top: tagsPanelFlickable.top // Anchor it to the flickable itself
+            anchors.bottom: tagsPanelFlickable.bottom
+            anchors.right: parent.right // Make sure it's on the right of the panel
+            width: Theme.paddingSmall // Standard scrollbar width
+        }
     }
 }
