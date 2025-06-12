@@ -1,4 +1,5 @@
-// DatabaseManager.js
+// DatabaseManager.js (UPDATED)
+
 var db = null;
 var dbName = "AuroraNotesDB";
 var dbVersion = "1.0";
@@ -56,24 +57,28 @@ function initDatabase() {
 }
 
 // Internal helpers
-function addNoteInternal(tx, pinned, title, content, color) { // MODIFIED: Added color parameter
+function addNoteInternal(tx, pinned, title, content, color) {
     tx.executeSql(
-        'INSERT INTO Notes (pinned, title, content, color) VALUES (?, ?, ?, ?)', // MODIFIED: Added color
-        [pinned, title, content, color] // MODIFIED: Added color
+        'INSERT INTO Notes (pinned, title, content, color) VALUES (?, ?, ?, ?)',
+        [pinned, title, content, color]
     );
     var row = tx.executeSql('SELECT last_insert_rowid() as id');
     return row.rows.item(0).id;
 }
 
+// Internal function to add a tag to a note within a transaction
 function addTagToNoteInternal(tx, noteId, tagName) {
     var tagResult = tx.executeSql('SELECT id FROM Tags WHERE name = ?', [tagName]);
     var tagId;
     if (tagResult.rows.length === 0) {
+        // Tag doesn't exist, create it
         tx.executeSql('INSERT INTO Tags (name) VALUES (?)', [tagName]);
         var newTag = tx.executeSql('SELECT last_insert_rowid() as id');
         tagId = newTag.rows.item(0).id;
+        console.log("Tag '" + tagName + "' created and added to note ID " + noteId);
     } else {
         tagId = tagResult.rows.item(0).id;
+        console.log("Tag '" + tagName + "' already exists, linking to note ID " + noteId);
     }
     tx.executeSql(
         'INSERT OR IGNORE INTO NoteTags (note_id, tag_id) VALUES (?, ?)',
@@ -81,7 +86,33 @@ function addTagToNoteInternal(tx, noteId, tagName) {
     );
 }
 
-// Public functions (No Promises)
+// NEW PUBLIC FUNCTION: Add a tag to an existing note.
+// This function can be called directly from QML.
+function addTagToNote(noteId, tagName) {
+    initDatabase();
+    db.transaction(function(tx) {
+        addTagToNoteInternal(tx, noteId, tagName);
+    });
+}
+
+// NEW PUBLIC FUNCTION: Delete a tag from a specific note.
+// This function can be called directly from QML.
+function deleteTagFromNote(noteId, tagName) {
+    initDatabase();
+    db.transaction(function(tx) {
+        var tagResult = tx.executeSql('SELECT id FROM Tags WHERE name = ?', [tagName]);
+        if (tagResult.rows.length > 0) {
+            var tagId = tagResult.rows.item(0).id;
+            tx.executeSql('DELETE FROM NoteTags WHERE note_id = ? AND tag_id = ?', [noteId, tagId]);
+            console.log("Removed tag '" + tagName + "' from note ID " + noteId);
+        } else {
+            console.warn("Attempted to remove non-existent tag '" + tagName + "'.");
+        }
+    });
+}
+
+// Public functions
+
 function getAllNotes() {
     initDatabase();
     var notes = [];
@@ -93,6 +124,7 @@ function getAllNotes() {
             if (!note.color) {
                 note.color = defaultNoteColor;
             }
+            // Pass the transaction to getTagsForNote for internal use
             note.tags = getTagsForNote(tx, note.id);
             notes.push(note);
         }
@@ -100,23 +132,39 @@ function getAllNotes() {
     return notes;
 }
 
-function getTagsForNote(tx, noteId) {
-    var tags = [];
-    var result = tx.executeSql(
-        'SELECT t.name FROM Tags t JOIN NoteTags nt ON t.id = nt.tag_id WHERE nt.note_id = ?',
-        [noteId]
-    );
-    for (var i = 0; i < result.rows.length; i++) {
-        tags.push(result.rows.item(i).name);
+// Modified getTagsForNote to either use a provided transaction or run its own readTransaction
+function getTagsForNote(tx_param, noteId) {
+    initDatabase(); // Ensure DB is initialized
+    var tempTags = [];
+    if (tx_param) {
+        // Use provided transaction if available (for internal use by getAllNotes)
+        var res = tx_param.executeSql(
+            'SELECT t.name FROM Tags t JOIN NoteTags nt ON t.id = nt.tag_id WHERE nt.note_id = ?',
+            [noteId]
+        );
+        for (var i = 0; i < res.rows.length; i++) {
+            tempTags.push(res.rows.item(i).name);
+        }
+    } else {
+        // Create a new read transaction if called externally (e.g., from QML)
+        db.readTransaction(function(tx) {
+            var res = tx.executeSql(
+                'SELECT t.name FROM Tags t JOIN NoteTags nt ON t.id = nt.tag_id WHERE nt.note_id = ?',
+                [noteId]
+            );
+            for (var i = 0; i < res.rows.length; i++) {
+                tempTags.push(res.rows.item(i).name);
+            }
+        });
     }
-    return tags;
+    return tempTags;
 }
 
 function getAllTags() {
     initDatabase();
     var tags = [];
     db.readTransaction(function(tx) {
-        var result = tx.executeSql('SELECT name FROM Tags');
+        var result = tx.executeSql('SELECT name FROM Tags ORDER BY name ASC'); // Added ORDER BY for consistency
         for (var i = 0; i < result.rows.length; i++) {
             tags.push(result.rows.item(i).name);
         }
@@ -124,7 +172,7 @@ function getAllTags() {
     return tags;
 }
 
-function addNote(pinned, title, content, tags, color) { // MODIFIED: Added color parameter
+function addNote(pinned, title, content, tags, color) {
     initDatabase();
     var returnedNoteId = -1;
     // Ensure color is not undefined when adding a new note
@@ -132,7 +180,7 @@ function addNote(pinned, title, content, tags, color) { // MODIFIED: Added color
         color = defaultNoteColor;
     }
     db.transaction(function(tx) {
-        returnedNoteId = addNoteInternal(tx, pinned, title, content, color); // MODIFIED: Passed color
+        returnedNoteId = addNoteInternal(tx, pinned, title, content, color);
         for (var i = 0; i < tags.length; i++) {
             addTagToNoteInternal(tx, returnedNoteId, tags[i]);
         }
@@ -140,7 +188,7 @@ function addNote(pinned, title, content, tags, color) { // MODIFIED: Added color
     return returnedNoteId;
 }
 
-function updateNote(id, pinned, title, content, tags, color) { // MODIFIED: Added color parameter
+function updateNote(id, pinned, title, content, tags, color) {
     initDatabase();
     // Ensure color is not undefined when updating
     if (color === undefined || color === null || color === "") {
@@ -148,9 +196,10 @@ function updateNote(id, pinned, title, content, tags, color) { // MODIFIED: Adde
     }
     db.transaction(function(tx) {
         tx.executeSql(
-            'UPDATE Notes SET pinned = ?, title = ?, content = ?, color = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', // MODIFIED: Added color
-            [pinned, title, content, color, id] // MODIFIED: Added color
+            'UPDATE Notes SET pinned = ?, title = ?, content = ?, color = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+            [pinned, title, content, color, id]
         );
+        // Delete existing tag associations and re-add them
         tx.executeSql('DELETE FROM NoteTags WHERE note_id = ?', [id]);
         for (var i = 0; i < tags.length; i++) {
             addTagToNoteInternal(tx, id, tags[i]);
@@ -185,7 +234,7 @@ function insertTestData() {
                 var note = Data.notes[i];
                 // Pass a default color for test data if it's not specified
                 var noteColor = note.color || defaultNoteColor; // Use existing color or default
-                var noteId = addNoteInternal(tx, note.pinned, note.title, note.content, noteColor); // MODIFIED: Passed color
+                var noteId = addNoteInternal(tx, note.pinned, note.title, note.content, noteColor);
                 for (var j = 0; j < note.tags.length; j++) {
                     addTagToNoteInternal(tx, noteId, note.tags[j]);
                 }
@@ -226,9 +275,9 @@ function addTag(tagName) {
             tx.executeSql('INSERT INTO Tags (name) VALUES (?)', [tagName]);
             var newTag = tx.executeSql('SELECT last_insert_rowid() as id');
             tagId = newTag.rows.item(0).id;
-            console.log("Tag '" + tagName + "' added with ID:", tagId);
+            console.log("Tag '" + tagName + "' added to Tags table with ID:", tagId);
         } else {
-            console.log("Tag '" + tagName + "' already exists.");
+            console.log("Tag '" + tagName + "' already exists in Tags table.");
             tagId = result.rows.item(0).id;
         }
     });
@@ -256,7 +305,7 @@ function deleteTag(tagName) {
         if (tagResult.rows.length > 0) {
             var tagId = tagResult.rows.item(0).id;
             tx.executeSql('DELETE FROM Tags WHERE id = ?', [tagId]);
-            console.log("Tag '" + tagName + "' deleted.");
+            console.log("Tag '" + tagName + "' deleted from Tags table.");
         } else {
             console.warn("Attempted to delete non-existent tag:", tagName);
         }

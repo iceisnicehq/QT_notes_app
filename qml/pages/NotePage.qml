@@ -412,8 +412,9 @@ Page {
                     onClicked: {
                         console.log("Add Tag button clicked.");
                         // Push to TagEditPage, passing current noteId and a callback
-                        pageStack.push(Qt.resolvedUrl("TagEditPage.qml"), {
+                        pageStack.push(Qt.resolvedUrl("NoteTags.qml"), {
                             noteId: newNotePage.noteId,
+                            noteBackgroundColor: newNotePage.noteColor, // <--- ADD THIS LINE
                             onTagsChanged: function() {
                                 // This function will be called from TagEditPage when tags are updated
                                 // For now, we'll just mark the note as modified
@@ -510,7 +511,7 @@ Page {
 
         Column {
             id: contentColumn
-            width: parent.width - Theme.horizontalPageMargin * 2 // Добавил отступы по горизонтали
+            width: parent.width * 0.98 // Добавил отступы по горизонтали
             anchors.horizontalCenter: parent.horizontalCenter // Центрируем колонку
 
             TextField {
@@ -527,6 +528,7 @@ Page {
                 font.bold: true
                 wrapMode: Text.Wrap
                 inputMethodHints: Qt.ImhNoAutoUppercase
+                maximumLength: 256
             }
 
             TextArea {
@@ -561,7 +563,6 @@ Page {
                         radius: 12
                         height: tagText.implicitHeight + Theme.paddingSmall
                         width: Math.min(tagText.implicitWidth + Theme.paddingMedium, parent.width)
-
                         Behavior on color { ColorAnimation { duration: 150 } }
 
                         Text {
@@ -582,6 +583,18 @@ Page {
                             onReleased: {
                                 tagRectangle.color = tagRectangle.normalColor
                                 console.log("Tag clicked for editing:", modelData)
+                                // Push to TagEditPage, passing current noteId and a callback
+                                pageStack.push(Qt.resolvedUrl("NoteTags.qml"), {
+                                    noteId: newNotePage.noteId,
+                                    noteBackgroundColor: newNotePage.noteColor, // <--- ADD THIS LINE
+                                    onTagsChanged: function() {
+                                        // This function will be called from TagEditPage when tags are updated
+                                        // For now, we'll just mark the note as modified
+                                        newNotePage.noteModified = true;
+                                        // In a more complex app, you might re-fetch noteTags here from DB
+                                        // For this example, we assume `mainPage.refreshData` will handle full reload
+                                    }
+                                });
                             }
                             onCanceled: tagRectangle.color = tagRectangle.normalColor
                         }
@@ -589,19 +602,19 @@ Page {
                 }
 
             }
-
+            Item { width: parent.width; height: Theme.paddingLarge * 2 }
         }
         // "No tags" message
         Label {
             id: noTagsLabel
-            text: "<i>No tags</i>" // Italic text
+            text: "No tags" // Italic text
+            font.italic: true
             visible: newNotePage.noteTags.length === 0 // Visible only if no tags
             font.pixelSize: Theme.fontSizeSmall
             color: Theme.secondaryColor
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top: contentColumn.bottom // Position below the flow area
         }
-        Item { width: parent.width; height: Theme.paddingLarge * 2 }
     }
 
     // Overlay for Panel Background
