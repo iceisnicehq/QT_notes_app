@@ -156,7 +156,8 @@ Page {
                         onTextChanged: newTagNameInput = text
                         font.pixelSize: Theme.fontSizeMedium
                         color: "#e8eaed" // Always default color, no error color change
-                        inputMethodHints: Qt.ImhNoAutoUppercase
+                        inputMethodHints: Qt.ImhNoAutoUppercase // Keep this
+                        // Removed the validator here, as we will handle '#' input in the onClicked logic
 
                         focus: creatingNewTag // Keep focus when creating
                         onClicked: { creatingNewTag = true } // This sets creation mode when clicked
@@ -164,17 +165,6 @@ Page {
                         EnterKey.onClicked: {
                             if (newTagCheckItem.enabled) { // Check 'enabled' state of the right item
                                 newTagCheckItem.MouseArea.onClicked();
-                            }
-                        }
-
-                        // Allow clicking on the TextField to activate creation mode
-                        MouseArea {
-                            anchors.fill: parent
-                            enabled: !creatingNewTag // Only clickable when not in creation mode
-                            onClicked: {
-                                tagEditPage.creatingNewTag = true;
-                                newTagNameInput = "";
-                                tagInput.forceActiveFocus(true);
                             }
                         }
 
@@ -253,26 +243,51 @@ Page {
                                 enabled: creatingNewTag // Only enabled when creating a new tag
                                 onPressed: checkRipple.ripple(mouseX, mouseY)
                                 onClicked: {
-                                    var trimmedTag = newTagNameInput.trim();
-                                    if (trimmedTag === "") {
-                                        if (toastManager) toastManager.show("Tag name cannot be empty!");
-                                    } else {
-                                        var tagExists = allTagsWithCounts.some(function(t) {
-                                            return t.name.toLowerCase() === trimmedTag.toLowerCase();
-                                        });
+                                    var rawTag = newTagNameInput.trim();
+                                    console.log("DEBUG: Raw tag input:", rawTag);
+                                    var processedTag = rawTag;
 
-                                        if (tagExists) {
-                                            console.log("Error: Tag '" + trimmedTag + "' already exists.");
-                                            if (toastManager) toastManager.show("Tag '" + trimmedTag + "' already exists!");
+                                    if (rawTag === "") {
+                                        if (toastManager) toastManager.show("Tag name cannot be empty!");
+                                        console.log("DEBUG: Tag name empty.");
+                                        return; // Exit function if empty
+                                    }
+
+                                    // Process '#' characters: remove all leading '#' and then add one at the beginning
+                                    processedTag = processedTag.replace(/^#+/, ''); // Remove all leading '#'
+                                    if (processedTag !== "") { // Ensure not adding '#' to an empty string
+                                        processedTag = "#" + processedTag; // Add single '#'
+                                    }
+                                    console.log("DEBUG: Processed tag for DB:", processedTag);
+
+                                    var tagExists = allTagsWithCounts.some(function(t) {
+                                        // Standardize existing tag name for comparison: remove all leading '#' and add one
+                                        var existingTagName = t.name;
+                                        var standardizedExistingTag = existingTagName.replace(/^#+/, '');
+                                        if (standardizedExistingTag !== "") {
+                                            standardizedExistingTag = "#" + standardizedExistingTag;
                                         } else {
-                                            DB.addTag(trimmedTag); // Add tag to database
-                                            refreshTags(); // Refresh list
-                                            newTagNameInput = ""; // Clear input
-                                            creatingNewTag = false; // Exit creation mode
-                                            tagInput.forceActiveFocus(false); // Hide keyboard
-                                            if (onTagsChanged) { onTagsChanged(); } // Notify MainPage
-                                            if (toastManager) toastManager.show("Tag '" + trimmedTag + "' created!");
+                                            standardizedExistingTag = ""; // Should not happen with valid tags, but for robustness
                                         }
+                                        console.log("DEBUG: Comparing existing tag '" + existingTagName + "' (standardized: '" + standardizedExistingTag + "') with new '" + processedTag + "'");
+                                        return standardizedExistingTag.toLowerCase() === processedTag.toLowerCase();
+                                    });
+
+                                    console.log("DEBUG: Tag exists check for '" + processedTag + "':", tagExists);
+
+                                    if (tagExists) {
+                                        console.log("Error: Tag '" + processedTag + "' already exists.");
+                                        if (toastManager) toastManager.show("Tag '" + processedTag + "' already exists!");
+                                    } else {
+                                        DB.addTag(processedTag); // Add processed tag to database
+                                        console.log("DEBUG: Calling DB.addTag with:", processedTag);
+                                        refreshTags(); // Refresh list
+                                        newTagNameInput = ""; // Clear input
+                                        creatingNewTag = false; // Exit creation mode
+                                        tagInput.forceActiveFocus(false); // Hide keyboard
+                                        if (onTagsChanged) { onTagsChanged(); } // Notify MainPage
+                                        if (toastManager) toastManager.show("Tag '" + processedTag + "' created!");
+                                        console.log("DEBUG: Tag creation successful, list refreshed.");
                                     }
                                 }
                             }
@@ -292,7 +307,7 @@ Page {
                     delegate: TagListItem {
                         id: tagListItemDelegate // Changed ID for clarity
                         width: parent.width
-                        tagName: modelData.name
+                        tagName: modelData.name // tagName already contains '#' from DB
                         noteCount: modelData.count // This is correct and passes the count
 
                         // Reference to the parent TagEditPage
@@ -343,6 +358,9 @@ Page {
 
                         // Add a unique objectName for delegates for more robust lookup if needed
                         objectName: "tagListItemDelegate"
+
+                        // Removed the problematic Label that caused double '#'
+                        // The '#' prefix should be handled within TagListItem.qml itself.
                     }
                 }
             }
