@@ -71,40 +71,49 @@
     </message>
 </context>
 <context>
+    <name>TrashNoteCard</name>
+    <message>
+        <location filename="../qml/pages/TrashNoteCard.qml" line="61"/>
+        <location filename="../qml/pages/TrashNoteCard.qml" line="73"/>
+        <source>Empty</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>TrashPage</name>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="29"/>
+        <location filename="../qml/pages/TrashPage.qml" line="38"/>
         <source>Trash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="83"/>
-        <source>Restore</source>
+        <location filename="../qml/pages/TrashPage.qml" line="90"/>
+        <source>%1 note(s) restored!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="94"/>
-        <source>Delete Permanently</source>
+        <location filename="../qml/pages/TrashPage.qml" line="106"/>
+        <source>Are you sure you want to permanently delete %1 selected notes? This action cannot be undone.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="99"/>
+        <location filename="../qml/pages/TrashPage.qml" line="107"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="100"/>
+        <location filename="../qml/pages/TrashPage.qml" line="108"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="117"/>
-        <source>Trash is empty.</source>
+        <location filename="../qml/pages/TrashPage.qml" line="113"/>
+        <source>%1 note(s) permanently deleted!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="98"/>
-        <source>Are you sure you want to permanently delete this note? This action cannot be undone.</source>
+        <location filename="../qml/pages/TrashPage.qml" line="186"/>
+        <source>Trash is empty.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

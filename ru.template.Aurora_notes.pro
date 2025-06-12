@@ -12,6 +12,7 @@ HEADERS += \
 
 DISTFILES += \
     qml/pages/ConfirmationDialog.qml \
+    qml/pages/TrashNoteCard.qml \
     rpm/ru.template.Aurora_notes.spec \
 
 AURORAAPP_ICONS = 86x86 108x108 128x128 172x172

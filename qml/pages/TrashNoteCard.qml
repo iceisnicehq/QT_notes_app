@@ -1,56 +1,76 @@
-// NoteCard.qml
+// TrashNoteCard.qml (ПОЛНЫЙ ФАЙЛ)
+
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 
 Item {
     id: root
     width: parent ? parent.width : 360
-    height: cardColumn.implicitHeight + Theme.paddingLarge * 2 + 20 // Adjusted bottom margin
+    implicitHeight: cardColumn.implicitHeight + (Theme.paddingLarge * 2)
 
     property string title: ""
     property string content: ""
-    property var tags: [] // This property receives a string like "tag1 tag2" or ""
-    property string cardColor: "#1c1d29" // ADDED: New property for card background color, default to a neutral grey
+    property string tags: ""
+    property string cardColor: "#1c1d29"
+    property bool isSelected: false
+    signal selectionToggled(int noteId, bool isSelected)
+    property int noteId: -1
 
     Rectangle {
         anchors.fill: parent
-        // MODIFIED: Use cardColor for the background
-        color: root.cardColor // Use the new property for background color
+        color: root.cardColor
         radius: 20
         border.color: "#43484e"
         border.width: 2
-        anchors.bottomMargin: 20 // This margin affects the root Item's height
+
+        // Кастомный "белый шарик" (чекбокс)
+        Rectangle {
+            id: selectionIndicator
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.rightMargin: Theme.paddingMedium
+            anchors.topMargin: Theme.paddingMedium
+
+            width: Theme.iconSizeSmall
+            height: width
+            radius: width / 2
+
+            color: root.isSelected ? Theme.highlightColor
+                                   : Theme.primaryColor
+            border.color: root.isSelected ? "transparent"
+                                          : Theme.secondaryColor
+            border.width: root.isSelected ? 0 : 2
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    root.isSelected = !root.isSelected
+                    root.selectionToggled(root.noteId, root.isSelected)
+                }
+            }
+        }
+
         Column {
             id: cardColumn
-            anchors {
-                left: parent.left; leftMargin: Theme.paddingLarge
-                right: parent.right; rightMargin: Theme.paddingLarge
-                top: parent.top; topMargin: Theme.paddingLarge
-                bottom: parent.bottom; bottomMargin: Theme.paddingLarge
-            }
+            anchors.fill: parent
+            anchors.margins: Theme.paddingLarge
             spacing: Theme.paddingSmall
 
-            // Title
             Text {
                 id: titleText
-                text: (root.title && root.title.trim()) ? root.title : "Empty"
+                text: (root.title && root.title.trim()) ? root.title : qsTr("Empty")
                 font.italic: !(root.title && root.title.trim())
                 textFormat: Text.PlainText
                 color: "#e8eaed"
                 font.pixelSize: Theme.fontSizeLarge
                 font.bold: true
                 wrapMode: Text.Wrap
-                width: parent.width
+                width: parent.width - (Theme.paddingLarge * 2) - selectionIndicator.width - Theme.paddingMedium
             }
-            Rectangle {
-                width: parent.width
-                height: 8
-                color: "transparent"
-            }
-            // Content (max 5 lines with ellipsis)
+
             Text {
                 id: contentText
-                text: (root.content && root.content.trim()) ? root.content : "Empty"
+                text: (root.content && root.content.trim()) ? root.content : qsTr("Empty")
                 font.italic: !(root.content && root.content.trim())
                 textFormat: Text.PlainText
                 wrapMode: Text.WordWrap
@@ -60,26 +80,21 @@ Item {
                 color: "#e8eaed"
                 width: parent.width
             }
-            Rectangle {
-                width: parent.width
-                height: 4
-                color: "transparent"
-            }
-            // Tags
+
             Flow {
                 id: tagsFlow
                 width: parent.width
                 spacing: Theme.paddingSmall
-                visible: tags.trim().length > 0
+                visible: root.tags && root.tags.trim().length > 0
 
                 Repeater {
-                    model: tags.split(" ")
+                    model: root.tags.split(" ")
                     delegate: Rectangle {
-                        visible: index < 2
+                        visible: index < 2 && modelData.trim().length > 0
                         color: "#32353a"
                         radius: 12
                         height: tagText.implicitHeight + Theme.paddingSmall
-                        width: Math.min(tagText.implicitWidth + Theme.paddingMedium, parent.width)
+                        width: Math.min(tagText.implicitWidth + Theme.paddingMedium * 2, root.width * 0.45)
 
                         Text {
                             id: tagText
@@ -90,7 +105,7 @@ Item {
                             anchors.centerIn: parent
                             horizontalAlignment: Text.AlignHCenter
                             verticalAlignment: Text.AlignVCenter
-                            width: parent.width - Theme.paddingMedium
+                            width: parent.width - Theme.paddingSmall * 2
                             wrapMode: Text.NoWrap
                             textFormat: Text.PlainText
                         }
@@ -98,7 +113,7 @@ Item {
                 }
 
                 Rectangle {
-                    visible: tags.split(" ").length > 2
+                    visible: root.tags && root.tags.split(" ").length > 2
                     color: "#32353a"
                     radius: 12
                     height: tagCount.implicitHeight + Theme.paddingSmall
@@ -106,7 +121,7 @@ Item {
 
                     Text {
                         id: tagCount
-                        text: "+" + (tags.split(" ").length - 2)
+                        text: "+" + (root.tags.split(" ").length - 2)
                         color: "#c5c8d0"
                         font.pixelSize: Theme.fontSizeExtraSmall
                         anchors.centerIn: parent

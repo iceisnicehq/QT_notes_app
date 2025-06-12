@@ -365,3 +365,35 @@ function deleteTag(tagName) {
         }
     });
 }
+
+
+
+
+function restoreNotes(ids) {
+    if (!db) {
+        console.error("DB_MGR: Database not initialized.");
+        return;
+    }
+    db.transaction(function(tx) {
+        // ИСПРАВЛЕНИЕ: Заменена стрелочная функция на обычную анонимную
+        var placeholders = ids.map(function() { return '?'; }).join(',');
+        tx.executeSql("UPDATE notes SET deleted = 0 WHERE id IN (" + placeholders + ")", ids);
+        console.log("DB_MGR: Restored notes with IDs:", ids);
+    });
+}
+
+// Пример функции для окончательного удаления нескольких заметок
+function permanentlyDeleteNotes(ids) {
+    if (!db) {
+        console.error("DB_MGR: Database not initialized.");
+        return;
+    }
+    db.transaction(function(tx) {
+        // ИСПРАВЛЕНИЕ: Заменена стрелочная функция на обычную анонимную
+        var placeholders = ids.map(function() { return '?'; }).join(',');
+        tx.executeSql("DELETE FROM notes WHERE id IN (" + placeholders + ")", ids);
+        // Также удалить связанные теги, если они больше не используются
+        tx.executeSql("DELETE FROM note_tags WHERE note_id IN (" + placeholders + ")", ids);
+        console.log("DB_MGR: Permanently deleted notes with IDs:", ids);
+    });
+}
