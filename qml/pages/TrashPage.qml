@@ -1,13 +1,14 @@
-// TrashPage.qml (UPDATED - Improved Layout for Deleted Notes - AGAIN)
+// TrashPage.qml (ФИНАЛЬНЫЙ ПОЛНЫЙ ФАЙЛ, с увеличенными отступами и фиксированной высотой кнопок)
 
 import QtQuick.LocalStorage 2.0
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import "DatabaseManager.js" as DB
+import "DatabaseManager.js" as DB // Убедитесь, что DatabaseManager.js находится в той же папке
 
 Page {
     id: trashPage
-    backgroundColor: Theme.backgroundColor
+    // Используем Theme.backgroundColor, с запасным вариантом на случай undefined
+    backgroundColor: Theme.backgroundColor !== undefined ? Theme.backgroundColor : "#1c1d29"
     property var deletedNotes: []
 
     Component.onCompleted: {
@@ -18,81 +19,91 @@ Page {
     function refreshDeletedNotes() {
         deletedNotes = DB.getDeletedNotes();
         console.log("TRASH_PAGE: refreshDeletedNotes completed. Count:", deletedNotes.length);
-        trashPage.showEmptyLabel = deletedNotes.length === 0; // Update visibility directly
     }
 
     property bool showEmptyLabel: deletedNotes.length === 0
 
-    // Header
+    // Заголовок страницы
     PageHeader {
+        id: pageHeader
         Label {
-            text: qsTr("Trash")
-            anchors.centerIn: parent
+            text: qsTr("Trash") // "Корзина"
+            anchors.centerIn: parent // Центрируем текст заголовка по горизонтали и вертикали
             font.pixelSize: Theme.fontSizeExtraLarge
             color: Theme.highlightColor
             font.bold: true
         }
     }
 
-    // Main content area for deleted notes
+    // Основная прокручиваемая область для отображения заметок
     SilicaFlickable {
         id: trashFlickable
         anchors.fill: parent
-        anchors.top: pageHeader.bottom
-        contentHeight: trashColumn.implicitHeight // Use implicitHeight for proper content sizing
+        anchors.top: pageHeader.bottom // Начинаем сразу под заголовком
+        // Высота контента flickable будет определяться неявно по содержимому trashColumn
+        // или position of emptyLabel, так как они переключаются видимостью.
+        contentHeight: trashColumn.implicitHeight + (trashPage.showEmptyLabel ? 0 : Theme.paddingLarge)
+        // Добавляем небольшой отступ снизу, если заметки есть, для лучшего скроллинга
 
         Column {
             id: trashColumn
             width: parent.width
-            spacing: Theme.paddingMedium // Increased spacing between note items
+            spacing: Theme.paddingMedium // Отступ между каждым блоком (карточка + кнопки)
+            visible: !trashPage.showEmptyLabel // Показываем колонку только если заметки есть
+            anchors.top: parent.top // Колонка начинается вверху SilicaFlickable
+            anchors.topMargin: Theme.paddingMedium // Добавляем отступ сверху колонки, чтобы первая карточка не прилипала к заголовку
 
-            // Repeater for deleted notes
+            // Повторитель для создания элементов удаленных заметок
             Repeater {
                 model: deletedNotes
-                delegate: Column { // Each deleted note item is a Column
-                    width: parent.width // Make sure the column takes full width
+                delegate: Column { // Каждый элемент заметки - это отдельная Колонка
+                    width: parent.width
+                    // УВЕЛИЧЕНО: spacing между NoteCard и кнопками теперь больше
+                    spacing: Theme.paddingLarge // Увеличиваем отступ здесь до Theme.paddingLarge
 
-                    // The NoteCard itself
+                    // Сама карточка заметки (компонент NoteCard)
                     NoteCard {
-                        id: noteCardInTrash
+                        // Горизонтальные отступы внутри Column делегата
                         anchors {
                             left: parent.left
                             right: parent.right
                             leftMargin: Theme.paddingMedium
                             rightMargin: Theme.paddingMedium
+                            // bottomMargin на NoteCard не так важен, если spacing Column делегата большой.
+                            // Его можно удалить, если spacing в Column-делегате справляется.
+                            // bottomMargin: Theme.paddingSmall // Опционально, для очень мелкого отступа
                         }
-                        width: parent.width - (Theme.paddingMedium * 2) // Match the parent's width minus margins
+                        width: parent.width - (Theme.paddingMedium * 2) // Ширина карточки с учетом боковых отступов
                         title: modelData.title
                         content: modelData.content
                         tags: modelData.tags ? modelData.tags.join(' ') : ''
-                        cardColor: modelData.color || "#1c1d29"
-                        height: implicitHeight // Let the NoteCard determine its own height
+                        cardColor: modelData.color || "#1c1d29" // Цвет карточки из данных, или дефолтный
+                        height: implicitHeight // Пусть NoteCard сама определяет свою высоту
                     }
 
-                    // Row for action buttons (Restore, Delete Permanently)
+                    // Ряд для кнопок действий (Восстановить, Удалить навсегда)
+                    // ЭТОТ РЯД ДОЛЖЕН БЫТЬ ВНУТРИ ДЕЛЕГАТА Column, чтобы кнопки были под каждой заметкой.
                     Row {
-                        width: parent.width - (Theme.paddingMedium * 2) // Match NoteCard's horizontal margins
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        spacing: Theme.paddingSmall // Spacing between buttons
-                        anchors.top: noteCardInTrash.bottom // Position below the NoteCard
-                        anchors.topMargin: Theme.paddingSmall // Add some space between NoteCard and buttons
+                        width: parent.width - (Theme.paddingMedium * 2) // Ширина ряда кнопок соответствует ширине карточки
+                        anchors.horizontalCenter: parent.horizontalCenter // Центрируем ряд горизонтально
+                        spacing: Theme.paddingSmall // Отступ между кнопками
 
                         Button {
-                            width: (parent.width - (Theme.paddingMedium * 2) - parent.spacing) / 2 // Divide available space between buttons
-                            height: Theme.buttonHeight // Use standard button height
+                            width: (parent.width - parent.spacing) / 2 // Делим доступное пространство поровну между кнопками
+                            height: 30 // Фиксированная высота, как вы протестировали
                             text: qsTr("Restore")
                             onClicked: {
                                 DB.restoreNote(modelData.id);
-                                refreshDeletedNotes(); // Re-fetch notes after restore
+                                refreshDeletedNotes(); // Обновляем список заметок после восстановления
                                 toastManager.show("Note restored!");
                             }
                         }
 
                         Button {
-                            width: (parent.width - (Theme.paddingMedium * 2) - parent.spacing) / 2 // Divide available space
-                            height: Theme.buttonHeight // Use standard button height
+                            width: (parent.width - parent.spacing) / 2 // Делим доступное пространство поровну
+                            height: 30 // Фиксированная высота
                             text: qsTr("Delete Permanently")
-                            highlightColor: Theme.errorColor
+                            highlightColor: Theme.errorColor // Цвет для кнопки удаления
                             onClicked: {
                                 var dialog = pageStack.push(Qt.resolvedUrl("ConfirmationDialog.qml"), {
                                     message: qsTr("Are you sure you want to permanently delete this note? This action cannot be undone."),
@@ -101,35 +112,37 @@ Page {
                                 });
                                 dialog.accepted.connect(function() {
                                     DB.permanentlyDeleteNote(modelData.id);
-                                    refreshDeletedNotes(); // Re-fetch notes after permanent delete
+                                    refreshDeletedNotes(); // Обновляем список заметок после удаления
                                     console.log("TRASH_PAGE: Permanently deleted note ID:", modelData.id);
                                     toastManager.show("Note permanently deleted!");
                                 });
                             }
                         }
-                    } // End of Row for buttons
-                } // End of delegate Column
-            } // End of Repeater
+                    } // Конец Row для кнопок
+                } // Конец Column-делегата
+            } // Конец Repeater
+        } // Конец trashColumn
 
-            // Empty state label
-            Label {
-                visible: trashPage.showEmptyLabel
-                text: qsTr("Trash is empty.")
-                font.italic: true
-                color: Theme.secondaryColor
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.top: trashColumn.children.length === 0 ? parent.top : trashColumn.bottom
-                anchors.topMargin: Theme.itemSizeExtraLarge
-                width: parent.width * 0.8
-                horizontalAlignment: Text.AlignHCenter
-            }
-        } // End of trashColumn
-    } // End of SilicaFlickable
+        // Метка "Корзина пуста" - отображается, когда нет удаленных заметок
+        Label {
+            id: emptyLabel
+            visible: trashPage.showEmptyLabel // Видима, только если корзина пуста
+            text: qsTr("Trash is empty.") // "Корзина пуста."
+            font.italic: true
+            color: Theme.secondaryColor
+            anchors.horizontalCenter: parent.horizontalCenter // Центрируем по горизонтали
+            anchors.verticalCenter: parent.verticalCenter // Центрируем по вертикали в видимой области flickable
+            width: parent.width * 0.8 // Ширина метки 80% от ширины родителя
+            horizontalAlignment: Text.AlignHCenter // Выравнивание текста по центру
+        }
+    } // Конец SilicaFlickable
 
+    // Полоса прокрутки для SilicaFlickable
     ScrollBar {
         flickableSource: trashFlickable
     }
 
+    // Менеджер всплывающих уведомлений
     ToastManager {
         id: toastManager
     }

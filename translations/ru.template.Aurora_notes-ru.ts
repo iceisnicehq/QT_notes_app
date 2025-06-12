@@ -32,6 +32,24 @@
     </message>
 </context>
 <context>
+    <name>ConfirmationDialog</name>
+    <message>
+        <location filename="../qml/pages/ConfirmationDialog.qml" line="8"/>
+        <source>Yes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ConfirmationDialog.qml" line="9"/>
+        <source>No</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ConfirmationDialog.qml" line="11"/>
+        <source>Are you sure?</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>DefaultCoverPage</name>
     <message>
         <location filename="../qml/cover/DefaultCoverPage.qml" line="10"/>
@@ -55,37 +73,37 @@
 <context>
     <name>TrashPage</name>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="37"/>
+        <location filename="../qml/pages/TrashPage.qml" line="29"/>
         <source>Trash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="87"/>
+        <location filename="../qml/pages/TrashPage.qml" line="83"/>
         <source>Restore</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="96"/>
+        <location filename="../qml/pages/TrashPage.qml" line="94"/>
         <source>Delete Permanently</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="101"/>
+        <location filename="../qml/pages/TrashPage.qml" line="99"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="102"/>
+        <location filename="../qml/pages/TrashPage.qml" line="100"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="120"/>
+        <location filename="../qml/pages/TrashPage.qml" line="117"/>
         <source>Trash is empty.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="100"/>
+        <location filename="../qml/pages/TrashPage.qml" line="98"/>
         <source>Are you sure you want to permanently delete this note? This action cannot be undone.</source>
         <translation type="unfinished"></translation>
     </message>
