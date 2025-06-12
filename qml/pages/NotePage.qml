@@ -2,6 +2,7 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.LocalStorage 2.0
 import "DatabaseManager.js" as DB
+
 Page {
     id: newNotePage
     backgroundColor: newNotePage.noteColor
@@ -15,8 +16,13 @@ Page {
     property date noteEditDate: new Date()
     property string noteColor: "#121218"
     property bool noteModified: false
+
+    // Добавим свойство для отслеживания, была ли заметка "отправлена в корзину" с этой страницы
+    property bool sentToTrash: false
+
     readonly property var colorPalette: ["#121218", "#1c1d29", "#3a2c2c", "#2c3a2c", "#2c2c3a", "#3a3a2c",
         "#43484e", "#5c4b37", "#3e4a52", "#503232", "#325032", "#323250"]
+
     Component.onCompleted: {
         console.log("NewNotePage opened.");
         if (noteId !== -1) {
@@ -32,24 +38,32 @@ Page {
             noteModified = true;
         }
     }
+
     Component.onDestruction: {
         console.log("NewNotePage being destroyed. Attempting to save/delete note.");
         var trimmedTitle = noteTitleInput.text.trim();
         var trimmedContent = noteContentInput.text.trim();
-        if (trimmedTitle === "" && trimmedContent === "") {
+
+        if (sentToTrash) {
+            // Если заметка уже отправлена в корзину через кнопку, не делаем ничего при закрытии
+            console.log("Debug: Note already sent to trash. Skipping save/delete on destruction.");
+        } else if (trimmedTitle === "" && trimmedContent === "") {
             if (noteId !== -1) {
-                DB.deleteNote(noteId);
-                console.log("Debug: Empty existing note deleted with ID:", noteId);
+                // Если заметка была пустой и уже существовала, удаляем ее безвозвратно
+                DB.permanentlyDeleteNote(noteId);
+                console.log("Debug: Empty existing note permanently deleted with ID:", noteId);
             } else {
                 console.log("Debug: New empty note not saved.");
             }
         } else {
             if (noteId === -1) {
+                // Добавляем новую заметку
                 newNotePage.noteTitle = noteTitleInput.text;
                 newNotePage.noteContent = noteContentInput.text;
                 var newId = DB.addNote(noteIsPinned, newNotePage.noteTitle, newNotePage.noteContent, noteTags, noteColor);
                 console.log("Debug: New note added with ID:", newId + ", Color: " + noteColor);
             } else {
+                // Обновляем существующую заметку
                 if (noteModified) {
                     newNotePage.noteTitle = noteTitleInput.text;
                     newNotePage.noteContent = noteContentInput.text;
@@ -65,9 +79,11 @@ Page {
             onNoteSavedOrDeleted();
         }
     }
+
     ToastManager {
         id: toastManager
     }
+
     Rectangle {
         id: header
         width: parent.width
@@ -144,6 +160,7 @@ Page {
             }
         }
     }
+
     Rectangle {
         id: bottomToolbar
         width: parent.width
@@ -155,12 +172,14 @@ Page {
         Behavior on y {
             NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
         }
+
         Row {
             id: leftToolbarButtons
             anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter
             anchors.leftMargin: Theme.paddingLarge
             spacing: Theme.paddingMedium
+
             Item {
                 width: Theme.fontSizeExtraLarge * 1.1
                 height: Theme.fontSizeExtraLarge * 1.1
@@ -356,12 +375,14 @@ Page {
                 }
             }
         }
+
         Row {
             id: rightToolbarButtons
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
             anchors.rightMargin: Theme.paddingLarge
             spacing: Theme.paddingMedium
+
             Item {
                 width: Theme.fontSizeExtraLarge * 1.1
                 height: Theme.fontSizeExtraLarge * 1.1
@@ -384,6 +405,7 @@ Page {
                     }
                 }
             }
+
             Item {
                 width: Theme.fontSizeExtraLarge * 1.1
                 height: Theme.fontSizeExtraLarge * 1.1
@@ -400,34 +422,42 @@ Page {
                     anchors.fill: parent
                     onPressed: deleteRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        console.log("Delete Note");
-                        toastManager.show("Note deleted!");
+                        // MODIFIED: Call DB.deleteNote which now moves to trash
                         if (newNotePage.noteId !== -1) {
-                            DB.deleteNote(newNotePage.noteId);
-                            console.log("Note deleted with ID:", newNotePage.noteId);
+                            DB.deleteNote(newNotePage.noteId); // Moves to trash
+                            console.log("Note ID:", newNotePage.noteId, "moved to trash.");
+                            newNotePage.sentToTrash = true; // Mark that it was sent to trash
+                            toastManager.show("Note moved to trash!");
                             if (onNoteSavedOrDeleted) {
-                                onNoteSavedOrDeleted();
+                                onNoteSavedOrDeleted(); // Refresh data on main page
                             }
+                        } else {
+                            // If it's a new unsaved note, just pop it
+                            console.log("New unsaved note discarded.");
                         }
-                        pageStack.pop();
+                        pageStack.pop(); // Go back to the previous page
                     }
                 }
             }
         }
     }
+
     SilicaFlickable {
         id: mainContentFlickable
         anchors.fill: parent
         anchors.topMargin: header.height
         anchors.bottomMargin: bottomToolbar.height + (Qt.inputMethod.visible ? Qt.inputMethod.keyboardRectangle.height : 0)
         contentHeight: contentColumn.implicitHeight
+
         Behavior on anchors.bottomMargin {
             NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
         }
+
         Column {
             id: contentColumn
             width: parent.width * 0.98
             anchors.horizontalCenter: parent.horizontalCenter
+
             TextField {
                 id: noteTitleInput
                 width: parent.width
@@ -444,6 +474,7 @@ Page {
                 inputMethodHints: Qt.ImhNoAutoUppercase
                 maximumLength: 256
             }
+
             TextArea {
                 id: noteContentInput
                 width: parent.width
@@ -459,11 +490,13 @@ Page {
                 color: "#e8eaed"
                 verticalAlignment: Text.AlignTop
             }
+
             Flow {
                 id: tagsFlow
                 width: parent.width
                 spacing: Theme.paddingMedium
                 visible: newNotePage.noteTags.length > 0
+
                 Repeater {
                     model: newNotePage.noteTags
                     delegate: Rectangle {
@@ -474,7 +507,9 @@ Page {
                         radius: 12
                         height: tagText.implicitHeight + Theme.paddingSmall
                         width: Math.min(tagText.implicitWidth + Theme.paddingMedium, parent.width)
+
                         Behavior on color { ColorAnimation { duration: 150 } }
+
                         Text {
                             id: tagText
                             text: modelData
@@ -486,6 +521,7 @@ Page {
                             wrapMode: Text.NoWrap
                             textFormat: Text.PlainText
                         }
+
                         MouseArea {
                             anchors.fill: parent
                             onPressed: tagRectangle.color = tagRectangle.pressedColor
@@ -504,8 +540,10 @@ Page {
                     }
                 }
             }
+
             Item { width: parent.width; height: Theme.paddingLarge * 2 }
         }
+
         Label {
             id: noTagsLabel
             text: "No tags"
@@ -517,6 +555,7 @@ Page {
             anchors.top: contentColumn.bottom
         }
     }
+
     Rectangle {
         id: overlayRect
         anchors.fill: parent
@@ -524,6 +563,7 @@ Page {
         visible: colorSelectionPanel.opacity > 0.01
         opacity: colorSelectionPanel.opacity * 0.4
         z: 10.5
+
         MouseArea {
             anchors.fill: parent
             enabled: overlayRect.visible
@@ -534,6 +574,7 @@ Page {
             }
         }
     }
+
     Rectangle {
         id: colorSelectionPanel
         width: parent.width
@@ -546,9 +587,11 @@ Page {
         visible: opacity > 0.01
         color: "transparent"
         clip: true
+
         Behavior on opacity {
             NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
         }
+
         Rectangle {
             id: colorPanelVisualBody
             width: parent.width
@@ -556,6 +599,7 @@ Page {
             color: newNotePage.noteColor
             radius: colorSelectionPanel.panelRadius
             y: 0
+
             Column {
                 id: colorPanelContentColumn
                 width: parent.width
@@ -566,6 +610,7 @@ Page {
                 anchors.topMargin: colorSelectionPanel.panelRadius
                 anchors.bottomMargin: Theme.paddingMedium
                 spacing: Theme.paddingMedium
+
                 Label {
                     id: colorTitle
                     text: "Select Note Color"
@@ -573,6 +618,7 @@ Page {
                     color: "#e8eaed"
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
+
                 Flow {
                     id: colorFlow
                     width: parent.width
@@ -581,11 +627,13 @@ Page {
                     layoutDirection: Qt.LeftToRight
                     readonly property int columns: 6
                     readonly property real itemWidth: (parent.width - (spacing * (columns - 1))) / columns
+
                     Repeater {
                         model: newNotePage.colorPalette
                         delegate: Item {
                             width: parent.itemWidth
                             height: parent.itemWidth
+
                             Rectangle {
                                 anchors.fill: parent
                                 radius: width / 2
@@ -599,6 +647,7 @@ Page {
                                 radius: width / 2
                                 color: modelData
                                 border.color: "transparent"
+
                                 Rectangle {
                                     visible: newNotePage.noteColor === modelData
                                     anchors.centerIn: parent
@@ -606,6 +655,7 @@ Page {
                                     height: parent.height * 0.7
                                     radius: width / 2
                                     color: modelData
+
                                     Icon {
                                         source: "../icons/check.svg"
                                         anchors.centerIn: parent
@@ -615,6 +665,7 @@ Page {
                                     }
                                 }
                             }
+
                             MouseArea {
                                 anchors.fill: parent
                                 onClicked: {
@@ -629,10 +680,12 @@ Page {
             }
         }
     }
+
     ScrollBar {
         flickableSource: mainContentFlickable
         topAnchorItem: header
     }
+
     Rectangle {
         id: tagOverlayRect
         anchors.fill: parent
@@ -640,6 +693,7 @@ Page {
         visible: tagSelectionPanel.opacity > 0.01
         opacity: tagSelectionPanel.opacity * 0.4
         z: 11.5
+
         MouseArea {
             anchors.fill: parent
             enabled: tagOverlayRect.visible
@@ -650,6 +704,7 @@ Page {
             }
         }
     }
+
     Rectangle {
         id: tagSelectionPanel
         width: parent.width
@@ -661,9 +716,11 @@ Page {
         visible: opacity > 0.01
         color: newNotePage.noteColor
         clip: true
+
         Behavior on opacity {
             NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
         }
+
         onVisibleChanged: {
             if (visible) {
                 if (newNotePage.noteId !== -1) {
@@ -673,6 +730,7 @@ Page {
                 }
             }
         }
+
         Rectangle {
             id: tagPanelHeader
             width: parent.width
@@ -680,12 +738,14 @@ Page {
             color: newNotePage.noteColor
             anchors.top: parent.top
             z: 1
+
             Label {
                 text: "Select Tags"
                 font.pixelSize: Theme.fontSizeLarge
                 color: "#e8eaed"
                 anchors.centerIn: parent
             }
+
             Item {
                 width: Theme.fontSizeExtraLarge * 1.1
                 height: Theme.fontSizeExtraLarge * 1.1
@@ -711,9 +771,11 @@ Page {
                 }
             }
         }
+
         ListModel {
             id: availableTagsModel
         }
+
         function loadTagsForTagPanel() {
             availableTagsModel.clear();
             var allTags = DB.getAllTags();
@@ -723,6 +785,7 @@ Page {
             } else {
                 noteSpecificTags = newNotePage.noteTags;
             }
+
             for (var i = 0; i < allTags.length; i++) {
                 var tagName = allTags[i];
                 var isChecked = noteSpecificTags.indexOf(tagName) !== -1;
@@ -733,6 +796,7 @@ Page {
             }
             console.log("TagSelectionPanel: Loaded tags for display in panel. Model items:", availableTagsModel.count);
         }
+
         SilicaFlickable {
             id: tagsPanelFlickable
             width: parent.width
@@ -741,6 +805,7 @@ Page {
             anchors.left: parent.left
             anchors.right: parent.right
             contentHeight: tagsPanelListView.contentHeight
+
             ListView {
                 id: tagsPanelListView
                 width: parent.width
@@ -748,19 +813,24 @@ Page {
                 model: availableTagsModel
                 orientation: ListView.Vertical
                 spacing: Theme.paddingSmall
+
                 delegate: BackgroundItem {
                     id: tagPanelDelegateRoot
                     width: parent.width
                     height: Theme.itemSizeMedium
                     clip: true
+
                     RippleEffect { id: tagPanelDelegateRipple }
+
                     MouseArea {
                         anchors.fill: parent
                         onPressed: tagPanelDelegateRipple.ripple(mouseX, mouseY)
                         onClicked: {
                             var newCheckedState = !model.isChecked;
                             availableTagsModel.set(index, { name: model.name, isChecked: newCheckedState });
+
                             if (newNotePage.noteId === -1) {
+                                // For new notes, modify the local noteTags array directly
                                 if (newCheckedState) {
                                     if (newNotePage.noteTags.indexOf(model.name) === -1) {
                                         newNotePage.noteTags.push(model.name);
@@ -773,6 +843,7 @@ Page {
                                 }
                                 console.log("New note's tags updated directly:", JSON.stringify(newNotePage.noteTags));
                             } else {
+                                // For existing notes, update the database
                                 if (newCheckedState) {
                                     DB.addTagToNote(newNotePage.noteId, model.name);
                                     console.log("Added tag '" + model.name + "' to note ID " + newNotePage.noteId);
@@ -780,18 +851,21 @@ Page {
                                     DB.deleteTagFromNote(newNotePage.noteId, model.name);
                                     console.log("Removed tag '" + model.name + "' from note ID " + newNotePage.noteId);
                                 }
+                                // Re-fetch the tags to ensure the local array is in sync with the DB
                                 newNotePage.noteTags = DB.getTagsForNote(null, newNotePage.noteId);
                                 console.log("NewNotePage: main tagsFlow updated after DB change:", JSON.stringify(newNotePage.noteTags));
                             }
                             newNotePage.noteModified = true;
                         }
                     }
+
                     Row {
                         id: tagPanelRow
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.left: parent.left; anchors.leftMargin: Theme.paddingLarge
                         anchors.right: parent.right; anchors.rightMargin: Theme.paddingLarge
                         spacing: Theme.paddingMedium
+
                         Icon {
                             id: tagPanelTagIcon
                             source: "../icons/tag-white.svg"
@@ -801,6 +875,7 @@ Page {
                             anchors.verticalCenter: parent.verticalCenter
                             fillMode: Image.PreserveAspectFit
                         }
+
                         Label {
                             id: tagPanelTagNameLabel
                             text: model.name
@@ -810,12 +885,14 @@ Page {
                             elide: Text.ElideRight
                             width: parent.width - tagPanelTagIcon.width - tagPanelCheckButtonContainer.width - (tagPanelRow.spacing * 2)
                         }
+
                         Item {
                             id: tagPanelCheckButtonContainer
                             width: Theme.iconSizeMedium
                             height: Theme.iconSizeMedium
                             anchors.verticalCenter: parent.verticalCenter
                             clip: false
+
                             Image {
                                 id: tagPanelCheckIcon
                                 source: model.isChecked ? "../icons/box-checked.svg" : "../icons/box.svg"

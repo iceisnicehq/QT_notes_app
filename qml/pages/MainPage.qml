@@ -1,12 +1,12 @@
-// MainPage.qml
+// MainPage.qml (UPDATED)
+
 import QtQuick.LocalStorage 2.0
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import "Database.js" as Data          // <-- здесь будет доступен массив Data.notes
+import "Database.js" as Data
 import "DatabaseManager.js" as DB
 
 Page {
-
     id: mainPage
     objectName: "mainPage"
     allowedOrientations: Orientation.All
@@ -21,13 +21,15 @@ Page {
 
     Component.onCompleted: {
         DB.initDatabase()
-        DB.insertTestData()  // ← Adds test data. This will also update the 'color' column if it's missing.
+        DB.insertTestData()
         refreshData()
     }
+
     function refreshData() {
-        allNotes = DB.getAllNotes();
-        allTags = DB.getAllTags();
+        allNotes = DB.getAllNotes(); // This now only gets non-deleted notes
+        allTags = DB.getAllTags(); // This now only gets tags linked to non-deleted notes
     }
+
     // Search Bar Area - Positioned above the Flickable
     Item {
         id: searchBarArea
@@ -60,73 +62,74 @@ Page {
                 EnterKey.onClicked: {
                     console.log("Searching for:", text)
                 }
-            leftItem: Item {
-                width: Theme.fontSizeExtraLarge * 1.1
-                height: Theme.fontSizeExtraLarge * 0.95
-                clip: false
+                leftItem: Item {
+                    width: Theme.fontSizeExtraLarge * 1.1
+                    height: Theme.fontSizeExtraLarge * 0.95
+                    clip: false
 
-                Icon {
-                    id: menuIcon
-                    source: "../icons/menu.svg"
-                    anchors.centerIn: parent
-                    width: parent.width
-                    height: parent.height
-                }
-
-                RippleEffect {
-                    id: menuRipple
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        mainPage.panelOpen = true
-                        console.log("Menu button clicked → panelOpen = true")
+                    Icon {
+                        id: menuIcon
+                        source: "../icons/menu.svg"
+                        anchors.centerIn: parent
+                        width: parent.width
+                        height: parent.height
                     }
-                    onPressed: menuRipple.ripple(mouseX, mouseY)
-                }
-            }
 
-            rightItem: Item {
-                width: Theme.fontSizeExtraLarge * 1.1
-                height: Theme.fontSizeExtraLarge * 1.1
-                clip: false
-
-                Icon {
-                    id: plusIcon
-                    source: "../icons/plus.svg"
-                    anchors.centerIn: parent
-                    width: parent.width
-                    height: parent.height
-                }
-
-                RippleEffect {
-                    id: plusRipple
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        // --- CREATE NOTE: Push NewNotePage without pre-filling data ---
-                        pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
-                            onNoteSavedOrDeleted: refreshData,
-                            noteId: -1,
-                            noteTitle: "",
-                            noteContent: "",
-                            noteIsPinned: false,
-                            noteTags: [],
-                            noteCreationDate: new Date(),
-                            noteEditDate: new Date(),
-                            noteColor: "#121218" // ADDED: Default color for new notes
-                        });
-                        console.log("Opening NewNotePage in CREATE mode.");
+                    RippleEffect {
+                        id: menuRipple
                     }
-                    onPressed: plusRipple.ripple(mouseX, mouseY)
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            mainPage.panelOpen = true
+                            console.log("Menu button clicked → panelOpen = true")
+                        }
+                        onPressed: menuRipple.ripple(mouseX, mouseY)
+                    }
                 }
-            }
+
+                rightItem: Item {
+                    width: Theme.fontSizeExtraLarge * 1.1
+                    height: Theme.fontSizeExtraLarge * 1.1
+                    clip: false
+
+                    Icon {
+                        id: plusIcon
+                        source: "../icons/plus.svg"
+                        anchors.centerIn: parent
+                        width: parent.width
+                        height: parent.height
+                    }
+
+                    RippleEffect {
+                        id: plusRipple
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            // --- CREATE NOTE: Push NewNotePage without pre-filling data ---
+                            pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
+                                onNoteSavedOrDeleted: refreshData,
+                                noteId: -1,
+                                noteTitle: "",
+                                noteContent: "",
+                                noteIsPinned: false,
+                                noteTags: [],
+                                noteCreationDate: new Date(),
+                                noteEditDate: new Date(),
+                                noteColor: "#121218"
+                            });
+                            console.log("Opening NewNotePage in CREATE mode.");
+                        }
+                        onPressed: plusRipple.ripple(mouseX, mouseY)
+                    }
+                }
             }
         }
     }
+
     SidePanel {
         id: sidePanel
         anchors.top: parent.top
@@ -134,6 +137,7 @@ Page {
         open: panelOpen
         tags: allTags
     }
+
     SilicaFlickable {
         id: flickable
         anchors.fill: parent
@@ -172,7 +176,6 @@ Page {
                     anchors.left: parent.left
                     anchors.leftMargin: Theme.paddingLarge + 19
                     horizontalAlignment: Text.AlignLeft
-
                 }
 
                 ListView {
@@ -191,7 +194,7 @@ Page {
                         title: modelData.title
                         content: modelData.content
                         tags: modelData.tags.join(' ')
-                        cardColor: modelData.color || "#1c1d29" // ADDED: Pass color to NoteCard, with fallback
+                        cardColor: modelData.color || "#1c1d29"
 
                         MouseArea {
                             anchors.fill: parent
@@ -205,7 +208,7 @@ Page {
                                     noteTags: modelData.tags,
                                     noteCreationDate: new Date(modelData.created_at + "Z"),
                                     noteEditDate: new Date(modelData.updated_at + "Z"),
-                                    noteColor: modelData.color // ADDED: Pass noteColor
+                                    noteColor: modelData.color
                                 });
                                 console.log("Opening NewNotePage in EDIT mode for ID:", modelData.id + ", Color:", modelData.color);
                             }
@@ -231,7 +234,6 @@ Page {
 
                 ListView {
                     id: otherNotes
-
                     width: parent.width
                     spacing: 0
                     height: contentHeight
@@ -247,7 +249,7 @@ Page {
                         title: modelData.title
                         content: modelData.content
                         tags: modelData.tags.join(' ')
-                        cardColor: modelData.color || "#1c1d29" // ADDED: Pass color to NoteCard, with fallback
+                        cardColor: modelData.color || "#1c1d29"
 
                         MouseArea {
                             anchors.fill: parent
@@ -261,7 +263,7 @@ Page {
                                     noteTags: modelData.tags,
                                     noteCreationDate: new Date(modelData.created_at + "Z"),
                                     noteEditDate: new Date(modelData.updated_at + "Z"),
-                                    noteColor: modelData.color // ADDED: Pass noteColor
+                                    noteColor: modelData.color
                                 });
                                 console.log("Opening NewNotePage in EDIT mode for ID:", modelData.id + ", Color:", modelData.color);
                             }
@@ -271,6 +273,7 @@ Page {
             }
         }
     }
+
     ScrollBar {
         flickableSource: flickable
         topAnchorItem: searchBarArea
