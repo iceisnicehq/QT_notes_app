@@ -25,6 +25,17 @@ Page {
         refreshData()
     }
 
+    // Corrected: Using onStatusChanged for page activation detection
+    onStatusChanged: {
+        // When MainPage becomes active (topmost in PageStack), clear search field focus and hide keyboard.
+        if (mainPage.status === PageStatus.Active) {
+            refreshData()
+            searchField.focus = false;
+            Qt.inputMethod.hide(); // Explicitly hide the keyboard
+            console.log("MainPage active (status changed to Active), search field focus cleared and keyboard hidden.");
+        }
+    }
+
     function refreshData() {
         allNotes = DB.getAllNotes(); // This now only gets non-deleted notes
         allTags = DB.getAllTags(); // This now only gets tags linked to non-deleted notes
@@ -61,6 +72,9 @@ Page {
                 highlighted: false
                 EnterKey.onClicked: {
                     console.log("Searching for:", text)
+                    // Optionally hide keyboard after search if not automatically done
+                    Qt.inputMethod.hide();
+                    searchField.focus = false; // Clear focus after search
                 }
                 leftItem: Item {
                     width: Theme.fontSizeExtraLarge * 1.1
@@ -84,8 +98,11 @@ Page {
                         onClicked: {
                             mainPage.panelOpen = true
                             console.log("Menu button clicked → panelOpen = true")
+                            Qt.inputMethod.hide();
+                            searchField.focus = false; // Clear focus when opening panel
                         }
                         onPressed: menuRipple.ripple(mouseX, mouseY)
+
                     }
                 }
 
@@ -122,6 +139,8 @@ Page {
                                 noteColor: "#121218"
                             });
                             console.log("Opening NewNotePage in CREATE mode.");
+                            Qt.inputMethod.hide();
+                            searchField.focus = false; // Clear focus before navigating
                         }
                         onPressed: plusRipple.ripple(mouseX, mouseY)
                     }
@@ -199,6 +218,8 @@ Page {
                         MouseArea {
                             anchors.fill: parent
                             onClicked: {
+                                Qt.inputMethod.hide();
+                                searchField.focus = false; // Clear focus before navigating
                                 pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
                                     onNoteSavedOrDeleted: refreshData,
                                     noteId: modelData.id,
@@ -254,6 +275,7 @@ Page {
                         MouseArea {
                             anchors.fill: parent
                             onClicked: {
+                                searchField.focus = false; // Clear focus before navigating
                                 pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
                                     onNoteSavedOrDeleted: refreshData,
                                     noteId: modelData.id,
