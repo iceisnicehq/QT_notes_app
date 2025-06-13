@@ -25,6 +25,9 @@ Page {
     // NEW: Reference to the currently editing delegate instance
     property var currentlyEditingTagDelegate: null
 
+    // NEW: Flag to temporarily ignore focus loss during new tag creation
+    property bool ignoreNextFocusLossCancellation: false
+
     Component.onCompleted: {
         console.log("TagEditPage opened.");
         refreshTags();
@@ -167,49 +170,52 @@ Page {
                         inputMethodHints: Qt.ImhNoAutoUppercase
 
                         focus: creatingNewTag // Keep focus when creating
-                        onClicked: {
-                            // If not already creating, activate creation mode
-                            if (!creatingNewTag) {
-                                // If another tag is currently being edited, reset its state first.
-                                // This ensures the previous keyboard closes and global state is cleared.
-                                if (tagEditPage.currentlyEditingTagDelegate) {
-                                    tagEditPage.currentlyEditingTagDelegate.resetEditState();
-                                }
 
-                                tagEditPage.creatingNewTag = true;
-                                tagInput.forceActiveFocus(true); // Force active focus on this new tag input field.
-                                newTagNameInput = ""; // ONLY NOW, clear the input text.
+                        // Modified onClicked handler for the SearchField itself
+                        onClicked: {
+                            // If another tag is currently being edited, reset its state first.
+                            if (tagEditPage.currentlyEditingTagDelegate) {
+                                tagEditPage.currentlyEditingTagDelegate.resetEditState();
                             }
+
+                            // Set the flag to ignore potential immediate focus loss during state transition
+                            tagEditPage.ignoreNextFocusLossCancellation = true;
+
+                            // Activate creation mode
+                            tagEditPage.creatingNewTag = true;
+                            tagInput.forceActiveFocus(true); // Force active focus on this new tag input field.
+                            newTagNameInput = ""; // Clear input immediately after setting focus
                         }
+
                         // Handle Enter key to trigger tag creation
                         EnterKey.onClicked: {
-                            if (newTagCheckItem.enabled) {
+                            if (newTagCheckItem.enabled) { // Ensure button is logically enabled
                                 newTagCheckItem.performCreationLogic(); // Call the new function
                             }
                         }
 
-                        // Allow clicking on the TextField to activate creation mode
-                        MouseArea {
-                            anchors.fill: parent
-                            enabled: !creatingNewTag // Only clickable when not in creation mode
-                            onClicked: {
-                                // If another tag is currently being edited, reset its state first.
-                                if (tagEditPage.currentlyEditingTagDelegate) {
-                                    tagEditPage.currentlyEditingTagDelegate.resetEditState();
-                                }
-                                tagEditPage.creatingNewTag = true;
-                                tagInput.forceActiveFocus(true);
-                                newTagNameInput = ""; // Clear input after focus
-                            }
-                        }
-
-                        // Handle loss of focus: If input is empty and we lose focus, exit creation mode
+                        // Modified onActiveFocusChanged to use the new flag
                         onActiveFocusChanged: {
-                            if (!activeFocus && creatingNewTag) {
-                                if (newTagNameInput.trim() === "") {
-                                    creatingNewTag = false;
-                                    console.log("Tag creation cancelled (empty field, lost focus).");
-                                    if (toastManager) toastManager.show("Tag creation cancelled.");
+                            if (!activeFocus) { // Focus lost
+                                if (creatingNewTag) { // Only check if currently in creation mode
+                                    if (tagEditPage.ignoreNextFocusLossCancellation) {
+                                        // This focus loss was expected during a transition, ignore it.
+                                        console.log("Ignoring momentary focus loss for new tag creation.");
+                                        tagEditPage.ignoreNextFocusLossCancellation = false; // Reset the flag
+                                        return;
+                                    }
+                                    // If not ignoring, and input is empty, then genuinely cancel.
+                                    if (newTagNameInput.trim() === "") {
+                                        creatingNewTag = false; // This will hide the keyboard
+                                        if (toastManager) toastManager.show("Tag creation cancelled.");
+                                        console.log("Tag creation cancelled (empty field, lost focus).");
+                                    }
+                                }
+                            } else { // Focus gained
+                                // Reset the flag as focus has been successfully gained
+                                if (tagEditPage.ignoreNextFocusCancellation) {
+                                    tagEditPage.ignoreNextFocusCancellation = false;
+                                    console.log("New tag input gained focus, reset ignore flag.");
                                 }
                             }
                         }
@@ -242,11 +248,13 @@ Page {
                                         tagInput.forceActiveFocus(false); // Hide keyboard
                                         if (toastManager) toastManager.show("Tag creation cancelled.");
                                     } else {
-                                        // Start creating
+                                        // Start creating (showing Plus), so activate creation mode
                                         // If another tag is currently being edited, reset its state first.
                                         if (tagEditPage.currentlyEditingTagDelegate) {
                                             tagEditPage.currentlyEditingTagDelegate.resetEditState();
                                         }
+                                        // Set flag BEFORE setting creatingNewTag and forcing focus
+                                        tagEditPage.ignoreNextFocusLossCancellation = true;
                                         creatingNewTag = true;
                                         tagInput.forceActiveFocus(true); // Show keyboard
                                         newTagNameInput = ""; // Clear input when starting new tag
@@ -338,7 +346,8 @@ Page {
                         function resetEditState() {
                             editingTagName = tagName; // Reset to original name (modelData.name)
                             editingInputError = false;
-                            tagInputField.forceActiveFocus(false); // Ensure keyboard is hidden
+                            // REMOVED: tagInputField.forceActiveFocus(false); // Ensure keyboard is hidden
+                            // The 'focus: isEditing' property will handle hiding the keyboard when isEditing becomes false.
 
                             // CRITICAL: Only clear the global state if THIS delegate is the one currently editing
                             if (tagEditPage.currentlyEditingTagDelegate === tagListItemDelegate) {
