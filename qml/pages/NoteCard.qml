@@ -76,7 +76,7 @@ Item {
                     model: tags.split(" ")
                     delegate: Rectangle {
                         visible: index < 2
-                        color: "#32353a"
+                        color: "#a032353a"
                         radius: 12
                         height: tagText.implicitHeight + Theme.paddingSmall
                         width: Math.min(tagText.implicitWidth + Theme.paddingMedium, parent.width)
@@ -99,7 +99,7 @@ Item {
 
                 Rectangle {
                     visible: tags.split(" ").length > 2
-                    color: "#32353a"
+                    color: "#a032353a"
                     radius: 12
                     height: tagCount.implicitHeight + Theme.paddingSmall
                     width: tagCount.implicitWidth + Theme.paddingMedium
