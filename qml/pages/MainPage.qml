@@ -31,6 +31,7 @@ Page {
         if (mainPage.status === PageStatus.Active) {
             refreshData()
             searchField.focus = false;
+            sidePanel.currentPage = "notes"
             Qt.inputMethod.hide(); // Explicitly hide the keyboard
             console.log("MainPage active (status changed to Active), search field focus cleared and keyboard hidden.");
         }

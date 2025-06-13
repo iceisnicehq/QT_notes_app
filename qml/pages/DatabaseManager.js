@@ -1,4 +1,4 @@
-// DatabaseManager.js (CORRECTED - fixed ES6 default parameter syntax)
+// DatabaseManager.js (UPDATED - with searchNotes function)
 
 var db = null;
 var dbName = "AuroraNotesDB";
@@ -184,7 +184,7 @@ function getAllTags() {
             'SELECT DISTINCT T.name FROM Tags T ' +
             'LEFT JOIN NoteTags NT ON T.id = NT.tag_id ' +
             'LEFT JOIN Notes N ON NT.note_id = N.id ' +
-            'WHERE N.id IS NULL OR N.deleted = 0 ' +
+            'WHERE N.id IS NULL OR N.deleted = 0 ' + // Only show tags for non-deleted notes
             'ORDER BY T.name ASC'
         );
         console.log("DB_MGR: getAllTags found " + result.rows.length + " tags.");
@@ -366,34 +366,77 @@ function deleteTag(tagName) {
     });
 }
 
-
-
-
 function restoreNotes(ids) {
     if (!db) {
         console.error("DB_MGR: Database not initialized.");
         return;
     }
     db.transaction(function(tx) {
-        // ИСПРАВЛЕНИЕ: Заменена стрелочная функция на обычную анонимную
         var placeholders = ids.map(function() { return '?'; }).join(',');
-        tx.executeSql("UPDATE notes SET deleted = 0 WHERE id IN (" + placeholders + ")", ids);
+        tx.executeSql("UPDATE Notes SET deleted = 0 WHERE id IN (" + placeholders + ")", ids);
         console.log("DB_MGR: Restored notes with IDs:", ids);
     });
 }
 
-// Пример функции для окончательного удаления нескольких заметок
 function permanentlyDeleteNotes(ids) {
     if (!db) {
         console.error("DB_MGR: Database not initialized.");
         return;
     }
     db.transaction(function(tx) {
-        // ИСПРАВЛЕНИЕ: Заменена стрелочная функция на обычную анонимную
         var placeholders = ids.map(function() { return '?'; }).join(',');
-        tx.executeSql("DELETE FROM notes WHERE id IN (" + placeholders + ")", ids);
-        // Также удалить связанные теги, если они больше не используются
-        tx.executeSql("DELETE FROM note_tags WHERE note_id IN (" + placeholders + ")", ids);
+        tx.executeSql("DELETE FROM NoteTags WHERE note_id IN (" + placeholders + ")", ids);
+        tx.executeSql("DELETE FROM Notes WHERE id IN (" + placeholders + ")", ids);
         console.log("DB_MGR: Permanently deleted notes with IDs:", ids);
     });
+}
+
+// --- NEW FUNCTION: searchNotes ---
+function searchNotes(searchText, selectedTagNames) {
+    initDatabase();
+    var notes = [];
+    db.readTransaction(function(tx) {
+        var query = 'SELECT N.* FROM Notes N ';
+        var params = [];
+        var conditions = ['N.deleted = 0']; // Always filter out deleted notes
+
+        if (selectedTagNames && selectedTagNames.length > 0) {
+            // Join with NoteTags and Tags to filter by selected tags
+            query += 'JOIN NoteTags NT ON N.id = NT.note_id JOIN Tags T ON NT.tag_id = T.id ';
+            var tagPlaceholders = selectedTagNames.map(function() { return '?'; }).join(',');
+            conditions.push('T.name IN (' + tagPlaceholders + ')');
+            params = params.concat(selectedTagNames);
+
+            // Add HAVING clause to ensure notes have ALL selected tags
+            query += 'GROUP BY N.id HAVING COUNT(DISTINCT T.id) = ' + selectedTagNames.length;
+        }
+
+        if (searchText) {
+            var searchTerm = '%' + searchText + '%';
+            conditions.push('(N.title LIKE ? OR N.content LIKE ?)');
+            params.push(searchTerm, searchTerm);
+        }
+
+        if (conditions.length > 0) {
+            query += 'WHERE ' + conditions.join(' AND ');
+        }
+
+        query += ' ORDER BY N.updated_at DESC';
+
+        console.log("DB_MGR: Executing search query:", query);
+        console.log("DB_MGR: With parameters:", params);
+
+        var result = tx.executeSql(query, params);
+        console.log("DB_MGR: searchNotes found " + result.rows.length + " notes.");
+
+        for (var i = 0; i < result.rows.length; i++) {
+            var note = result.rows.item(i);
+            if (!note.color) {
+                note.color = defaultNoteColor;
+            }
+            note.tags = getTagsForNote(tx, note.id); // Get tags for each found note
+            notes.push(note);
+        }
+    });
+    return notes;
 }

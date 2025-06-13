@@ -1,4 +1,3 @@
-// TagEditPage.qml
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.LocalStorage 2.0
@@ -23,6 +22,9 @@ Page {
     property var allTagsWithCounts: [] // Will store [{name: "tag1", count: 5}, {name: "tag2", count: 2}]
     property var editingTagData: null // {name: "oldName", count: 5, id: 123} // When editing an existing tag
 
+    // NEW: Reference to the currently editing delegate instance
+    property var currentlyEditingTagDelegate: null
+
     Component.onCompleted: {
         console.log("TagEditPage opened.");
         refreshTags();
@@ -30,21 +32,31 @@ Page {
 
     function refreshTags() {
         // Crucial: Create a new array object to force Repeater re-evaluation
-        // Set to empty first to ensure binding updates if needed, then re-populate
         allTagsWithCounts = [];
         var fetchedTags = DB.getAllTagsWithCounts();
-        // Sort tags by count in descending order as before
+        // Sort tags by count in descending order
         fetchedTags.sort(function(a, b) {
             return b.count - a.count;
         });
-        allTagsWithCounts = fetchedTags; // Re-assign the new, sorted list
+        allTagsWithCounts = fetchedTags;
         console.log("Tags refreshed and re-assigned:", JSON.stringify(allTagsWithCounts));
 
-        // Also, ensure the parentPage.onTagsChanged is called in TagEditPage.qml after refreshTags
-        // if it's meant to notify the main page.
-        // However, looking at your TagEditPage code, onTagsChanged is passed down,
-        // so it's already called from TagListItem's success paths.
-        // The main focus here is just the `allTagsWithCounts = [];` then `allTagsWithCounts = fetchedTags;`
+        // If a tag that was being edited is no longer in the list (e.g., deleted),
+        // clear the editing state.
+        if (editingTagData) {
+            var found = false;
+            for (var i = 0; i < allTagsWithCounts.length; ++i) {
+                if (allTagsWithCounts[i].name === editingTagData.name) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                editingTagData = null;
+                currentlyEditingTagDelegate = null;
+                console.log("Edited tag no longer exists after refresh, clearing editing state.");
+            }
+        }
     }
 
     // Header Area - Positioned above the Flickable
@@ -133,37 +145,46 @@ Page {
 
             Item {
                 id: newTagInputArea
-                width: parent.width // contentColumn.width
+                width: parent.width
                 height: 80
                 Rectangle {
                     id: newTagInputContainer
-                    width: parent.width + 2 // Adjusted to match noteMargin behavior
+                    width: parent.width + 2
                     height: parent.height
                     anchors.centerIn: parent
-                    color: "transparent" // A background color like the search bar
+                    color: "transparent"
                     border.color: "#43484e"
                     border.width: 2
-                    // The TextField is now the main component inside this container
                     SearchField {
                         id: tagInput
-                        anchors.fill: parent // TextField fills its parent container
-// Removed these as SearchField's leftItem/rightItem handle margins internally
-//                        anchors.leftMargin: newTagPlusXItem.width + Theme.paddingMedium
-//                        anchors.rightMargin: newTagCheckItem.width + Theme.paddingMedium
+                        anchors.fill: parent
                         highlighted: false
                         placeholderText: "Create new tag"
                         text: newTagNameInput
                         onTextChanged: newTagNameInput = text
                         font.pixelSize: Theme.fontSizeMedium
-                        color: "#e8eaed" // Always default color, no error color change
+                        color: "#e8eaed"
                         inputMethodHints: Qt.ImhNoAutoUppercase
 
                         focus: creatingNewTag // Keep focus when creating
-                        onClicked: { creatingNewTag = true } // This sets creation mode when clicked
+                        onClicked: {
+                            // If not already creating, activate creation mode
+                            if (!creatingNewTag) {
+                                // If another tag is currently being edited, reset its state first.
+                                // This ensures the previous keyboard closes and global state is cleared.
+                                if (tagEditPage.currentlyEditingTagDelegate) {
+                                    tagEditPage.currentlyEditingTagDelegate.resetEditState();
+                                }
+
+                                tagEditPage.creatingNewTag = true;
+                                tagInput.forceActiveFocus(true); // Force active focus on this new tag input field.
+                                newTagNameInput = ""; // ONLY NOW, clear the input text.
+                            }
+                        }
                         // Handle Enter key to trigger tag creation
                         EnterKey.onClicked: {
-                            if (newTagCheckItem.enabled) { // Check 'enabled' state of the right item
-                                newTagCheckItem.MouseArea.onClicked();
+                            if (newTagCheckItem.enabled) {
+                                newTagCheckItem.performCreationLogic(); // Call the new function
                             }
                         }
 
@@ -172,29 +193,30 @@ Page {
                             anchors.fill: parent
                             enabled: !creatingNewTag // Only clickable when not in creation mode
                             onClicked: {
+                                // If another tag is currently being edited, reset its state first.
+                                if (tagEditPage.currentlyEditingTagDelegate) {
+                                    tagEditPage.currentlyEditingTagDelegate.resetEditState();
+                                }
                                 tagEditPage.creatingNewTag = true;
-                                newTagNameInput = "";
                                 tagInput.forceActiveFocus(true);
+                                newTagNameInput = ""; // Clear input after focus
                             }
                         }
 
-                        // <<< START ADDED BLOCK >>>
                         // Handle loss of focus: If input is empty and we lose focus, exit creation mode
                         onActiveFocusChanged: {
-                            if (!activeFocus && creatingNewTag) { // If focus was lost AND we are in creation mode
-                                if (newTagNameInput.trim() === "") { // And the input field is empty
-                                    creatingNewTag = false; // Exit creation mode
-                                    // newTagNameInput is already empty, no need to clear again
-                                    // newTagInputError is not used for visual feedback here, so no need to reset immediately
+                            if (!activeFocus && creatingNewTag) {
+                                if (newTagNameInput.trim() === "") {
+                                    creatingNewTag = false;
                                     console.log("Tag creation cancelled (empty field, lost focus).");
+                                    if (toastManager) toastManager.show("Tag creation cancelled.");
                                 }
                             }
                         }
-                        // <<< END ADDED BLOCK >>>
 
                         // Left Icon (Plus or X) - as leftItem of TextField equivalent
                         leftItem: Item {
-                            id: newTagPlusXItem // Renamed for clarity
+                            id: newTagPlusXItem
                             width: Theme.fontSizeExtraLarge * 1.1
                             height: Theme.fontSizeExtraLarge * 1.1
                             clip: false
@@ -221,9 +243,13 @@ Page {
                                         if (toastManager) toastManager.show("Tag creation cancelled.");
                                     } else {
                                         // Start creating
+                                        // If another tag is currently being edited, reset its state first.
+                                        if (tagEditPage.currentlyEditingTagDelegate) {
+                                            tagEditPage.currentlyEditingTagDelegate.resetEditState();
+                                        }
                                         creatingNewTag = true;
-                                        newTagNameInput = ""; // Clear input when starting new tag
                                         tagInput.forceActiveFocus(true); // Show keyboard
+                                        newTagNameInput = ""; // Clear input when starting new tag
                                     }
                                 }
                             }
@@ -231,7 +257,7 @@ Page {
 
                         // Right Check Button - as rightItem of TextField equivalent
                         rightItem: Item {
-                            id: newTagCheckItem // Renamed for clarity
+                            id: newTagCheckItem
                             width: Theme.fontSizeExtraLarge * 1.1
                             height: Theme.fontSizeExtraLarge * 1.1
                             clip: false
@@ -248,32 +274,38 @@ Page {
                                 width: parent.width
                                 height: parent.height
                             }
+
+                            // New function to encapsulate tag creation logic
+                            function performCreationLogic() {
+                                var trimmedTag = newTagNameInput.trim();
+                                if (trimmedTag === "") {
+                                    if (toastManager) toastManager.show("Tag name cannot be empty!");
+                                } else {
+                                    var tagExists = allTagsWithCounts.some(function(t) {
+                                        return t.name.toLowerCase() === trimmedTag.toLowerCase();
+                                    });
+
+                                    if (tagExists) {
+                                        console.log("Error: Tag '" + trimmedTag + "' already exists.");
+                                        if (toastManager) toastManager.show("Tag '" + trimmedTag + "' already exists!");
+                                    } else {
+                                        DB.addTag(trimmedTag.toLowerCase()); // Add tag to database as lowercase
+                                        refreshTags(); // Refresh list
+                                        newTagNameInput = ""; // Clear input
+                                        creatingNewTag = false; // Exit creation mode
+                                        tagInput.forceActiveFocus(false); // Hide keyboard
+                                        if (onTagsChanged) { onTagsChanged(); } // Notify MainPage
+                                        if (toastManager) toastManager.show("Tag '" + trimmedTag + "' created!");
+                                    }
+                                }
+                            }
+
                             MouseArea {
                                 anchors.fill: parent
                                 enabled: creatingNewTag // Only enabled when creating a new tag
                                 onPressed: checkRipple.ripple(mouseX, mouseY)
                                 onClicked: {
-                                    var trimmedTag = newTagNameInput.trim();
-                                    if (trimmedTag === "") {
-                                        if (toastManager) toastManager.show("Tag name cannot be empty!");
-                                    } else {
-                                        var tagExists = allTagsWithCounts.some(function(t) {
-                                            return t.name.toLowerCase() === trimmedTag.toLowerCase();
-                                        });
-
-                                        if (tagExists) {
-                                            console.log("Error: Tag '" + trimmedTag + "' already exists.");
-                                            if (toastManager) toastManager.show("Tag '" + trimmedTag + "' already exists!");
-                                        } else {
-                                            DB.addTag(trimmedTag); // Add tag to database
-                                            refreshTags(); // Refresh list
-                                            newTagNameInput = ""; // Clear input
-                                            creatingNewTag = false; // Exit creation mode
-                                            tagInput.forceActiveFocus(false); // Hide keyboard
-                                            if (onTagsChanged) { onTagsChanged(); } // Notify MainPage
-                                            if (toastManager) toastManager.show("Tag '" + trimmedTag + "' created!");
-                                        }
-                                    }
+                                    newTagCheckItem.performCreationLogic(); // Call the new function
                                 }
                             }
                         }
@@ -285,64 +317,211 @@ Page {
             Column {
                 width: parent.width
                 visible: allTagsWithCounts.length > 0
-                // Add spacing between tag list items
 
                 Repeater {
                     model: allTagsWithCounts
-                    delegate: TagListItem {
-                        id: tagListItemDelegate // Changed ID for clarity
+                    delegate: Item { // This is the new delegate structure, formerly TagListItem.qml
+                        id: tagListItemDelegate // Now this is the ID of the delegate instance
+                        height: 80 // Match the height of the new tag input area for consistency
                         width: parent.width
-                        tagName: modelData.name
-                        noteCount: modelData.count // This is correct and passes the count
 
-                        // Reference to the parent TagEditPage
-                        parentPage: tagEditPage
-                        // Pass toast manager
-                        toastManager: tagEditPage.toastManager
-                        // Callback to refresh tags when something changes in a list item
-                        onTagEditedOrDeleted: tagEditPage.refreshTags
+                        // These properties are now internal to the delegate
+                        property string tagName: modelData.name // Directly from modelData
+                        property int noteCount: modelData.count // Directly from modelData
+                        // isEditing property now derived from the global currentlyEditingTagDelegate
+                        property bool isEditing: tagEditPage.currentlyEditingTagDelegate === tagListItemDelegate
 
-                        // Pass the current editing tag data for single edit session
-                        property var currentEditingTag: tagEditPage.editingTagData
+                        property string editingTagName: tagName // Temporary property for TextField
+                        property bool editingInputError: false // For visual feedback on invalid edit
 
-                        // Handle when this item is set to edit mode
-                        onStartEditing: {
-                            // If another item is already being edited, cancel its edit mode
-                            if (tagEditPage.editingTagData && tagEditPage.editingTagData.name !== tagName) {
-                                // Find the old editing item and reset it
-                                // Iterate children of the Repeater's parent (Column)
-                                for (var i = 0; i < parent.children.length; ++i) {
-                                    var child = parent.children[i];
-                                    // Use objectName for more robust lookup if multiple instances of TagListItem
-                                    // Or simply rely on the fact that only one is in editing mode
-                                    if (child.objectName === "tagListItemDelegate" && child.isEditing) {
-                                        child.resetEditState(); // Call the internal reset function
-                                        child.cancelEditing(); // Emit the signal
-                                        break;
+                        // Function to reset state for this specific delegate
+                        function resetEditState() {
+                            editingTagName = tagName; // Reset to original name (modelData.name)
+                            editingInputError = false;
+                            tagInputField.forceActiveFocus(false); // Ensure keyboard is hidden
+
+                            // CRITICAL: Only clear the global state if THIS delegate is the one currently editing
+                            if (tagEditPage.currentlyEditingTagDelegate === tagListItemDelegate) {
+                                tagEditPage.currentlyEditingTagDelegate = null;
+                                tagEditPage.editingTagData = null;
+                            }
+                            console.log("Delegate reset: " + tagName);
+                        }
+
+                        // Main Container - styled like the new tag input field
+                        Rectangle {
+                            id: tagContainer
+                            width: parent.width + 2
+                            height: parent.height
+                            anchors.centerIn: parent
+                            color: "transparent"
+                            border.color: "#43484e"
+                            border.width: 2
+
+                            SearchField {
+                                id: tagInputField
+                                anchors.fill: parent
+                                highlighted: false // Keep this false as we control highlighting via 'color' property
+                                text: isEditing ? editingTagName : tagName
+                                placeholderText: "Edit tag name"
+                                font.pixelSize: Theme.fontSizeMedium
+                                // Highlight text color when editing, error color on error
+                                color: editingInputError ? Theme.errorColor : (isEditing ? Theme.highlightColor : "#e8eaed")
+                                inputMethodHints: Qt.ImhNoAutoUppercase
+
+                                focus: isEditing // Focus SearchField if this delegate is in editing mode
+
+                                onActiveFocusChanged: {
+                                    if (activeFocus) {
+                                        // If this delegate gains focus and is not already the designated editor,
+                                        // tell TagEditPage to set this delegate as the active editor.
+                                        if (tagEditPage.currentlyEditingTagDelegate !== tagListItemDelegate) {
+                                            if (tagEditPage.currentlyEditingTagDelegate) {
+                                                // Call reset on the previously editing delegate
+                                                tagEditPage.currentlyEditingTagDelegate.resetEditState();
+                                            }
+                                            tagEditPage.currentlyEditingTagDelegate = tagListItemDelegate;
+                                            tagEditPage.editingTagData = { id: modelData.id, name: tagName, count: modelData.count };
+                                            console.log("Delegate (re)gained focus, now editing:", tagName);
+                                        }
+                                        // Re-initialize editingTagName to current tag name when focusing
+                                        editingTagName = tagName;
+                                    } else {
+                                        // If this delegate loses focus while in editing mode (and is the current editor)
+                                        if (tagEditPage.currentlyEditingTagDelegate === tagListItemDelegate) {
+                                            var trimmedCurrentText = tagInputField.text.trim();
+                                            var originalTagNameTrimmed = tagName.trim();
+
+                                            if (trimmedCurrentText === "" || trimmedCurrentText.toLowerCase() === originalTagNameTrimmed.toLowerCase()) {
+                                                // No change, just reset state
+                                                tagListItemDelegate.resetEditState();
+                                                console.log("Delegate lost focus, cancelled edit due to empty/unchanged name (no toast).");
+                                            } else {
+                                                // Changes were made but not saved explicitly (e.g., clicked away after typing)
+                                                tagListItemDelegate.resetEditState();
+                                                if (toastManager) toastManager.show("Edit cancelled."); // Show toast for unsaved changes
+                                                console.log("Delegate lost focus, changes made but not explicitly saved. Resetting state.");
+                                            }
+                                        }
+                                    }
+                                }
+
+                                onTextChanged: {
+                                    if (isEditing) {
+                                        editingTagName = text;
+                                        // Reset error state on text change
+                                        if (editingInputError) {
+                                            editingInputError = false;
+                                        }
+                                    }
+                                }
+
+                                EnterKey.onClicked: {
+                                    if (isEditing) {
+                                        tagInputField.performSaveLogic(); // Call internal save logic
+                                    }
+                                }
+
+                                // Left Icon (Trash when editing, Tag when displaying)
+                                leftItem: Item {
+                                    id: leftIconItem
+                                    width: Theme.fontSizeExtraLarge * 1.1
+                                    height: Theme.fontSizeExtraLarge * 1.1
+                                    clip: false
+
+                                    Icon {
+                                        source: tagEditPage.currentlyEditingTagDelegate === tagListItemDelegate ? "../icons/trash.svg" : "../icons/tag.svg"
+                                        anchors.centerIn: parent
+                                        width: parent.width
+                                        height: parent.height
+                                    }
+                                    RippleEffect { id: leftRipple }
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        onPressed: leftRipple.ripple(mouseX, mouseY)
+                                        onClicked: {
+                                            if (tagEditPage.currentlyEditingTagDelegate === tagListItemDelegate) {
+                                                // Delete action
+                                                DB.deleteTag(tagName.toLowerCase());
+                                                tagListItemDelegate.resetEditState(); // Reset delegate and clear global state
+                                                if (toastManager) toastManager.show("Deleted tag '" + tagName + "'");
+                                                tagEditPage.refreshTags(); // Refresh list in parent
+                                                if (tagEditPage.onTagsChanged) { tagEditPage.onTagsChanged(); }
+                                            } else {
+                                                // If not editing THIS specific tag, clicking should initiate edit
+                                                tagInputField.forceActiveFocus(true);
+                                                console.log("Tag icon clicked, forcing focus to start edit.");
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // Right Icon (Check when editing, Edit when displaying)
+                                rightItem: Item {
+                                    id: rightIconItem
+                                    width: Theme.fontSizeExtraLarge * 1.1
+                                    height: Theme.fontSizeExtraLarge * 1.1
+                                    clip: false
+
+                                    Icon {
+                                        source: tagEditPage.currentlyEditingTagDelegate === tagListItemDelegate ? "../icons/check.svg" : "../icons/edit_filled.svg"
+                                        anchors.centerIn: parent
+                                        width: parent.width
+                                        height: parent.height
+                                    }
+                                    RippleEffect { id: rightRipple }
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        enabled: true
+                                        onPressed: rightRipple.ripple(mouseX, mouseY)
+                                        onClicked: {
+                                            if (tagEditPage.currentlyEditingTagDelegate === tagListItemDelegate) {
+                                                // This is effectively the "Save" action
+                                                tagInputField.performSaveLogic();
+                                            } else {
+                                                // If not editing THIS specific tag, clicking should initiate edit
+                                                tagInputField.forceActiveFocus(true);
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // Internal function to perform save logic
+                                function performSaveLogic() {
+                                    var trimmedEditTag = editingTagName.trim();
+                                    if (trimmedEditTag === "") {
+                                        editingInputError = true;
+                                        if (toastManager) toastManager.show("Tag name cannot be empty!");
+                                        return;
+                                    }
+                                    // If no change in tag name (case-insensitive)
+                                    if (trimmedEditTag.toLowerCase() === tagName.toLowerCase()) {
+                                        console.log("No change in tag name, finishing edit.");
+                                        if (toastManager) toastManager.show("Edit cancelled."); // Added toast here
+                                        tagListItemDelegate.resetEditState(); // Reset state, no toast here
+                                        return;
+                                    }
+
+                                    var tagExists = tagEditPage.allTagsWithCounts.some(function(t) {
+                                        // Check if the new tag name (lowercase) conflicts with any *other* existing tag (lowercase)
+                                        return t.name.toLowerCase() === trimmedEditTag.toLowerCase() && t.name.toLowerCase() !== tagName.toLowerCase();
+                                    });
+
+                                    if (tagExists) {
+                                        editingInputError = true;
+                                        console.log("Error: Tag '" + trimmedEditTag + "' already exists.");
+                                        if (toastManager) toastManager.show("Tag '" + trimmedEditTag + "' already exists!");
+                                    } else {
+                                        // Convert both old and new names to lowercase for DB operation
+                                        DB.updateTagName(tagName.toLowerCase(), trimmedEditTag.toLowerCase());
+                                        tagListItemDelegate.resetEditState(); // Resets delegate and clears global state
+                                        if (toastManager) toastManager.show("Updated tag '" + tagName + "' to '" + trimmedEditTag + "'");
+                                        tagEditPage.refreshTags(); // Call refresh after showing toast
+                                        if (tagEditPage.onTagsChanged) { tagEditPage.onTagsChanged(); }
                                     }
                                 }
                             }
-                            // Store the full data for editing
-                            tagEditPage.editingTagData = { id: modelData.id, name: tagName, count: modelData.count };
-                            console.log("Start editing:", tagEditPage.editingTagData.name);
                         }
-                        // Handle when this item finishes editing
-                        onFinishEditing: {
-                            tagEditPage.editingTagData = null;
-                            console.log("Finish editing.");
-                            if (onTagsChanged) { onTagsChanged(); } // Notify MainPage
-                        }
-                        // Handle when this item cancels editing
-                        onCancelEditing: {
-                            tagEditPage.editingTagData = null;
-                            console.log("Cancel editing.");
-                        }
-
-                        // Ensure only one item is in edit mode at a time
-                        isEditing: tagEditPage.editingTagData && tagEditPage.editingTagData.name === modelData.name
-
-                        // Add a unique objectName for delegates for more robust lookup if needed
-                        objectName: "tagListItemDelegate"
                     }
                 }
             }
