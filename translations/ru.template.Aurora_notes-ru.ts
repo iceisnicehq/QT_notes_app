@@ -32,24 +32,6 @@
     </message>
 </context>
 <context>
-    <name>ConfirmationDialog</name>
-    <message>
-        <location filename="../qml/pages/ConfirmationDialog.qml" line="8"/>
-        <source>Yes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ConfirmationDialog.qml" line="9"/>
-        <source>No</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ConfirmationDialog.qml" line="11"/>
-        <source>Are you sure?</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>DefaultCoverPage</name>
     <message>
         <location filename="../qml/cover/DefaultCoverPage.qml" line="10"/>
@@ -60,13 +42,51 @@
 <context>
     <name>MainPage</name>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="173"/>
+        <location filename="../qml/pages/MainPage.qml" line="193"/>
         <source>Pinned</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="227"/>
+        <location filename="../qml/pages/MainPage.qml" line="249"/>
         <source>Others</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SearchPage</name>
+    <message>
+        <location filename="../qml/pages/SearchPage.qml" line="52"/>
+        <source>Search Notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SearchPage.qml" line="178"/>
+        <source>Filter Tags:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SearchPage.qml" line="261"/>
+        <source>No notes found matching your criteria.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SearchPage.qml" line="270"/>
+        <source>Try a different keyword or fewer tags.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SearchPage.qml" line="369"/>
+        <source>Select Tags</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SearchPage.qml" line="381"/>
+        <source>Selected:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SearchPage.qml" line="466"/>
+        <source>Done</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -82,37 +102,42 @@
 <context>
     <name>TrashPage</name>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="38"/>
+        <location filename="../qml/pages/TrashPage.qml" line="39"/>
         <source>Trash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="90"/>
+        <location filename="../qml/pages/TrashPage.qml" line="100"/>
         <source>%1 note(s) restored!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="106"/>
+        <location filename="../qml/pages/TrashPage.qml" line="115"/>
         <source>Are you sure you want to permanently delete %1 selected notes? This action cannot be undone.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="107"/>
+        <location filename="../qml/pages/TrashPage.qml" line="238"/>
+        <source>Confirm Deletion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/TrashPage.qml" line="271"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="108"/>
+        <location filename="../qml/pages/TrashPage.qml" line="265"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="113"/>
+        <location filename="../qml/pages/TrashPage.qml" line="276"/>
         <source>%1 note(s) permanently deleted!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="186"/>
+        <location filename="../qml/pages/TrashPage.qml" line="190"/>
         <source>Trash is empty.</source>
         <translation type="unfinished"></translation>
     </message>

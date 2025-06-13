@@ -451,7 +451,7 @@ Page {
                                     clip: false
 
                                     Icon {
-                                        source: tagEditPage.currentlyEditingTagDelegate === tagListItemDelegate ? "../icons/trash.svg" : "../icons/tag.svg"
+                                        source: tagEditPage.currentlyEditingTagDelegate === tagListItemDelegate ? "../icons/trash.svg" : "../icons/tag-white.svg"
                                         anchors.centerIn: parent
                                         width: parent.width
                                         height: parent.height

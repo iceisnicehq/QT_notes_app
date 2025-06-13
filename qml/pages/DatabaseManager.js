@@ -266,10 +266,10 @@ function togglePinned(id, pinned) {
 function insertTestData() {
     initDatabase();
     db.transaction(function(tx) {
-        // Clear all notes, including deleted ones, for a clean test setup
-        tx.executeSql('DELETE FROM Notes');
-        tx.executeSql('DELETE FROM NoteTags');
-        tx.executeSql('DELETE FROM Tags');
+//        // Clear all notes, including deleted ones, for a clean test setup
+//        tx.executeSql('DELETE FROM Notes');
+//        tx.executeSql('DELETE FROM NoteTags');
+//        tx.executeSql('DELETE FROM Tags');
 
         if (typeof Data !== 'undefined' && Data.notes) {
             console.log("DB_MGR: Inserting test data...");

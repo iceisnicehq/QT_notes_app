@@ -13,10 +13,31 @@ Item {
 
     property bool open: false
     property string currentPage: "notes"
-    property var tags: []
+    // tags property now holds objects with name and count
+    property var tags: [] // [{name: "tag1", count: 5}, {name: "tag2", count: 2}]
 
     Behavior on opacity {
         NumberAnimation { duration: 300; easing.type: Easing.OutQuad }
+    }
+
+    // Function to refresh the tags and their counts from the database
+    function refreshTagsInSidePanel() {
+        tags = DB.getAllTagsWithCounts();
+        // Sort tags by count in descending order for consistency if desired
+        tags.sort(function(a, b) {
+            return b.count - a.count;
+        });
+        console.log("SidePanel: Tags refreshed with counts.", JSON.stringify(tags));
+    }
+
+    Component.onCompleted: {
+        refreshTagsInSidePanel(); // Load tags when the panel component is ready
+    }
+
+    onOpenChanged: {
+        if (open) {
+            refreshTagsInSidePanel(); // Refresh tags whenever the panel opens
+        }
     }
 
     // Semi-transparent overlay for the rest of the screen
@@ -187,11 +208,6 @@ Item {
                     }
                 }
 
-//                Column {
-//                    width: parent.width
-//                    spacing: Theme.paddingSmall
-
-//                }
                 // Delimiter
                 Rectangle {
                     width: parent.width - Theme.paddingLarge * 2
@@ -254,6 +270,7 @@ Item {
                     NavigationButton {
                         icon: "../icons/plus.svg"
                         text: "Add Tag"
+                        // Note: For "Add Tag", noteCount is not applicable, so it's omitted or defaults to -1.
                         onClicked: {
                             pageStack.push(Qt.resolvedUrl("TagEditPage.qml"), {
                                 onTagsChanged: mainPage.refreshData, // Pass callback
@@ -264,15 +281,15 @@ Item {
                     }
                     // Tags List
                     Repeater {
-                        model: tags
+                        model: tags // Model now contains {name, count} objects
                         delegate: NavigationButton {
                             icon: "../icons/tag.svg"
-                            text: modelData
-                            maxTextWidth: panelContent.width - 100
+                            text: modelData.name // Pass the tag name
+                            noteCount: modelData.count // Pass the note count
                             onClicked: {
-                                console.log("Tag selected:", modelData)
+                                console.log("Tag selected:", modelData.name)
                                 mainPage.panelOpen = false
-                                // pageStack.push(Qt.resolvedUrl("TagNotesPage.qml"), {tag: modelData})
+                                // pageStack.push(Qt.resolvedUrl("TagNotesPage.qml"), {tag: modelData.name})
                             }
                         }
                     }
