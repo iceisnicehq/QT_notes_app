@@ -6,7 +6,7 @@ import "DatabaseManager.js" as DB
 Page {
     id: tagEditPage
     backgroundColor: "#121218"
-
+    showNavigationIndicator: false
     property var onTagsChanged: null // Callback for MainPage to refresh tags
 
     // Properties to control header visibility (similar to MainPage)
@@ -178,13 +178,16 @@ Page {
                                 tagEditPage.currentlyEditingTagDelegate.resetEditState();
                             }
 
-                            // Set the flag to ignore potential immediate focus loss during state transition
-                            tagEditPage.ignoreNextFocusLossCancellation = true;
-
-                            // Activate creation mode
-                            tagEditPage.creatingNewTag = true;
-                            tagInput.forceActiveFocus(true); // Force active focus on this new tag input field.
-                            newTagNameInput = ""; // Clear input immediately after setting focus
+                            // Only activate creation mode and clear input if not already in creation mode
+                            if (!creatingNewTag) { // Check if we are NOT already creating a new tag
+                                tagEditPage.ignoreNextFocusLossCancellation = true;
+                                tagEditPage.creatingNewTag = true; // Activate creation mode
+                                tagInput.forceActiveFocus(true); // Force active focus on this new tag input field.
+                                newTagNameInput = ""; // Clear input ONLY when starting a new creation session
+                            } else {
+                                // If already in creatingNewTag mode, simply ensure focus
+                                tagInput.forceActiveFocus(true);
+                            }
                         }
 
                         // Handle Enter key to trigger tag creation
@@ -198,10 +201,10 @@ Page {
                         onActiveFocusChanged: {
                             if (!activeFocus) { // Focus lost
                                 if (creatingNewTag) { // Only check if currently in creation mode
-                                    if (tagEditPage.ignoreNextFocusLossCancellation) {
+                                    if (tagEditPage.ignoreNextFocusCancellation) {
                                         // This focus loss was expected during a transition, ignore it.
                                         console.log("Ignoring momentary focus loss for new tag creation.");
-                                        tagEditPage.ignoreNextFocusLossCancellation = false; // Reset the flag
+                                        tagEditPage.ignoreNextFocusCancellation = false; // Reset the flag
                                         return;
                                     }
                                     // If not ignoring, and input is empty, then genuinely cancel.
@@ -289,15 +292,17 @@ Page {
                                 if (trimmedTag === "") {
                                     if (toastManager) toastManager.show("Tag name cannot be empty!");
                                 } else {
+                                    // Removed toLowerCase() for case-sensitive check
                                     var tagExists = allTagsWithCounts.some(function(t) {
-                                        return t.name.toLowerCase() === trimmedTag.toLowerCase();
+                                        return t.name === trimmedTag;
                                     });
 
                                     if (tagExists) {
                                         console.log("Error: Tag '" + trimmedTag + "' already exists.");
                                         if (toastManager) toastManager.show("Tag '" + trimmedTag + "' already exists!");
                                     } else {
-                                        DB.addTag(trimmedTag.toLowerCase()); // Add tag to database as lowercase
+                                        // Pass the tag with its original casing to the database manager
+                                        DB.addTag(trimmedTag);
                                         refreshTags(); // Refresh list
                                         newTagNameInput = ""; // Clear input
                                         creatingNewTag = false; // Exit creation mode
@@ -341,12 +346,13 @@ Page {
 
                         property string editingTagName: tagName // Temporary property for TextField
                         property bool editingInputError: false // For visual feedback on invalid edit
+                        property bool isTagNameChanged: false // NEW: Track if name has been changed during edit
 
                         // Function to reset state for this specific delegate
                         function resetEditState() {
                             editingTagName = tagName; // Reset to original name (modelData.name)
                             editingInputError = false;
-                            // REMOVED: tagInputField.forceActiveFocus(false); // Ensure keyboard is hidden
+                            isTagNameChanged = false; // Reset changed state
                             // The 'focus: isEditing' property will handle hiding the keyboard when isEditing becomes false.
 
                             // CRITICAL: Only clear the global state if THIS delegate is the one currently editing
@@ -395,13 +401,16 @@ Page {
                                         }
                                         // Re-initialize editingTagName to current tag name when focusing
                                         editingTagName = tagName;
+                                        isTagNameChanged = false; // Reset changed state on focus gain
                                     } else {
                                         // If this delegate loses focus while in editing mode (and is the current editor)
                                         if (tagEditPage.currentlyEditingTagDelegate === tagListItemDelegate) {
                                             var trimmedCurrentText = tagInputField.text.trim();
+                                            // Case-sensitive comparison for original tag name check
                                             var originalTagNameTrimmed = tagName.trim();
 
-                                            if (trimmedCurrentText === "" || trimmedCurrentText.toLowerCase() === originalTagNameTrimmed.toLowerCase()) {
+                                            // Removed toLowerCase()
+                                            if (trimmedCurrentText === "" || trimmedCurrentText === originalTagNameTrimmed) {
                                                 // No change, just reset state
                                                 tagListItemDelegate.resetEditState();
                                                 console.log("Delegate lost focus, cancelled edit due to empty/unchanged name (no toast).");
@@ -418,6 +427,9 @@ Page {
                                 onTextChanged: {
                                     if (isEditing) {
                                         editingTagName = text;
+                                        // Set isTagNameChanged based on current input vs original tag name (case-sensitive)
+                                        isTagNameChanged = (editingTagName.trim() !== tagName);
+
                                         // Reset error state on text change
                                         if (editingInputError) {
                                             editingInputError = false;
@@ -450,8 +462,10 @@ Page {
                                         onPressed: leftRipple.ripple(mouseX, mouseY)
                                         onClicked: {
                                             if (tagEditPage.currentlyEditingTagDelegate === tagListItemDelegate) {
-                                                // Delete action
-                                                DB.deleteTag(tagName.toLowerCase());
+                                                // Delete action - IMPORTANT: DB.deleteTag might internally convert to lower case depending on its implementation
+                                                // If your DB.deleteTag relies on case-insensitive matching, keep that in mind.
+                                                // For this QML side, we are passing the exact tagName from the model.
+                                                DB.deleteTag(tagName);
                                                 tagListItemDelegate.resetEditState(); // Reset delegate and clear global state
                                                 if (toastManager) toastManager.show("Deleted tag '" + tagName + "'");
                                                 tagEditPage.refreshTags(); // Refresh list in parent
@@ -473,7 +487,18 @@ Page {
                                     clip: false
 
                                     Icon {
-                                        source: tagEditPage.currentlyEditingTagDelegate === tagListItemDelegate ? "../icons/check.svg" : "../icons/edit_filled.svg"
+                                        // Dynamically set source based on editing state and changes
+                                        source: {
+                                            if (!isEditing) {
+                                                return "../icons/edit_filled.svg"; // Not editing, show pen
+                                            } else {
+                                                if (isTagNameChanged) {
+                                                    return "../icons/check.svg"; // Editing and changed, show check
+                                                } else {
+                                                    return "../icons/close.svg"; // Editing but no change, show cross
+                                                }
+                                            }
+                                        }
                                         anchors.centerIn: parent
                                         width: parent.width
                                         height: parent.height
@@ -484,9 +509,15 @@ Page {
                                         enabled: true
                                         onPressed: rightRipple.ripple(mouseX, mouseY)
                                         onClicked: {
-                                            if (tagEditPage.currentlyEditingTagDelegate === tagListItemDelegate) {
-                                                // This is effectively the "Save" action
-                                                tagInputField.performSaveLogic();
+                                            if (isEditing) {
+                                                if (isTagNameChanged) {
+                                                    // This is effectively the "Save" action
+                                                    tagInputField.performSaveLogic();
+                                                } else {
+                                                    // This is effectively the "Cancel" action (cross button)
+                                                    tagListItemDelegate.resetEditState();
+                                                    if (toastManager) toastManager.show("Edit cancelled.");
+                                                }
                                             } else {
                                                 // If not editing THIS specific tag, clicking should initiate edit
                                                 tagInputField.forceActiveFocus(true);
@@ -503,17 +534,19 @@ Page {
                                         if (toastManager) toastManager.show("Tag name cannot be empty!");
                                         return;
                                     }
-                                    // If no change in tag name (case-insensitive)
-                                    if (trimmedEditTag.toLowerCase() === tagName.toLowerCase()) {
+                                    // Case-sensitive check for no change in tag name
+                                    if (trimmedEditTag === tagName) {
                                         console.log("No change in tag name, finishing edit.");
-                                        if (toastManager) toastManager.show("Edit cancelled."); // Added toast here
-                                        tagListItemDelegate.resetEditState(); // Reset state, no toast here
+                                        if (toastManager) toastManager.show("Edit cancelled.");
+                                        tagListItemDelegate.resetEditState();
                                         return;
                                     }
 
+                                    // Tag existence check for conflict with *other* tags (case-sensitive)
                                     var tagExists = tagEditPage.allTagsWithCounts.some(function(t) {
-                                        // Check if the new tag name (lowercase) conflicts with any *other* existing tag (lowercase)
-                                        return t.name.toLowerCase() === trimmedEditTag.toLowerCase() && t.name.toLowerCase() !== tagName.toLowerCase();
+                                        // Check if the new tag name conflicts with any *other* existing tag (case-sensitive)
+                                        // and ensure it's not the original tag itself (which is allowed if no change in value, but is caught above).
+                                        return t.name === trimmedEditTag && t.name !== tagName;
                                     });
 
                                     if (tagExists) {
@@ -521,8 +554,9 @@ Page {
                                         console.log("Error: Tag '" + trimmedEditTag + "' already exists.");
                                         if (toastManager) toastManager.show("Tag '" + trimmedEditTag + "' already exists!");
                                     } else {
-                                        // Convert both old and new names to lowercase for DB operation
-                                        DB.updateTagName(tagName.toLowerCase(), trimmedEditTag.toLowerCase());
+                                        // Pass original tag name and the new, user-provided casing
+                                        // IMPORTANT: Ensure your DB.updateTagName can handle exact case matching for original tag name.
+                                        DB.updateTagName(tagName, trimmedEditTag);
                                         tagListItemDelegate.resetEditState(); // Resets delegate and clears global state
                                         if (toastManager) toastManager.show("Updated tag '" + tagName + "' to '" + trimmedEditTag + "'");
                                         tagEditPage.refreshTags(); // Call refresh after showing toast
