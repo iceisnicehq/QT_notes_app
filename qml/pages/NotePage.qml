@@ -501,8 +501,8 @@ Page {
                     model: newNotePage.noteTags
                     delegate: Rectangle {
                         id: tagRectangle
-                        property color normalColor: "#32353a"
-                        property color pressedColor: "#50545a"
+                        property color normalColor: "#a032353a"
+                        property color pressedColor: "#c050545a"
                         color: normalColor
                         radius: 12
                         height: tagText.implicitHeight + Theme.paddingSmall
