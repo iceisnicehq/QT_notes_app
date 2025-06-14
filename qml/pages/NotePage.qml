@@ -21,6 +21,7 @@ Page {
 
     // Property to track if the note was sent to trash from this page
     property bool sentToTrash: false
+    property bool sentToArchive: false // ADDED: Property to track if the note was sent to archive
 
     // --- Undo/Redo Properties and Functions ---
     // Stores snapshots of the noteContentInput text and cursor position
@@ -125,9 +126,10 @@ Page {
         var trimmedTitle = noteTitleInput.text.trim();
         var trimmedContent = noteContentInput.text.trim();
 
-        if (sentToTrash) {
-            // If note was explicitly sent to trash, do nothing on destruction
-            console.log(qsTr("Debug: Note already sent to trash. Skipping save/delete on destruction."));
+        // MODIFIED: Check both sentToTrash and sentToArchive
+        if (sentToTrash || sentToArchive) {
+            // If note was explicitly sent to trash or archive, do nothing on destruction
+            console.log(qsTr("Debug: Note already sent to trash/archive. Skipping save/delete on destruction."));
         } else if (trimmedTitle === "" && trimmedContent === "") {
             // If note is empty
             if (noteId !== -1) {
@@ -169,10 +171,9 @@ Page {
         id: toastManager
     }
 
-    // Custom Confirmation Dialog (based on user's provided structure)
-    // This Item acts as a full-screen overlay for the dialog
+    // Custom Confirmation Dialog for Delete
     Item {
-        id: manualConfirmDialog
+        id: manualConfirmDeleteDialog
         anchors.fill: parent
         visible: false // Hidden by default
         z: 100 // Ensure it's on top of almost everything
@@ -182,16 +183,15 @@ Page {
         Rectangle {
             anchors.fill: parent
             color: "#000000"
-            opacity: manualConfirmDialog.opacity * 0.5 // Dimming effect
+            opacity: manualConfirmDeleteDialog.opacity * 0.5 // Dimming effect
             Behavior on opacity { NumberAnimation { duration: 200 } }
         }
 
         // The actual dialog content
         Rectangle {
-            id: dialogContent
+            id: deleteDialogContent
             width: parent.width * 0.8 // 80% width of the overlay
-            height: dialogColumn.implicitHeight + Theme.paddingLarge * 2 // Height based on content plus padding
-            // Use a darker color based on the note's color for consistency and visibility
+            height: deleteDialogColumn.implicitHeight + Theme.paddingLarge * 2 // Height based on content plus padding
             color: newNotePage.darkenColor(newNotePage.noteColor, 0.15)
             radius: Theme.itemCornerRadius // Rounded corners
             anchors.centerIn: parent // Center the dialog within the overlay
@@ -199,12 +199,12 @@ Page {
             // Behavior for smooth appearance/disappearance
             Behavior on opacity { NumberAnimation { duration: 200 } }
             Behavior on transform {
-                PropertyAnimation { property: "scale"; from: 0.9; to: 1.0; duration: 200; easing.type: Easing.OutBack; exclude: !manualConfirmDialog.visible }
-                PropertyAnimation { property: "scale"; from: 1.0; to: 0.9; duration: 200; easing.type: Easing.InBack; exclude: manualConfirmDialog.visible }
+                PropertyAnimation { property: "scale"; from: 0.9; to: 1.0; duration: 200; easing.type: Easing.OutBack; exclude: !manualConfirmDeleteDialog.visible }
+                PropertyAnimation { property: "scale"; from: 1.0; to: 0.9; duration: 200; easing.type: Easing.InBack; exclude: manualConfirmDeleteDialog.visible }
             }
 
             Column {
-                id: dialogColumn
+                id: deleteDialogColumn
                 width: parent.width - Theme.paddingLarge * 2 // Column width, considering parent's padding
                 spacing: Theme.paddingMedium
                 anchors.margins: Theme.paddingLarge // Padding around the column content
@@ -221,7 +221,7 @@ Page {
 
                 Label {
                     width: parent.width
-                    text: qsTr("Do you want to move this note to the trash?") // Hardcoded message as requested
+                    text: qsTr("Do you want to move this note to the trash?") // Message for delete
                     wrapMode: Text.WordWrap
                     horizontalAlignment: Text.AlignHCenter
                     color: Theme.primaryColor
@@ -236,8 +236,8 @@ Page {
                         Layout.fillWidth: true
                         text: qsTr("Cancel")
                         onClicked: {
-                            manualConfirmDialog.visible = false; // Hide the dialog
-                            manualConfirmDialog.opacity = 0; // Reset opacity for next show
+                            manualConfirmDeleteDialog.visible = false; // Hide the dialog
+                            manualConfirmDeleteDialog.opacity = 0; // Reset opacity for next show
                             console.log(qsTr("Delete action cancelled by user."));
                         }
                     }
@@ -260,8 +260,113 @@ Page {
                                 // If it's a new unsaved note, just discard it without DB operation
                                 console.log(qsTr("New unsaved note discarded after confirmation."));
                             }
-                            manualConfirmDialog.visible = false; // Hide dialog after action
-                            manualConfirmDialog.opacity = 0; // Reset opacity for next show
+                            manualConfirmDeleteDialog.visible = false; // Hide dialog after action
+                            manualConfirmDeleteDialog.opacity = 0; // Reset opacity for next show
+                            pageStack.pop(); // Go back to the previous page after action
+                        }
+                    }
+                }
+            }
+        }
+        // Handler for showing/hiding with animation
+        onVisibleChanged: {
+            if (visible) {
+                opacity = 1;
+            }
+        }
+    }
+
+    // ADDED: Custom Confirmation Dialog for Archive (similar to Delete)
+    Item {
+        id: manualConfirmArchiveDialog
+        anchors.fill: parent
+        visible: false // Hidden by default
+        z: 100 // Ensure it's on top of almost everything, same as delete dialog
+        opacity: 0 // Start hidden for animation
+
+        // Background overlay to dim the rest of the page
+        Rectangle {
+            anchors.fill: parent
+            color: "#000000"
+            opacity: manualConfirmArchiveDialog.opacity * 0.5 // Dimming effect
+            Behavior on opacity { NumberAnimation { duration: 200 } }
+        }
+
+        // The actual dialog content
+        Rectangle {
+            id: archiveDialogContent
+            width: parent.width * 0.8 // 80% width of the overlay
+            height: archiveDialogColumn.implicitHeight + Theme.paddingLarge * 2 // Height based on content plus padding
+            color: newNotePage.darkenColor(newNotePage.noteColor, 0.15) // Consistent dark background
+            radius: Theme.itemCornerRadius // Rounded corners
+            anchors.centerIn: parent // Center the dialog within the overlay
+
+            // Behavior for smooth appearance/disappearance
+            Behavior on opacity { NumberAnimation { duration: 200 } }
+            Behavior on transform {
+                PropertyAnimation { property: "scale"; from: 0.9; to: 1.0; duration: 200; easing.type: Easing.OutBack; exclude: !manualConfirmArchiveDialog.visible }
+                PropertyAnimation { property: "scale"; from: 1.0; to: 0.9; duration: 200; easing.type: Easing.InBack; exclude: manualConfirmArchiveDialog.visible }
+            }
+
+            Column {
+                id: archiveDialogColumn
+                width: parent.width - Theme.paddingLarge * 2 // Column width, considering parent's padding
+                spacing: Theme.paddingMedium
+                anchors.margins: Theme.paddingLarge // Padding around the column content
+                anchors.centerIn: parent // Center column within its parent Rectangle
+
+                Label {
+                    width: parent.width
+                    text: qsTr("Confirm Archive") // New title for archive dialog
+                    font.pixelSize: Theme.fontSizeLarge
+                    font.bold: true
+                    horizontalAlignment: Text.AlignHCenter
+                    color: Theme.highlightColor
+                }
+
+                Label {
+                    width: parent.width
+                    text: qsTr("Do you want to archive this note?") // New message for archive dialog
+                    wrapMode: Text.WordWrap
+                    horizontalAlignment: Text.AlignHCenter
+                    color: Theme.primaryColor
+                }
+
+                RowLayout {
+                    width: parent.width
+                    spacing: Theme.paddingMedium
+                    anchors.horizontalCenter: parent.horizontalCenter // Center the buttons
+
+                    Button {
+                        Layout.fillWidth: true
+                        text: qsTr("Cancel")
+                        onClicked: {
+                            manualConfirmArchiveDialog.visible = false; // Hide the dialog
+                            manualConfirmArchiveDialog.opacity = 0; // Reset opacity for next show
+                            console.log(qsTr("Archive action cancelled by user."));
+                        }
+                    }
+
+                    Button {
+                        Layout.fillWidth: true
+                        text: qsTr("Archive") // New button text
+                        highlightColor: Theme.primaryColor // You can choose a different highlight color if desired
+                        onClicked: {
+                            // Logic to archive the note
+                            if (newNotePage.noteId !== -1) {
+                                DB.archiveNote(newNotePage.noteId); // Call new archive function
+                                console.log(qsTr("Note ID: %1 moved to archive after confirmation.").arg(newNotePage.noteId));
+                                newNotePage.sentToArchive = true; // Mark that it was sent to archive
+                                toastManager.show(qsTr("Note archived!"));
+                                if (onNoteSavedOrDeleted) {
+                                    onNoteSavedOrDeleted(); // Refresh data on main page
+                                }
+                            } else {
+                                // If it's a new unsaved note, just discard it without DB operation
+                                console.log(qsTr("New unsaved note discarded without archiving."));
+                            }
+                            manualConfirmArchiveDialog.visible = false; // Hide dialog after action
+                            manualConfirmArchiveDialog.opacity = 0; // Reset opacity for next show
                             pageStack.pop(); // Go back to the previous page after action
                         }
                     }
@@ -625,7 +730,7 @@ Page {
             anchors.rightMargin: Theme.paddingLarge
             spacing: Theme.paddingMedium
 
-            // Archive button (placeholder functionality)
+            // Archive button (moves note to archive)
             Item {
                 width: Theme.fontSizeExtraLarge * 1.1
                 height: Theme.fontSizeExtraLarge * 1.1
@@ -633,18 +738,22 @@ Page {
                 RippleEffect { id: archiveRipple }
                 Icon {
                     id: archiveIcon
-                    source: "../icons/archive.svg"
+                    source: "../icons/archive.svg" // Assuming you have an archive icon
                     anchors.centerIn: parent
                     width: parent.width
                     height: parent.height
+                    // ADDED: Visually disable if new note
+                    opacity: (newNotePage.noteId !== -1) ? 1.0 : 0.5
+                    color: (newNotePage.noteId !== -1) ? Theme.primaryColor : Theme.secondaryColor
                 }
                 MouseArea {
                     anchors.fill: parent
+                    // ADDED: Only enable if not a new note
+                    enabled: newNotePage.noteId !== -1
                     onPressed: archiveRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        console.log(qsTr("Archive Note"));
-                        toastManager.show(qsTr("Note archived!"));
-                        pageStack.pop();
+                        // Show the custom archive confirmation dialog
+                        manualConfirmArchiveDialog.visible = true;
                     }
                 }
             }
@@ -661,13 +770,18 @@ Page {
                     anchors.centerIn: parent
                     width: parent.width
                     height: parent.height
+                    // ADDED: Visually disable if new note
+                    opacity: (newNotePage.noteId !== -1) ? 1.0 : 0.5
+                    color: (newNotePage.noteId !== -1) ? Theme.primaryColor : Theme.secondaryColor
                 }
                 MouseArea {
                     anchors.fill: parent
+                    // ADDED: Only enable if not a new note
+                    enabled: newNotePage.noteId !== -1
                     onPressed: deleteRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        // Show the custom confirmation dialog
-                        manualConfirmDialog.visible = true;
+                        // Show the custom confirmation dialog for delete
+                        manualConfirmDeleteDialog.visible = true;
                     }
                 }
             }
