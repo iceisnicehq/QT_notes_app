@@ -1,6 +1,6 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import QtQuick.Layouts 1.1 // Corrected import for RowLayout
+import QtQuick.Layouts 1.1
 import QtQuick.LocalStorage 2.0
 import "DatabaseManager.js" as DB
 
@@ -109,6 +109,11 @@ Page {
             // If noteId is set, it's an existing note (EDIT or VIEW mode)
             noteTitleInput.text = noteTitle;
             noteContentInput.text = noteContent;
+            // Убедимся, что noteTags - это массив, если он пришел как строка
+            if (typeof noteTags === 'string') {
+                // ИСПРАВЛЕНО: Замена стрелочной функции на анонимную функцию
+                newNotePage.noteTags = noteTags.split(' ').filter(function(tag) { return tag.length > 0; });
+            }
             console.log(qsTr("NewNotePage opened in EDIT mode for ID: %1").arg(noteId));
             console.log(qsTr("Note color on open: %1").arg(noteColor));
             noteModified = false; // Reset modified status
@@ -118,6 +123,8 @@ Page {
             Qt.inputMethod.show(); // Show keyboard
             console.log(qsTr("NewNotePage opened in CREATE mode. Default color: %1").arg(noteColor));
             noteModified = true; // New note is inherently modified
+            // Для новой заметки, убедимся, что noteTags - это пустой массив
+            newNotePage.noteTags = [];
         }
         // Initialize history with the current note content and cursor position after all initial setup
         // Only if not in read-only mode
@@ -156,7 +163,7 @@ Page {
                 newNotePage.noteTitle = noteTitleInput.text;
                 newNotePage.noteContent = noteContentInput.text;
                 var newId = DB.addNote(noteIsPinned, newNotePage.noteTitle, newNotePage.noteContent, noteTags, noteColor);
-                console.log(qsTr("Debug: New note added with ID: %1, Color: %2").arg(newId).arg(noteColor));
+                console.log(qsTr("Debug: New note added with ID: %1, Color: %2, Tags: %3").arg(newId).arg(noteColor).arg(JSON.stringify(noteTags)));
             } else {
                 // If it's an existing note, update if modified
                 if (noteModified) {
@@ -164,7 +171,7 @@ Page {
                     newNotePage.noteContent = noteContentInput.text;
                     newNotePage.noteEditDate = new Date(); // Update edit date
                     DB.updateNote(noteId, noteIsPinned, newNotePage.noteTitle, newNotePage.noteContent, noteTags, noteColor);
-                    console.log(qsTr("Debug: Note updated with ID: %1, Color: %2").arg(noteId).arg(noteColor));
+                    console.log(qsTr("Debug: Note updated with ID: %1, Color: %2, Tags: %3").arg(noteId).arg(noteColor).arg(JSON.stringify(noteTags)));
                 } else {
                     console.log(qsTr("Debug: Note with ID: %1 not modified, skipping update.").arg(noteId));
                 }
@@ -517,7 +524,8 @@ Page {
                         noteTitle: newNotePage.noteTitle + qsTr(" (copy)"), // Append "(copy)" to title
                         noteContent: newNotePage.noteContent,
                         noteIsPinned: newNotePage.noteIsPinned, // Duplicated notes are typically not pinned by default
-                        noteTags: newNotePage.noteTags.split(" "), // Copy existing tags
+                        // ИСПРАВЛЕНО: Замена оператора spread на .slice()
+                        noteTags: Array.isArray(newNotePage.noteTags) ? newNotePage.noteTags.slice() : [],
                         noteColor: newNotePage.noteColor, // Copy current color
                         noteCreationDate: new Date(), // New creation date
                         noteEditDate: new Date(), // New edit date
@@ -827,8 +835,9 @@ Page {
                 width: parent.width
                 spacing: Theme.paddingMedium
                 visible: newNotePage.noteTags.length > 0 // Only visible if tags exist
+                // ИСПРАВЛЕНО: model: newNotePage.noteTags - noteTags уже должен быть массивом
                 Repeater {
-                    model: newNotePage.noteTags.split(" ") // Model for tags
+                    model: newNotePage.noteTags // Model for tags - напрямую используем noteTags (массив)
                     delegate: Rectangle {
                         id: tagRectangle
                         property color normalColor: "#a032353a"
@@ -842,7 +851,7 @@ Page {
 
                         Text {
                             id: tagText
-                            text: modelData
+                            text: modelData // modelData - это строка тега
                             color: "#c5c8d0"
                             font.pixelSize: Theme.fontSizeMedium
                             anchors.centerIn: parent
@@ -1085,14 +1094,9 @@ Page {
             availableTagsModel.clear(); // Clear existing items
             var allTags = DB.getAllTags(); // Get all available tags from the database (assuming DB is globally accessible)
 
-            var noteSpecificTags = [];
-            if (newNotePage.noteId !== -1) {
-                // If it's an existing note, load tags from DB
-                noteSpecificTags = DB.getTagsForNote(null, newNotePage.noteId);
-            } else {
-                // If it's a new note, use the local noteTags property
-                noteSpecificTags = newNotePage.noteTags;
-            }
+            // ИСПРАВЛЕНО: Всегда используем newNotePage.noteTags для определения выбранных тегов
+            // так как она теперь должна быть актуальной (массивом).
+            var currentNoteTags = Array.isArray(newNotePage.noteTags) ? newNotePage.noteTags : [];
 
             var selectedTags = [];
             var unselectedTags = [];
@@ -1100,7 +1104,7 @@ Page {
             // Populate separate arrays for selected and unselected tags
             for (var i = 0; i < allTags.length; i++) {
                 var tagName = allTags[i];
-                var isChecked = noteSpecificTags.indexOf(tagName) !== -1;
+                var isChecked = currentNoteTags.indexOf(tagName) !== -1; // Проверяем наличие в актуальном массиве
                 if (isChecked) {
                     selectedTags.push({ name: tagName, isChecked: true });
                 } else {
@@ -1196,18 +1200,21 @@ Page {
 
                                 // Logic to update noteTags (either locally for new note or via DB for existing)
                                 if (newNotePage.noteId === -1) {
-                                    // For new notes, explicitly assign a new array instance to trigger UI update
-                                    var currentTags = newNotePage.noteTags;
+                                    // Для новой заметки: явно создаем новый массив
+                                    // ИСПРАВЛЕНО: Замена оператора spread на .slice()
+                                    var currentTagsForNewNote = Array.isArray(newNotePage.noteTags) ? newNotePage.noteTags.slice() : []; // Делаем копию
                                     if (newCheckedState) {
-                                        if (currentTags.indexOf(model.name) === -1) {
-                                            newNotePage.noteTags = currentTags.concat([model.name]);
+                                        if (currentTagsForNewNote.indexOf(model.name) === -1) {
+                                            currentTagsForNewNote.push(model.name);
                                         }
                                     } else {
-                                        newNotePage.noteTags = currentTags.filter(function(tag) { return tag !== model.name; });
+                                        // ИСПРАВЛЕНО: Замена стрелочной функции на анонимную функцию
+                                        currentTagsForNewNote = currentTagsForNewNote.filter(function(tag) { return tag !== model.name; });
                                     }
+                                    newNotePage.noteTags = currentTagsForNewNote; // ПЕРЕПРИСВАИВАЕМ НОВЫМ МАССИВОМ
                                     console.log(qsTr("New note's tags updated directly (new instance assigned): %1").arg(JSON.stringify(newNotePage.noteTags)));
                                 } else {
-                                    // For existing notes, update the database
+                                    // Для существующей заметки: обновляем через БД
                                     if (newCheckedState) {
                                         DB.addTagToNote(newNotePage.noteId, model.name);
                                         console.log(qsTr("Added tag '%1' to note ID %2").arg(model.name).arg(newNotePage.noteId));
@@ -1215,8 +1222,9 @@ Page {
                                         DB.deleteTagFromNote(newNotePage.noteId, model.name);
                                         console.log(qsTr("Removed tag '%1' from note ID %2").arg(model.name).arg(newNotePage.noteId));
                                     }
-                                    // Re-fetch the tags to ensure the local array is in sync with the DB
-                                    newNotePage.noteTags = DB.getTagsForNote(null, newNotePage.noteId);
+                                    // ИСПРАВЛЕНО: Явно переприсваиваем newNotePage.noteTags новым экземпляром массива
+                                    var updatedTagsFromDb = DB.getTagsForNote(null, newNotePage.noteId);
+                                    newNotePage.noteTags = Array.isArray(updatedTagsFromDb) ? updatedTagsFromDb.slice() : []; // Убеждаемся, что это массив и делаем копию
                                     console.log(qsTr("NewNotePage: main tagsFlow updated after DB change: %1").arg(JSON.stringify(newNotePage.noteTags)));
                                 }
                                 newNotePage.noteModified = true; // Mark note as modified

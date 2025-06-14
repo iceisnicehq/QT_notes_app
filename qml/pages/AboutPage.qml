@@ -4,7 +4,7 @@ import Sailfish.Silica 1.0
 Page {
     objectName: "aboutPage"
     allowedOrientations: Orientation.All
-
+    backgroundColor: Theme.backgroundColor !== undefined ? Theme.backgroundColor : "#121218"
     SilicaFlickable {
         objectName: "flickable"
         anchors.fill: parent
@@ -23,7 +23,7 @@ Page {
             Label {
                 objectName: "descriptionText"
                 anchors { left: parent.left; right: parent.right; margins: Theme.horizontalPageMargin }
-                color: palette.highlightColor
+                //color: palette.highlightColor
                 font.pixelSize: Theme.fontSizeSmall
                 textFormat: Text.RichText
                 wrapMode: Text.WordWrap
@@ -38,7 +38,7 @@ Page {
             Label {
                 objectName: "licenseText"
                 anchors { left: parent.left; right: parent.right; margins: Theme.horizontalPageMargin }
-                color: palette.highlightColor
+                //color: palette.highlightColor
                 font.pixelSize: Theme.fontSizeSmall
                 textFormat: Text.RichText
                 wrapMode: Text.WordWrap
