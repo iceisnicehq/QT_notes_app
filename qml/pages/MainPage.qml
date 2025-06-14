@@ -11,6 +11,7 @@ Page {
     objectName: "mainPage"
     allowedOrientations: Orientation.All
     backgroundColor: "#121218"
+    showNavigationIndicator: false
     property int noteMargin: 20
 
     property bool headerVisible: true

@@ -1,11 +1,13 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import QtQuick.Layouts 1.1 // Corrected import for RowLayout
 import QtQuick.LocalStorage 2.0
 import "DatabaseManager.js" as DB
 
 Page {
     id: newNotePage
     backgroundColor: newNotePage.noteColor
+    showNavigationIndicator: false
     property var onNoteSavedOrDeleted: null
     property int noteId: -1
     property string noteTitle: ""
@@ -20,6 +22,61 @@ Page {
     // Property to track if the note was sent to trash from this page
     property bool sentToTrash: false
 
+    // --- Undo/Redo Properties and Functions ---
+    // Stores snapshots of the noteContentInput text and cursor position
+    property var contentHistory: []
+    property int historyIndex: -1   // Current position in the contentHistory array
+    property bool isUndoingRedoing: false // Flag to prevent history updates during undo/redo operations
+
+    // Timer for continuous history saving
+    Timer {
+        id: historySaveTimer
+        interval: 1000 // Save history every 1 second
+        running: true  // Start running immediately
+        repeat: true   // Repeat continuously
+        onTriggered: {
+            // Only save if not currently undoing/redoing AND content has actually changed from the last saved state
+            if (!newNotePage.isUndoingRedoing &&
+                newNotePage.contentHistory.length > 0 && // Ensure history exists before comparing
+                noteContentInput.text !== newNotePage.contentHistory[newNotePage.historyIndex].text) {
+                newNotePage.addToContentHistory(noteContentInput.text, noteContentInput.cursorPosition);
+                console.log(qsTr("History auto-saved: \"%1\" (cursor: %2)").arg(noteContentInput.text).arg(noteContentInput.cursorPosition));
+            } else if (!newNotePage.isUndoingRedoing && newNotePage.contentHistory.length === 0) {
+                // If history is empty, and text is not empty, add initial state
+                if (noteContentInput.text !== "") {
+                    newNotePage.addToContentHistory(noteContentInput.text, noteContentInput.cursorPosition);
+                    console.log(qsTr("Initial history state added by timer: \"%1\" (cursor: %2)").arg(noteContentInput.text).arg(noteContentInput.cursorPosition));
+                }
+            }
+        }
+    }
+
+    // Function to add content and cursor position snapshots to history
+    function addToContentHistory(content, cursorPos) {
+        if (newNotePage.isUndoingRedoing) {
+            return; // Do not add to history if we are currently undoing or redoing
+        }
+
+        // If new changes are made and we are not at the end of history,
+        // clear any "redoable" history.
+        if (newNotePage.historyIndex < newNotePage.contentHistory.length - 1) {
+            newNotePage.contentHistory.splice(newNotePage.historyIndex + 1);
+        }
+
+        // Add the new content and cursor position to history
+        newNotePage.contentHistory.push({ text: content, cursorPosition: cursorPos });
+        newNotePage.historyIndex = newNotePage.contentHistory.length - 1;
+
+        // Limit history size to prevent excessive memory usage (e.g., last 100 changes)
+        const MAX_HISTORY_SIZE = 100; // You can adjust this value
+        if (newNotePage.contentHistory.length > MAX_HISTORY_SIZE) {
+            newNotePage.contentHistory.shift(); // Remove the oldest entry
+            newNotePage.historyIndex--; // Adjust the index accordingly
+        }
+
+        console.log(qsTr("Added to history: \"%1\"").arg(content), qsTr("History size: %1").arg(newNotePage.contentHistory.length), qsTr("Current index: %1").arg(newNotePage.historyIndex));
+    }
+
     // Color palette for note background selection
     readonly property var colorPalette: ["#121218", "#1c1d29", "#3a2c2c", "#2c3a2c", "#2c2c3a", "#3a3a2c",
         "#43484e", "#5c4b37", "#3e4a52", "#503232", "#325032", "#323250"]
@@ -31,10 +88,6 @@ Page {
 
         r = Math.round(r * (1 - percentage));
         g = Math.round(g * (1 - percentage));
-        b = Math.round(b * (1 - percentage));
-
-        r = Math.max(0, Math.min(255, r));
-        g = Math.max(0, Math.min(255, g));
         b = Math.max(0, Math.min(255, b));
 
         // Convert back to hex string and ensure two digits for each component
@@ -45,41 +98,45 @@ Page {
 
     // Actions on component completion (when page is loaded)
     Component.onCompleted: {
-        console.log("NewNotePage opened.");
+        console.log(qsTr("NewNotePage opened."));
         if (noteId !== -1) {
             // If noteId is set, it's an existing note (EDIT mode)
             noteTitleInput.text = noteTitle;
             noteContentInput.text = noteContent;
-            console.log("NewNotePage opened in EDIT mode for ID:", noteId);
-            console.log("Note color on open:", noteColor);
+            console.log(qsTr("NewNotePage opened in EDIT mode for ID: %1").arg(noteId));
+            console.log(qsTr("Note color on open: %1").arg(noteColor));
             noteModified = false; // Reset modified status
         } else {
             // Otherwise, it's a new note (CREATE mode)
             noteContentInput.forceActiveFocus(); // Focus on content input
             Qt.inputMethod.show(); // Show keyboard
-            console.log("NewNotePage opened in CREATE mode. Default color:", noteColor);
+            console.log(qsTr("NewNotePage opened in CREATE mode. Default color: %1").arg(noteColor));
             noteModified = true; // New note is inherently modified
         }
+        // Initialize history with the current note content and cursor position after all initial setup
+        // The cursor position will be at the end of the text if pre-filled, or 0 for a new empty note.
+        newNotePage.addToContentHistory(noteContentInput.text, noteContentInput.cursorPosition);
+        console.log(qsTr("Initial history state: Index %1, History: %2").arg(newNotePage.historyIndex).arg(JSON.stringify(newNotePage.contentHistory)));
     }
 
     // Actions on component destruction (when page is closed)
     Component.onDestruction: {
-        console.log("NewNotePage being destroyed. Attempting to save/delete note.");
+        console.log(qsTr("NewNotePage being destroyed. Attempting to save/delete note."));
         var trimmedTitle = noteTitleInput.text.trim();
         var trimmedContent = noteContentInput.text.trim();
 
         if (sentToTrash) {
             // If note was explicitly sent to trash, do nothing on destruction
-            console.log("Debug: Note already sent to trash. Skipping save/delete on destruction.");
+            console.log(qsTr("Debug: Note already sent to trash. Skipping save/delete on destruction."));
         } else if (trimmedTitle === "" && trimmedContent === "") {
             // If note is empty
             if (noteId !== -1) {
                 // If it was an existing note and now empty, permanently delete it
                 DB.permanentlyDeleteNote(noteId);
-                console.log("Debug: Empty existing note permanently deleted with ID:", noteId);
+                console.log(qsTr("Debug: Empty existing note permanently deleted with ID: %1").arg(noteId));
             } else {
                 // If it was a new empty note, simply don't save it
-                console.log("Debug: New empty note not saved.");
+                console.log(qsTr("Debug: New empty note not saved."));
             }
         } else {
             // If note has content
@@ -88,7 +145,7 @@ Page {
                 newNotePage.noteTitle = noteTitleInput.text;
                 newNotePage.noteContent = noteContentInput.text;
                 var newId = DB.addNote(noteIsPinned, newNotePage.noteTitle, newNotePage.noteContent, noteTags, noteColor);
-                console.log("Debug: New note added with ID:", newId + ", Color: " + noteColor);
+                console.log(qsTr("Debug: New note added with ID: %1, Color: %2").arg(newId).arg(noteColor));
             } else {
                 // If it's an existing note, update if modified
                 if (noteModified) {
@@ -96,9 +153,9 @@ Page {
                     newNotePage.noteContent = noteContentInput.text;
                     newNotePage.noteEditDate = new Date(); // Update edit date
                     DB.updateNote(noteId, noteIsPinned, newNotePage.noteTitle, newNotePage.noteContent, noteTags, noteColor);
-                    console.log("Debug: Note updated with ID:", noteId + ", Color: " + noteColor);
+                    console.log(qsTr("Debug: Note updated with ID: %1, Color: %2").arg(noteId).arg(noteColor));
                 } else {
-                    console.log("Debug: Note with ID:", noteId, " not modified, skipping update.");
+                    console.log(qsTr("Debug: Note with ID: %1 not modified, skipping update.").arg(noteId));
                 }
             }
         }
@@ -112,6 +169,114 @@ Page {
         id: toastManager
     }
 
+    // Custom Confirmation Dialog (based on user's provided structure)
+    // This Item acts as a full-screen overlay for the dialog
+    Item {
+        id: manualConfirmDialog
+        anchors.fill: parent
+        visible: false // Hidden by default
+        z: 100 // Ensure it's on top of almost everything
+        opacity: 0 // Start hidden for animation
+
+        // Background overlay to dim the rest of the page
+        Rectangle {
+            anchors.fill: parent
+            color: "#000000"
+            opacity: manualConfirmDialog.opacity * 0.5 // Dimming effect
+            Behavior on opacity { NumberAnimation { duration: 200 } }
+        }
+
+        // The actual dialog content
+        Rectangle {
+            id: dialogContent
+            width: parent.width * 0.8 // 80% width of the overlay
+            height: dialogColumn.implicitHeight + Theme.paddingLarge * 2 // Height based on content plus padding
+            // Use a darker color based on the note's color for consistency and visibility
+            color: newNotePage.darkenColor(newNotePage.noteColor, 0.15)
+            radius: Theme.itemCornerRadius // Rounded corners
+            anchors.centerIn: parent // Center the dialog within the overlay
+
+            // Behavior for smooth appearance/disappearance
+            Behavior on opacity { NumberAnimation { duration: 200 } }
+            Behavior on transform {
+                PropertyAnimation { property: "scale"; from: 0.9; to: 1.0; duration: 200; easing.type: Easing.OutBack; exclude: !manualConfirmDialog.visible }
+                PropertyAnimation { property: "scale"; from: 1.0; to: 0.9; duration: 200; easing.type: Easing.InBack; exclude: manualConfirmDialog.visible }
+            }
+
+            Column {
+                id: dialogColumn
+                width: parent.width - Theme.paddingLarge * 2 // Column width, considering parent's padding
+                spacing: Theme.paddingMedium
+                anchors.margins: Theme.paddingLarge // Padding around the column content
+                anchors.centerIn: parent // Center column within its parent Rectangle
+
+                Label {
+                    width: parent.width
+                    text: qsTr("Confirm Deletion")
+                    font.pixelSize: Theme.fontSizeLarge
+                    font.bold: true
+                    horizontalAlignment: Text.AlignHCenter
+                    color: Theme.highlightColor
+                }
+
+                Label {
+                    width: parent.width
+                    text: qsTr("Do you want to move this note to the trash?") // Hardcoded message as requested
+                    wrapMode: Text.WordWrap
+                    horizontalAlignment: Text.AlignHCenter
+                    color: Theme.primaryColor
+                }
+
+                RowLayout {
+                    width: parent.width
+                    spacing: Theme.paddingMedium
+                    anchors.horizontalCenter: parent.horizontalCenter // Center the buttons
+
+                    Button {
+                        Layout.fillWidth: true
+                        text: qsTr("Cancel")
+                        onClicked: {
+                            manualConfirmDialog.visible = false; // Hide the dialog
+                            manualConfirmDialog.opacity = 0; // Reset opacity for next show
+                            console.log(qsTr("Delete action cancelled by user."));
+                        }
+                    }
+
+                    Button {
+                        Layout.fillWidth: true
+                        text: qsTr("Delete")
+                        highlightColor: Theme.errorColor
+                        onClicked: {
+                            // Logic to move the note to trash
+                            if (newNotePage.noteId !== -1) {
+                                DB.deleteNote(newNotePage.noteId); // Moves to trash
+                                console.log(qsTr("Note ID: %1 moved to trash after confirmation.").arg(newNotePage.noteId));
+                                newNotePage.sentToTrash = true; // Mark that it was sent to trash
+                                toastManager.show(qsTr("Note moved to trash!"));
+                                if (onNoteSavedOrDeleted) {
+                                    onNoteSavedOrDeleted(); // Refresh data on main page
+                                }
+                            } else {
+                                // If it's a new unsaved note, just discard it without DB operation
+                                console.log(qsTr("New unsaved note discarded after confirmation."));
+                            }
+                            manualConfirmDialog.visible = false; // Hide dialog after action
+                            manualConfirmDialog.opacity = 0; // Reset opacity for next show
+                            pageStack.pop(); // Go back to the previous page after action
+                        }
+                    }
+                }
+            }
+        }
+        // Handler for showing/hiding with animation
+        onVisibleChanged: {
+            if (visible) {
+                opacity = 1;
+            }
+        }
+    }
+
+
     // --- Header Section ---
     Rectangle {
         id: header
@@ -123,7 +288,7 @@ Page {
         Column {
             anchors.centerIn: parent
             Label {
-                text: newNotePage.noteId === -1 ? "New Note" : "Edit Note"
+                text: newNotePage.noteId === -1 ? qsTr("New Note") : qsTr("Edit Note")
                 anchors.horizontalCenter: parent.horizontalCenter
                 font.pixelSize: Theme.fontSizeLarge
                 color: "#e8eaed"
@@ -132,13 +297,13 @@ Page {
                 visible: newNotePage.noteId !== -1 // Only visible in edit mode
                 anchors.horizontalCenter: parent.horizontalCenter
                 Label {
-                    text: "Created: " + Qt.formatDateTime(newNotePage.noteCreationDate, "dd.MM.yyyy - hh:mm")
+                    text: qsTr("Created: %1").arg(Qt.formatDateTime(newNotePage.noteCreationDate, "dd.MM.yyyy - hh:mm"))
                     font.pixelSize: Theme.fontSizeExtraSmall * 0.7
                     color: Theme.secondaryColor
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
                 Label {
-                    text: "Edited: " + Qt.formatDateTime(newNotePage.noteEditDate, "dd.MM.yyyy - hh:mm")
+                    text: qsTr("Edited: %1").arg(Qt.formatDateTime(newNotePage.noteEditDate, "dd.MM.yyyy - hh:mm"))
                     font.pixelSize: Theme.fontSizeExtraSmall * 0.7
                     color: Theme.secondaryColor
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -196,7 +361,7 @@ Page {
                 onClicked: {
                     noteIsPinned = !noteIsPinned; // Toggle pin status
                     newNotePage.noteModified = true;
-                    var msg = noteIsPinned ? "The note was pinned" : "The note was unpinned"
+                    var msg = noteIsPinned ? qsTr("The note was pinned") : qsTr("The note was unpinned")
                     toastManager.show(msg)
                 }
             }
@@ -241,7 +406,7 @@ Page {
                     anchors.fill: parent
                     onPressed: paletteRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        console.log("Change color/theme - toggling panel visibility");
+                        console.log(qsTr("Change color/theme - toggling panel visibility"));
                         // Toggle color selection panel visibility
                         if (colorSelectionPanel.opacity > 0.01) {
                             colorSelectionPanel.opacity = 0;
@@ -268,8 +433,8 @@ Page {
                     anchors.fill: parent
                     onPressed: textEditRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        console.log("Text Edit Options");
-                        toastManager.show("Text edit options clicked!");
+                        console.log(qsTr("Text Edit Options"));
+                        toastManager.show(qsTr("Text edit options clicked!"));
                     }
                 }
             }
@@ -289,7 +454,7 @@ Page {
                     anchors.fill: parent
                     onPressed: alignLeftRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        console.log("Align Left");
+                        console.log(qsTr("Align Left"));
                         noteContentInput.horizontalAlignment = Text.AlignLeft;
                     }
                 }
@@ -309,7 +474,7 @@ Page {
                     anchors.fill: parent
                     onPressed: alignCenterRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        console.log("Align Center");
+                        console.log(qsTr("Align Center"));
                         noteContentInput.horizontalAlignment = Text.AlignHCenter;
                     }
                 }
@@ -329,7 +494,7 @@ Page {
                     anchors.fill: parent
                     onPressed: alignRightRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        console.log("Align Right");
+                        console.log(qsTr("Align Right"));
                         noteContentInput.horizontalAlignment = Text.AlignRight;
                     }
                 }
@@ -349,12 +514,12 @@ Page {
                     anchors.fill: parent
                     onPressed: alignJustifyRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        console.log("Align Justify");
+                        console.log(qsTr("Align Justify"));
                         noteContentInput.horizontalAlignment = Text.AlignJustify;
                     }
                 }
             }
-            // Undo button (placeholder functionality)
+            // Undo button
             Item {
                 width: Theme.fontSizeExtraLarge * 1.1
                 height: Theme.fontSizeExtraLarge * 1.1
@@ -366,17 +531,30 @@ Page {
                     anchors.centerIn: parent
                     width: parent.width
                     height: parent.height
+                    // Visually disable if no history to undo (historyIndex is 0 if only initial state exists)
+                    opacity: (newNotePage.historyIndex > 0) ? 1.0 : 0.5
+                    color: (newNotePage.historyIndex > 0) ? Theme.primaryColor : Theme.secondaryColor
                 }
                 MouseArea {
                     anchors.fill: parent
+                    // Only enable if there are previous states to undo
+                    enabled: newNotePage.historyIndex > 0
                     onPressed: undoRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        console.log("Undo");
-                        toastManager.show("Undo action triggered!");
+                        console.log(qsTr("Undo action triggered!"));
+                        if (newNotePage.historyIndex > 0) {
+                            newNotePage.isUndoingRedoing = true; // Prevent history update for this programmatic change
+                            newNotePage.historyIndex--; // Move back in history
+                            var historicalState = newNotePage.contentHistory[newNotePage.historyIndex];
+                            noteContentInput.text = historicalState.text; // Set text to previous state
+                            noteContentInput.cursorPosition = historicalState.cursorPosition; // Restore cursor position
+                            newNotePage.isUndoingRedoing = false; // Re-enable history updates
+                            toastManager.show(qsTr("Undo successful!"));
+                        }
                     }
                 }
             }
-            // Redo button (placeholder functionality)
+            // Redo button
             Item {
                 width: Theme.fontSizeExtraLarge * 1.1
                 height: Theme.fontSizeExtraLarge * 1.1
@@ -388,13 +566,26 @@ Page {
                     anchors.centerIn: parent
                     width: parent.width
                     height: parent.height
+                    // Visually disable if no history to redo
+                    opacity: (newNotePage.historyIndex < newNotePage.contentHistory.length - 1) ? 1.0 : 0.5
+                    color: (newNotePage.historyIndex < newNotePage.contentHistory.length - 1) ? Theme.primaryColor : Theme.secondaryColor
                 }
                 MouseArea {
                     anchors.fill: parent
+                    // Only enable if there are future states to redo
+                    enabled: newNotePage.historyIndex < newNotePage.contentHistory.length - 1
                     onPressed: redoRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        console.log("Redo");
-                        toastManager.show("Redo action triggered!");
+                        console.log(qsTr("Redo action triggered!"));
+                        if (newNotePage.historyIndex < newNotePage.contentHistory.length - 1) {
+                            newNotePage.isUndoingRedoing = true; // Prevent history update for this programmatic change
+                            newNotePage.historyIndex++; // Move forward in history
+                            var historicalState = newNotePage.contentHistory[newNotePage.historyIndex];
+                            noteContentInput.text = historicalState.text; // Set text to next state
+                            noteContentInput.cursorPosition = historicalState.cursorPosition; // Restore cursor position
+                            newNotePage.isUndoingRedoing = false; // Re-enable history updates
+                            toastManager.show(qsTr("Redo successful!"));
+                        }
                     }
                 }
             }
@@ -415,7 +606,7 @@ Page {
                     anchors.fill: parent
                     onPressed: addTagRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        console.log("Add Tag button clicked. Opening tag selection panel.");
+                        console.log(qsTr("Add Tag button clicked. Opening tag selection panel."));
                         // Toggle tag selection panel visibility
                         if (tagSelectionPanel.opacity > 0.01) {
                             tagSelectionPanel.opacity = 0;
@@ -451,8 +642,8 @@ Page {
                     anchors.fill: parent
                     onPressed: archiveRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        console.log("Archive Note");
-                        toastManager.show("Note archived!");
+                        console.log(qsTr("Archive Note"));
+                        toastManager.show(qsTr("Note archived!"));
                         pageStack.pop();
                     }
                 }
@@ -475,20 +666,8 @@ Page {
                     anchors.fill: parent
                     onPressed: deleteRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        // Call DB.deleteNote which now moves to trash
-                        if (newNotePage.noteId !== -1) {
-                            DB.deleteNote(newNotePage.noteId); // Moves to trash
-                            console.log("Note ID:", newNotePage.noteId, "moved to trash.");
-                            newNotePage.sentToTrash = true; // Mark that it was sent to trash
-                            toastManager.show("Note moved to trash!");
-                            if (onNoteSavedOrDeleted) {
-                                onNoteSavedOrDeleted(); // Refresh data on main page
-                            }
-                        } else {
-                            // If it's a new unsaved note, just pop it
-                            console.log("New unsaved note discarded.");
-                        }
-                        pageStack.pop(); // Go back to the previous page
+                        // Show the custom confirmation dialog
+                        manualConfirmDialog.visible = true;
                     }
                 }
             }
@@ -517,7 +696,7 @@ Page {
             TextField {
                 id: noteTitleInput
                 width: parent.width
-                placeholderText: "Title"
+                placeholderText: qsTr("Title")
                 text: newNotePage.noteTitle
                 onTextChanged: {
                     newNotePage.noteTitle = text;
@@ -531,16 +710,19 @@ Page {
                 maximumLength: 256
             }
 
-            // Note Content Input
+            // Note Content Input (TextArea)
             TextArea {
                 id: noteContentInput
                 width: parent.width
                 height: implicitHeight > 0 ? implicitHeight : Theme.itemSizeExtraLarge * 3
-                placeholderText: "Note"
+                placeholderText: qsTr("Note")
                 text: newNotePage.noteContent
                 onTextChanged: {
+                    // Update the noteContent property immediately
                     newNotePage.noteContent = text;
                     newNotePage.noteModified = true;
+                    // The historySaveTimer is already running and will check for changes.
+                    // No need to restart it here, as it's meant to save periodically.
                 }
                 wrapMode: Text.Wrap
                 font.pixelSize: Theme.fontSizeMedium
@@ -585,7 +767,7 @@ Page {
                             onPressed: tagRectangle.color = tagRectangle.pressedColor
                             onReleased: {
                                 tagRectangle.color = tagRectangle.normalColor
-                                console.log("Tag clicked for editing:", modelData)
+                                console.log(qsTr("Tag clicked for editing: %1").arg(modelData))
                                 Qt.inputMethod.hide();
                                 // Open tag selection panel when a tag is clicked
                                 if (tagSelectionPanel.opacity > 0.01) {
@@ -605,7 +787,7 @@ Page {
 
         Label {
             id: noTagsLabel
-            text: "No tags"
+            text: qsTr("No tags")
             font.italic: true
             visible: newNotePage.noteTags.length === 0
             font.pixelSize: Theme.fontSizeSmall
@@ -674,7 +856,7 @@ Page {
 
                 Label {
                     id: colorTitle
-                    text: "Select Note Color"
+                    text: qsTr("Select Note Color")
                     font.pixelSize: Theme.fontSizeLarge
                     color: "#e8eaed"
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -765,7 +947,7 @@ Page {
                 // If the tag picker is open, clicking the overlay closes it.
                 if (tagSelectionPanel.opacity > 0.01) {
                     tagSelectionPanel.opacity = 0;
-                    console.log("Tag picker closed by clicking overlay.");
+                    console.log(qsTr("Tag picker closed by clicking overlay."));
                 }
             }
         }
@@ -796,7 +978,7 @@ Page {
                 // When the panel becomes visible, load tags and scroll to the top of the list.
                 loadTagsForTagPanel();
                 tagsPanelFlickable.contentY = 0; // Scroll to top
-                console.log("Tag selection panel opened. Loading tags and scrolling to top.");
+                console.log(qsTr("Tag selection panel opened. Loading tags and scrolling to top."));
             }
         }
 
@@ -841,7 +1023,7 @@ Page {
                 availableTagsModel.append(unselectedTags[i]);
             }
 
-            console.log("TagSelectionPanel: Loaded tags for display in panel. Model items:", availableTagsModel.count);
+            console.log(qsTr("TagSelectionPanel: Loaded tags for display in panel. Model items: %1").arg(availableTagsModel.count));
         }
 
         // Column layout for header, flickable content, and done button
@@ -865,7 +1047,7 @@ Page {
                 // Label for the header text "Select Tags"
                 Label {
                     id: selectTagsText
-                    text: "Select Tags"
+                    text: qsTr("Select Tags")
                     font.pixelSize: Theme.fontSizeLarge
                     color: "#e8eaed" // Light text color
                     anchors.centerIn: parent
@@ -929,19 +1111,19 @@ Page {
                                     } else {
                                         newNotePage.noteTags = currentTags.filter(function(tag) { return tag !== model.name; });
                                     }
-                                    console.log("New note's tags updated directly (new instance assigned):", JSON.stringify(newNotePage.noteTags));
+                                    console.log(qsTr("New note's tags updated directly (new instance assigned): %1").arg(JSON.stringify(newNotePage.noteTags)));
                                 } else {
                                     // For existing notes, update the database
                                     if (newCheckedState) {
                                         DB.addTagToNote(newNotePage.noteId, model.name);
-                                        console.log("Added tag '" + model.name + "' to note ID " + newNotePage.noteId);
+                                        console.log(qsTr("Added tag '%1' to note ID %2").arg(model.name).arg(newNotePage.noteId));
                                     } else {
                                         DB.deleteTagFromNote(newNotePage.noteId, model.name);
-                                        console.log("Removed tag '" + model.name + "' from note ID " + newNotePage.noteId);
+                                        console.log(qsTr("Removed tag '%1' from note ID %2").arg(model.name).arg(newNotePage.noteId));
                                     }
                                     // Re-fetch the tags to ensure the local array is in sync with the DB
                                     newNotePage.noteTags = DB.getTagsForNote(null, newNotePage.noteId);
-                                    console.log("NewNotePage: main tagsFlow updated after DB change:", JSON.stringify(newNotePage.noteTags));
+                                    console.log(qsTr("NewNotePage: main tagsFlow updated after DB change: %1").arg(JSON.stringify(newNotePage.noteTags)));
                                 }
                                 newNotePage.noteModified = true; // Mark note as modified
                             }
@@ -1020,7 +1202,7 @@ Page {
                 text: qsTr("Done") // Localized text for the button
                 onClicked: {
                     tagSelectionPanel.opacity = 0; // Close the tag picker when Done is clicked
-                    console.log("Tag picker closed by Done button.");
+                    console.log(qsTr("Tag picker closed by Done button."));
                 }
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: Theme.paddingLarge // Space from the bottom of the panel
