@@ -511,3 +511,36 @@ function searchNotes(searchText, selectedTagNames) {
     });
     return notes;
 }
+
+
+// --- NEW BULK FUNCTIONS ---
+
+// Function to bulk move notes to trash
+function bulkMoveToTrash(ids) {
+    if (!ids || ids.length === 0) {
+        console.warn("DB_MGR: No IDs provided for bulkMoveToTrash.");
+        return;
+    }
+    initDatabase();
+    db.transaction(function(tx) {
+        var placeholders = ids.map(function() { return '?'; }).join(',');
+        // Set deleted = 1 and archived = 0 for the given IDs
+        tx.executeSql("UPDATE Notes SET deleted = 1, archived = 0, updated_at = CURRENT_TIMESTAMP WHERE id IN (" + placeholders + ")", ids);
+        console.log("DB_MGR: Bulk moved notes to trash with IDs:", ids);
+    });
+}
+
+// Function to bulk archive notes
+function bulkArchiveNotes(ids) {
+    if (!ids || ids.length === 0) {
+        console.warn("DB_MGR: No IDs provided for bulkArchiveNotes.");
+        return;
+    }
+    initDatabase();
+    db.transaction(function(tx) {
+        var placeholders = ids.map(function() { return '?'; }).join(',');
+        // Set archived = 1 and deleted = 0 for the given IDs
+        tx.executeSql("UPDATE Notes SET archived = 1, deleted = 0, updated_at = CURRENT_TIMESTAMP WHERE id IN (" + placeholders + ")", ids);
+        console.log("DB_MGR: Bulk archived notes with IDs:", ids);
+    });
+}

@@ -1,4 +1,4 @@
-// MainPage.qml (Further Refined with Keyboard Fix and Tag Sorting)
+// MainPage.qml (Re-integrated Features from Clean Base)
 
 import QtQuick.LocalStorage 2.0
 import QtQuick 2.0
@@ -10,7 +10,7 @@ Page {
     id: mainPage
     objectName: "mainPage"
     allowedOrientations: Orientation.All
-    backgroundColor: "#121218"
+    backgroundColor: "#121218" // Main page background color
     showNavigationIndicator: false
     property int noteMargin: 20
 
@@ -26,25 +26,40 @@ Page {
     property var searchResults: [] // Notes matching the search criteria
     property bool tagPickerOpen: false // Controls visibility of the tag picker overlay
 
+    // --- New properties for selection mode ---
+    property bool selectionMode: false
+    // List to store IDs of selected notes
+    property var selectedNoteIds: []
+
+    // --- ToastManager definition (Crucial for showing messages) ---
+    ToastManager {
+        id: toastManager
+    }
+
     // Model for the tag selection panel
     ListModel {
-        id: availableTagsModel // Renamed to match example for clarity in this context
+        id: availableTagsModel
+    }
+
+    // Model for tags displayed in the DrawerMenu (used in the Drawer)
+    ListModel {
+        id: tagsModel
     }
 
     Component.onCompleted: {
+        console.log(qsTr("MainPage created."));
         DB.initDatabase()
         DB.insertTestData() // Ensure test data is available for demonstration
         refreshData()
     }
 
-    // Corrected: Using onStatusChanged for page activation detection
     onStatusChanged: {
-        // When MainPage becomes active (topmost in PageStack), clear search field focus and hide keyboard.
         if (mainPage.status === PageStatus.Active) {
             refreshData()
             searchField.focus = false;
             sidePanel.currentPage = "notes"
             Qt.inputMethod.hide(); // Explicitly hide the keyboard
+            resetSelection(); // Reset selection mode when page becomes active
             console.log("MainPage active (status changed to Active), search field focus cleared and keyboard hidden.");
         }
     }
@@ -55,11 +70,11 @@ Page {
         allTags = DB.getAllTags(); // This now only gets tags linked to non-deleted notes
         // After refreshing all data, perform a search with current criteria
         performSearch(currentSearchText, selectedTags);
+        loadTagsForDrawer(); // Ensure tags in drawer are updated
     }
 
     // Main search function that calls the DatabaseManager and updates searchResults
     function performSearch(text, tags) {
-        // Assume DB.searchNotes exists and handles text and tag filtering
         searchResults = DB.searchNotes(text, tags);
         console.log("MAIN_PAGE: Search performed. Keyword:", text, "Tags:", JSON.stringify(tags), "Results count:", searchResults.length);
     }
@@ -73,7 +88,6 @@ Page {
             selectedTags = selectedTags.concat(tagName);
             console.log("MAIN_PAGE: Added tag:", tagName, "Selected tags:", JSON.stringify(selectedTags));
         }
-        // Trigger search whenever selected tags change
         performSearch(currentSearchText, selectedTags);
     }
 
@@ -83,7 +97,6 @@ Page {
         var selectedOnlyTags = [];
         var unselectedTags = [];
 
-        // Separate tags into selected and unselected lists
         for (var i = 0; i < allTags.length; i++) {
             var tagName = allTags[i];
             if (selectedTags.indexOf(tagName) !== -1) {
@@ -93,11 +106,9 @@ Page {
             }
         }
 
-        // Add selected tags first
         for (var i = 0; i < selectedOnlyTags.length; i++) {
             availableTagsModel.append(selectedOnlyTags[i]);
         }
-        // Then add unselected tags
         for (var i = 0; i < unselectedTags.length; i++) {
             availableTagsModel.append(unselectedTags[i]);
         }
@@ -105,46 +116,89 @@ Page {
         console.log("TagSelectionPanel: Loaded tags for display in panel. Model items:", availableTagsModel.count);
     }
 
-    // Wrapper for the search bar (selected tags area is now hidden)
+    // Function to load tags for the drawer menu
+    function loadTagsForDrawer() {
+        tagsModel.clear();
+        var tagsWithCounts = DB.getAllTagsWithCounts();
+        for (var i = 0; i < tagsWithCounts.length; i++) {
+            tagsModel.append(tagsWithCounts[i]);
+        }
+        console.log(qsTr("Loaded %1 tags for drawer.").arg(tagsWithCounts.length));
+    }
+
+    // --- Selection Mode Functions ---
+    function isNoteSelected(noteId) {
+        return mainPage.selectedNoteIds.indexOf(noteId) !== -1;
+    }
+
+    function toggleNoteSelection(noteId) {
+        // Create a new array reference to ensure property change detection in QML
+        var newSelectedIds = mainPage.selectedNoteIds.slice(); // Use slice to create a shallow copy
+
+        var index = newSelectedIds.indexOf(noteId);
+        if (index === -1) {
+            newSelectedIds.push(noteId);
+            console.log(qsTr("Selected note ID: %1").arg(noteId));
+        } else {
+            newSelectedIds.splice(index, 1);
+            console.log(qsTr("Deselected note ID: %1").arg(noteId));
+        }
+
+        mainPage.selectedNoteIds = newSelectedIds; // Assign the new array reference
+        mainPage.selectionMode = mainPage.selectedNoteIds.length > 0;
+        Qt.inputMethod.hide();
+        if (pinnedNotes) pinnedNotes.forceLayout();
+        if (otherNotes) otherNotes.forceLayout();
+    }
+
+    function resetSelection() {
+        mainPage.selectedNoteIds = [];
+        mainPage.selectionMode = false;
+        console.log(qsTr("Selection reset."));
+        if (pinnedNotes) pinnedNotes.forceLayout();
+        if (otherNotes) otherNotes.forceLayout();
+    }
+
+
+    // Wrapper for the search bar and selection toolbar
     Column {
         id: searchAreaWrapper
         width: parent.width
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
-        z: 2 // Ensure it's above the flickable
+        z: 2
 
-        // Adjust visibility and position based on headerVisible
         y: headerVisible ? 0 : -searchBarArea.height
         Behavior on y {
-            NumberAnimation {
-                duration: 250
-                easing.type: Easing.OutQuad
-            }
+            NumberAnimation { duration: 250; easing.type: Easing.OutQuad }
         }
 
-        // Search Bar Area
+        // Search Bar Area and Selection Toolbar Container
         Item {
             id: searchBarArea
             width: parent.width
             height: 80
 
+            // Search Field Container (Visible in default mode)
             Rectangle {
                 id: searchBarContainer
                 width: parent.width - (noteMargin * 2)
                 height: parent.height
                 anchors.centerIn: parent
-                color: "#1c1d29"
+                color: mainPage.backgroundColor // Changed to match page background
                 radius: 80
+                visible: !mainPage.selectionMode
+                opacity: visible ? 1 : 0
+                Behavior on opacity { NumberAnimation { duration: 150 } }
 
                 SearchField {
                     id: searchField
                     anchors.fill: parent
                     placeholderText: "Search notes..."
                     highlighted: false
-                    text: currentSearchText // Bind text to currentSearchText property
+                    text: currentSearchText
 
-                    // Real-time search on text change
                     onTextChanged: {
                         mainPage.currentSearchText = text;
                         performSearch(text, selectedTags);
@@ -152,9 +206,8 @@ Page {
 
                     EnterKey.onClicked: {
                         console.log("Searching for:", text)
-                        // Just hide keyboard, search already happens onTextChanged
                         Qt.inputMethod.hide();
-                        searchField.focus = false; // Clear focus after search
+                        searchField.focus = false;
                     }
 
                     // Left Item: Menu / Clear Search
@@ -171,33 +224,29 @@ Page {
                             height: parent.height
                         }
 
-                        RippleEffect {
-                            id: leftRipple
-                        }
+                        RippleEffect { id: menuRipple }
 
                         MouseArea {
                             anchors.fill: parent
                             onClicked: {
                                 if (searchField.text.length > 0 || selectedTags.length > 0) {
-                                    // Clear search and tags
                                     mainPage.currentSearchText = "";
-                                    searchField.text = ""; // Also update the SearchField's internal text
+                                    searchField.text = "";
                                     mainPage.selectedTags = [];
                                     performSearch("", []);
                                     console.log("Search cleared (text and tags).");
                                 } else {
-                                    // Open side panel
                                     mainPage.panelOpen = true
                                     console.log("Menu button clicked → panelOpen = true")
                                 }
+                                onPressed: menuRipple.ripple(mouseX, mouseY)
                                 Qt.inputMethod.hide();
-                                searchField.focus = false; // Clear focus
+                                searchField.focus = false;
                             }
-                            onPressed: leftRipple.ripple(mouseX, mouseY)
                         }
                     }
 
-                    // Right Item: Open Tag Picker (always)
+                    // Right Item: Open Tag Picker
                     rightItem: Item {
                         width: Theme.fontSizeExtraLarge * 1.25
                         height: Theme.fontSizeExtraLarge * 1.25
@@ -211,16 +260,11 @@ Page {
                             height: parent.height
                         }
 
-                        RippleEffect {
-                            id: rightRipple
-                        }
+                        RippleEffect { id: rightRipple }
 
                         MouseArea {
                             anchors.fill: parent
-                            // Removed Qt.inputMethod.hide() and searchField.focus = false; here
-                            // The keyboard should now remain visible when opening the tag picker.
                             onClicked: {
-                                // Always open tag picker
                                 mainPage.tagPickerOpen = true;
                                 console.log("MAIN_PAGE: Tag picker opened from right icon.");
                             }
@@ -229,28 +273,115 @@ Page {
                     }
                 }
             }
-        }
-        // Removed the Item with id: selectedTagsArea as per request.
-        // It was previously responsible for displaying chosen tags on the main page.
-    }
 
+            // Selection Mode Toolbar (Replaces SearchField visually when active)
+            Rectangle {
+                id: selectionToolbarBackground
+                width: parent.width - (noteMargin * 2)
+                height: parent.height
+                anchors.centerIn: parent
+                color: mainPage.backgroundColor // Changed to match page background
+                radius: 80
+                visible: mainPage.selectionMode
+                opacity: visible ? 1 : 0
+
+                Behavior on opacity { NumberAnimation { duration: 150 } }
+
+                // Left: Close button
+                Item {
+                    id: closeButton
+                    width: Theme.fontSizeExtraLarge * 1.1
+                    height: Theme.fontSizeExtraLarge * 0.95
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.left: parent.left
+                    anchors.leftMargin: Theme.paddingLarge
+
+                    Icon { source: "../icons/close.svg"; anchors.centerIn: parent; width: parent.width; height: parent.height }
+                    RippleEffect { id: closeRipple }
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: mainPage.resetSelection()
+                        onPressed: closeRipple.ripple(mouseX, mouseY)
+                    }
+                }
+
+                // Right: Delete button (rightmost)
+                Item {
+                    id: deleteButton
+                    width: Theme.fontSizeExtraLarge * 1.1
+                    height: Theme.fontSizeExtraLarge * 0.95
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.right: parent.right
+                    anchors.rightMargin: Theme.paddingLarge
+
+                    Icon { source: "../icons/delete.svg"; color: Theme.errorColor; anchors.centerIn: parent; width: parent.width; height: parent.height }
+                    RippleEffect { id: deleteRipple }
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            if (mainPage.selectedNoteIds.length > 0) {
+                                var idsToMove = mainPage.selectedNoteIds;
+                                DB.bulkMoveToTrash(idsToMove);
+                                toastManager.show(qsTr("%1 note(s) moved to trash!").arg(idsToMove.length));
+                                mainPage.resetSelection();
+                                mainPage.refreshData();
+                            } else {
+                                toastManager.show(qsTr("No notes selected."));
+                            }
+                        }
+                        onPressed: deleteRipple.ripple(mouseX, mouseY)
+                    }
+                }
+
+                // Right: Archive button (left of delete button)
+                Item {
+                    id: archiveButton
+                    width: Theme.fontSizeExtraLarge * 1.1
+                    height: Theme.fontSizeExtraLarge * 0.95
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.right: deleteButton.left
+                    anchors.rightMargin: Theme.paddingMedium
+
+                    Icon { source: "../icons/archive.svg"; color: Theme.primaryColor; anchors.centerIn: parent; width: parent.width; height: parent.height }
+                    RippleEffect { id: archiveRipple }
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            if (mainPage.selectedNoteIds.length > 0) {
+                                var idsToArchive = mainPage.selectedNoteIds;
+                                DB.bulkArchiveNotes(idsToArchive);
+                                toastManager.show(qsTr("%1 note(s) archived!").arg(idsToArchive.length));
+                                mainPage.resetSelection();
+                                mainPage.refreshData();
+                            } else {
+                                toastManager.show(qsTr("No notes selected."));
+                            }
+                        }
+                        onPressed: archiveRipple.ripple(mouseX, mouseY)
+                    }
+                }
+            }
+        }
+    }
 
     SidePanel {
         id: sidePanel
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         open: panelOpen
-        tags: allTags // Pass all tags to the side panel
+        tags: allTags
     }
 
     SilicaFlickable {
         id: flickable
         anchors.left: parent.left
         anchors.right: parent.right
+        // Dynamic bottom anchor: if in selection mode or tag picker is open, extend to parent bottom.
+        // Otherwise, anchor above the fabButton.
         anchors.bottom: parent.bottom
-        anchors.top: searchAreaWrapper.bottom // Anchor below the combined search area
+        anchors.top: searchAreaWrapper.bottom
         contentHeight: column.height
-        clip: true // Ensure content doesn't overflow outside
+        clip: true
 
         onContentYChanged: {
             var scrollY = flickable.contentY;
@@ -270,9 +401,7 @@ Page {
             id: column
             width: parent.width
             spacing: Theme.paddingSmall
-            // No padding properties here for Column
 
-            // Display "No Results" if searchResults is empty
             Loader {
                 sourceComponent: searchResults.length === 0 && (currentSearchText.length > 0 || selectedTags.length > 0) ? noResultsComponent : undefined
                 width: parent.width
@@ -283,7 +412,7 @@ Page {
                 id: noResultsComponent
                 Column {
                     width: parent.width
-                    height: 200 // Fixed height for no results message
+                    height: 200
                     anchors.horizontalCenter: parent.horizontalCenter
                     spacing: Theme.paddingMedium
                     Text {
@@ -328,40 +457,25 @@ Page {
                     id: pinnedNotes
                     width: parent.width
                     height: contentHeight
-                    // Filter searchResults for pinned notes
                     model: searchResults.filter(function(note) { return note.pinned; })
                     delegate: NoteCard {
                         anchors {
                             left: parent.left
                             right: parent.right
-                            leftMargin: noteMargin
-                            rightMargin: noteMargin
+                            leftMargin: mainPage.noteMargin
+                            rightMargin: mainPage.noteMargin
                         }
                         width: parent.width
                         title: modelData.title
                         content: modelData.content
-                        tags: modelData.tags.join(' ')
+                        tags: modelData.tags.join(' ') // Passing tags as space-separated string
                         cardColor: modelData.color || "#1c1d29"
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                Qt.inputMethod.hide();
-                                searchField.focus = false; // Clear focus before navigating
-                                pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
-                                    onNoteSavedOrDeleted: refreshData, // Pass refreshData as callback
-                                    noteId: modelData.id,
-                                    noteTitle: modelData.title,
-                                    noteContent: modelData.content,
-                                    noteIsPinned: modelData.pinned,
-                                    noteTags: modelData.tags,
-                                    noteCreationDate: new Date(modelData.created_at + "Z"),
-                                    noteEditDate: new Date(modelData.updated_at + "Z"),
-                                    noteColor: modelData.color
-                                });
-                                console.log("Opening NotePage in EDIT mode for ID:", modelData.id + ", Color:", modelData.color);
-                            }
-                        }
+                        noteId: modelData.id
+                        isSelected: mainPage.isNoteSelected(modelData.id)
+                        mainPageInstance: mainPage
+                        noteIsPinned: modelData.pinned
+                        noteCreationDate: new Date(modelData.created_at + "Z")
+                        noteEditDate: new Date(modelData.updated_at + "Z")
                     }
                 }
             }
@@ -388,39 +502,25 @@ Page {
                     width: parent.width
                     spacing: 0
                     height: contentHeight
-                    // Filter searchResults for non-pinned notes
                     model: searchResults.filter(function(note) { return !note.pinned; })
                     delegate: NoteCard {
                         anchors {
                             left: parent.left
                             right: parent.right
-                            leftMargin: noteMargin
-                            rightMargin: noteMargin
+                            leftMargin: mainPage.noteMargin
+                            rightMargin: mainPage.noteMargin
                         }
                         width: parent.width
                         title: modelData.title
                         content: modelData.content
-                        tags: modelData.tags.join(' ')
+                        tags: modelData.tags.join(' ') // Passing tags as space-separated string
                         cardColor: modelData.color || "#1c1d29"
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                searchField.focus = false; // Clear focus before navigating
-                                pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
-                                    onNoteSavedOrDeleted: refreshData, // Pass refreshData as callback
-                                    noteId: modelData.id,
-                                    noteTitle: modelData.title,
-                                    noteContent: modelData.content,
-                                    noteIsPinned: modelData.pinned,
-                                    noteTags: modelData.tags,
-                                    noteCreationDate: new Date(modelData.created_at + "Z"),
-                                    noteEditDate: new Date(modelData.updated_at + "Z"),
-                                    noteColor: modelData.color
-                                });
-                                console.log("Opening NotePage in EDIT mode for ID:", modelData.id + ", Color:", modelData.color);
-                            }
-                        }
+                        noteId: modelData.id
+                        isSelected: mainPage.isNoteSelected(modelData.id)
+                        mainPageInstance: mainPage
+                        noteIsPinned: modelData.pinned
+                        noteCreationDate: new Date(modelData.created_at + "Z")
+                        noteEditDate: new Date(modelData.updated_at + "Z")
                     }
                 }
             }
@@ -429,103 +529,99 @@ Page {
 
     ScrollBar {
         flickableSource: flickable
-        topAnchorItem: searchAreaWrapper // Anchor to the new search area wrapper
+        topAnchorItem: searchAreaWrapper
     }
 
     // --- Floating Plus Button for Add New Note ---
-     Rectangle {
-         id: fabButton
-         width: Theme.itemSizeLarge // Made smaller
-         height: Theme.itemSizeLarge // Made smaller
-         radius: width / 2 // Make it round
-         color: Theme.highlightColor // A prominent color for the FAB
-         anchors.right: parent.right
-         anchors.bottom: parent.bottom
-         anchors.rightMargin: Theme.paddingLarge * 2
-         anchors.bottomMargin: Theme.paddingLarge * 2
-         z: 5 // Ensure it floats above other content
-         antialiasing: true
-         visible: !mainPage.tagPickerOpen && (opacity > 0.05) // Hide when tag picker is open, and if too transparent
+    Rectangle {
+        id: fabButton
+        width: Theme.itemSizeLarge
+        height: Theme.itemSizeLarge
+        radius: width / 2
+        color: Theme.highlightColor
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.rightMargin: Theme.paddingLarge * 2
+        anchors.bottomMargin: Theme.paddingLarge * 2
+        z: 5
+        antialiasing: true
+        // Set visible based on selection mode and tag picker.
+        visible: !mainPage.selectionMode && !mainPage.tagPickerOpen
 
-         property real baseOpacity: 0.8 // Base transparency
-         property real minOpacity: 0.1 // Minimum opacity when fully faded
-         property real fadeDistance: Theme.itemSizeExtraLarge * 1.5 // Distance over which fade happens
+        property real baseOpacity: 0.8
+        property real minOpacity: 0.1
+        property real fadeDistance: Theme.itemSizeExtraLarge * 1.5
 
-         opacity: {
-             if (flickable.contentHeight <= flickable.height || flickable.contentHeight - flickable.height <= 0) {
-                 // Content not scrollable, or too small, keep base opacity
-                 return baseOpacity;
-             }
+        opacity: {
+            if (flickable.contentHeight <= flickable.height || flickable.contentHeight - flickable.height <= 0) {
+                return baseOpacity;
+            }
 
-             var maxScrollY = flickable.contentHeight - flickable.height;
-             var fadeStartScrollY = maxScrollY - fadeDistance;
+            var maxScrollY = flickable.contentHeight - flickable.height;
+            var fadeStartScrollY = maxScrollY - fadeDistance;
 
-             if (flickable.contentY < fadeStartScrollY) {
-                 return baseOpacity; // Full base opacity when not in fade region
-             } else {
-                 // Calculate progress within the fade region (0 to 1)
-                 var progress = (flickable.contentY - fadeStartScrollY) / fadeDistance;
-                 progress = Math.max(0, Math.min(1, progress)); // Clamp between 0 and 1
+            if (flickable.contentY < fadeStartScrollY) {
+                return baseOpacity;
+            } else {
+                var progress = (flickable.contentY - fadeStartScrollY) / fadeDistance;
+                progress = Math.max(0, Math.min(1, progress));
+                return baseOpacity - (progress * (baseOpacity - minOpacity));
+            }
+        }
 
-                 // Linearly interpolate opacity from baseOpacity to minOpacity
-                 return baseOpacity - (progress * (baseOpacity - minOpacity));
-             }
-         }
+        Behavior on opacity {
+            NumberAnimation { duration: 150; easing.type: Easing.OutQuad }
+        }
 
-         Behavior on opacity {
-             NumberAnimation { duration: 150; easing.type: Easing.OutQuad }
-         }
+        Icon {
+            source: "../icons/plus.svg"
+            color: Theme.primaryColor
+            anchors.centerIn: parent
+            width: parent.width * 0.5
+            height: parent.height * 0.5
+        }
 
-         Icon {
-             source: "../icons/plus.svg"
-             color: Theme.primaryColor // Color of the plus icon
-             anchors.centerIn: parent
-             width: parent.width * 0.5
-             height: parent.height * 0.5
-         }
+        RippleEffect {}
 
-         RippleEffect {} // Add ripple effect for visual feedback
-
-         MouseArea {
-             anchors.fill: parent
-             onClicked: {
-                 // Create New Note
-                 pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
-                     onNoteSavedOrDeleted: refreshData,
-                     noteId: -1,
-                     noteTitle: "",
-                     noteContent: "",
-                     noteIsPinned: false,
-                     noteTags: [],
-                     noteCreationDate: new Date(),
-                     noteEditDate: new Date(),
-                     noteColor: "#121218"
-                 });
-                 console.log("Opening NewNotePage in CREATE mode (from FAB).");
-                 Qt.inputMethod.hide(); // Still hide keyboard on navigating away from current page
-                 searchField.focus = false; // Clear focus before navigating
-             }
-         }
-     }
+        MouseArea {
+            anchors.fill: parent
+            enabled: fabButton.visible // Enable/disable based on fabButton's visible property
+            onClicked: {
+                pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
+                    onNoteSavedOrDeleted: refreshData,
+                    noteId: -1,
+                    noteTitle: "",
+                    noteContent: "",
+                    noteIsPinned: false,
+                    noteTags: "", // Pass empty string for new note tags
+                    noteCreationDate: new Date(),
+                    noteEditDate: new Date(),
+                    noteColor: "#121218"
+                });
+                console.log("Opening NewNotePage in CREATE mode (from FAB).");
+                Qt.inputMethod.hide();
+                searchField.focus = false;
+            }
+        }
+    }
 
 
     // --- Tag Picker Overlay ---
     Rectangle {
         id: tagPickerOverlay
         anchors.fill: parent
-        color: "#000000" // Black background
-        opacity: tagPickerPanel.opacity * 0.4 // Opacity linked to panel's opacity
-        z: 3 // Above main content, below panel
-        visible: tagPickerPanel.visible // Use panel's explicit visibility
+        color: "#000000"
+        opacity: tagPickerPanel.opacity * 0.4
+        z: 3
+        visible: tagPickerPanel.visible
         smooth: true
         Behavior on opacity { NumberAnimation { duration: 200 } }
 
         MouseArea {
             anchors.fill: parent
-            enabled: tagPickerOverlay.visible // Only enabled when visible
+            enabled: tagPickerOverlay.visible
             onClicked: {
-                // Clicking overlay closes the panel
-                mainPage.tagPickerOpen = false; // Set state to false
+                mainPage.tagPickerOpen = false;
                 console.log("MAIN_PAGE: Tag picker overlay clicked, closing picker.");
             }
         }
@@ -534,24 +630,24 @@ Page {
     // --- Tag Picker Panel ---
     Rectangle {
         id: tagPickerPanel
-        width: parent.width // Panel width - as per new example
-        height: parent.height * 0.53 // Fixed height as per example
-        color: "#1c1d29" // Panel background color (matching original)
-        radius: 15 // Radius from previous version, or adjust if example implies different
+        width: parent.width
+        height: parent.height * 0.53
+        color: "#1c1d29" // Tag picker panel background color
+        radius: 15
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: parent.bottom // Anchored to page bottom as per example
-        z: 4 // Above overlay
-        opacity: mainPage.tagPickerOpen ? 1 : 0 // Controlled by tagPickerOpen, animated by behavior
-        visible: mainPage.tagPickerOpen || opacity > 0.01 // Directly control visibility to ensure onVisibleChanged fires
+        anchors.bottom: parent.bottom
+        z: 4
+        opacity: mainPage.tagPickerOpen ? 1 : 0
+        visible: mainPage.tagPickerOpen || opacity > 0.01
 
         Behavior on opacity {
-            NumberAnimation { duration: 250; easing.type: Easing.OutCubic } // Easing from example
+            NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
         }
 
         onVisibleChanged: {
             if (visible) {
-                loadTagsForTagPanel(); // Load tags when the panel becomes visible
-                tagsPanelFlickable.contentY = 0; // Scroll to top when opening
+                loadTagsForTagPanel();
+                tagsPanelFlickable.contentY = 0;
                 console.log("Tag picker panel opened. Loading tags and scrolling to top.");
             }
         }
@@ -559,61 +655,55 @@ Page {
         Column {
             id: tagPanelContentColumn
             anchors.fill: parent
-            spacing: Theme.paddingMedium // Spacing between elements in this column
+            spacing: Theme.paddingMedium
 
-            Rectangle { // Header container for "Select Tags"
+            Rectangle {
                 id: tagPanelHeader
                 width: parent.width
                 height: Theme.itemSizeExtraSmall
-                // radius should come from parent tagPickerPanel if it covers the entire width
-                color: "#1c1d29" // Match panel color
+                color: "#1c1d29" // Tag picker header background color
                 anchors.top: parent.top
                 anchors.horizontalCenter: parent.horizontalCenter
-                // Use anchors.margins for horizontal padding within the header itself
                 anchors.leftMargin: Theme.paddingLarge
                 anchors.rightMargin: Theme.paddingLarge
 
 
-                Label { // Changed from Text to Label for style consistency if it's a header
-                    id: selectTagsText // Renamed ID to match example
+                Label {
+                    id: selectTagsText
                     text: "Select Tags"
                     font.pixelSize: Theme.fontSizeLarge
-                    color: "#e8eaed" // Color from example
+                    color: "#e2e3e8"
                     anchors.centerIn: parent
                 }
             }
 
-            // --- No "Selected Tags" section here as per request ---
-
-            // List of all available tags
-            SilicaFlickable { // Using SilicaFlickable as it was used elsewhere
-                id: tagsPanelFlickable // Renamed ID to match example
+            SilicaFlickable {
+                id: tagsPanelFlickable
                 width: parent.width
-                anchors.top: tagPanelHeader.bottom // Anchored below the header
-                anchors.bottom: doneButton.top // Anchored above the Done button
-                // Horizontal anchors for flickable content
+                anchors.top: tagPanelHeader.bottom
+                anchors.bottom: doneButton.top
                 anchors.left: parent.left
                 anchors.right: parent.right
-                anchors.topMargin: Theme.paddingMedium // Space from header
-                anchors.bottomMargin: Theme.paddingMedium // Space from done button
+                anchors.topMargin: Theme.paddingMedium
+                anchors.bottomMargin: Theme.paddingMedium
                 contentHeight: tagsPanelListView.contentHeight
                 clip: true
-                ScrollBar { flickableSource: parent }
+                ScrollBar { flickableSource: tagsPanelFlickable; z: 5 }
 
                 ListView {
-                    id: tagsPanelListView // Renamed ID to match example
+                    id: tagsPanelListView
                     width: parent.width
                     height: contentHeight
-                    model: availableTagsModel // Now using the ListModel
+                    model: availableTagsModel
                     orientation: ListView.Vertical
                     spacing: Theme.paddingSmall
 
-                    delegate: Rectangle { // Used Rectangle as per your previous request
-                        id: tagPanelDelegateRoot // Renamed ID to match example
+                    delegate: Rectangle {
+                        id: tagPanelDelegateRoot
                         width: parent.width
                         height: Theme.itemSizeMedium
                         clip: true
-                        color: model.isChecked ? "#5c607a" : "#2a2c3a" // Dynamic background color
+                        color: model.isChecked ? "#5c607a" : "#2a2c3a"
 
                         RippleEffect { id: tagPanelDelegateRipple }
 
@@ -622,10 +712,8 @@ Page {
                             onPressed: tagPanelDelegateRipple.ripple(mouseX, mouseY)
                             onClicked: {
                                 var newCheckedState = !model.isChecked;
-                                // Update the ListModel
                                 availableTagsModel.set(index, { name: model.name, isChecked: newCheckedState });
 
-                                // Update mainPage's selectedTags property for search logic
                                 if (newCheckedState) {
                                     if (mainPage.selectedTags.indexOf(model.name) === -1) {
                                         mainPage.selectedTags = mainPage.selectedTags.concat(model.name);
@@ -634,7 +722,6 @@ Page {
                                     mainPage.selectedTags = mainPage.selectedTags.filter(function(tag) { return tag !== model.name; });
                                 }
                                 console.log("MAIN_PAGE: Toggling tag from picker: " + model.name + ", isChecked: " + newCheckedState + ", Current selectedTags:", JSON.stringify(mainPage.selectedTags));
-                                // Trigger immediate search update in MainPage
                                 mainPage.performSearch(mainPage.currentSearchText, mainPage.selectedTags);
                             }
                         }
@@ -642,44 +729,43 @@ Page {
                         Row {
                             id: tagPanelRow
                             anchors.verticalCenter: parent.verticalCenter
-                            anchors.left: parent.left; anchors.leftMargin: Theme.paddingLarge // Padding from left edge of delegate
-                            anchors.right: parent.right; anchors.rightMargin: Theme.paddingLarge // Padding from right edge of delegate
+                            anchors.left: parent.left; anchors.leftMargin: Theme.paddingLarge
+                            anchors.right: parent.right; anchors.rightMargin: Theme.paddingLarge
                             spacing: Theme.paddingMedium
 
                             Icon {
-                                id: tagPanelTagIcon // Renamed ID to match example
+                                id: tagPanelTagIcon
                                 source: "../icons/tag-white.svg"
-                                color: "#e2e3e8" // Color from example
+                                color: "#e2e3e8"
                                 width: Theme.iconSizeMedium
                                 height: Theme.iconSizeMedium
                                 anchors.verticalCenter: parent.verticalCenter
                                 fillMode: Image.PreserveAspectFit
                             }
 
-                            Text { // Changed from Label to Text as per previous fixes.
-                                id: tagPanelTagNameLabel // Renamed ID to match example
+                            Text {
+                                id: tagPanelTagNameLabel
                                 text: model.name
-                                color: "#e2e3e8" // Color from example (for selected, or consider a softer color for unselected)
+                                color: "#e2e3e8"
                                 font.pixelSize: Theme.fontSizeMedium
                                 anchors.verticalCenter: parent.verticalCenter
-                                elide: Text.ElideRight // Enable eliding for long text
-                                // Anchored to be between tag icon and check button for flexible width
+                                elide: Text.ElideRight
                                 anchors.left: tagPanelTagIcon.right
                                 anchors.leftMargin: tagPanelRow.spacing
-                                anchors.right: tagPanelCheckButtonContainer.left // Anchor left to the right-aligned check button container
+                                anchors.right: tagPanelCheckButtonContainer.left
                                 anchors.rightMargin: tagPanelRow.spacing
                             }
 
                             Item {
-                                id: tagPanelCheckButtonContainer // Renamed ID to match example
+                                id: tagPanelCheckButtonContainer
                                 width: Theme.iconSizeMedium
                                 height: Theme.iconSizeMedium
                                 anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right // Anchored to the far right of the row
+                                anchors.right: parent.right
                                 clip: false
 
                                 Image {
-                                    id: tagPanelCheckIcon // Renamed ID to match example
+                                    id: tagPanelCheckIcon
                                     source: model.isChecked ? "../icons/box-checked.svg" : "../icons/box.svg"
                                     anchors.centerIn: parent
                                     width: parent.width
@@ -700,15 +786,15 @@ Page {
             }
 
             Button {
-                id: doneButton // Retained ID
+                id: doneButton
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: qsTr("Done")
                 onClicked: {
-                    mainPage.tagPickerOpen = false; // Set state to false
+                    mainPage.tagPickerOpen = false;
                     console.log("MAIN_PAGE: Tag picker closed by Done button.");
                 }
                 anchors.bottom: parent.bottom
-                anchors.bottomMargin: Theme.paddingLarge // Space from the panel bottom
+                anchors.bottomMargin: Theme.paddingLarge
             }
         }
     }

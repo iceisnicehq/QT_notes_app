@@ -487,6 +487,7 @@ Page {
             NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
         }
 
+        // Left group: Palette, Tag
         Row {
             id: leftToolbarButtons
             anchors.left: parent.left
@@ -521,109 +522,42 @@ Page {
                     }
                 }
             }
-            // Text edit options button (placeholder functionality)
+            // Add Tag button - opens the tag selection panel (MOVED HERE)
             Item {
                 width: Theme.fontSizeExtraLarge * 1.1
                 height: Theme.fontSizeExtraLarge * 1.1
                 clip: false
-                RippleEffect { id: textEditRipple }
+                RippleEffect { id: addTagRipple }
                 Icon {
-                    id: textEditIcon
-                    source: "../icons/text_edit.svg"
+                    id: addTagIcon
+                    source: "../icons/tag.svg"
                     anchors.centerIn: parent
                     width: parent.width
                     height: parent.height
                 }
                 MouseArea {
                     anchors.fill: parent
-                    onPressed: textEditRipple.ripple(mouseX, mouseY)
+                    onPressed: addTagRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        console.log(qsTr("Text Edit Options"));
-                        toastManager.show(qsTr("Text edit options clicked!"));
+                        console.log(qsTr("Add Tag button clicked. Opening tag selection panel."));
+                        // Toggle tag selection panel visibility
+                        if (tagSelectionPanel.opacity > 0.01) {
+                            tagSelectionPanel.opacity = 0;
+                        } else {
+                            tagSelectionPanel.opacity = 1;
+                        }
                     }
                 }
             }
-            // Text alignment buttons (placeholder functionality)
-            Item {
-                width: Theme.fontSizeExtraLarge * 1.1
-                height: Theme.fontSizeExtraLarge * 1.1
-                clip: false
-                RippleEffect { id: alignLeftRipple }
-                Icon {
-                    source: "../icons/format_align_left.svg"
-                    anchors.centerIn: parent
-                    width: parent.width
-                    height: parent.height
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onPressed: alignLeftRipple.ripple(mouseX, mouseY)
-                    onClicked: {
-                        console.log(qsTr("Align Left"));
-                        noteContentInput.horizontalAlignment = Text.AlignLeft;
-                    }
-                }
-            }
-            Item {
-                width: Theme.fontSizeExtraLarge * 1.1
-                height: Theme.fontSizeExtraLarge * 1.1
-                clip: false
-                RippleEffect { id: alignCenterRipple }
-                Icon {
-                    source: "../icons/format_align_center.svg"
-                    anchors.centerIn: parent
-                    width: parent.width
-                    height: parent.height
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onPressed: alignCenterRipple.ripple(mouseX, mouseY)
-                    onClicked: {
-                        console.log(qsTr("Align Center"));
-                        noteContentInput.horizontalAlignment = Text.AlignHCenter;
-                    }
-                }
-            }
-            Item {
-                width: Theme.fontSizeExtraLarge * 1.1
-                height: Theme.fontSizeExtraLarge * 1.1
-                clip: false
-                RippleEffect { id: alignRightRipple }
-                Icon {
-                    source: "../icons/format_align_right.svg"
-                    anchors.centerIn: parent
-                    width: parent.width
-                    height: parent.height
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onPressed: alignRightRipple.ripple(mouseX, mouseY)
-                    onClicked: {
-                        console.log(qsTr("Align Right"));
-                        noteContentInput.horizontalAlignment = Text.AlignRight;
-                    }
-                }
-            }
-            Item {
-                width: Theme.fontSizeExtraLarge * 1.1
-                height: Theme.fontSizeExtraLarge * 1.1
-                clip: false
-                RippleEffect { id: alignJustifyRipple }
-                Icon {
-                    source: "../icons/format_align_justify.svg"
-                    anchors.centerIn: parent
-                    width: parent.width
-                    height: parent.height
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onPressed: alignJustifyRipple.ripple(mouseX, mouseY)
-                    onClicked: {
-                        console.log(qsTr("Align Justify"));
-                        noteContentInput.horizontalAlignment = Text.AlignJustify;
-                    }
-                }
-            }
+        }
+
+        // Center group: Undo, Redo
+        Row {
+            id: centerToolbarButtons
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: Theme.paddingMedium // Spacing between undo and redo
+
             // Undo button
             Item {
                 width: Theme.fontSizeExtraLarge * 1.1
@@ -694,34 +628,8 @@ Page {
                     }
                 }
             }
-            // Add Tag button - opens the tag selection panel
-            Item {
-                width: Theme.fontSizeExtraLarge * 1.1
-                height: Theme.fontSizeExtraLarge * 1.1
-                clip: false
-                RippleEffect { id: addTagRipple }
-                Icon {
-                    id: addTagIcon
-                    source: "../icons/tag.svg"
-                    anchors.centerIn: parent
-                    width: parent.width
-                    height: parent.height
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onPressed: addTagRipple.ripple(mouseX, mouseY)
-                    onClicked: {
-                        console.log(qsTr("Add Tag button clicked. Opening tag selection panel."));
-                        // Toggle tag selection panel visibility
-                        if (tagSelectionPanel.opacity > 0.01) {
-                            tagSelectionPanel.opacity = 0;
-                        } else {
-                            tagSelectionPanel.opacity = 1;
-                        }
-                    }
-                }
-            }
         }
+
 
         Row {
             id: rightToolbarButtons
