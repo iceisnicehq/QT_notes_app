@@ -19,6 +19,8 @@ Page {
     property string noteColor: "#121218"
     property bool noteModified: false
 
+    property bool isFromTrash: false // мое новое для режима редакта просмотра в корзине как на яблоке в заметках (проверил там)
+
     // Properties for read-only mode, passed from calling page
     property bool isArchived: false // True if note is opened from ArchivePage
     property bool isDeleted: false  // True if note is opened from TrashPage
