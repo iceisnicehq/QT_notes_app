@@ -24,11 +24,6 @@ function initDatabase() {
                 'updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, ' +
                 'deleted BOOLEAN NOT NULL DEFAULT 0, ' +
                 'archived BOOLEAN NOT NULL DEFAULT 0' +
-
-                'reminder_date TEXT' +
-                'reminder_time TEXT' +
-                'reminder_id TEXT' +
-                'has_reminder INTEGER DEFAULT 0'+
                 ')'
             );
             tx.executeSql(
@@ -561,37 +556,5 @@ function bulkUnarchiveNotes(ids) {
         // Устанавливаем archived = 0 и deleted = 0 для данных ID
         tx.executeSql("UPDATE Notes SET archived = 0, deleted = 0, updated_at = CURRENT_TIMESTAMP WHERE id IN (" + placeholders + ")", ids);
         console.log("DB_MGR: Bulk unarchived notes with IDs:", ids);
-    });
-}
-
-
-
-
-
-
-
-//// TESTETSETSTEETS
-// Пример функции, которая может понадобиться для получения всех напоминаний
-function getAllReminders() {
-    var db = getDatabase();
-    var reminders = [];
-    db.transaction(function(tx) {
-        var rs = tx.executeSql(
-            "SELECT id, title, content, reminder_date, reminder_time, reminder_id FROM notes WHERE has_reminder = 1 AND deleted = 0;"
-        );
-        for (var i = 0; i < rs.rows.length; i++) {
-            reminders.push(rs.rows.item(i));
-        }
-    });
-    return reminders;
-}
-
-// Пример функции для удаления reminder_id после срабатывания или отмены
-function clearReminderId(noteId) {
-    var db = getDatabase();
-    db.transaction(function(tx) {
-        tx.executeSql("UPDATE notes SET reminder_date = NULL, reminder_time = NULL, reminder_id = NULL, has_reminder = 0 WHERE id = ?;"
-            ,[noteId]);
-        console.log("Reminder data cleared for note ID:", noteId);
     });
 }

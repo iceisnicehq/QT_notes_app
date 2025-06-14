@@ -2,6 +2,11 @@
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import "DatabaseManager.js" as DB
+
+
+
+
 
 Item {
     id: root
@@ -21,6 +26,19 @@ Item {
     signal selectionToggled(int noteId, bool isSelected)
     signal noteClicked(int noteId)
 
+
+
+    // Refreshes all notes and tags from the database
+    function refreshData() {
+        allNotes = DB.getAllNotes(); // This now only gets non-deleted notes
+        allTags = DB.getAllTags(); // This now only gets tags linked to non-deleted notes
+        // After refreshing all data, perform a search with current criteria
+        performSearch(currentSearchText, selectedTags);
+        loadTagsForDrawer(); // Ensure tags in drawer are updated
+    }
+
+
+
     // --- UI Components ---
     Rectangle {
         anchors.fill: parent
@@ -32,19 +50,23 @@ Item {
         // MouseArea для клика по всей карточке (для открытия NotePage или переключения выделения)
         MouseArea {
             anchors.fill: parent
+            enabled: fabButton.visible // Enable/disable based on fabButton's visible property
             onClicked: {
-                console.log("TrashNoteCard (ID:", root.noteId, "): Full card clicked.");
-                var inSelectionMode = root.trashPageInstance && Array.isArray(root.trashPageInstance.selectedNoteIds) && root.trashPageInstance.selectedNoteIds.length > 0;
-                console.log("TrashNoteCard (ID:", root.noteId, "): In selection mode?", inSelectionMode);
+                pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
+                    onNoteSavedOrDeleted: root.mainPageInstance ? root.mainPageInstance.refreshData : null, // Pass refreshData callback
+                    noteId: root.noteId,
+                    noteTitle: root.title,
+                    noteContent: root.content, // Corrected: Use root.content
+                    noteIsPinned: root.noteIsPinned, // Corrected: Use root.noteIsPinned
+                    noteTags: root.tags, // Corrected: Use root.tags
+                    noteCreationDate: root.noteCreationDate, // Corrected: Use root.noteCreationDate
+                    noteEditDate: root.noteEditDate, // Corrected: Use root.noteEditDate
+                    noteColor: root.cardColor
 
-                if (inSelectionMode) {
-                    root.isSelected = !root.isSelected;
-                    root.selectionToggled(root.noteId, root.isSelected);
-                    console.log("TrashNoteCard (ID:", root.noteId, "): Toggled selection. isSelected:", root.isSelected);
-                } else {
-                    root.noteClicked(root.noteId);
-                    console.log("TrashNoteCard (ID:", root.noteId, "): Emitting noteClicked for ID:", root.noteId);
-                }
+                });
+                console.log("Opening NewNotePage in edit mode (from FAB).");
+                Qt.inputMethod.hide();
+                searchField.focus = false;
             }
         }
 
