@@ -195,6 +195,30 @@ function getAllTags() {
     return tags;
 }
 
+function getAllTagsWithCounts() {
+    initDatabase();
+    var tagsWithCounts = [];
+    db.readTransaction(function(tx) {
+        var result = tx.executeSql(
+            'SELECT t.name, COUNT(nt.note_id) as count ' +
+            'FROM Tags t ' +
+            'LEFT JOIN NoteTags nt ON t.id = nt.tag_id ' +
+            'LEFT JOIN Notes n ON nt.note_id = n.id ' +
+            'WHERE n.id IS NULL OR n.deleted = 0 ' +
+            'GROUP BY t.name ' +
+            'ORDER BY count DESC'
+        );
+        console.log("DB_MGR: getAllTagsWithCounts found " + result.rows.length + " tags with counts.");
+        for (var i = 0; i < result.rows.length; i++) {
+            tagsWithCounts.push({
+                name: result.rows.item(i).name,
+                count: result.rows.item(i).count
+            });
+        }
+    });
+    return tagsWithCounts;
+}
+
 function addNote(pinned, title, content, tags, color) {
     initDatabase();
     var returnedNoteId = -1;
@@ -267,9 +291,9 @@ function insertTestData() {
     initDatabase();
     db.transaction(function(tx) {
 //        // Clear all notes, including deleted ones, for a clean test setup
-//        tx.executeSql('DELETE FROM Notes');
-//        tx.executeSql('DELETE FROM NoteTags');
-//        tx.executeSql('DELETE FROM Tags');
+        tx.executeSql('DELETE FROM Notes');
+        tx.executeSql('DELETE FROM NoteTags');
+        tx.executeSql('DELETE FROM Tags');
 
         if (typeof Data !== 'undefined' && Data.notes) {
             console.log("DB_MGR: Inserting test data...");
@@ -294,30 +318,6 @@ function insertTestData() {
     console.log("DB_MGR: Test data insertion complete.");
 }
 
-
-function getAllTagsWithCounts() {
-    initDatabase();
-    var tagsWithCounts = [];
-    db.readTransaction(function(tx) {
-        var result = tx.executeSql(
-            'SELECT t.name, COUNT(nt.note_id) as count ' +
-            'FROM Tags t ' +
-            'LEFT JOIN NoteTags nt ON t.id = nt.tag_id ' +
-            'LEFT JOIN Notes n ON nt.note_id = n.id ' +
-            'WHERE n.id IS NULL OR n.deleted = 0 ' +
-            'GROUP BY t.name ' +
-            'ORDER BY t.name ASC'
-        );
-        console.log("DB_MGR: getAllTagsWithCounts found " + result.rows.length + " tags with counts.");
-        for (var i = 0; i < result.rows.length; i++) {
-            tagsWithCounts.push({
-                name: result.rows.item(i).name,
-                count: result.rows.item(i).count
-            });
-        }
-    });
-    return tagsWithCounts;
-}
 
 function addTag(tagName) {
     initDatabase();
@@ -398,27 +398,36 @@ function searchNotes(searchText, selectedTagNames) {
     db.readTransaction(function(tx) {
         var query = 'SELECT N.* FROM Notes N ';
         var params = [];
-        var conditions = ['N.deleted = 0']; // Always filter out deleted notes
+        var whereConditions = ['N.deleted = 0']; // Always filter out deleted notes
+        var havingConditions = []; // Conditions for HAVING clause
 
         if (selectedTagNames && selectedTagNames.length > 0) {
-            // Join with NoteTags and Tags to filter by selected tags
             query += 'JOIN NoteTags NT ON N.id = NT.note_id JOIN Tags T ON NT.tag_id = T.id ';
             var tagPlaceholders = selectedTagNames.map(function() { return '?'; }).join(',');
-            conditions.push('T.name IN (' + tagPlaceholders + ')');
+            whereConditions.push('T.name IN (' + tagPlaceholders + ')');
             params = params.concat(selectedTagNames);
-
-            // Add HAVING clause to ensure notes have ALL selected tags
-            query += 'GROUP BY N.id HAVING COUNT(DISTINCT T.id) = ' + selectedTagNames.length;
         }
 
         if (searchText) {
             var searchTerm = '%' + searchText + '%';
-            conditions.push('(N.title LIKE ? OR N.content LIKE ?)');
+            whereConditions.push('(N.title LIKE ? OR N.content LIKE ?)');
             params.push(searchTerm, searchTerm);
         }
 
-        if (conditions.length > 0) {
-            query += 'WHERE ' + conditions.join(' AND ');
+        // Build WHERE clause
+        if (whereConditions.length > 0) {
+            query += 'WHERE ' + whereConditions.join(' AND ') + ' ';
+        }
+
+        // Add GROUP BY and HAVING clause if tags are selected, AFTER the WHERE clause
+        if (selectedTagNames && selectedTagNames.length > 0) {
+            query += 'GROUP BY N.id ';
+            havingConditions.push('COUNT(DISTINCT T.id) = ' + selectedTagNames.length);
+        }
+
+        // Build HAVING clause
+        if (havingConditions.length > 0) {
+            query += 'HAVING ' + havingConditions.join(' AND ') + ' ';
         }
 
         query += ' ORDER BY N.updated_at DESC';
