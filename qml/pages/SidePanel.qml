@@ -169,15 +169,15 @@ Item {
                     }
 
                     // Reminders Button
-                    NavigationButton {
-                        icon: "../icons/reminders.svg"
-                        text: "Reminders"
-                        selected: sidePanel.currentPage === "reminders"
-                        onClicked: {
-                            sidePanel.currentPage = "reminders"
-                            mainPage.panelOpen = false
-                        }
-                    }
+//                    NavigationButton {
+//                        icon: "../icons/reminders.svg"
+//                        text: "Reminders"
+//                        selected: sidePanel.currentPage === "reminders"
+//                        onClicked: {
+//                            sidePanel.currentPage = "reminders"
+//                            mainPage.panelOpen = false
+//                        }
+//                    }
                     NavigationButton {
                         icon: "../icons/archive.svg"
                         text: "Archive"
