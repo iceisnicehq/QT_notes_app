@@ -30,8 +30,6 @@ Page {
     property bool showEmptyLabel: deletedNotes.length === 0
     property bool selectionControlsVisible: deletedNotes.length > 0
 
-
-    // ЗАГОЛОВОК СТРАНИЦЫ
     PageHeader {
         id: pageHeader
         height: Theme.itemSizeExtraLarge
@@ -40,7 +38,6 @@ Page {
             text: qsTr("Trash")
             anchors.centerIn: parent
             font.pixelSize: Theme.fontSizeExtraLarge
-            color: Theme.highlightColor
             font.bold: true
         }
     }

@@ -52,7 +52,7 @@ Page {
             text: pageMode === "trash" ? qsTr("Trash") : qsTr("Archive") // Dynamic title
             anchors.centerIn: parent
             font.pixelSize: Theme.fontSizeExtraLarge
-            color: Theme.highlightColor
+            //color: Theme.highlightColor
             font.bold: true
         }
     }
@@ -81,25 +81,26 @@ Page {
             // "Select All / Deselect All" Button
             Button {
                 id: selectAllButton
-                Layout.preferredWidth: (parent.width - (parent.spacing * 2)) / 3 // Distribute width evenly
+                Layout.preferredWidth: (parent.width - (parent.spacing * 2)) / 3
                 Layout.preferredHeight: Theme.buttonHeightSmall
-                icon.source: selectedNoteIds.length < notesToDisplay.length ? "../icons/select_all.svg" : "../icons/deselect_all.svg" // Dynamic icon
+                icon.source: "../icons/select_all.svg"
                 onClicked: {
-                    if (selectedNoteIds.length < notesToDisplay.length) {
-                        // Select all notes
-                        selectedNoteIds = [];
-                        for (var i = 0; i < notesToDisplay.length; i++) {
-                            selectedNoteIds.push(notesToDisplay[i].id);
+                    var newSelectedIds = [];
+                    // Проверяем, выбраны ли все элементы из notesToDisplay
+                    // Если selectedNoteIds.length === notesToDisplay.length, и notesToDisplay не пуст, значит, все выбраны
+                    var currentlyAllSelected = (unifiedNotesPage.selectedNoteIds.length === unifiedNotesPage.notesToDisplay.length) && (unifiedNotesPage.notesToDisplay.length > 0);
+
+                    if (!currentlyAllSelected) { // Если не все выбраны, выбираем все
+                        for (var i = 0; i < unifiedNotesPage.notesToDisplay.length; i++) {
+                            newSelectedIds.push(unifiedNotesPage.notesToDisplay[i].id);
                         }
-                    } else {
-                        // Deselect all notes
-                        selectedNoteIds = [];
-                    }
-                    // Important: reassign property to ensure QML detects list change
-                    selectedNoteIds = selectedNoteIds;
-                    console.log(qsTr("Selected note IDs: %1").arg(JSON.stringify(selectedNoteIds)));
+                    } // else { newSelectedIds останется пустым, что снимет выбор }
+
+                    // Важно: переприсваиваем свойство, чтобы QML обнаружил изменение
+                    unifiedNotesPage.selectedNoteIds = newSelectedIds;
+                    console.log(qsTr("Selected note IDs after Select All/Deselect All: %1").arg(JSON.stringify(unifiedNotesPage.selectedNoteIds)));
                 }
-                enabled: notesToDisplay.length > 0 // Button is active if there are notes
+                enabled: notesToDisplay.length > 0 // Кнопка активна, если есть заметки
             }
 
             // "Restore" / "Unarchive" Selected Button (Dynamic based on pageMode)
@@ -107,7 +108,7 @@ Page {
                 id: primaryActionButton
                 Layout.preferredWidth: (parent.width - (parent.spacing * 2)) / 3
                 Layout.preferredHeight: Theme.buttonHeightSmall
-                icon.source: pageMode === "trash" ? "../icons/restore_notes.svg" : "../icons/unarchive.svg" // Dynamic icon
+                icon.source: pageMode === "trash" ? "../icons/archive.svg" : "../icons/unarchive.svg" // Dynamic icon
                 text: pageMode === "trash" ? qsTr("Restore") : qsTr("Unarchive") // Dynamic text
                 highlightColor: Theme.highlightColor // Highlight color
                 enabled: selectedNoteIds.length > 0 // Active if something is selected
@@ -128,25 +129,25 @@ Page {
             }
 
             // "Permanently Delete" Selected Button
-            Button {
-                id: deleteSelectedButton
-                Layout.preferredWidth: (parent.width - (parent.spacing * 2)) / 3
-                Layout.preferredHeight: Theme.buttonHeightSmall
-                icon.source: "../icons/delete.svg" // Delete icon
-                highlightColor: Theme.errorColor // Highlight color (red)
-                enabled: selectedNoteIds.length > 0 // Active if something is selected
-                onClicked: {
-                    if (selectedNoteIds.length > 0) {
-                        // Formulate confirmation dialog message dynamically
-                        dialogMessage = qsTr("Are you sure you want to permanently delete %1 selected notes from %2? This action cannot be undone.")
-                                          .arg(selectedNoteIds.length)
-                                          .arg(pageMode === "trash" ? qsTr("trash") : qsTr("archive"));
-                        // Show the custom confirmation dialog
-                        manualConfirmDialog.visible = true;
-                        console.log(qsTr("Showing permanent delete confirmation dialog for %1 notes.").arg(pageMode));
-                    }
-                }
-            }
+//            Button {
+//                id: deleteSelectedButton
+//                Layout.preferredWidth: (parent.width - (parent.spacing * 2)) / 3
+//                Layout.preferredHeight: Theme.buttonHeightSmall
+//                icon.source: "../icons/delete.svg" // Delete icon
+//                highlightColor: Theme.errorColor // Highlight color (red)
+//                enabled: selectedNoteIds.length > 0 // Active if something is selected
+//                onClicked: {
+//                    if (selectedNoteIds.length > 0) {
+//                        // Formulate confirmation dialog message dynamically
+//                        dialogMessage = qsTr("Are you sure you want to permanently delete %1 selected notes from %2? This action cannot be undone.")
+//                                          .arg(selectedNoteIds.length)
+//                                          .arg(pageMode === "trash" ? qsTr("trash") : qsTr("archive"));
+//                        // Show the custom confirmation dialog
+//                        manualConfirmDialog.visible = true;
+//                        console.log(qsTr("Showing permanent delete confirmation dialog for %1 notes.").arg(pageMode));
+//                    }
+//                }
+//            }
         } // End selectionControls Row
 
         // Small spacing item between buttons and Flickable
@@ -263,78 +264,78 @@ Page {
         id: toastManager
     }
 
-    // Manual Overlay / Confirmation Dialog for permanent deletion
-    Item {
-        id: manualConfirmDialog
-        anchors.fill: parent
-        visible: false // Hidden by default
-        z: 100 // Ensure dialog is on top of other elements
+//    // Manual Overlay / Confirmation Dialog for permanent deletion
+//    Item {
+//        id: manualConfirmDialog
+//        anchors.fill: parent
+//        visible: false // Hidden by default
+//        z: 100 // Ensure dialog is on top of other elements
 
-        // Background to dim the page
-        Rectangle {
-            anchors.fill: parent
-            radius: Theme.itemSizeSmall / 2
-            color: "#000000"
-            opacity: 0.6
-        }
+//        // Background to dim the page
+//        Rectangle {
+//            anchors.fill: parent
+//            radius: Theme.itemSizeSmall / 2
+//            color: "#000000"
+//            opacity: 0.6
+//        }
 
-        // The dialog content itself (centered rectangle)
-        Rectangle {
-            id: dialogContent
-            width: parent.width * 0.8 // 80% width of parent
-            height: dialogColumn.implicitHeight + Theme.paddingLarge * 2 // Height based on content with padding
-            color: Theme.backgroundColor // Dialog background color
-            radius: Theme.itemCornerRadius // Rounded corners
-            anchors.centerIn: parent // Centered within parent Item
+//        // The dialog content itself (centered rectangle)
+//        Rectangle {
+//            id: dialogContent
+//            width: parent.width * 0.8 // 80% width of parent
+//            height: dialogColumn.implicitHeight + Theme.paddingLarge * 2 // Height based on content with padding
+//            color: Theme.backgroundColor // Dialog background color
+//            radius: Theme.itemCornerRadius // Rounded corners
+//            anchors.centerIn: parent // Centered within parent Item
 
-            Column {
-                id: dialogColumn
-                width: parent.width
-                spacing: Theme.paddingMedium // Spacing between elements in the column
-                anchors.margins: Theme.paddingLarge // Internal padding for the column
+//            Column {
+//                id: dialogColumn
+//                width: parent.width
+//                spacing: Theme.paddingMedium // Spacing between elements in the column
+//                anchors.margins: Theme.paddingLarge // Internal padding for the column
 
-                Label {
-                    width: parent.width
-                    text: qsTr("Confirm Permanent Deletion") // Dialog title
-                    font.pixelSize: Theme.fontSizeLarge
-                    font.bold: true
-                    horizontalAlignment: Text.AlignHCenter
-                    color: Theme.highlightColor
-                }
+//                Label {
+//                    width: parent.width
+//                    text: qsTr("Confirm Permanent Deletion") // Dialog title
+//                    font.pixelSize: Theme.fontSizeLarge
+//                    font.bold: true
+//                    horizontalAlignment: Text.AlignHCenter
+//                    color: Theme.highlightColor
+//                }
 
-                Label {
-                    width: parent.width
-                    text: unifiedNotesPage.dialogMessage // Message text from page property
-                    wrapMode: Text.WordWrap
-                    horizontalAlignment: Text.AlignHCenter
-                    color: Theme.primaryColor
-                }
+//                Label {
+//                    width: parent.width
+//                    text: unifiedNotesPage.dialogMessage // Message text from page property
+//                    wrapMode: Text.WordWrap
+//                    horizontalAlignment: Text.AlignHCenter
+//                    color: Theme.primaryColor
+//                }
 
-                RowLayout {
-                    width: parent.width
-                    spacing: Theme.paddingMedium // Spacing between buttons
-                    anchors.horizontalCenter: parent.horizontalCenter // Center buttons
+//                RowLayout {
+//                    width: parent.width
+//                    spacing: Theme.paddingMedium // Spacing between buttons
+//                    anchors.horizontalCenter: parent.horizontalCenter // Center buttons
 
-                    Button {
-                        Layout.fillWidth: true
-                        text: qsTr("Cancel")
-                        onClicked: manualConfirmDialog.visible = false // Hide dialog on cancel
-                    }
+//                    Button {
+//                        Layout.fillWidth: true
+//                        text: qsTr("Cancel")
+//                        onClicked: manualConfirmDialog.visible = false // Hide dialog on cancel
+//                    }
 
-                    Button {
-                        Layout.fillWidth: true
-                        text: qsTr("Delete") // Delete button text
-                        highlightColor: Theme.errorColor // Highlight color (red)
-                        onClicked: {
-                            DB.permanentlyDeleteNotes(selectedNoteIds); // Call permanent delete function
-                            refreshNotes(); // Refresh notes list
-                            toastManager.show(qsTr("%1 note(s) permanently deleted!").arg(selectedNoteIds.length)); // Notification
-                            manualConfirmDialog.visible = false // Hide dialog after action
-                            console.log(qsTr("%1 note(s) permanently deleted from %2.").arg(selectedNoteIds.length).arg(unifiedNotesPage.pageMode));
-                        }
-                    }
-                }
-            }
-        }
-    } // End manualConfirmDialog
+//                    Button {
+//                        Layout.fillWidth: true
+//                        text: qsTr("Delete") // Delete button text
+//                        highlightColor: Theme.errorColor // Highlight color (red)
+//                        onClicked: {
+//                            DB.permanentlyDeleteNotes(selectedNoteIds); // Call permanent delete function
+//                            refreshNotes(); // Refresh notes list
+//                            toastManager.show(qsTr("%1 note(s) permanently deleted!").arg(selectedNoteIds.length)); // Notification
+//                            manualConfirmDialog.visible = false // Hide dialog after action
+//                            console.log(qsTr("%1 note(s) permanently deleted from %2.").arg(selectedNoteIds.length).arg(unifiedNotesPage.pageMode));
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    } // End manualConfirmDialog
 }
