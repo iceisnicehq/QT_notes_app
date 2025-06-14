@@ -9,7 +9,7 @@ import "DatabaseManager.js" as DB
 Page {
     id: unifiedNotesPage
     // Color of the page background. Using Theme color if defined, otherwise a default.
-    backgroundColor: Theme.backgroundColor !== undefined ? Theme.backgroundColor : "#121218"
+    backgroundColor: Theme.backgroundColor !== undefined ? Theme.backgroundColor : "#1c1d29"
     showNavigationIndicator: false // Don't show navigation indicator (e.g., for Sailfish OS)
 
     // New property to define the page's mode: "trash" or "archive"

@@ -4,7 +4,7 @@ import Sailfish.Silica 1.0
 Page {
     objectName: "aboutPage"
     allowedOrientations: Orientation.All
-    backgroundColor: Theme.backgroundColor !== undefined ? Theme.backgroundColor : "#121218"
+
     SilicaFlickable {
         objectName: "flickable"
         anchors.fill: parent
@@ -17,7 +17,7 @@ Page {
 
             PageHeader {
                 objectName: "pageHeader"
-                title: qsTr("Aurora Notes")
+                title: qsTr("About Application")
             }
 
             Label {
