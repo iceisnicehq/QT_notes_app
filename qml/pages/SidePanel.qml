@@ -73,7 +73,7 @@ Item {
         id: panelContent
         width: parent.width * 0.75
         height: parent.height
-        color: "#1c1d29"
+        color: "#121218" // старый #1c1d29
         x: open ? 0 : -width
 
         Behavior on x {
