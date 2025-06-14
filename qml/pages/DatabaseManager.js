@@ -544,3 +544,17 @@ function bulkArchiveNotes(ids) {
         console.log("DB_MGR: Bulk archived notes with IDs:", ids);
     });
 }
+
+function bulkUnarchiveNotes(ids) {
+    if (!ids || ids.length === 0) {
+        console.warn("DB_MGR: No IDs provided for bulkUnarchiveNotes.");
+        return;
+    }
+    initDatabase();
+    db.transaction(function(tx) {
+        var placeholders = ids.map(function() { return '?'; }).join(',');
+        // Устанавливаем archived = 0 и deleted = 0 для данных ID
+        tx.executeSql("UPDATE Notes SET archived = 0, deleted = 0, updated_at = CURRENT_TIMESTAMP WHERE id IN (" + placeholders + ")", ids);
+        console.log("DB_MGR: Bulk unarchived notes with IDs:", ids);
+    });
+}

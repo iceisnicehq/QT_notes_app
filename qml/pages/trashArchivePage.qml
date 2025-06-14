@@ -9,7 +9,7 @@ import "DatabaseManager.js" as DB
 Page {
     id: unifiedNotesPage
     // Color of the page background. Using Theme color if defined, otherwise a default.
-    backgroundColor: Theme.backgroundColor !== undefined ? Theme.backgroundColor : "#1c1d29"
+    backgroundColor: Theme.backgroundColor !== undefined ? Theme.backgroundColor : "#121218"
     showNavigationIndicator: false // Don't show navigation indicator (e.g., for Sailfish OS)
 
     // New property to define the page's mode: "trash" or "archive"
@@ -108,7 +108,7 @@ Page {
                 id: primaryActionButton
                 Layout.preferredWidth: (parent.width - (parent.spacing * 2)) / 3
                 Layout.preferredHeight: Theme.buttonHeightSmall
-                icon.source: pageMode === "trash" ? "../icons/archive.svg" : "../icons/unarchive.svg" // Dynamic icon
+                icon.source: pageMode === "trash" ? "../icons/restore_notes.svg" : "../icons/unarchive.svg" // Dynamic icon
                 text: pageMode === "trash" ? qsTr("Restore") : qsTr("Unarchive") // Dynamic text
                 highlightColor: Theme.highlightColor // Highlight color
                 enabled: selectedNoteIds.length > 0 // Active if something is selected
@@ -119,7 +119,7 @@ Page {
                             toastManager.show(qsTr("%1 note(s) restored!").arg(selectedNoteIds.length));
                             console.log(qsTr("%1 note(s) restored from trash.").arg(selectedNoteIds.length));
                         } else if (pageMode === "archive") {
-                            DB.unarchiveNotes(selectedNoteIds); // Unarchive notes
+                            DB.bulkUnarchiveNotes(selectedNoteIds); // Unarchive notes
                             toastManager.show(qsTr("%1 note(s) unarchived!").arg(selectedNoteIds.length));
                             console.log(qsTr("%1 note(s) unarchived.").arg(selectedNoteIds.length));
                         }
@@ -270,7 +270,6 @@ Page {
 //        anchors.fill: parent
 //        visible: false // Hidden by default
 //        z: 100 // Ensure dialog is on top of other elements
-
 //        // Background to dim the page
 //        Rectangle {
 //            anchors.fill: parent
@@ -278,7 +277,6 @@ Page {
 //            color: "#000000"
 //            opacity: 0.6
 //        }
-
 //        // The dialog content itself (centered rectangle)
 //        Rectangle {
 //            id: dialogContent
@@ -287,13 +285,11 @@ Page {
 //            color: Theme.backgroundColor // Dialog background color
 //            radius: Theme.itemCornerRadius // Rounded corners
 //            anchors.centerIn: parent // Centered within parent Item
-
 //            Column {
 //                id: dialogColumn
 //                width: parent.width
 //                spacing: Theme.paddingMedium // Spacing between elements in the column
 //                anchors.margins: Theme.paddingLarge // Internal padding for the column
-
 //                Label {
 //                    width: parent.width
 //                    text: qsTr("Confirm Permanent Deletion") // Dialog title
@@ -302,7 +298,6 @@ Page {
 //                    horizontalAlignment: Text.AlignHCenter
 //                    color: Theme.highlightColor
 //                }
-
 //                Label {
 //                    width: parent.width
 //                    text: unifiedNotesPage.dialogMessage // Message text from page property
@@ -310,18 +305,15 @@ Page {
 //                    horizontalAlignment: Text.AlignHCenter
 //                    color: Theme.primaryColor
 //                }
-
 //                RowLayout {
 //                    width: parent.width
 //                    spacing: Theme.paddingMedium // Spacing between buttons
 //                    anchors.horizontalCenter: parent.horizontalCenter // Center buttons
-
 //                    Button {
 //                        Layout.fillWidth: true
 //                        text: qsTr("Cancel")
 //                        onClicked: manualConfirmDialog.visible = false // Hide dialog on cancel
 //                    }
-
 //                    Button {
 //                        Layout.fillWidth: true
 //                        text: qsTr("Delete") // Delete button text
