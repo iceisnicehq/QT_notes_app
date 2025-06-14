@@ -184,6 +184,9 @@ Item {
                         selected: sidePanel.currentPage === "archive"
                         onClicked: {
                             sidePanel.currentPage = "archive"
+                            pageStack.push(Qt.resolvedUrl("trashArchivePage.qml"), {
+                                pageMode: "archive"
+                            });
                             mainPage.panelOpen = false
                         }
                     }

@@ -1,3 +1,5 @@
+// NotePage.qml (UPDATED with Read-Only Mode)
+
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.Layouts 1.1 // Corrected import for RowLayout
@@ -202,7 +204,7 @@ Page {
             width: parent.width * 0.8 // 80% width of the overlay
             height: deleteDialogColumn.implicitHeight + Theme.paddingLarge * 2 // Height based on content plus padding
             color: newNotePage.darkenColor(newNotePage.noteColor, 0.15)
-            radius: Theme.itemSizeSmall / 2 // Rounded corners
+            radius: Theme.itemCornerRadius // Rounded corners
             anchors.centerIn: parent // Center the dialog within the overlay
 
             // Behavior for smooth appearance/disappearance
@@ -307,7 +309,7 @@ Page {
             width: parent.width * 0.8 // 80% width of the overlay
             height: archiveDialogColumn.implicitHeight + Theme.paddingLarge * 2 // Height based on content plus padding
             color: newNotePage.darkenColor(newNotePage.noteColor, 0.15) // Consistent dark background
-            radius: Theme.itemSizeSmall / 2 // Rounded corners
+            radius: Theme.itemCornerRadius // Rounded corners
             anchors.centerIn: parent // Center the dialog within the overlay
 
             // Behavior for smooth appearance/disappearance
@@ -483,47 +485,6 @@ Page {
                     newNotePage.noteModified = true;
                     var msg = noteIsPinned ? qsTr("The note was pinned") : qsTr("The note was unpinned")
                     toastManager.show(msg)
-                }
-            }
-        }
-        // DUPLICATE Button - Added next to Pin button
-        Item {
-            width: Theme.fontSizeExtraLarge * 1.1
-            height: Theme.fontSizeExtraLarge * 1.1
-            clip: false
-            // Anchor to the left of the pin button, with some margin
-            anchors { right: pinIconButton.parent.left; verticalCenter: parent.verticalCenter; rightMargin: Theme.paddingMedium }
-            RippleEffect { id: duplicateRipple }
-            Icon {
-                id: duplicateIconButton
-                source: "../icons/copy.svg" // Assuming a copy icon exists in your resources
-                anchors.centerIn: parent
-                width: parent.width
-                height: parent.height
-                // Visually disable if new note or in read-only mode
-                opacity: (newNotePage.noteId !== -1 && !newNotePage.isReadOnly) ? 1.0 : 0.5
-                color: (newNotePage.noteId !== -1 && !newNotePage.isReadOnly) ? Theme.primaryColor : Theme.secondaryColor
-            }
-            MouseArea {
-                anchors.fill: parent
-                enabled: newNotePage.noteId !== -1 && !newNotePage.isReadOnly // Enable only for existing, editable notes
-                onPressed: duplicateRipple.ripple(mouseX, mouseY)
-                onClicked: {
-                    console.log(qsTr("Duplicate button clicked for note ID: %1").arg(newNotePage.noteId));
-                    // Push a new NotePage with the current note's data, but with noteId = -1
-                    pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
-                        onNoteSavedOrDeleted: newNotePage.onNoteSavedOrDeleted, // Use the same refresh callback
-                        noteId: -1, // This makes it a new note
-                        noteTitle: newNotePage.noteTitle + qsTr(" (copy)"), // Append "(copy)" to title
-                        noteContent: newNotePage.noteContent,
-                        noteIsPinned: newNotePage.noteIsPinned, // Duplicated notes are typically not pinned by default
-                        noteTags: newNotePage.noteTags.split(" "), // Copy existing tags
-                        noteColor: newNotePage.noteColor, // Copy current color
-                        noteCreationDate: new Date(), // New creation date
-                        noteEditDate: new Date(), // New edit date
-                        noteModified: true // Mark as modified so it saves automatically
-                    });
-                    toastManager.show(qsTr("Note duplicated!"));
                 }
             }
         }
@@ -827,8 +788,9 @@ Page {
                 width: parent.width
                 spacing: Theme.paddingMedium
                 visible: newNotePage.noteTags.length > 0 // Only visible if tags exist
+
                 Repeater {
-                    model: newNotePage.noteTags.split(" ") // Model for tags
+                    model: newNotePage.noteTags // Model for tags
                     delegate: Rectangle {
                         id: tagRectangle
                         property color normalColor: "#a032353a"
@@ -859,7 +821,6 @@ Page {
                             onReleased: {
                                 tagRectangle.color = tagRectangle.normalColor
                                 console.log(qsTr("Tag clicked for editing: %1").arg(modelData))
-                                console.log()
                                 Qt.inputMethod.hide();
                                 // Open tag selection panel when a tag is clicked
                                 if (tagSelectionPanel.opacity > 0.01) {
@@ -1246,7 +1207,7 @@ Page {
                             Label {
                                 id: tagPanelTagNameLabel
                                 text: model.name // Display tag name from model
-                                color: "#e2e3e8" // Text color
+                                color: "#e8eaed" // Text color
                                 font.pixelSize: Theme.fontSizeMedium
                                 anchors.verticalCenter: parent.verticalCenter
                                 elide: Text.ElideRight // Elide long text with "..."

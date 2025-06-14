@@ -204,6 +204,7 @@ Item {
                             noteCreationDate: root.noteCreationDate, // Corrected: Use root.noteCreationDate
                             noteEditDate: root.noteEditDate, // Corrected: Use root.noteEditDate
                             noteColor: root.cardColor
+
                         });
                         console.log("Opening NotePage in EDIT mode for ID:", root.noteId, "from NoteCard. Color:", root.cardColor);
                         Qt.inputMethod.hide(); // Hide keyboard
