@@ -10,6 +10,7 @@ import "DatabaseManager.js" as DB
 Page {
     id: trashPage
     backgroundColor: Theme.backgroundColor !== undefined ? Theme.backgroundColor : "#1c1d29"
+    showNavigationIndicator: false
     property var deletedNotes: []
     property var selectedNoteIds: []
     property string deleteDialogMessage: "" // Для текста сообщения диалога
