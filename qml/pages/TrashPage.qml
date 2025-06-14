@@ -9,7 +9,8 @@ import "DatabaseManager.js" as DB
 
 Page {
     id: trashPage
-    backgroundColor: Theme.backgroundColor !== undefined ? Theme.backgroundColor : "#1c1d29"
+    backgroundColor: Theme.backgroundColor !== undefined ? Theme.backgroundColor : "#121218"
+    showNavigationIndicator: false
     property var deletedNotes: []
     property var selectedNoteIds: []
     property string deleteDialogMessage: "" // Для текста сообщения диалога
@@ -95,9 +96,11 @@ Page {
                 enabled: selectedNoteIds.length > 0
                 onClicked: {
                     if (selectedNoteIds.length > 0) {
+                        // Сохраняем количество восстанавливаемых заметок до refreshDeletedNotes()
+                        var restoredCount = selectedNoteIds.length;
                         DB.restoreNotes(selectedNoteIds);
                         refreshDeletedNotes();
-                        toastManager.show(qsTr("%1 note(s) restored!").arg(selectedNoteIds.length));
+                        toastManager.show(qsTr("%1 note(s) restored!").arg(restoredCount));
                     }
                 }
             }
@@ -216,7 +219,7 @@ Page {
         Rectangle {
             anchors.fill: parent
             color: "#000000"
-            opacity: 0.6
+            opacity: 0.9125
         }
 
         // Сам диалог (прямоугольник в центре)
@@ -271,9 +274,11 @@ Page {
                         text: qsTr("Delete")
                         highlightColor: Theme.errorColor
                         onClicked: {
+                            // ИСПРАВЛЕНИЕ: Сохраняем количество удаляемых заметок перед сбросом selectedNoteIds
+                            var deletedCount = selectedNoteIds.length;
                             DB.permanentlyDeleteNotes(selectedNoteIds);
                             refreshDeletedNotes();
-                            toastManager.show(qsTr("%1 note(s) permanently deleted!").arg(selectedNoteIds.length));
+                            toastManager.show(qsTr("%1 note(s) permanently deleted!").arg(deletedCount)); // Используем сохраненное количество
                             manualConfirmDialog.visible = false // Скрываем диалог после выполнения
                         }
                     }

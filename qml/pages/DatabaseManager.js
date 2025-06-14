@@ -22,7 +22,8 @@ function initDatabase() {
                 'color TEXT DEFAULT "' + defaultNoteColor + '", ' +
                 'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, ' +
                 'updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, ' +
-                'deleted BOOLEAN NOT NULL DEFAULT 0' +
+                'deleted BOOLEAN NOT NULL DEFAULT 0, ' +
+                'archived BOOLEAN NOT NULL DEFAULT 0' + // ADDED: new 'archived' column
                 ')'
             );
             tx.executeSql(
@@ -54,6 +55,13 @@ function initDatabase() {
                 console.log("DB_MGR: Adding 'deleted' column to Notes table.");
                 tx.executeSql('ALTER TABLE Notes ADD COLUMN deleted BOOLEAN NOT NULL DEFAULT 0');
             }
+            // ADDED: Handle existing databases without the 'archived' column
+            try {
+                tx.executeSql('SELECT archived FROM Notes LIMIT 1');
+            } catch (e) {
+                console.log("DB_MGR: Adding 'archived' column to Notes table.");
+                tx.executeSql('ALTER TABLE Notes ADD COLUMN archived BOOLEAN NOT NULL DEFAULT 0');
+            }
         });
         console.log("DB_MGR: Database initialized successfully.");
     } catch (e) {
@@ -61,15 +69,19 @@ function initDatabase() {
     }
 }
 
-// CORRECTED LINE: Changed default parameter syntax
-function addNoteInternal(tx, pinned, title, content, color, deleted) {
+// CORRECTED LINE: Changed default parameter syntax and added 'archived' parameter
+function addNoteInternal(tx, pinned, title, content, color, deleted, archived) {
     // Manually set default if 'deleted' is undefined or null
     if (deleted === undefined || deleted === null) {
         deleted = 0;
     }
+    // ADDED: Manually set default if 'archived' is undefined or null
+    if (archived === undefined || archived === null) {
+        archived = 0;
+    }
     tx.executeSql(
-        'INSERT INTO Notes (pinned, title, content, color, deleted) VALUES (?, ?, ?, ?, ?)',
-        [pinned, title, content, color, deleted]
+        'INSERT INTO Notes (pinned, title, content, color, deleted, archived) VALUES (?, ?, ?, ?, ?, ?)', // MODIFIED SQL
+        [pinned, title, content, color, deleted, archived] // MODIFIED PARAMETERS
     );
     var row = tx.executeSql('SELECT last_insert_rowid() as id');
     return row.rows.item(0).id;
@@ -118,8 +130,9 @@ function getAllNotes() {
     initDatabase();
     var notes = [];
     db.readTransaction(function(tx) {
-        var result = tx.executeSql('SELECT * FROM Notes WHERE deleted = 0 ORDER BY updated_at DESC');
-        console.log("DB_MGR: getAllNotes found " + result.rows.length + " non-deleted notes.");
+        // MODIFIED: Only get notes that are not deleted AND not archived
+        var result = tx.executeSql('SELECT * FROM Notes WHERE deleted = 0 AND archived = 0 ORDER BY updated_at DESC');
+        console.log("DB_MGR: getAllNotes found " + result.rows.length + " non-deleted, non-archived notes.");
         for (var i = 0; i < result.rows.length; i++) {
             var note = result.rows.item(i);
             if (!note.color) {
@@ -150,6 +163,26 @@ function getDeletedNotes() {
     console.log("DB_MGR: Returning " + notes.length + " deleted notes from getDeletedNotes()");
     return notes;
 }
+
+// ADDED: Function to get archived notes
+function getArchivedNotes() {
+    initDatabase();
+    var notes = [];
+    db.readTransaction(function(tx) {
+        var result = tx.executeSql('SELECT * FROM Notes WHERE archived = 1 ORDER BY updated_at DESC');
+        console.log("DB_MGR: getArchivedNotes found " + result.rows.length + " archived notes.");
+        for (var i = 0; i < result.rows.length; i++) {
+            var note = result.rows.item(i);
+            if (!note.color) {
+                note.color = defaultNoteColor;
+            }
+            note.tags = getTagsForNote(tx, note.id);
+            notes.push(note);
+        }
+    });
+    return notes;
+}
+
 
 function getTagsForNote(tx_param, noteId) {
     initDatabase();
@@ -184,7 +217,7 @@ function getAllTags() {
             'SELECT DISTINCT T.name FROM Tags T ' +
             'LEFT JOIN NoteTags NT ON T.id = NT.tag_id ' +
             'LEFT JOIN Notes N ON NT.note_id = N.id ' +
-            'WHERE N.id IS NULL OR N.deleted = 0 ' + // Only show tags for non-deleted notes
+            'WHERE (N.id IS NULL OR (N.deleted = 0 AND N.archived = 0)) ' + // MODIFIED: Only show tags for non-deleted AND non-archived notes
             'ORDER BY T.name ASC'
         );
         console.log("DB_MGR: getAllTags found " + result.rows.length + " tags.");
@@ -195,6 +228,30 @@ function getAllTags() {
     return tags;
 }
 
+function getAllTagsWithCounts() {
+    initDatabase();
+    var tagsWithCounts = [];
+    db.readTransaction(function(tx) {
+        var result = tx.executeSql(
+            'SELECT t.name, COUNT(nt.note_id) as count ' +
+            'FROM Tags t ' +
+            'LEFT JOIN NoteTags nt ON t.id = nt.tag_id ' +
+            'LEFT JOIN Notes n ON nt.note_id = n.id ' +
+            'WHERE (n.id IS NULL OR (n.deleted = 0 AND n.archived = 0)) ' + // MODIFIED: Only show tags for non-deleted AND non-archived notes
+            'GROUP BY t.name ' +
+            'ORDER BY count DESC'
+        );
+        console.log("DB_MGR: getAllTagsWithCounts found " + result.rows.length + " tags with counts.");
+        for (var i = 0; i < result.rows.length; i++) {
+            tagsWithCounts.push({
+                name: result.rows.item(i).name,
+                count: result.rows.item(i).count
+            });
+        }
+    });
+    return tagsWithCounts;
+}
+
 function addNote(pinned, title, content, tags, color) {
     initDatabase();
     var returnedNoteId = -1;
@@ -202,8 +259,8 @@ function addNote(pinned, title, content, tags, color) {
         color = defaultNoteColor;
     }
     db.transaction(function(tx) {
-        // When adding a new note, it's not deleted, so pass 0 explicitly
-        returnedNoteId = addNoteInternal(tx, pinned, title, content, color, 0);
+        // When adding a new note, it's not deleted and not archived, so pass 0 for both
+        returnedNoteId = addNoteInternal(tx, pinned, title, content, color, 0, 0); // MODIFIED
         for (var i = 0; i < tags.length; i++) {
             addTagToNoteInternal(tx, returnedNoteId, tags[i]);
         }
@@ -233,7 +290,8 @@ function updateNote(id, pinned, title, content, tags, color) {
 function deleteNote(id) {
     initDatabase();
     db.transaction(function(tx) {
-        tx.executeSql('UPDATE Notes SET deleted = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
+        // MODIFIED: When deleting, also unarchive if it was archived
+        tx.executeSql('UPDATE Notes SET deleted = 1, archived = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
         console.log("DB_MGR: Note ID " + id + " moved to trash.");
     });
 }
@@ -241,10 +299,31 @@ function deleteNote(id) {
 function restoreNote(id) {
     initDatabase();
     db.transaction(function(tx) {
-        tx.executeSql('UPDATE Notes SET deleted = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
+        // MODIFIED: When restoring, ensure it's not deleted and not archived
+        tx.executeSql('UPDATE Notes SET deleted = 0, archived = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
         console.log("DB_MGR: Note ID " + id + " restored from trash.");
     });
 }
+
+// ADDED: Function to archive a note
+function archiveNote(id) {
+    initDatabase();
+    db.transaction(function(tx) {
+        // When archiving, also ensure it's not deleted
+        tx.executeSql('UPDATE Notes SET archived = 1, deleted = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
+        console.log("DB_MGR: Note ID " + id + " moved to archive.");
+    });
+}
+
+// ADDED: Function to unarchive a note
+function unarchiveNote(id) {
+    initDatabase();
+    db.transaction(function(tx) {
+        tx.executeSql('UPDATE Notes SET archived = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
+        console.log("DB_MGR: Note ID " + id + " unarchived.");
+    });
+}
+
 
 function permanentlyDeleteNote(id) {
     initDatabase();
@@ -266,7 +345,7 @@ function togglePinned(id, pinned) {
 function insertTestData() {
     initDatabase();
     db.transaction(function(tx) {
-        // Clear all notes, including deleted ones, for a clean test setup
+//        // Clear all notes, including deleted ones, for a clean test setup
         tx.executeSql('DELETE FROM Notes');
         tx.executeSql('DELETE FROM NoteTags');
         tx.executeSql('DELETE FROM Tags');
@@ -276,16 +355,21 @@ function insertTestData() {
             for (var i = 0; i < Data.notes.length; i++) {
                 var note = Data.notes[i];
                 var noteColor = note.color || defaultNoteColor;
-                // Add notes as non-deleted (explicitly pass 0)
-                var noteId = addNoteInternal(tx, note.pinned, note.title, note.content, noteColor, 0);
+                // Add notes as non-deleted and non-archived (explicitly pass 0 for both)
+                var noteId = addNoteInternal(tx, note.pinned, note.title, note.content, noteColor, 0, 0); // MODIFIED
                 for (var j = 0; j < note.tags.length; j++) {
                     addTagToNoteInternal(tx, noteId, note.tags[j]);
                 }
             }
-            // Add a test note that is already deleted (explicitly pass 1)
-            var deletedNoteId = addNoteInternal(tx, false, "Deleted Test Note", "This note should appear in the trash.", defaultNoteColor, 1);
+            // Add a test note that is already deleted (explicitly pass deleted = 1, archived = 0)
+            var deletedNoteId = addNoteInternal(tx, false, "Deleted Test Note", "This note should appear in the trash.", defaultNoteColor, 1, 0); // MODIFIED
             addTagToNoteInternal(tx, deletedNoteId, "TrashTest");
             console.log("DB_MGR: Added a pre-deleted test note with ID:", deletedNoteId);
+
+            // ADDED: Add a test note that is already archived (explicitly pass deleted = 0, archived = 1)
+            var archivedNoteId = addNoteInternal(tx, false, "Archived Test Note", "This note should appear in the archive.", defaultNoteColor, 0, 1); // ADDED
+            addTagToNoteInternal(tx, archivedNoteId, "ArchiveTest");
+            console.log("DB_MGR: Added a pre-archived test note with ID:", archivedNoteId);
 
         } else {
             console.warn("DB_MGR: Data.notes not found for insertTestData. Skipping test data insertion.");
@@ -294,30 +378,6 @@ function insertTestData() {
     console.log("DB_MGR: Test data insertion complete.");
 }
 
-
-function getAllTagsWithCounts() {
-    initDatabase();
-    var tagsWithCounts = [];
-    db.readTransaction(function(tx) {
-        var result = tx.executeSql(
-            'SELECT t.name, COUNT(nt.note_id) as count ' +
-            'FROM Tags t ' +
-            'LEFT JOIN NoteTags nt ON t.id = nt.tag_id ' +
-            'LEFT JOIN Notes n ON nt.note_id = n.id ' +
-            'WHERE n.id IS NULL OR n.deleted = 0 ' +
-            'GROUP BY t.name ' +
-            'ORDER BY t.name ASC'
-        );
-        console.log("DB_MGR: getAllTagsWithCounts found " + result.rows.length + " tags with counts.");
-        for (var i = 0; i < result.rows.length; i++) {
-            tagsWithCounts.push({
-                name: result.rows.item(i).name,
-                count: result.rows.item(i).count
-            });
-        }
-    });
-    return tagsWithCounts;
-}
 
 function addTag(tagName) {
     initDatabase();
@@ -373,7 +433,8 @@ function restoreNotes(ids) {
     }
     db.transaction(function(tx) {
         var placeholders = ids.map(function() { return '?'; }).join(',');
-        tx.executeSql("UPDATE Notes SET deleted = 0 WHERE id IN (" + placeholders + ")", ids);
+        // MODIFIED: When restoring, set both deleted and archived to 0
+        tx.executeSql("UPDATE Notes SET deleted = 0, archived = 0 WHERE id IN (" + placeholders + ")", ids);
         console.log("DB_MGR: Restored notes with IDs:", ids);
     });
 }
@@ -398,27 +459,37 @@ function searchNotes(searchText, selectedTagNames) {
     db.readTransaction(function(tx) {
         var query = 'SELECT N.* FROM Notes N ';
         var params = [];
-        var conditions = ['N.deleted = 0']; // Always filter out deleted notes
+        // MODIFIED: Always filter out deleted AND archived notes for the main view
+        var whereConditions = ['N.deleted = 0', 'N.archived = 0'];
+        var havingConditions = []; // Conditions for HAVING clause
 
         if (selectedTagNames && selectedTagNames.length > 0) {
-            // Join with NoteTags and Tags to filter by selected tags
             query += 'JOIN NoteTags NT ON N.id = NT.note_id JOIN Tags T ON NT.tag_id = T.id ';
             var tagPlaceholders = selectedTagNames.map(function() { return '?'; }).join(',');
-            conditions.push('T.name IN (' + tagPlaceholders + ')');
+            whereConditions.push('T.name IN (' + tagPlaceholders + ')');
             params = params.concat(selectedTagNames);
-
-            // Add HAVING clause to ensure notes have ALL selected tags
-            query += 'GROUP BY N.id HAVING COUNT(DISTINCT T.id) = ' + selectedTagNames.length;
         }
 
         if (searchText) {
             var searchTerm = '%' + searchText + '%';
-            conditions.push('(N.title LIKE ? OR N.content LIKE ?)');
+            whereConditions.push('(N.title LIKE ? OR N.content LIKE ?)');
             params.push(searchTerm, searchTerm);
         }
 
-        if (conditions.length > 0) {
-            query += 'WHERE ' + conditions.join(' AND ');
+        // Build WHERE clause
+        if (whereConditions.length > 0) {
+            query += 'WHERE ' + whereConditions.join(' AND ') + ' ';
+        }
+
+        // Add GROUP BY and HAVING clause if tags are selected, AFTER the WHERE clause
+        if (selectedTagNames && selectedTagNames.length > 0) {
+            query += 'GROUP BY N.id ';
+            havingConditions.push('COUNT(DISTINCT T.id) = ' + selectedTagNames.length);
+        }
+
+        // Build HAVING clause
+        if (havingConditions.length > 0) {
+            query += 'HAVING ' + havingConditions.join(' AND ') + ' ';
         }
 
         query += ' ORDER BY N.updated_at DESC';
@@ -439,4 +510,37 @@ function searchNotes(searchText, selectedTagNames) {
         }
     });
     return notes;
+}
+
+
+// --- NEW BULK FUNCTIONS ---
+
+// Function to bulk move notes to trash
+function bulkMoveToTrash(ids) {
+    if (!ids || ids.length === 0) {
+        console.warn("DB_MGR: No IDs provided for bulkMoveToTrash.");
+        return;
+    }
+    initDatabase();
+    db.transaction(function(tx) {
+        var placeholders = ids.map(function() { return '?'; }).join(',');
+        // Set deleted = 1 and archived = 0 for the given IDs
+        tx.executeSql("UPDATE Notes SET deleted = 1, archived = 0, updated_at = CURRENT_TIMESTAMP WHERE id IN (" + placeholders + ")", ids);
+        console.log("DB_MGR: Bulk moved notes to trash with IDs:", ids);
+    });
+}
+
+// Function to bulk archive notes
+function bulkArchiveNotes(ids) {
+    if (!ids || ids.length === 0) {
+        console.warn("DB_MGR: No IDs provided for bulkArchiveNotes.");
+        return;
+    }
+    initDatabase();
+    db.transaction(function(tx) {
+        var placeholders = ids.map(function() { return '?'; }).join(',');
+        // Set archived = 1 and deleted = 0 for the given IDs
+        tx.executeSql("UPDATE Notes SET archived = 1, deleted = 0, updated_at = CURRENT_TIMESTAMP WHERE id IN (" + placeholders + ")", ids);
+        console.log("DB_MGR: Bulk archived notes with IDs:", ids);
+    });
 }

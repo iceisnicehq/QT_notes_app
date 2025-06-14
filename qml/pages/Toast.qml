@@ -67,6 +67,7 @@ Rectangle {
             left: parent.left
             right: parent.right
             margins: margin / 2
+
         }
     }
 

@@ -13,10 +13,43 @@ Item {
 
     property bool open: false
     property string currentPage: "notes"
-    property var tags: []
+    // tags property now holds objects with name and count
+    property var tags: [] // [{name: "tag1", count: 5}, {name: "tag2", count: 2}]
+    property int totalNotesCount: 0 // New property for total notes count
+    property int trashNotesCount: 0 // New property for trash notes count
 
     Behavior on opacity {
         NumberAnimation { duration: 300; easing.type: Easing.OutQuad }
+    }
+
+    // Function to refresh the tags and their counts from the database
+    function refreshTagsInSidePanel() {
+        tags = DB.getAllTagsWithCounts();
+        // Sort tags by count in descending order for consistency if desired
+        tags.sort(function(a, b) {
+            return b.count - a.count;
+        });
+        console.log("SidePanel: Tags refreshed with counts.", JSON.stringify(tags));
+    }
+
+    // Function to refresh general note counts
+    function refreshNoteCounts() {
+        totalNotesCount = DB.getAllNotes().length; // Assuming this function exists
+        trashNotesCount = DB.getDeletedNotes().length; // Assuming this function exists
+        console.log("SidePanel: Total notes count:", totalNotesCount);
+        console.log("SidePanel: Trash notes count:", trashNotesCount);
+    }
+
+    Component.onCompleted: {
+        refreshTagsInSidePanel(); // Load tags when the panel component is ready
+        refreshNoteCounts(); // Load note counts when the panel component is ready
+    }
+
+    onOpenChanged: {
+        if (open) {
+            refreshTagsInSidePanel(); // Refresh tags whenever the panel opens
+            refreshNoteCounts(); // Refresh note counts whenever the panel opens
+        }
     }
 
     // Semi-transparent overlay for the rest of the screen
@@ -128,6 +161,7 @@ Item {
                         icon: "../icons/notes.svg"
                         text: "Notes"
                         selected: sidePanel.currentPage === "notes"
+                        noteCount: sidePanel.totalNotesCount // Pass total notes count
                         onClicked: {
                             sidePanel.currentPage = "notes"
                             mainPage.panelOpen = false
@@ -150,6 +184,9 @@ Item {
                         selected: sidePanel.currentPage === "archive"
                         onClicked: {
                             sidePanel.currentPage = "archive"
+                            pageStack.push(Qt.resolvedUrl("trashArchivePage.qml"), {
+                                pageMode: "archive"
+                            });
                             mainPage.panelOpen = false
                         }
                     }
@@ -158,6 +195,7 @@ Item {
                         icon: "../icons/trash.svg"
                         text: "Trash"
                         selected: sidePanel.currentPage === "trash"
+                        noteCount: sidePanel.trashNotesCount // Pass trash notes count
                         onClicked: {
                             sidePanel.currentPage = "trash"
                             pageStack.push(Qt.resolvedUrl("TrashPage.qml"))
@@ -187,16 +225,11 @@ Item {
                     }
                 }
 
-//                Column {
-//                    width: parent.width
-//                    spacing: Theme.paddingSmall
-
-//                }
                 // Delimiter
                 Rectangle {
                     width: parent.width - Theme.paddingLarge * 2
                     height: 1
-                    color: "#2a2b38"
+                    color: "#80ffffff"
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
 
@@ -205,78 +238,44 @@ Item {
                     width: parent.width
                     spacing: Theme.paddingSmall
 
-                    Item {
-                        width: parent.width
-                        height: Theme.itemSizeSmall
-
-                        SectionHeader {
-                            text: "Tags"
-                            font.pixelSize: Theme.fontSizeSmall
-                            color: "#a0a1ab"
-                            anchors.left: parent.left
-                            anchors.leftMargin: Theme.paddingLarge
-                            horizontalAlignment: Text.AlignLeft
-                        }
-                        Item {
-                            width: Theme.fontSizeMedium * 1.1
-                            height: Theme.fontSizeMedium * 1.1
-                            clip: false  // Important: do not clip!
-                            anchors {
-                                right: parent.right
-                                rightMargin: Theme.paddingLarge
-                                verticalCenter: parent.verticalCenter
-                            }
-                            RippleEffect {
-                                id: editRipple
-                            }
-                            Icon {
-                                id: editButton
-                                source: "../icons/edit.svg"
-                                anchors.centerIn: parent
-                                width: parent.width
-                                height: parent.height
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                onPressed: editRipple.ripple(mouseX, mouseY)
-                                onClicked: {
-                                    pageStack.push(Qt.resolvedUrl("TagEditPage.qml"), {
-                                        onTagsChanged: mainPage.refreshData // Pass callback to refresh main page data
-                                    })
-                                    mainPage.panelOpen = false
-                                }
-
-                            }
-                        }
+                    SectionHeader { // "Tags" header remains
+                        text: "Tags"
+                        font.pixelSize: Theme.fontSizeSmall
+                        color: "#a0a1ab"
+                        anchors.left: parent.left
+                        anchors.leftMargin: Theme.paddingLarge
+                        horizontalAlignment: Text.AlignLeft
                     }
-                    // Add Tag Button
+
+                    // New Row to hold "Add Tag" and "Edit Tags" buttons side-by-side
                     NavigationButton {
-                        icon: "../icons/plus.svg"
-                        text: "Add Tag"
+                        width: parent.width // Make it take the full width of the parent Row
+                        icon: "../icons/edit.svg"
+                        text: "Edit Tags"
+                        selected: sidePanel.currentPage === "edit"
                         onClicked: {
+                            sidePanel.currentPage = "edit"
                             pageStack.push(Qt.resolvedUrl("TagEditPage.qml"), {
-                                onTagsChanged: mainPage.refreshData, // Pass callback
-                                creatingNewTag: true // Optionally start directly in new tag creation mode
+                                onTagsChanged: mainPage.refreshData // Pass callback to refresh main page data
                             })
                             mainPage.panelOpen = false
                         }
                     }
+
                     // Tags List
                     Repeater {
-                        model: tags
+                        model: tags // Model now contains {name, count} objects
                         delegate: NavigationButton {
                             icon: "../icons/tag.svg"
-                            text: modelData
-                            maxTextWidth: panelContent.width - 100
+                            text: modelData.name // Pass the tag name
+                            noteCount: modelData.count // Pass the note count
                             onClicked: {
-                                console.log("Tag selected:", modelData)
+                                console.log("Tag selected:", modelData.name)
                                 mainPage.panelOpen = false
-                                // pageStack.push(Qt.resolvedUrl("TagNotesPage.qml"), {tag: modelData})
+                                // pageStack.push(Qt.resolvedUrl("TagNotesPage.qml"), {tag: modelData.name})
                             }
                         }
                     }
-
                 }
             }
         }

@@ -29,7 +29,7 @@ ListView {
     z: Infinity
     spacing: 5
     anchors.fill: parent
-    anchors.bottomMargin: 10
+    anchors.bottomMargin: 100
     verticalLayoutDirection: ListView.BottomToTop
 
     interactive: false
