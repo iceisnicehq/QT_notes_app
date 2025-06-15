@@ -808,9 +808,6 @@ Page {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
             spacing: Theme.paddingMedium // Spacing between undo and redo
-            // Removed direct `visible: !newNotePage.isReadOnly` to allow click handling,
-            // opacity and enabled will control visual and interactive state.
-            // visible: !newNotePage.isReadOnly // Only visible in editable mode
 
             // Undo button
             Item {
@@ -824,16 +821,19 @@ Page {
                     anchors.centerIn: parent
                     width: parent.width
                     height: parent.height
-                    // Visually disable if no history to undo (historyIndex is 0 if only initial state exists)
-                    opacity: 1.0 // Always visible
-                    color: (newNotePage.historyIndex > 0 && !newNotePage.isReadOnly) ? Theme.primaryColor : Theme.secondaryColor // Color changes
+                    // ОБНОВЛЕННАЯ ЛОГИКА ЦВЕТА И АКТИВНОСТИ
+                    color: (newNotePage.historyIndex > 0 && !newNotePage.isReadOnly) ? Theme.primaryColor : Theme.secondaryColor
                 }
                 MouseArea {
                     anchors.fill: parent
-                    enabled: true // Always enabled to allow showing dialog
+                    // ОБНОВЛЕННАЯ ЛОГИКА АКТИВНОСТИ
+                    enabled: (newNotePage.historyIndex > 0 && !newNotePage.isReadOnly)
                     onPressed: undoRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        if (handleInteractionAttempt()) { // Check read-only state and show dialog if needed
+                        // handleInteractionAttempt() вызывается внутри функции.
+                        // Если noteReadOnly, она покажет диалог и вернет false.
+                        // Если true, то продолжит выполнение.
+                        if (handleInteractionAttempt()) {
                             console.log(qsTr("Undo action triggered!"));
                             if (newNotePage.historyIndex > 0) {
                                 newNotePage.isUndoingRedoing = true; // Prevent history update for this programmatic change
@@ -863,13 +863,13 @@ Page {
                     anchors.centerIn: parent
                     width: parent.width
                     height: parent.height
-                    // Visually disable if no history to redo
-                    opacity: 1.0 // Always visible
-                    color: (newNotePage.historyIndex < newNotePage.contentHistory.length - 1 && !newNotePage.isReadOnly) ? Theme.primaryColor : Theme.secondaryColor // Color changes
+                    // ОБНОВЛЕННАЯ ЛОГИКА ЦВЕТА И АКТИВНОСТИ
+                    color: (newNotePage.historyIndex < newNotePage.contentHistory.length - 1 && !newNotePage.isReadOnly) ? Theme.primaryColor : Theme.secondaryColor
                 }
                 MouseArea {
                     anchors.fill: parent
-                    enabled: true // Always enabled to allow showing dialog
+                    // ОБНОВЛЕННАЯ ЛОГИКА АКТИВНОСТИ
+                    enabled: (newNotePage.historyIndex < newNotePage.contentHistory.length - 1 && !newNotePage.isReadOnly)
                     onPressed: redoRipple.ripple(mouseX, mouseY)
                     onClicked: {
                         if (handleInteractionAttempt()) { // Check read-only state and show dialog if needed
@@ -912,37 +912,35 @@ Page {
                     anchors.centerIn: parent
                     width: parent.width
                     height: parent.height
-                    // Visually disable if new note or already archived
-                    opacity: 1.0 // Always visible
-                    // Color logic: primary if not archived, secondary if archived
-                    color: (newNotePage.noteId !== -1 && !newNotePage.isArchived) ? Theme.primaryColor : Theme.secondaryColor
+                    // ОБНОВЛЕННАЯ ЛОГИКА ЦВЕТА
+                    // Затемняется, если это новая заметка (noteId === -1) ИЛИ уже архивирована.
+                    // Иначе обычный цвет.
+                    color: (newNotePage.noteId === -1 || newNotePage.isArchived) ? Theme.secondaryColor : Theme.primaryColor
                 }
                 MouseArea {
                     anchors.fill: parent
-                    enabled: newNotePage.noteId !== -1 // Always active if note is not new (even if archived/deleted)
+                    enabled: newNotePage.noteId !== -1 // Всегда активна, если заметка существует
                     onPressed: archiveRipple.ripple(mouseX, mouseY)
                     onClicked: {
+                        if (newNotePage.noteId === -1) {
+                            toastManager.show(qsTr("Cannot archive a new note. Save it first."));
+                            return;
+                        }
                         if (newNotePage.isArchived) {
-                            // If note is already archived, unarchive it
-                            DB.unarchiveNote(newNotePage.noteId);
-                            newNotePage.isArchived = false; // Update status
-                            newNotePage.isReadOnly = false; // Now considered active
-                            newNotePage.sentToArchive = false; // Not archived anymore
-                            toastManager.show(qsTr("Note unarchived!"));
-                            if (onNoteSavedOrDeleted) onNoteSavedOrDeleted();
-                            // Do not pop, allow editing
+                            toastManager.show(qsTr("Note is already archived"));
+                            return;
                         } else if (newNotePage.isDeleted) {
-                            // If note is in trash, move to archive
+                            // Если заметка в корзине, переместить её в архив
                             DB.moveNoteFromTrashToArchive(newNotePage.noteId);
-                            newNotePage.isDeleted = false; // Update status
-                            newNotePage.isArchived = true; // Update status
-                            newNotePage.isReadOnly = true; // Remains read-only in archive (similar to how Trash is)
-                            newNotePage.sentToArchive = true; // Mark that it was sent to archive
+                            newNotePage.isDeleted = false; // Обновить статус
+                            newNotePage.isArchived = true; // Обновить статус
+                            newNotePage.isReadOnly = true; // Остаётся в режиме "только для чтения" в архиве
+                            newNotePage.sentToArchive = true; // Отметить, что отправлена в архив
                             toastManager.show(qsTr("Note moved to archive!"));
                             if (onNoteSavedOrDeleted) onNoteSavedOrDeleted();
-                            pageStack.pop(); // Return to previous page
+                            pageStack.pop(); // Вернуться на предыдущую страницу
                         } else {
-                            // If note is neither archived nor deleted, show archive confirmation
+                            // Если заметка не архивирована и не удалена, показать подтверждение архивирования
                             manualConfirmArchiveDialog.visible = true;
                         }
                     }
@@ -961,34 +959,37 @@ Page {
                     anchors.centerIn: parent
                     width: parent.width
                     height: parent.height
-                    // Visually disable if new note or already deleted
-                    opacity: 1.0 // Always visible
-                    // Color logic: negative if not deleted, secondary if deleted
-                    color: (newNotePage.noteId !== -1 && !newNotePage.isDeleted) ? Theme.negativeColor : Theme.secondaryColor
+                    // ОБНОВЛЕННАЯ ЛОГИКА ЦВЕТА
+                    // Затемняется, если это новая заметка (noteId === -1) ИЛИ уже удалена.
+                    // Иначе обычный цвет.
+                    color: (newNotePage.noteId === -1 || newNotePage.isDeleted) ? Theme.secondaryColor : Theme.negativeColor
                 }
                 MouseArea {
                     anchors.fill: parent
-                    enabled: newNotePage.noteId !== -1 // Always active if note is not new
+                    enabled: newNotePage.noteId !== -1 // Всегда активна, если заметка существует
                     onPressed: deleteRipple.ripple(mouseX, mouseY)
                     onClicked: {
+                        if (newNotePage.noteId === -1) {
+                            toastManager.show(qsTr("Cannot delete a new note. Save it first."));
+                            return;
+                        }
                         if (newNotePage.isDeleted) {
-                            // If note is already in trash, show permanent delete dialog? Or do nothing?
-                            // For now, doing nothing and just showing a toast
+                            // Если заметка уже в корзине, уведомить пользователя
                             toastManager.show(qsTr("Note is already in the trash"));
-                            return; // Exit, do nothing
+                            return; // Выход, никаких действий
                         }
                         if (newNotePage.isArchived) {
-                            // If note is in archive, move to trash
+                            // Если заметка в архиве, переместить её в корзину
                             DB.moveNoteFromArchiveToTrash(newNotePage.noteId);
-                            newNotePage.isArchived = false; // Update status
-                            newNotePage.isDeleted = true; // Update status
-                            newNotePage.isReadOnly = true; // Remains read-only in trash
-                            newNotePage.sentToTrash = true; // Mark that it was sent to trash
+                            newNotePage.isArchived = false; // Обновить статус
+                            newNotePage.isDeleted = true; // Обновить статус
+                            newNotePage.isReadOnly = true; // Остаётся в режиме "только для чтения" в корзине
+                            newNotePage.sentToTrash = true; // Отметить, что отправлена в корзину
                             toastManager.show(qsTr("Note moved to trash!"));
                             if (onNoteSavedOrDeleted) onNoteSavedOrDeleted();
-                            pageStack.pop(); // Return to previous page
+                            pageStack.pop(); // Вернуться на предыдущую страницу
                         } else {
-                            // If note is neither deleted nor archived, show delete confirmation
+                            // Если заметка не удалена и не архивирована, показать подтверждение удаления
                             manualConfirmDeleteDialog.visible = true;
                         }
                     }
@@ -1336,7 +1337,7 @@ Page {
 
             // Always use newNotePage.noteTags for determining selected tags
             // as it should now be up-to-date (an array).
-            var currentNoteTags = Array.isArray(newNotePage.noteTags) ? newNotePage.noteTags : [];
+            var currentNoteTags = Array.isArray(newNotePage.noteTags) ? newNotePage.noteTags.slice() : [];
 
             var selectedTags = [];
             var unselectedTags = [];
