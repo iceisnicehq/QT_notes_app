@@ -821,8 +821,8 @@
 <context>
     <name>TrashNoteCard</name>
     <message>
-        <location filename="../qml/pages/TrashNoteCard.qml" line="146"/>
-        <location filename="../qml/pages/TrashNoteCard.qml" line="157"/>
+        <location filename="../qml/pages/TrashNoteCard.qml" line="148"/>
+        <location filename="../qml/pages/TrashNoteCard.qml" line="159"/>
         <source>Empty</source>
         <translation type="unfinished"></translation>
     </message>

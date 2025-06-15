@@ -1303,6 +1303,8 @@ Page {
     // --- Main Tag Selection Panel ---
     // This is the core panel where tags are displayed and managed.
     Rectangle {
+        property string currentNewTagInput: "" // ADD THIS LINE: To hold the text for the new tag input field
+
         id: tagSelectionPanel
         width: parent.width // Panel width matches parent
         height: parent.height * 0.53 // Fixed height as per the desired layout
@@ -1332,6 +1334,54 @@ Page {
         // List model to hold available tags and their checked state
         ListModel {
             id: availableTagsModel
+        }
+        function performAddTagLogic() {
+            // First, check if interaction is allowed (not in read-only state)
+            if (!newNotePage.handleInteractionAttempt()) {
+                // If handleInteractionAttempt showed a dialog, it means we can't proceed directly.
+                // It will have handled the feedback.
+                return;
+            }
+
+            var trimmedTag = tagSelectionPanel.currentNewTagInput.trim();
+            if (trimmedTag === "") {
+                if (toastManager) toastManager.show(qsTr("Tag name cannot be empty!"));
+                // You could add a visual error state here if desired (e.g., newTagInput.color = Theme.errorColor)
+                return;
+            }
+
+            // Get all existing tags to check for duplicates (case-sensitive)
+            var existingTags = DB.getAllTagsWithCounts();
+            var tagExists = existingTags.some(function(t) {
+                return t.name === trimmedTag;
+            });
+
+            if (tagExists) {
+                console.log(qsTr("Error: Tag '%1' already exists.").arg(trimmedTag));
+                if (toastManager) toastManager.show(qsTr("Tag '%1' already exists!").arg(trimmedTag));
+            } else {
+                // Add the new tag to the database
+                DB.addTag(trimmedTag);
+                console.log(qsTr("New tag '%1' added to DB.").arg(trimmedTag));
+
+                // Add the newly created tag to the current note's tags immediately
+                // This ensures it appears selected in the list right away.
+                var updatedNoteTags = Array.isArray(newNotePage.noteTags) ? newNotePage.noteTags.slice() : [];
+                if (updatedNoteTags.indexOf(trimmedTag) === -1) {
+                    updatedNoteTags.push(trimmedTag);
+                    newNotePage.noteTags = updatedNoteTags; // Assign new array instance to trigger updates
+                    newNotePage.noteModified = true; // Mark the note as modified
+                    console.log(qsTr("Tag '%1' also added to current note's tags.").arg(trimmedTag));
+                }
+
+                tagSelectionPanel.currentNewTagInput = ""; // Clear the input field
+                newTagInput.forceActiveFocus(false); // Hide the keyboard
+
+                // Refresh the list model to show the newly added tag in the list view
+                loadTagsForTagPanel();
+
+                if (toastManager) toastManager.show(qsTr("Tag '%1' created and added!").arg(trimmedTag));
+            }
         }
 
         // Function to load tags into the ListModel for the current note
@@ -1378,7 +1428,7 @@ Page {
             Rectangle {
                 id: tagPanelHeader
                 width: parent.width
-                height: Theme.itemSizeExtraSmall // Standard header height
+                height: Theme.itemSizeMedium // Standard header height
                 // Color now dynamically darkened version of note's color
                 color: newNotePage.darkenColor(newNotePage.noteColor, 0.15) // Darker version of note color
                 anchors.top: parent.top
@@ -1386,27 +1436,60 @@ Page {
                 anchors.leftMargin: Theme.paddingLarge // Horizontal padding for content within header
                 anchors.rightMargin: Theme.paddingLarge
 
-                // Label for the header text "Select Tags"
-                Label {
-                    id: selectTagsText
-                    text: qsTr("Select Tags")
-                    font.pixelSize: Theme.fontSizeLarge
-                    color: "#e8eaed" // Light text color
-                    anchors.centerIn: parent
-                }
             }
             // Input for new tag creation - CHANGED TO TextField
-            TextField { // Changed from TextInput to TextField
+            SearchField {
                 id: newTagInput
-                width: parent.width * 0.9 // Slightly smaller than parent for padding
+                width: parent.width * 0.9
                 anchors.horizontalCenter: parent.horizontalCenter
-                placeholderText: qsTr("Add new tag...") // Now supported
+                anchors.verticalCenter: tagPanelHeader.verticalCenter
+                placeholderText: qsTr("Add new tag...")
                 font.pixelSize: Theme.fontSizeMedium
+                highlighted: false
                 color: Theme.primaryColor
                 readOnly: newNotePage.isReadOnly // Inherit read-only state
-                // onEditingFinished: { // <-- ЭТА СТРОКА УДАЛЕНА И ПРЕДЫДУЩИЙ РАЗ
-                //     // ... ваша логика добавления тега ...
-                // }
+
+                // ADD/MODIFY THESE LINES:
+                text: tagSelectionPanel.currentNewTagInput // Bind text to the new property
+                onTextChanged: tagSelectionPanel.currentNewTagInput = text // Update property on text change
+
+                // Add functionality for Enter key press
+                EnterKey.onClicked: {
+                    tagSelectionPanel.performAddTagLogic(); // Call the new function to add the tag
+                }
+
+                // Add a right-hand item for the "Add" button (check/plus icon)
+                rightItem: Item {
+                    id: addTagButtonContainer
+                    width: Theme.fontSizeExtraLarge * 1.1
+                    height: Theme.fontSizeExtraLarge * 1.1
+                    clip: false
+
+                    // Opacity depends on whether there's text in the input
+                    opacity: tagSelectionPanel.currentNewTagInput.trim().length > 0 && !newNotePage.isReadOnly ? 1 : 0.3
+                    Behavior on opacity { NumberAnimation { duration: 150 } }
+
+                    Icon {
+                        id: addTagPanelIcon
+                        // Show check icon if there's text, otherwise show plus icon
+                        source: tagSelectionPanel.currentNewTagInput.trim().length > 0 ? "../icons/plus.svg" : "../icons/plus.svg"
+                        anchors.centerIn: parent
+                        width: parent.width
+                        height: parent.height
+                        color: Theme.primaryColor // Keep icon color consistent
+                    }
+                    RippleEffect { id: addTagRippleEffect }
+                    MouseArea {
+                        anchors.fill: parent
+                        // Only enabled if there's text and not in read-only mode
+                        enabled: tagSelectionPanel.currentNewTagInput.trim().length > 0 && !newNotePage.isReadOnly
+                        onPressed: addTagRippleEffect.ripple(mouseX, mouseY)
+                        onClicked: {
+                            tagSelectionPanel.performAddTagLogic(); // Call the new function to add the tag
+                        }
+                    }
+                }
+               leftItem: Item {}
             }
 
 
