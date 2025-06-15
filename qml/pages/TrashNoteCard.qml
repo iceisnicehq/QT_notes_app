@@ -159,7 +159,7 @@ Item {
                 text: (root.content && root.content.trim()) ? root.content : qsTr("Empty")
                 font.italic: !(root.content && root.content.trim())
                 textFormat: Text.PlainText
-                wrapMode: Text.WordWrap
+                wrapMode: Text.Wrap
                 maximumLineCount: 5
                 elide: Text.ElideRight
                 font.pixelSize: Theme.fontSizeSmall

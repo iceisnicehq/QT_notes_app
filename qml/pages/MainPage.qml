@@ -261,7 +261,7 @@ Page {
 
                         Icon {
                             id: rightIcon
-                            source: selectedTags.length > 0 ? "../icons/tag_filled.svg" : "../icons/tag-white.svg"
+                            source: selectedTags.length > 0 ? "../icons/tag-filled.svg" : "../icons/tag-white.svg"
                             anchors.centerIn: parent
                             width: parent.width
                             height: parent.height

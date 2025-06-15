@@ -269,7 +269,6 @@ Item {
                         }
                     }
 
-                    // Tags List
                     Repeater {
                         model: tags // Model now contains {name, count} objects
                         delegate: NavigationButton {
@@ -279,7 +278,17 @@ Item {
                             onClicked: {
                                 console.log("Tag selected:", modelData.name)
                                 mainPage.panelOpen = false
-                                // pageStack.push(Qt.resolvedUrl("TagNotesPage.qml"), {tag: modelData.name})
+
+                                // --- ADD OR MODIFY THESE LINES ---
+                                // Set the selectedTags in mainPage to only this tag
+                                mainPage.selectedTags = [modelData.name];
+                                // Optionally clear existing search text to focus on the tag filter
+                                mainPage.currentSearchText = "";
+                                // Perform the search on the main page with the new tag filter
+                                mainPage.performSearch(mainPage.currentSearchText, mainPage.selectedTags);
+
+                                console.log(qsTr("Navigating to search with tag: %1").arg(modelData.name));
+                                // --- END OF ADDITION/MODIFICATION ---
                             }
                         }
                     }
