@@ -822,7 +822,8 @@ Page {
                     width: parent.width
                     height: parent.height
                     // ОБНОВЛЕННАЯ ЛОГИКА ЦВЕТА И АКТИВНОСТИ
-                    color: (newNotePage.historyIndex > 0 && !newNotePage.isReadOnly) ? Theme.primaryColor : Theme.secondaryColor
+                    opacity: (newNotePage.historyIndex > 0) ? 1.0 : 0.5
+                    color: (newNotePage.historyIndex > 0) ? Theme.primaryColor : Theme.secondaryColor
                 }
                 MouseArea {
                     anchors.fill: parent
@@ -864,7 +865,8 @@ Page {
                     width: parent.width
                     height: parent.height
                     // ОБНОВЛЕННАЯ ЛОГИКА ЦВЕТА И АКТИВНОСТИ
-                    color: (newNotePage.historyIndex < newNotePage.contentHistory.length - 1 && !newNotePage.isReadOnly) ? Theme.primaryColor : Theme.secondaryColor
+                    opacity: (newNotePage.historyIndex < newNotePage.contentHistory.length - 1) ? 1.0 : 0.5
+                    color: (newNotePage.historyIndex < newNotePage.contentHistory.length - 1) ? Theme.primaryColor : Theme.secondaryColor
                 }
                 MouseArea {
                     anchors.fill: parent
@@ -916,6 +918,7 @@ Page {
                     // Затемняется, если это новая заметка (noteId === -1) ИЛИ уже архивирована.
                     // Иначе обычный цвет.
                     color: (newNotePage.noteId === -1 || newNotePage.isArchived) ? Theme.secondaryColor : Theme.primaryColor
+                    opacity: (newNotePage.noteId === -1 || newNotePage.isArchived) ? 0.1 : 1.0
                 }
                 MouseArea {
                     anchors.fill: parent
@@ -963,6 +966,7 @@ Page {
                     // Затемняется, если это новая заметка (noteId === -1) ИЛИ уже удалена.
                     // Иначе обычный цвет.
                     color: (newNotePage.noteId === -1 || newNotePage.isDeleted) ? Theme.secondaryColor : Theme.negativeColor
+                    opacity: (newNotePage.noteId === -1 || newNotePage.isDeleted) ? 0.1 : 1.0
                 }
                 MouseArea {
                     anchors.fill: parent
