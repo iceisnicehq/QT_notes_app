@@ -3,12 +3,14 @@ TARGET = ru.template.Aurora_notes
 CONFIG += \
     auroraapp
 
+QT += quick quick-private core gui widgets
+
 PKGCONFIG += \
 
 SOURCES += \
     src/main.cpp \
 
-HEADERS += \
+HEADERS +=
 
 DISTFILES += \
     qml/pages/ConfirmationDialog.qml \

@@ -62,7 +62,7 @@ Item {
         Item {
             id: checkboxClickArea
             anchors { verticalCenter: parent.verticalCenter; right: parent.right; rightMargin: Theme.paddingMedium }
-            width: Theme.iconSizeSmall * 1.5
+            width: Theme.iconSizeSmall * 2.4
             height: width
 
             MouseArea {
@@ -81,16 +81,18 @@ Item {
             Rectangle {
                 id: visualCheckbox
                 anchors.centerIn: parent
-                width: Theme.iconSizeSmall
-                height: width
-                radius: 4
+                //width: Theme.iconSizeSmall
+                //height: width
+                height: 47
+                width: 47
+                radius: 17
 
                 // Default properties for the checkbox (e.g., deselected state visual)
                 // These are the "base" colors that will be overridden by states
                 // Added fallbacks using '?:' operator to prevent 'undefined' errors
                 color: Theme.backgroundColor !== undefined ? Theme.backgroundColor : "#32353a" // Fallback to a dark gray
                 border.color: Theme.secondaryColor !== undefined ? Theme.secondaryColor : "#00bcd4" // Fallback to a teal/cyan
-                border.width: 2
+                border.width: 5
 
                 // Define states for the checkbox based on the isSelected property
                 states: [
