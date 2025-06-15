@@ -1,3 +1,4 @@
+//NotePage.qml
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.Layouts 1.1
@@ -287,6 +288,91 @@ Page {
             }
         }
         // Handler for showing/hiding with animation
+        onVisibleChanged: {
+            if (visible) {
+                opacity = 1;
+            }
+        }
+    }
+// новый диалог для кейса с корзиной и архивом
+    Item {
+        id: restoreFromTrashDialog
+        anchors.fill: parent
+        visible: false
+        z: 101
+        opacity: 0
+        Rectangle {
+            anchors.fill: parent
+            color: "#000000"
+            opacity: restoreFromTrashDialog.opacity * 0.5
+            Behavior on opacity { NumberAnimation { duration: 200 } }
+        }
+        Rectangle {
+            width: parent.width * 0.85
+            height: dialogColumn.implicitHeight + Theme.paddingLarge * 2
+            color: newNotePage.darkenColor(newNotePage.noteColor, 0.15)
+            radius: Theme.itemSizeSmall / 2
+            anchors.centerIn: parent
+            Behavior on opacity { NumberAnimation { duration: 200 } }
+            Behavior on transform {
+                PropertyAnimation { property: "scale"; from: 0.9; to: 1.0; duration: 200; easing.type: Easing.OutBack; exclude: !restoreFromTrashDialog.visible }
+            }
+            Column {
+                id: dialogColumn
+                width: parent.width - Theme.paddingLarge * 2
+                spacing: Theme.paddingMedium
+                anchors.margins: Theme.paddingLarge
+                anchors.centerIn: parent
+                Label {
+                    width: parent.width
+                    text: qsTr("Cannot Edit Deleted Note")
+                    font.pixelSize: Theme.fontSizeLarge
+                    font.bold: true
+                    horizontalAlignment: Text.AlignHCenter
+                    color: Theme.highlightColor
+                }
+                Label {
+                    width: parent.width
+                    text: qsTr("To edit this note, you need to restore it first.")
+                    wrapMode: Text.WordWrap
+                    horizontalAlignment: Text.AlignHCenter
+                    color: Theme.primaryColor
+                }
+                RowLayout {
+                    width: parent.width
+                    spacing: Theme.paddingMedium
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    Button {
+                        Layout.fillWidth: true
+                        text: qsTr("Cancel")
+                        onClicked: {
+                            restoreFromTrashDialog.visible = false;
+                            restoreFromTrashDialog.opacity = 0;
+                        }
+                    }
+                    Button {
+                        Layout.fillWidth: true
+                        text: qsTr("Restore")
+                        highlightColor: Theme.positiveColor
+                        onClicked: {
+                            DB.restoreNote(newNotePage.noteId);
+                            newNotePage.isFromTrash = false;
+                            newNotePage.isDeleted = false;
+                            newNotePage.isReadOnly = false;
+                            toastManager.show(qsTr("Note restored!"));
+                            if (onNoteSavedOrDeleted) {
+                                onNoteSavedOrDeleted();
+                            }
+                            restoreFromTrashDialog.visible = false;
+                            restoreFromTrashDialog.opacity = 0;
+                            noteContentInput.forceActiveFocus();
+                            Qt.inputMethod.show();
+                        }
+                    }
+                }
+            }
+        }
+
         onVisibleChanged: {
             if (visible) {
                 opacity = 1;
