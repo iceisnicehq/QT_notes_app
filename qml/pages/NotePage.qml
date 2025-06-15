@@ -1066,6 +1066,10 @@ Page {
             Flow {
                 id: tagsFlow
                 width: parent.width
+                anchors.leftMargin: Theme.paddingLarge
+                anchors.rightMargin: Theme.paddingLarge
+                anchors.left: parent.left
+                anchors.right: parent.right
                 spacing: Theme.paddingMedium
                 visible: newNotePage.noteTags.length > 0 // Only visible if tags exist
                 Repeater {
