@@ -1045,16 +1045,6 @@ Page {
                         if (newNotePage.isArchived) {
                             toastManager.show(qsTr("Note is already archived"));
                             return;
-                        } else if (newNotePage.isDeleted) {
-                            // Если заметка в корзине, переместить её в архив
-                            DB.moveNoteFromTrashToArchive(newNotePage.noteId);
-                            newNotePage.isDeleted = false; // Обновить статус
-                            newNotePage.isArchived = true; // Обновить статус
-                            newNotePage.isReadOnly = true; // Остаётся в режиме "только для чтения" в архиве
-                            newNotePage.sentToArchive = true; // Отметить, что отправлена в архив
-                            toastManager.show(qsTr("Note moved to archive!"));
-                            if (onNoteSavedOrDeleted) onNoteSavedOrDeleted();
-                            pageStack.pop(); // Вернуться на предыдущую страницу
                         } else {
                             // Если заметка не архивирована и не удалена, показать подтверждение архивирования
                             manualConfirmArchiveDialog.visible = true;
@@ -1095,17 +1085,7 @@ Page {
                             toastManager.show(qsTr("Note is already in the trash"));
                             return; // Выход, никаких действий
                         }
-                        if (newNotePage.isArchived) {
-                            // Если заметка в архиве, переместить её в корзину
-                            DB.moveNoteFromArchiveToTrash(newNotePage.noteId);
-                            newNotePage.isArchived = false; // Обновить статус
-                            newNotePage.isDeleted = true; // Обновить статус
-                            newNotePage.isReadOnly = true; // Остаётся в режиме "только для чтения" в корзине
-                            newNotePage.sentToTrash = true; // Отметить, что отправлена в корзину
-                            toastManager.show(qsTr("Note moved to trash!"));
-                            if (onNoteSavedOrDeleted) onNoteSavedOrDeleted();
-                            pageStack.pop(); // Вернуться на предыдущую страницу
-                        } else {
+                        else {
                             // Если заметка не удалена и не архивирована, показать подтверждение удаления
                             manualConfirmDeleteDialog.visible = true;
                         }
