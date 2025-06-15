@@ -1,8 +1,8 @@
-// TrashNoteCard.qml (Обновленная версия: добавлена передача isFromTrash)
+// TrashNoteCard.qml (Corrected version)
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import "DatabaseManager.js" as DB // Оставляем, если нужен для refreshData, но refreshData в TrashNoteCard выглядит неуместно
+import "DatabaseManager.js" as DB
 
 Item {
     id: root
@@ -16,23 +16,18 @@ Item {
     property string cardColor: "#1c1d29"
     property bool isSelected: false
     property int noteId: -1
-    property var trashPageInstance: null // Ссылка на TrashPage
+    property var trashPageInstance: null // Reference to TrashPage
 
-    // NEW: Добавляем свойства, которые вы передавали из NoteCard
+    // NEW: Add properties passed from NoteCard
     property bool noteIsPinned: false
     property date noteCreationDate: new Date()
     property date noteEditDate: new Date()
-    // Добавляем флаг, что это заметка из корзины
-    property bool isFromTrash: true // По умолчанию true для TrashNoteCard
-
+    property bool isFromTrash: true // Default to true for TrashNoteCard
 
     // --- Signals ---
     signal selectionToggled(int noteId, bool isSelected)
-    // signal noteClicked(int noteId) // Этот сигнал, по вашему коду, не используется.
-                                    // Логика открытия NotePage находится прямо в MouseArea.
-
-    // Removed refreshData() from here, as it belongs to the page level.
-    // Если эта функция должна была что-то делать, то это не ее место.
+    // CORRECTED: Declare 'noteClicked' as a signal with its parameters
+    signal noteClicked(int noteId, string title, string content, bool isPinned, var tags, date creationDate, date editDate, string color, bool isArchived, bool isDeleted)
 
 
     // --- UI Components ---
@@ -43,45 +38,31 @@ Item {
         border.color: "#43484e"
         border.width: 1
 
-        // MouseArea для клика по всей карточке (для открытия NotePage или переключения выделения)
         MouseArea {
-            id: wholeCardMouseArea // Добавляем ID для удобства
+            id: wholeCardMouseArea
             anchors.fill: parent
-            // removed 'enabled: fabButton.visible' and direct fabButton/searchField references
-            // as they are not in scope of a NoteCard/TrashNoteCard delegate.
-            // These would be handled at the Page or ApplicationWindow level.
 
             onClicked: {
-                console.log("TrashNoteCard (ID:", root.noteId, "): Full card clicked.");
-
-                // Прямой переход на NotePage, передавая все данные заметки
-                pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
-                    onNoteSavedOrDeleted: root.trashPageInstance ? root.trashPageInstance.refreshData : null, // Передаем колбэк refreshData из TrashPage
-                    noteId: root.noteId,
-                    noteTitle: root.title,
-                    noteContent: root.content,
-                    noteIsPinned: root.noteIsPinned,
-                    noteTags: root.tags,
-                    noteCreationDate: root.noteCreationDate,
-                    noteEditDate: root.noteEditDate,
-                    noteColor: root.cardColor,
-
-                    //isReadOnly: true,
-                    // read only временно или навсегда -- вообще идея другая пока
-                    //isFromTrash: true,
-                    // вообще временные
-                    //isDeleted: true,
-
-                    isArchived: pageMode === "archive", // Pass if it's from archive
-                    isDeleted: pageMode === "trash"
-                });
-                console.log("TrashNoteCard: Opening NotePage in view mode (from Trash). ID:", root.noteId);
-                Qt.inputMethod.hide(); // Скрыть клавиатуру
-                // searchField.focus = false; // Удалено, так как searchField не в этом скоупе
+                console.log("TrashNoteCard (ID:", root.noteId, "): Full card clicked. Emitting noteClicked signal.");
+                // CORRECTED: Emit the 'noteClicked' signal
+                // Pass all necessary data directly from the model/root properties
+                root.noteClicked(
+                    root.noteId,
+                    root.title,
+                    root.content,
+                    root.noteIsPinned,
+                    root.tags, // Ensure this is handled as an array if NotePage expects it
+                    root.noteCreationDate,
+                    root.noteEditDate,
+                    root.cardColor,
+                    false, // isArchived: TrashNoteCard is not for archived notes by itself
+                    true   // isDeleted: TrashNoteCard implies it's from trash
+                );
+                Qt.inputMethod.hide(); // Hide keyboard
             }
         }
 
-        // --- Контейнер для чекбокса с увеличенной зоной клика ---
+        // --- Checkbox container with enlarged click area ---
         Item {
             id: checkboxClickArea
             anchors { verticalCenter: parent.verticalCenter; right: parent.right; rightMargin: Theme.paddingMedium }
@@ -92,12 +73,11 @@ Item {
                 anchors.fill: parent
                 onClicked: {
                     root.isSelected = !root.isSelected;
-                    root.selectionToggled(root.noteId, root.isSelected); // Эмитируем сигнал
+                    root.selectionToggled(root.noteId, root.isSelected); // Emit signal
                     console.log("TrashNoteCard (ID:", root.noteId, "): Checkbox clicked. isSelected:", root.isSelected);
                 }
             }
 
-            // --- Сам визуальный чекбокс (Rectangle) ---
             Rectangle {
                 id: visualCheckbox
                 anchors.centerIn: parent
@@ -111,7 +91,7 @@ Item {
             }
         }
 
-        // Колонка для содержимого карточки
+        // Column for card content
         Column {
             id: cardColumn
             anchors.top: parent.top
@@ -194,7 +174,6 @@ Item {
                     }
                 }
             }
-
         }
     }
 }

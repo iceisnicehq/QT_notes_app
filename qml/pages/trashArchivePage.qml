@@ -217,23 +217,23 @@ Page {
                                 console.log(qsTr("Toggled selection for note ID: %1. Current selected: %2").arg(noteId).arg(JSON.stringify(unifiedNotesPage.selectedNoteIds)));
                             }
                             // Handler for opening a note for viewing
-//                            onNoteClicked: {
-//                                console.log(qsTr("UNIFIED_NOTES_PAGE: Opening NotePage for note ID: %1 from %2.").arg(noteId).arg(pageMode));
-//                                // Pass all necessary data to NotePage, including the read-only flag
-//                                pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
-//                                    onNoteSavedOrDeleted: unifiedNotesPage.refreshNotes, // Callback to refresh this page
-//                                    noteId: modelData.id,
-//                                    noteTitle: modelData.title,
-//                                    noteContent: modelData.content,
-//                                    noteIsPinned: modelData.pinned,
-//                                    noteTags: modelData.tags,
-//                                    noteCreationDate: new Date(modelData.created_at + "Z"),
-//                                    noteEditDate: new Date(modelData.updated_at + "Z"),
-//                                    noteColor: modelData.color,
-//                                    isArchived: pageMode === "archive", // Pass if it's from archive
-//                                    isDeleted: pageMode === "trash" // Pass if it's from trash
-//                                });
-//                            }
+                            onNoteClicked: { // This is the signal handler now
+                                console.log(qsTr("UNIFIED_NOTES_PAGE: Opening NotePage for note ID: %1 from %2.").arg(noteId).arg(pageMode));
+                                // Pass all necessary data to NotePage, including the read-only flags
+                                pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
+                                    onNoteSavedOrDeleted: unifiedNotesPage.refreshNotes, // Callback to refresh this page
+                                    noteId: noteId, // Use the parameter from the signal
+                                    noteTitle: title, // Use the parameter from the signal
+                                    noteContent: content, // Use the parameter from the signal
+                                    noteIsPinned: isPinned, // Use the parameter from the signal
+                                    noteTags: tags, // Use the parameter from the signal (ensure it's an array if NotePage expects it)
+                                    noteCreationDate: creationDate, // Use the parameter from the signal
+                                    noteEditDate: editDate, // Use the parameter from the signal
+                                    noteColor: color, // Use the parameter from the signal
+                                    isArchived: isArchived, // Use the parameter from the signal
+                                    isDeleted: isDeleted // Use the parameter from the signal
+                                });
+                            }
                         }
                     }
                 }

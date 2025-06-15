@@ -1,28 +1,32 @@
-// TrashPage.qml (ПОЛНЫЙ ФАЙЛ, ИСПРАВЛЕНЫ topMargin В ДИАЛОГЕ)
+// TrashPage.qml
 
 import QtQuick.LocalStorage 2.0
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.Layouts 1.1
 import "DatabaseManager.js" as DB
-// import "TrashNoteCard.qml" // Оставлено без импорта.
+
+// Assuming TrashNoteCard.qml is in the same directory or its path is set in qmldir
+// import "TrashNoteCard.qml" // You might uncomment this if your project setup requires explicit import here.
 
 Page {
     id: trashPage
     backgroundColor: Theme.backgroundColor !== undefined ? Theme.backgroundColor : "#121218"
     showNavigationIndicator: false
+
     property var deletedNotes: []
     property var selectedNoteIds: []
-    property string deleteDialogMessage: "" // Для текста сообщения диалога
+    property string deleteDialogMessage: "" // For the dialog message text
 
     Component.onCompleted: {
         console.log("TRASH_PAGE: TrashPage opened. Calling refreshDeletedNotes.");
         refreshDeletedNotes();
     }
 
+    // Function to refresh the list of deleted notes
     function refreshDeletedNotes() {
         deletedNotes = DB.getDeletedNotes();
-        selectedNoteIds = [];
+        selectedNoteIds = []; // Clear selection after refresh
         console.log("DB_MGR: getDeletedNotes found", deletedNotes.length, "deleted notes.");
         console.log("TRASH_PAGE: refreshDeletedNotes completed. Count:", deletedNotes.length);
     }
@@ -42,114 +46,116 @@ Page {
         }
     }
 
-    // *** НОВЫЙ БЛОК: ColumnLayout для управления компоновкой
     ColumnLayout {
         id: mainLayout
         anchors.fill: parent
-        anchors.topMargin: pageHeader.height // Отступ от заголовка страницы
-        spacing: 0 // Управляем отступами внутри элементов
+        anchors.topMargin: pageHeader.height // Offset from page header
+        spacing: 0 // Control spacing between child elements in this layout
 
-        // ПАНЕЛЬ С КНОПКАМИ ВЫБОРА - СВЕРХУ, ЗАКРЕПЛЕНА
+        // SELECTION CONTROLS PANEL - Top, fixed
         Row {
             id: selectionControls
-            Layout.fillWidth: true // Заполняем всю доступную ширину в ColumnLayout
-            height: selectionControlsVisible ? Theme.buttonHeightSmall + Theme.paddingSmall : 0
-            visible: selectionControlsVisible
-            spacing: Theme.paddingSmall
+            Layout.fillWidth: true // Fills available width in ColumnLayout
+            height: selectionControlsVisible ? Theme.buttonHeightSmall + Theme.paddingSmall : 0 // Height depends on visibility
+            visible: selectionControlsVisible // Visibility depends on whether there are notes
+            spacing: Theme.paddingSmall // Spacing between buttons
 
-            // Внутренние отступы для Row, чтобы кнопки не прилипали к краям
+            // Internal padding for the Row so buttons don't stick to edges
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.leftMargin: Theme.paddingMedium
             anchors.rightMargin: Theme.paddingMedium
 
-            // Кнопка "Выбрать все" (с иконкой из ресурсов)
+            // "Select All / Deselect All" Button
             Button {
                 id: selectAllButton
-                Layout.preferredWidth: (parent.width - (parent.spacing * 2)) / 3 // Ширина через Layout
-                Layout.preferredHeight: Theme.buttonHeightSmall // Высота через Layout
+                Layout.preferredWidth: (parent.width - (parent.spacing * 2)) / 3
+                Layout.preferredHeight: Theme.buttonHeightSmall
                 icon.source: "../icons/select_all.svg"
                 onClicked: {
                     if (selectedNoteIds.length < deletedNotes.length) {
-                        selectedNoteIds = [];
+                        selectedNoteIds = []; // Clear current selection
                         for (var i = 0; i < deletedNotes.length; i++) {
-                            selectedNoteIds.push(deletedNotes[i].id);
+                            selectedNoteIds.push(deletedNotes[i].id); // Select all
                         }
                     } else {
-                        selectedNoteIds = [];
+                        selectedNoteIds = []; // Deselect all
                     }
+                    // Important: reassign the property to ensure QML detects the change
                     selectedNoteIds = selectedNoteIds;
+                    console.log(qsTr("Selected note IDs after Select All/Deselect All: %1").arg(JSON.stringify(selectedNoteIds)));
                 }
-                enabled: deletedNotes.length > 0
+                enabled: deletedNotes.length > 0 // Button active if there are notes
             }
 
-            // Кнопка "Восстановить выбранные" (с иконкой из ресурсов)
+            // "Restore Selected" Button
             Button {
                 id: restoreSelectedButton
                 Layout.preferredWidth: (parent.width - (parent.spacing * 2)) / 3
                 Layout.preferredHeight: Theme.buttonHeightSmall
                 icon.source: "../icons/restore_notes.svg"
                 highlightColor: Theme.highlightColor
-                enabled: selectedNoteIds.length > 0
+                enabled: selectedNoteIds.length > 0 // Active if something is selected
                 onClicked: {
                     if (selectedNoteIds.length > 0) {
-                        // Сохраняем количество восстанавливаемых заметок до refreshDeletedNotes()
                         var restoredCount = selectedNoteIds.length;
-                        DB.restoreNotes(selectedNoteIds);
-                        refreshDeletedNotes();
+                        DB.restoreNotes(selectedNoteIds); // Restore notes from trash
+                        refreshDeletedNotes(); // Refresh the list after action
                         toastManager.show(qsTr("%1 note(s) restored!").arg(restoredCount));
+                        console.log(qsTr("%1 note(s) restored from trash.").arg(restoredCount));
                     }
                 }
             }
 
-            // Кнопка "Удалить навсегда выбранные" (с иконкой из ресурсов)
+            // "Permanently Delete Selected" Button
             Button {
                 id: deleteSelectedButton
                 Layout.preferredWidth: (parent.width - (parent.spacing * 2)) / 3
                 Layout.preferredHeight: Theme.buttonHeightSmall
                 icon.source: "../icons/delete.svg"
                 highlightColor: Theme.errorColor
-                enabled: selectedNoteIds.length > 0
+                enabled: selectedNoteIds.length > 0 // Active if something is selected
                 onClicked: {
                     if (selectedNoteIds.length > 0) {
                         deleteDialogMessage = qsTr("Are you sure you want to permanently delete %1 selected notes? This action cannot be undone.").arg(selectedNoteIds.length);
-                        // Открываем вручную созданный диалог
-                        manualConfirmDialog.visible = true;
+                        manualConfirmDialog.visible = true; // Show the custom confirmation dialog
+                        console.log(qsTr("Showing permanent delete confirmation dialog for %1 notes.").arg(selectedNoteIds.length));
                     }
                 }
             }
-        } // Конец selectionControls Row
+        } // End selectionControls Row
 
-        // Небольшой отступ между кнопками и первым элементом Flickable
+        // Small spacing item between buttons and Flickable
         Item {
             Layout.fillWidth: true
             Layout.preferredHeight: selectionControlsVisible ? Theme.paddingMedium : 0
-            visible: selectionControlsVisible
+            visible: selectionControlsVisible // Visible only if selection controls are visible
         }
 
-        // Основная прокручиваемая область для отображения заметок
+        // Main scrollable area for displaying notes
         SilicaFlickable {
             id: trashFlickable
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            contentHeight: trashColumn.implicitHeight + (trashPage.showEmptyLabel ? 0 : Theme.paddingLarge * 2)
+            contentHeight: trashColumn.implicitHeight + (trashPage.showEmptyLabel ? 0 : Theme.paddingLarge * 2) // Dynamic content height
 
             Column {
                 id: trashColumn
                 width: parent.width
-                spacing: Theme.paddingMedium
-                visible: !trashPage.showEmptyLabel
+                spacing: Theme.paddingMedium // Spacing between note cards
+                visible: !trashPage.showEmptyLabel // Visibility depends on whether there are notes
                 anchors.top: parent.top
-                anchors.topMargin: Theme.paddingMedium
+                anchors.topMargin: Theme.paddingMedium // Top margin
 
+                // Repeater to display each note
                 Repeater {
-                    model: deletedNotes
+                    model: deletedNotes // Data model - list of deleted notes
                     delegate: Column {
                         width: parent.width
-                        spacing: Theme.paddingLarge
+                        spacing: Theme.paddingLarge // Spacing between individual note cards
 
-                        TrashNoteCard {
+                        TrashNoteCard { // Using TrashNoteCard for display
                             id: trashNoteCardInstance
                             anchors {
                                 left: parent.left
@@ -157,33 +163,56 @@ Page {
                                 leftMargin: Theme.paddingMedium
                                 rightMargin: Theme.paddingMedium
                             }
-                            width: parent.width - (Theme.paddingMedium * 2)
+                            width: parent.width - (Theme.paddingMedium * 2) // Adjust width for margins
                             noteId: modelData.id
                             title: modelData.title
                             content: modelData.content
-                            tags: modelData.tags ? modelData.tags.join(' ') : ''
-                            cardColor: modelData.color || "#1c1d29"
-                            height: implicitHeight
-                            isSelected: selectedNoteIds.indexOf(modelData.id) !== -1
+                            tags: modelData.tags ? modelData.tags.join(' ') : '' // Tags as space-separated string
+                            cardColor: modelData.color || "#1c1d29" // Card color
+                            height: implicitHeight // Height adapts to content
+                            isSelected: selectedNoteIds.indexOf(modelData.id) !== -1 // Determine if the current note is selected
 
+                            // Handler for toggling note selection
                             onSelectionToggled: {
                                 if (isSelected) {
+                                    // Add ID to selected list if not already there
                                     if (selectedNoteIds.indexOf(noteId) === -1) {
                                         selectedNoteIds.push(noteId);
                                     }
                                 } else {
+                                    // Remove ID from selected list
                                     var index = selectedNoteIds.indexOf(noteId);
                                     if (index !== -1) {
                                         selectedNoteIds.splice(index, 1);
                                     }
                                 }
+                                // Important: reassign property to ensure QML detects list change
                                 selectedNoteIds = selectedNoteIds;
+                                console.log(qsTr("Toggled selection for note ID: %1. Current selected: %2").arg(noteId).arg(JSON.stringify(selectedNoteIds)));
+                            }
+
+                            // Handler for opening a note for viewing from TrashNoteCard's signal
+                            onNoteClicked: {
+                                console.log(qsTr("TRASH_PAGE: Opening NotePage for note ID: %1 from Trash.").arg(noteId));
+                                pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
+                                    onNoteSavedOrDeleted: trashPage.refreshDeletedNotes, // Callback to refresh this page
+                                    noteId: noteId,
+                                    noteTitle: title,
+                                    noteContent: content,
+                                    noteIsPinned: isPinned,
+                                    noteTags: tags, // Ensure 'tags' is passed as an array if NotePage expects it
+                                    noteCreationDate: creationDate,
+                                    noteEditDate: editDate,
+                                    noteColor: color,
+                                    isDeleted: true // Explicitly indicate it's from trash
+                                });
                             }
                         }
                     }
                 }
             }
 
+            // Label displayed if the notes list is empty (Trash is empty)
             Label {
                 id: emptyLabel
                 visible: trashPage.showEmptyLabel
@@ -197,45 +226,49 @@ Page {
             }
         }
 
+        // Scrollbar for SilicaFlickable
         ScrollBar {
             flickableSource: trashFlickable
         }
-    } // Конец mainLayout ColumnLayout
+    } // End mainLayout ColumnLayout
 
+    // Toast Manager for displaying pop-up messages
     ToastManager {
         id: toastManager
     }
 
-    // *** Ручная имитация Overlay / Диалога
+    // Manual Overlay / Confirmation Dialog for permanent deletion
     Item {
         id: manualConfirmDialog
         anchors.fill: parent
-        visible: false // Изначально скрыт
+        visible: false // Hidden by default
+        z: 100 // Ensure dialog is on top of other elements
 
-        // Фон, затемняющий страницу
+        // Background to dim the page
         Rectangle {
             anchors.fill: parent
             color: "#000000"
             opacity: 0.9125
         }
 
-        // Сам диалог (прямоугольник в центре)
+        // The dialog content itself (centered rectangle)
         Rectangle {
             id: dialogContent
-            width: parent.width * 0.8 // Ширина 80% от родителя
-            height: implicitHeight // Высота по содержимому
-            color: Theme.backgroundColor // Цвет фона диалога
-            radius: Theme.itemCornerRadius // Скругленные углы
-            anchors.centerIn: parent // По центру родительского Item
+            width: parent.width * 0.8 // 80% width of parent
+            height: dialogColumn.implicitHeight + Theme.paddingLarge * 2 // Height based on content with padding
+            color: Theme.backgroundColor // Dialog background color
+            radius: Theme.itemCornerRadius // Rounded corners
+            anchors.centerIn: parent // Centered within parent Item
 
             Column {
+                id: dialogColumn
                 width: parent.width
-                spacing: Theme.paddingMedium
-                anchors.margins: Theme.paddingLarge
+                spacing: Theme.paddingMedium // Spacing between elements in the column
+                anchors.margins: Theme.paddingLarge // Internal padding for the column
 
                 Label {
                     width: parent.width
-                    text: qsTr("Confirm Deletion")
+                    text: qsTr("Confirm Deletion") // Dialog title
                     font.pixelSize: Theme.fontSizeLarge
                     font.bold: true
                     horizontalAlignment: Text.AlignHCenter
@@ -244,7 +277,7 @@ Page {
 
                 Label {
                     width: parent.width
-                    text: trashPage.deleteDialogMessage // Используем свойство страницы для текста
+                    text: trashPage.deleteDialogMessage // Message text from page property
                     wrapMode: Text.WordWrap
                     horizontalAlignment: Text.AlignHCenter
                     color: Theme.primaryColor
@@ -252,35 +285,30 @@ Page {
 
                 RowLayout {
                     width: parent.width
-                    spacing: Theme.paddingMedium
-                    anchors.horizontalCenter: parent.horizontalCenter // Центрируем кнопки
-                    // Layout.topMargin: Theme.paddingLarge // *** УДАЛЕНА ПРОБЛЕМНАЯ СТРОКА
-
-                    // Чтобы добавить отступ сверху для кнопок, если spacing Column выше недостаточен
-                    // Можно использовать Item с preferredHeight, если нужен дополнительный вертикальный отступ
-                    // Item { Layout.preferredHeight: Theme.paddingLarge; } // Пример, если нужно
+                    spacing: Theme.paddingMedium // Spacing between buttons
+                    anchors.horizontalCenter: parent.horizontalCenter // Center buttons
 
                     Button {
                         Layout.fillWidth: true
                         text: qsTr("Cancel")
-                        onClicked: manualConfirmDialog.visible = false // Скрываем диалог
+                        onClicked: manualConfirmDialog.visible = false // Hide dialog on cancel
                     }
 
                     Button {
                         Layout.fillWidth: true
-                        text: qsTr("Delete")
-                        highlightColor: Theme.errorColor
+                        text: qsTr("Delete") // Delete button text
+                        highlightColor: Theme.errorColor // Highlight color (red)
                         onClicked: {
-                            // ИСПРАВЛЕНИЕ: Сохраняем количество удаляемых заметок перед сбросом selectedNoteIds
-                            var deletedCount = selectedNoteIds.length;
-                            DB.permanentlyDeleteNotes(selectedNoteIds);
-                            refreshDeletedNotes();
-                            toastManager.show(qsTr("%1 note(s) permanently deleted!").arg(deletedCount)); // Используем сохраненное количество
-                            manualConfirmDialog.visible = false // Скрываем диалог после выполнения
+                            var deletedCount = selectedNoteIds.length; // Save count before clearing selectedNoteIds
+                            DB.permanentlyDeleteNotes(selectedNoteIds); // Call permanent delete function
+                            refreshDeletedNotes(); // Refresh notes list (this also clears selectedNoteIds)
+                            toastManager.show(qsTr("%1 note(s) permanently deleted!").arg(deletedCount)); // Notification
+                            manualConfirmDialog.visible = false // Hide dialog after action
+                            console.log(qsTr("%1 note(s) permanently deleted from Trash.").arg(deletedCount));
                         }
                     }
                 }
             }
         }
-    } // Конец manualConfirmDialog
+    } // End manualConfirmDialog
 }
