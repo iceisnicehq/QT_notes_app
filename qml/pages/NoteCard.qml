@@ -92,7 +92,8 @@ Item {
                 font.pixelSize: Theme.fontSizeLarge
                 font.bold: true
                 wrapMode: Text.Wrap
-                width: parent.width
+                // ИЗМЕНЕНО: Учитываем горизонтальные отступы родителя
+                width: parent.width - Theme.paddingLarge * 2
             }
             Rectangle {
                 width: parent.width
@@ -110,7 +111,8 @@ Item {
                 elide: Text.ElideRight
                 font.pixelSize: Theme.fontSizeSmall
                 color: "#c5c8d0"
-                width: parent.width
+                // ИЗМЕНЕНО: Учитываем горизонтальные отступы родителя
+                width: parent.width - Theme.paddingLarge * 2
             }
             Rectangle {
                 width: parent.width
@@ -120,7 +122,8 @@ Item {
             // Tags
             Flow {
                 id: tagsFlow
-                width: parent.width
+                // ИЗМЕНЕНО: Учитываем горизонтальные отступы родителя
+                width: parent.width - Theme.paddingLarge * 2
                 spacing: Theme.paddingSmall
                 visible: tags.trim().length > 0
 
