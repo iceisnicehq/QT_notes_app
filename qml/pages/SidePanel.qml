@@ -19,6 +19,9 @@ Item {
     property int trashNotesCount: 0 // New property for trash notes count
     property int archivedNotesCount: 0 // НОВОЕ СВОЙСТВО: для количества заметок в архиве
 
+    // NEW: Define a signal to notify the parent when the panel requests to be closed
+    signal closed();
+
     Behavior on opacity {
         NumberAnimation { duration: 300; easing.type: Easing.OutQuad }
     }
@@ -67,7 +70,7 @@ Item {
         anchors.fill: parent
         enabled: open
         onClicked: {
-            mainPage.panelOpen = false
+            sidePanel.closed(); // Emit the signal instead of directly modifying a global property
         }
     }
 
@@ -138,7 +141,7 @@ Item {
                             anchors.fill: parent
                             onPressed: closeRipple.ripple(mouseX, mouseY)
                             onClicked: {
-                                mainPage.panelOpen = false
+                                sidePanel.closed(); // Emit the signal instead of directly modifying a global property
                             }
 
                         }
@@ -167,7 +170,10 @@ Item {
                         noteCount: sidePanel.totalNotesCount // Pass total notes count
                         onClicked: {
                             sidePanel.currentPage = "notes"
-                            mainPage.panelOpen = false
+                            // Use replace to prevent stacking multiple MainPages if already on one
+                            // Ensure MainPage.qml can receive and handle `selectedTags` and `currentSearchText` properties
+                            pageStack.replace(Qt.resolvedUrl("MainPage.qml"));
+                            sidePanel.closed(); // Emit signal to close the panel
                         }
                     }
 
@@ -178,10 +184,11 @@ Item {
                         noteCount: sidePanel.archivedNotesCount
                         onClicked: {
                             sidePanel.currentPage = "archive"
-                            pageStack.push(Qt.resolvedUrl("ArchivePage.qml"), {
-                                pageMode: "archive"
-                            });
-                            mainPage.panelOpen = false
+                            // Check if current page is already ArchivePage to avoid re-pushing
+                            if (pageStack.currentPage.objectName !== "archivePage") {
+                                pageStack.replace(Qt.resolvedUrl("ArchivePage.qml"));
+                            }
+                            sidePanel.closed(); // Emit signal to close the panel
                         }
                     }
 
@@ -192,8 +199,11 @@ Item {
                         noteCount: sidePanel.trashNotesCount
                         onClicked: {
                             sidePanel.currentPage = "trash"
-                            pageStack.push(Qt.resolvedUrl("TrashPage.qml"))
-                            mainPage.panelOpen = false
+                            // Check if current page is already TrashPage to avoid re-pushing
+                            if (pageStack.currentPage.objectName !== "trashPage") {
+                                pageStack.replace(Qt.resolvedUrl("TrashPage.qml"))
+                            }
+                            sidePanel.closed(); // Emit signal to close the panel
                         }
                     }
 
@@ -204,8 +214,11 @@ Item {
                         selected: sidePanel.currentPage === "import/export"
                         onClicked: {
                             sidePanel.currentPage = "import/export"
-                            pageStack.push(Qt.resolvedUrl("ImportExportPage.qml"))
-                            mainPage.panelOpen = false
+                            // Check if current page is already ImportExportPage to avoid re-pushing
+                            if (pageStack.currentPage.objectName !== "importExportPage") {
+                                pageStack.replace(Qt.resolvedUrl("ImportExportPage.qml"))
+                            }
+                            sidePanel.closed(); // Emit signal to close the panel
                         }
                     }
 
@@ -215,8 +228,11 @@ Item {
                         selected: sidePanel.currentPage === "settings"
                         onClicked: {
                             sidePanel.currentPage = "settings"
-                            pageStack.push(Qt.resolvedUrl("SettingsPage.qml"))
-                            mainPage.panelOpen = false
+                            // Check if current page is already SettingsPage to avoid re-pushing
+                            if (pageStack.currentPage.objectName !== "settingsPage") {
+                                pageStack.replace(Qt.resolvedUrl("SettingsPage.qml"))
+                            }
+                            sidePanel.closed(); // Emit signal to close the panel
                         }
                     }
 
@@ -226,8 +242,11 @@ Item {
                         selected: sidePanel.currentPage === "about"
                         onClicked: {
                             sidePanel.currentPage = "about"
-                            pageStack.push(Qt.resolvedUrl("AboutPage.qml"))
-                            mainPage.panelOpen = false
+                            // Check if current page is already AboutPage to avoid re-pushing
+                            if (pageStack.currentPage.objectName !== "aboutPage") {
+                                pageStack.replace(Qt.resolvedUrl("AboutPage.qml"))
+                            }
+                            sidePanel.closed(); // Emit signal to close the panel
                         }
                     }
                 }
@@ -262,10 +281,8 @@ Item {
                         selected: sidePanel.currentPage === "edit"
                         onClicked: {
                             sidePanel.currentPage = "edit"
-                            pageStack.push(Qt.resolvedUrl("TagEditPage.qml"), {
-                                onTagsChanged: mainPage.refreshData // Pass callback to refresh main page data
-                            })
-                            mainPage.panelOpen = false
+                            pageStack.push(Qt.resolvedUrl("TagEditPage.qml"))
+                            sidePanel.closed(); // Emit signal to close the panel
                         }
                     }
 
@@ -277,18 +294,13 @@ Item {
                             noteCount: modelData.count // Pass the note count
                             onClicked: {
                                 console.log("Tag selected:", modelData.name)
-                                mainPage.panelOpen = false
+                                sidePanel.closed(); // Emit signal to close the panel
 
-                                // --- ADD OR MODIFY THESE LINES ---
-                                // Set the selectedTags in mainPage to only this tag
-                                mainPage.selectedTags = [modelData.name];
-                                // Optionally clear existing search text to focus on the tag filter
-                                mainPage.currentSearchText = "";
-                                // Perform the search on the main page with the new tag filter
-                                mainPage.performSearch(mainPage.currentSearchText, mainPage.selectedTags);
+                                // Navigate to MainPage and apply the tag filter.
+                                // This assumes MainPage can handle these parameters for filtering.
+                                pageStack.replace(Qt.resolvedUrl("MainPage.qml"), { selectedTags: [modelData.name], currentSearchText: "" });
 
                                 console.log(qsTr("Navigating to search with tag: %1").arg(modelData.name));
-                                // --- END OF ADDITION/MODIFICATION ---
                             }
                         }
                     }

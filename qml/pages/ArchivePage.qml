@@ -8,25 +8,36 @@ import "DatabaseManager.js" as DB
 
 Page {
     id: unifiedNotesPage
+    objectName: "unifiedNotesPage" // Added objectName for easier pageStack checks in SidePanel
     backgroundColor: Theme.backgroundColor !== undefined ? Theme.backgroundColor : "#121218"
     showNavigationIndicator: false
 
-    property string pageMode: "archive"
+    property string pageMode: "archive" // Can be "archive" or "trash"
 
     property var notesToDisplay: []
     property var selectedNoteIds: []
-    property string dialogMessage: ""
+    property bool panelOpen: false // Property to control side panel visibility
+
+    // Properties to control the dialog from the page's logic
+    property bool confirmDialogVisible: false
+    property string confirmDialogTitle: qsTr("Confirm Deletion") // Default title
+    property string confirmDialogMessage: "" // Message for the dialog
+    property string confirmButtonText: qsTr("Delete") // Default button text
+    property var onConfirmCallback: null // Callback function to execute on confirm
+    property color confirmButtonHighlightColor: Theme.errorColor // Default highlight color for confirm button
 
     property bool showEmptyLabel: notesToDisplay.length === 0
     property bool selectionControlsVisible: notesToDisplay.length > 0
 
-    // Новое вспомогательное свойство для определения, выбраны ли все заметки
+    // Helper property to determine if all notes are selected
     property bool allNotesSelected: (selectedNoteIds.length === notesToDisplay.length) && (notesToDisplay.length > 0)
 
 
     Component.onCompleted: {
         console.log(qsTr("UNIFIED_NOTES_PAGE: UnifiedNotesPage opened in %1 mode. Calling refreshNotes.").arg(pageMode));
         refreshNotes();
+        // Set the current page for the side panel instance
+        sidePanelInstance.currentPage = pageMode; // Use pageMode to set current page
     }
 
     function refreshNotes() {
@@ -41,9 +52,65 @@ Page {
         console.log(qsTr("UNIFIED_NOTES_PAGE: refreshNotes completed for %1. Count: %2").arg(pageMode).arg(notesToDisplay.length));
     }
 
+    // Function to show the confirmation dialog dynamically
+    function showConfirmDialog(message, callback, title, buttonText, highlightColor) {
+        confirmDialogMessage = message; // Set the message for the dialog
+        onConfirmCallback = callback;   // Set the callback function
+        if (title !== undefined) confirmDialogTitle = title; // Override default title if provided
+        else confirmDialogTitle = qsTr("Confirm Deletion"); // Reset to default if not provided
+
+        if (buttonText !== undefined) confirmButtonText = buttonText; // Override default button text if provided
+        else confirmButtonText = qsTr("Delete"); // Reset to default if not provided
+
+        if (highlightColor !== undefined) confirmButtonHighlightColor = highlightColor; // Override default highlight color
+        else confirmButtonHighlightColor = Theme.errorColor; // Reset to default if not provided
+
+        confirmDialogVisible = true; // Make the dialog visible
+    }
+
     PageHeader {
         id: pageHeader
         height: Theme.itemSizeExtraLarge
+
+        // Modified: Menu icon button to match the dynamic style from TrashPage
+        Item {
+            id: menuButton
+            width: Theme.fontSizeExtraLarge * 1.1
+            height: Theme.fontSizeExtraLarge * 0.95
+            clip: false
+            anchors {
+                left: parent.left
+                leftMargin: Theme.paddingMedium
+                verticalCenter: parent.verticalCenter
+            }
+
+            RippleEffect { id: menuRipple }
+
+            // Dynamic Icon based on selection state, styled like the menu button's icon
+            Icon {
+                id: leftIcon // Renamed for clarity
+                source: unifiedNotesPage.selectedNoteIds.length > 0 ? "../icons/close.svg" : "../icons/menu.svg"
+                anchors.centerIn: parent
+                width: parent.width
+                height: parent.height
+                color: Theme.primaryColor // Ensured primary color for consistency
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                onPressed: menuRipple.ripple(mouseX, mouseY) // Keep ripple effect
+                onClicked: {
+                    // Logic adjusted for UnifiedNotesPage context
+                    if (unifiedNotesPage.selectedNoteIds.length > 0) {
+                        unifiedNotesPage.selectedNoteIds = []; // Clear selected notes
+                        console.log("Selected notes cleared in UnifiedNotesPage.");
+                    } else {
+                        unifiedNotesPage.panelOpen = true // Open the side panel
+                        console.log("Menu button clicked in UnifiedNotesPage → panelOpen = true")
+                    }
+                }
+            }
+        }
 
         Label {
             text: pageMode === "trash" ? qsTr("Trash") : qsTr("Archive")
@@ -64,29 +131,54 @@ Page {
             Layout.fillWidth: true
             height: selectionControlsVisible ? Theme.buttonHeightSmall + Theme.paddingSmall : 0
             visible: selectionControlsVisible
-            spacing: Theme.paddingSmall
+            spacing: Theme.paddingSmall // This spacing applies between buttons
 
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.leftMargin: Theme.paddingMedium
             anchors.rightMargin: Theme.paddingMedium
 
+            // Changed: Calculate button width to consistently fit three buttons, matching TrashPage
+            property real calculatedButtonWidth: (unifiedNotesPage.width) / 2.08
+
+            // "Select All / Deselect All" Button
             Button {
                 id: selectAllButton
-                Layout.preferredWidth: (parent.width - (parent.spacing * 2)) / 3
+                width: parent.calculatedButtonWidth // Use calculated width
                 Layout.preferredHeight: Theme.buttonHeightSmall
-                // *** ИЗМЕНЕНИЕ ЗДЕСЬ: Динамическая иконка ***
-                icon.source: unifiedNotesPage.allNotesSelected ? "../icons/deselect_all.svg" : "../icons/select_all.svg"
+                highlightColor: Theme.highlightColor
+
+                // NEW: Inner Column to stack Icon and Label for consistent styling
+                Column {
+                    anchors.centerIn: parent
+                    spacing: Theme.paddingTiny // Small spacing between icon and text
+
+                    Item { // Wrapper Item for the Icon to control its precise size and centering
+                        width: Theme.fontSizeExtraLarge * 0.9 // Adjusted size for icons in buttons
+                        height: Theme.fontSizeExtraLarge * 0.9
+                        anchors.horizontalCenter: parent.horizontalCenter
+
+                        Icon {
+                            source: unifiedNotesPage.allNotesSelected ? "../icons/deselect_all.svg" : "../icons/select_all.svg"
+                            anchors.fill: parent // Icon fills its wrapper Item
+                            color: Theme.primaryColor // Match menu icon color style
+                        }
+                    }
+                    Label {
+                        text: qsTr("Select")
+                        color: Theme.primaryColor
+                        font.pixelSize: Theme.fontSizeSmall
+                        horizontalAlignment: Text.AlignHCenter // Center text
+                    }
+                }
                 onClicked: {
                     var newSelectedIds = [];
-                    // Используем вспомогательное свойство allNotesSelected
-                    if (!unifiedNotesPage.allNotesSelected) { // Если не все выбраны, выбираем все
+                    if (!unifiedNotesPage.allNotesSelected) {
                         for (var i = 0; i < unifiedNotesPage.notesToDisplay.length; i++) {
                             newSelectedIds.push(unifiedNotesPage.notesToDisplay[i].id);
                         }
-                    } // Иначе newSelectedIds останется пустым, что развыберет все
-
-                    unifiedNotesPage.selectedNoteIds = newSelectedIds; // Переназначить для обновления QML
+                    }
+                    unifiedNotesPage.selectedNoteIds = newSelectedIds;
                     console.log(qsTr("Selected note IDs after Select All/Deselect All: %1").arg(JSON.stringify(unifiedNotesPage.selectedNoteIds)));
                 }
                 enabled: notesToDisplay.length > 0
@@ -94,26 +186,129 @@ Page {
 
             Button {
                 id: primaryActionButton
-                Layout.preferredWidth: (parent.width - (parent.spacing * 2)) / 3
+                width: parent.calculatedButtonWidth // Use calculated width
                 Layout.preferredHeight: Theme.buttonHeightSmall
-                icon.source: pageMode === "trash" ? "../icons/restore_notes.svg" : "../icons/unarchive.svg"
-                text: pageMode === "trash" ? qsTr("Restore") : qsTr("Unarchive")
                 highlightColor: Theme.highlightColor
-                enabled: selectedNoteIds.length > 0
-                onClicked: {
-                    if (selectedNoteIds.length > 0) {
-                        if (pageMode === "trash") {
-                            DB.restoreNotes(selectedNoteIds);
-                            toastManager.show(qsTr("%1 note(s) restored!").arg(selectedNoteIds.length));
-                            console.log(qsTr("%1 note(s) restored from trash.").arg(selectedNoteIds.length));
-                        } else if (pageMode === "archive") {
-                            DB.bulkUnarchiveNotes(selectedNoteIds);
-                            toastManager.show(qsTr("%1 note(s) unarchived!").arg(selectedNoteIds.length));
-                            console.log(qsTr("%1 note(s) unarchived.").arg(selectedNoteIds.length));
+
+                // NEW: Inner Column to stack Icon and Label for consistent styling
+                Column {
+                    anchors.centerIn: parent
+                    spacing: Theme.paddingTiny
+
+                    Item { // Wrapper Item for the Icon to control its precise size and centering
+                        width: Theme.fontSizeExtraLarge * 0.9 // Adjusted size for icons in buttons
+                        height: Theme.fontSizeExtraLarge * 0.9
+                        anchors.horizontalCenter: parent.horizontalCenter
+
+                        Icon {
+                            source: pageMode === "trash" ? "../icons/restore_notes.svg" : "../icons/unarchive.svg"
+                            anchors.fill: parent // Icon fills its wrapper Item
+                            color: Theme.primaryColor
                         }
-                        refreshNotes();
+                    }
+                    Label {
+                        text: pageMode === "trash" ? qsTr("Restore") : qsTr("Unarchive")
+                        color: Theme.primaryColor
+                        font.pixelSize: Theme.fontSizeSmall
+                        horizontalAlignment: Text.AlignHCenter
                     }
                 }
+                onClicked: {
+                    if (selectedNoteIds.length > 0) {
+                        var message = "";
+                        var confirmTitle = "";
+                        var confirmButton = "";
+                        var highlight = Theme.highlightColor;
+                        var callbackFunction;
+
+                        if (pageMode === "trash") {
+                            message = qsTr("Are you sure you want to restore %1 selected notes to your main notes?").arg(selectedNoteIds.length);
+                            confirmTitle = qsTr("Confirm Restoration");
+                            confirmButton = qsTr("Restore");
+                            callbackFunction = function() {
+                                var restoredCount = selectedNoteIds.length;
+                                DB.restoreNotes(selectedNoteIds);
+                                refreshNotes();
+                                toastManager.show(qsTr("%1 note(s) restored!").arg(restoredCount));
+                                console.log(qsTr("%1 note(s) restored from trash.").arg(restoredCount));
+                            };
+                        } else if (pageMode === "archive") {
+                            message = qsTr("Are you sure you want to unarchive %1 selected notes?").arg(selectedNoteIds.length);
+                            confirmTitle = qsTr("Confirm Unarchive");
+                            confirmButton = qsTr("Unarchive");
+                            callbackFunction = function() {
+                                var unarchivedCount = selectedNoteIds.length;
+                                DB.bulkUnarchiveNotes(selectedNoteIds);
+                                refreshNotes();
+                                toastManager.show(qsTr("%1 note(s) unarchived!").arg(unarchivedCount));
+                                console.log(qsTr("%1 note(s) unarchived.").arg(unarchivedCount));
+                            };
+                        }
+
+                        unifiedNotesPage.showConfirmDialog(
+                            message,
+                            callbackFunction,
+                            confirmTitle,
+                            confirmButton,
+                            highlight
+                        );
+                        console.log(qsTr("Showing confirmation dialog for %1 notes in %2 mode.").arg(selectedNoteIds.length).arg(pageMode));
+                    }
+                }
+                enabled: selectedNoteIds.length > 0
+            }
+
+            // NEW: Permanently Delete Button (only visible in "trash" mode)
+            Button {
+                id: deleteSelectedButton
+                visible: unifiedNotesPage.pageMode === "trash"
+                width: parent.calculatedButtonWidth // Use calculated width
+                Layout.preferredHeight: Theme.buttonHeightSmall
+                highlightColor: Theme.errorColor
+
+                // NEW: Inner Column to stack Icon and Label for consistent styling
+                Column {
+                    anchors.centerIn: parent
+                    spacing: Theme.paddingTiny
+
+                    Item { // Wrapper Item for the Icon to control its precise size and centering
+                        width: Theme.fontSizeExtraLarge * 0.9 // Adjusted size for icons in buttons
+                        height: Theme.fontSizeExtraLarge * 0.9
+                        anchors.horizontalCenter: parent.horizontalCenter
+
+                        Icon {
+                            source: "../icons/delete.svg"
+                            anchors.fill: parent // Icon fills its wrapper Item
+                            color: Theme.primaryColor
+                        }
+                    }
+                    Label {
+                        text: qsTr("Delete")
+                        color: Theme.primaryColor
+                        font.pixelSize: Theme.fontSizeSmall
+                        horizontalAlignment: Text.AlignHCenter
+                    }
+                }
+                onClicked: {
+                    if (selectedNoteIds.length > 0) {
+                        var message = qsTr("Are you sure you want to permanently delete %1 selected notes? This action cannot be undone.").arg(selectedNoteIds.length);
+                        unifiedNotesPage.showConfirmDialog(
+                            message,
+                            function() {
+                                var deletedCount = selectedNoteIds.length;
+                                DB.permanentlyDeleteNotes(selectedNoteIds);
+                                refreshNotes(); // Call refreshNotes specific to this page
+                                toastManager.show(qsTr("%1 note(s) permanently deleted!").arg(deletedCount));
+                                console.log(qsTr("%1 note(s) permanently deleted.").arg(deletedCount));
+                            },
+                            qsTr("Confirm Permanent Deletion"),
+                            qsTr("Delete Permanently"),
+                            Theme.errorColor
+                        );
+                        console.log(qsTr("Showing permanent delete confirmation dialog for %1 notes.").arg(selectedNoteIds.length));
+                    }
+                }
+                enabled: selectedNoteIds.length > 0
             }
         }
 
@@ -144,7 +339,7 @@ Page {
                         width: parent.width
                         spacing: Theme.paddingLarge
 
-                        TrashNoteCard {
+                        TrashNoteCard { // Using TrashNoteCard as it's designed for displaying deleted/archived notes
                             id: noteCardInstance
                             anchors {
                                 left: parent.left
@@ -160,6 +355,8 @@ Page {
                             cardColor: modelData.color || "#1c1d29"
                             height: implicitHeight
                             isSelected: unifiedNotesPage.selectedNoteIds.indexOf(modelData.id) !== -1
+                            selectedBorderColor: noteCardInstance.isSelected ? "#FFFFFF" : "#00000000"
+                            selectedBorderWidth: noteCardInstance.isSelected ? Theme.borderWidthSmall : 0
 
                             onSelectionToggled: {
                                 if (isCurrentlySelected) {
@@ -213,7 +410,105 @@ Page {
             flickableSource: notesFlickable
         }
     }
+
     ToastManager {
         id: toastManager
+    }
+
+    // --- Styled Confirmation Dialog (Copied from TrashPage) ---
+    Item {
+        id: manualConfirmDialog
+        anchors.fill: parent
+        visible: unifiedNotesPage.confirmDialogVisible
+        z: 100
+        opacity: 0
+
+        Rectangle {
+            anchors.fill: parent
+            color: "#000000"
+            opacity: manualConfirmDialog.opacity * 0.5
+            Behavior on opacity { NumberAnimation { duration: 200 } }
+        }
+
+        Rectangle {
+            id: dialogContent
+            width: parent.width * 0.8
+            height: dialogColumn.implicitHeight + Theme.paddingLarge * 2
+            color: "#1c1d29"
+            radius: Theme.itemSizeSmall / 2
+            anchors.centerIn: parent
+
+            Behavior on opacity { NumberAnimation { duration: 200 } }
+            Behavior on transform {
+                PropertyAnimation { property: "scale"; from: 0.9; to: 1.0; duration: 200; easing.type: Easing.OutBack; exclude: !manualConfirmDialog.visible }
+                PropertyAnimation { property: "scale"; from: 1.0; to: 0.9; duration: 200; easing.type: Easing.InBack; exclude: unifiedNotesPage.confirmDialogVisible }
+            }
+
+            Column {
+                id: dialogColumn
+                width: parent.width - Theme.paddingLarge * 2
+                spacing: Theme.paddingMedium
+                anchors.margins: Theme.paddingLarge
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+
+                Label {
+                    width: parent.width
+                    text: unifiedNotesPage.confirmDialogTitle
+                    font.pixelSize: Theme.fontSizeLarge
+                    font.bold: true
+                    horizontalAlignment: Text.AlignHCenter
+                    color: Theme.highlightColor
+                }
+
+                Label {
+                    width: parent.width
+                    text: unifiedNotesPage.confirmDialogMessage
+                    wrapMode: Text.WordWrap
+                    horizontalAlignment: Text.AlignHCenter
+                    color: Theme.primaryColor
+                }
+
+                RowLayout {
+                    width: parent.width
+                    spacing: Theme.paddingMedium
+                    anchors.horizontalCenter: parent.horizontalCenter
+
+                    Button {
+                        Layout.fillWidth: true
+                        text: qsTr("Cancel")
+                        onClicked: {
+                            unifiedNotesPage.confirmDialogVisible = false;
+                            console.log(qsTr("Action cancelled by user."));
+                        }
+                    }
+
+                    Button {
+                        Layout.fillWidth: true
+                        text: unifiedNotesPage.confirmButtonText
+                        highlightColor: unifiedNotesPage.confirmButtonHighlightColor
+                        onClicked: {
+                            if (unifiedNotesPage.onConfirmCallback) {
+                                unifiedNotesPage.onConfirmCallback();
+                            }
+                            unifiedNotesPage.confirmDialogVisible = false;
+                        }
+                    }
+                }
+            }
+        }
+        onVisibleChanged: {
+            if (visible) {
+                opacity = 1;
+            } else {
+                opacity = 0;
+            }
+        }
+    }
+
+    SidePanel {
+        id: sidePanelInstance
+        open: unifiedNotesPage.panelOpen
+        onClosed: unifiedNotesPage.panelOpen = false
     }
 }

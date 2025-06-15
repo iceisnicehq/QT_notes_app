@@ -690,11 +690,24 @@ Page {
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
                 Label {
-                    text: qsTr("Edited: %1").arg(Qt.formatDateTime(newNotePage.noteEditDate, "dd.MM.yyyy - hh:mm"))
+                    // Determine the prefix based on the newNotePage properties
+                    property string statusPrefix: {
+                        if (newNotePage.isDeleted) {
+                            return qsTr("Deleted: %1");
+                        } else if (newNotePage.isArchived) {
+                            return qsTr("Archived: %1");
+                        } else {
+                            return qsTr("Edited: %1");
+                        }
+                    }
+
+                    // Use the determined prefix with the formatted date
+                    text: statusPrefix.arg(Qt.formatDateTime(newNotePage.noteEditDate, "dd.MM.yyyy - hh:mm"))
                     font.pixelSize: Theme.fontSizeExtraSmall * 0.7
                     color: Theme.secondaryColor
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
+
             }
         }
         // Close/Check button

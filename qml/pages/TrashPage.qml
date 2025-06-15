@@ -8,16 +8,28 @@ import "DatabaseManager.js" as DB
 
 Page {
     id: trashPage
+    objectName: "trashPage" // Added objectName for easier pageStack checks in SidePanel
     backgroundColor: Theme.backgroundColor !== undefined ? Theme.backgroundColor : "#121218"
     showNavigationIndicator: false
 
     property var deletedNotes: []
     property var selectedNoteIds: []
-    property string deleteDialogMessage: ""
+    property bool panelOpen: false // Property to control side panel visibility
+
+    // Properties to control the dialog from the page's logic
+    property bool confirmDialogVisible: false
+    property string confirmDialogTitle: qsTr("Confirm Deletion") // Default title
+    property string confirmDialogMessage: "" // Message for the dialog
+    property string confirmButtonText: qsTr("Delete") // Default button text
+    property var onConfirmCallback: null // Callback function to execute on confirm
+    property color confirmButtonHighlightColor: Theme.errorColor // Default highlight color for confirm button
+
 
     Component.onCompleted: {
         console.log("TRASH_PAGE: TrashPage opened. Calling refreshDeletedNotes.");
         refreshDeletedNotes();
+        // Set the current page for the side panel instance
+        sidePanelInstance.currentPage = "trash"; // Corrected this line to explicitly set "trash"
     }
 
     function refreshDeletedNotes() {
@@ -26,6 +38,23 @@ Page {
         console.log("DB_MGR: getDeletedNotes found", deletedNotes.length, "deleted notes.");
         console.log("TRASH_PAGE: refreshDeletedNotes completed. Count:", deletedNotes.length);
     }
+
+    // Function to show the confirmation dialog dynamically
+    function showConfirmDialog(message, callback, title, buttonText, highlightColor) {
+        confirmDialogMessage = message; // Set the message for the dialog
+        onConfirmCallback = callback;   // Set the callback function
+        if (title !== undefined) confirmDialogTitle = title; // Override default title if provided
+        else confirmDialogTitle = qsTr("Confirm Deletion"); // Reset to default if not provided
+
+        if (buttonText !== undefined) confirmButtonText = buttonText; // Override default button text if provided
+        else confirmButtonText = qsTr("Delete"); // Reset to default if not provided
+
+        if (highlightColor !== undefined) confirmButtonHighlightColor = highlightColor; // Override default highlight color
+        else confirmButtonHighlightColor = Theme.errorColor; // Reset to default if not provided
+
+        confirmDialogVisible = true; // Make the dialog visible
+    }
+
 
     property bool showEmptyLabel: deletedNotes.length === 0
     property bool selectionControlsVisible: deletedNotes.length > 0
@@ -36,6 +65,46 @@ Page {
     PageHeader {
         id: pageHeader
         height: Theme.itemSizeExtraLarge
+
+        // Modified: Menu icon button to match the dynamic style
+        Item {
+            id: menuButton
+            width: Theme.fontSizeExtraLarge * 1.1 // Copied from your example
+            height: Theme.fontSizeExtraLarge * 0.95 // Copied from your example
+            clip: false // Copied from your example
+            anchors {
+                left: parent.left
+                leftMargin: Theme.paddingMedium
+                verticalCenter: parent.verticalCenter
+            }
+
+            RippleEffect { id: menuRipple }
+
+            // Dynamic Icon based on selection state, styled like the menu button's icon
+            Icon {
+                id: leftIcon // Renamed for clarity
+                source: trashPage.selectedNoteIds.length > 0 ? "../icons/close.svg" : "../icons/menu.svg"
+                anchors.centerIn: parent
+                width: parent.width
+                height: parent.height
+                color: Theme.primaryColor // Ensured primary color for consistency
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                onPressed: menuRipple.ripple(mouseX, mouseY) // Keep ripple effect
+                onClicked: {
+                    // Logic adjusted for TrashPage context
+                    if (trashPage.selectedNoteIds.length > 0) {
+                        trashPage.selectedNoteIds = []; // Clear selected notes
+                        console.log("Selected notes cleared.");
+                    } else {
+                        trashPage.panelOpen = true // Open the side panel
+                        console.log("Menu button clicked → panelOpen = true")
+                    }
+                }
+            }
+        }
 
         Label {
             text: qsTr("Trash")
@@ -56,30 +125,58 @@ Page {
             Layout.fillWidth: true
             height: selectionControlsVisible ? Theme.buttonHeightSmall + Theme.paddingSmall : 0
             visible: selectionControlsVisible
-            spacing: Theme.paddingSmall
+            spacing: Theme.paddingSmall // This spacing applies between buttons
 
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.leftMargin: Theme.paddingMedium
             anchors.rightMargin: Theme.paddingMedium
 
+            // NEW: Calculate button width to ensure all three fit on screen
+            // Total available width = parent.width (of Row)
+            // parent.width (of Row) = trashPage.width - (2 * Theme.paddingMedium) (from anchors.left/rightMargin)
+            // Available space for buttons = (trashPage.width - (2 * Theme.paddingMedium)) - (2 * Theme.paddingSmall) (for spaces between buttons)
+            // Each button's width = Available space / 3
+            property real calculatedButtonWidth: (trashPage.width) /  3.16
+
             // "Select All / Deselect All" Button
             Button {
                 id: selectAllButton
-                Layout.preferredWidth: (parent.width - (parent.spacing * 2)) / 3
+                width: parent.calculatedButtonWidth // Use calculated width
                 Layout.preferredHeight: Theme.buttonHeightSmall
-                // *** ИЗМЕНЕНИЕ ЗДЕСЬ: Динамическая иконка ***
-                icon.source: trashPage.allNotesSelected ? "../icons/deselect_all.svg" : "../icons/select_all.svg"
+                highlightColor: Theme.highlightColor
+
+                // NEW: Inner Column to stack Icon and Label for consistent styling
+                Column {
+                    anchors.centerIn: parent
+                    spacing: Theme.paddingTiny // Small spacing between icon and text
+
+                    Item { // Wrapper Item for the Icon to control its precise size and centering
+                        width: Theme.fontSizeExtraLarge * 0.9 // Adjusted size for icons in buttons
+                        height: Theme.fontSizeExtraLarge * 0.9
+                        anchors.horizontalCenter: parent.horizontalCenter
+
+                        Icon {
+                            source: trashPage.allNotesSelected ? "../icons/deselect_all.svg" : "../icons/select_all.svg"
+                            anchors.fill: parent // Icon fills its wrapper Item
+                            color: Theme.primaryColor // Match menu icon color style
+                        }
+                    }
+                    Label {
+                        text: qsTr("Select")
+                        color: Theme.primaryColor
+                        font.pixelSize: Theme.fontSizeSmall
+                        horizontalAlignment: Text.AlignHCenter // Center text
+                    }
+                }
                 onClicked: {
                     var newSelectedIds = [];
-                    // Используем вспомогательное свойство allNotesSelected
-                    if (!trashPage.allNotesSelected) { // Если не все выбраны, выбираем все
+                    if (!trashPage.allNotesSelected) {
                         for (var i = 0; i < trashPage.deletedNotes.length; i++) {
                             newSelectedIds.push(trashPage.deletedNotes[i].id);
                         }
-                    } // Иначе newSelectedIds останется пустым, что развыберет все
-
-                    trashPage.selectedNoteIds = newSelectedIds; // Переназначить для обновления QML
+                    }
+                    trashPage.selectedNoteIds = newSelectedIds;
                     console.log(qsTr("Selected note IDs after Select All/Deselect All: %1").arg(JSON.stringify(trashPage.selectedNoteIds)));
                 }
                 enabled: deletedNotes.length > 0
@@ -87,36 +184,104 @@ Page {
 
             Button {
                 id: restoreSelectedButton
-                Layout.preferredWidth: (parent.width - (parent.spacing * 2)) / 3
+                width: parent.calculatedButtonWidth // Use calculated width
                 Layout.preferredHeight: Theme.buttonHeightSmall
-                icon.source: "../icons/restore_notes.svg"
                 highlightColor: Theme.highlightColor
-                enabled: selectedNoteIds.length > 0
-                onClicked: {
-                    if (selectedNoteIds.length > 0) {
-                        var restoredCount = selectedNoteIds.length;
-                        DB.restoreNotes(selectedNoteIds);
-                        refreshDeletedNotes();
-                        toastManager.show(qsTr("%1 note(s) restored!").arg(restoredCount));
-                        console.log(qsTr("%1 note(s) restored from trash.").arg(restoredCount));
+
+                // NEW: Inner Column to stack Icon and Label for consistent styling
+                Column {
+                    anchors.centerIn: parent
+                    spacing: Theme.paddingTiny
+
+                    Item { // Wrapper Item for the Icon to control its precise size and centering
+                        width: Theme.fontSizeExtraLarge * 0.9 // Adjusted size for icons in buttons
+                        height: Theme.fontSizeExtraLarge * 0.9
+                        anchors.horizontalCenter: parent.horizontalCenter
+
+                        Icon {
+                            source: "../icons/restore_notes.svg"
+                            anchors.fill: parent // Icon fills its wrapper Item
+                            color: Theme.primaryColor
+                        }
+                    }
+                    Label {
+                        text: qsTr("Restore")
+                        color: Theme.primaryColor
+                        font.pixelSize: Theme.fontSizeSmall
+                        horizontalAlignment: Text.AlignHCenter
                     }
                 }
+                onClicked: {
+                    if (selectedNoteIds.length > 0) {
+                        var message = qsTr("Are you sure you want to restore %1 selected notes to your main notes?").arg(selectedNoteIds.length);
+                        trashPage.showConfirmDialog(
+                            message,
+                            function() {
+                                var restoredCount = selectedNoteIds.length;
+                                DB.restoreNotes(selectedNoteIds);
+                                refreshDeletedNotes();
+                                toastManager.show(qsTr("%1 note(s) restored!").arg(restoredCount));
+                                console.log(qsTr("%1 note(s) restored from trash.").arg(restoredCount));
+                            },
+                            qsTr("Confirm Restoration"), // Title for restore dialog
+                            qsTr("Restore"), // Button text for restore dialog
+                            Theme.highlightColor // Highlight color for restore button
+                        );
+                        console.log(qsTr("Showing restore confirmation dialog for %1 notes.").arg(selectedNoteIds.length));
+                    }
+                }
+                enabled: selectedNoteIds.length > 0
             }
 
             Button {
                 id: deleteSelectedButton
-                Layout.preferredWidth: (parent.width - (parent.spacing * 2)) / 3
+                width: parent.calculatedButtonWidth // Use calculated width
                 Layout.preferredHeight: Theme.buttonHeightSmall
-                icon.source: "../icons/delete.svg"
                 highlightColor: Theme.errorColor
-                enabled: selectedNoteIds.length > 0
+
+                // NEW: Inner Column to stack Icon and Label for consistent styling
+                Column {
+                    anchors.centerIn: parent
+                    spacing: Theme.paddingTiny
+
+                    Item { // Wrapper Item for the Icon to control its precise size and centering
+                        width: Theme.fontSizeExtraLarge * 0.9 // Adjusted size for icons in buttons
+                        height: Theme.fontSizeExtraLarge * 0.9
+                        anchors.horizontalCenter: parent.horizontalCenter
+
+                        Icon {
+                            source: "../icons/delete.svg"
+                            anchors.fill: parent // Icon fills its wrapper Item
+                            color: Theme.primaryColor
+                        }
+                    }
+                    Label {
+                        text: qsTr("Delete")
+                        color: Theme.primaryColor
+                        font.pixelSize: Theme.fontSizeSmall
+                        horizontalAlignment: Text.AlignHCenter
+                    }
+                }
                 onClicked: {
                     if (selectedNoteIds.length > 0) {
-                        deleteDialogMessage = qsTr("Are you sure you want to permanently delete %1 selected notes? This action cannot be undone.").arg(selectedNoteIds.length);
-                        manualConfirmDialog.visible = true;
+                        var message = qsTr("Are you sure you want to permanently delete %1 selected notes? This action cannot be undone.").arg(selectedNoteIds.length);
+                        trashPage.showConfirmDialog(
+                            message,
+                            function() {
+                                var deletedCount = selectedNoteIds.length;
+                                DB.permanentlyDeleteNotes(selectedNoteIds);
+                                refreshDeletedNotes();
+                                toastManager.show(qsTr("%1 note(s) permanently deleted!").arg(deletedCount));
+                                console.log(qsTr("%1 note(s) permanently deleted.").arg(deletedCount));
+                            },
+                            qsTr("Confirm Permanent Deletion"),
+                            qsTr("Delete"),
+                            Theme.errorColor
+                        );
                         console.log(qsTr("Showing permanent delete confirmation dialog for %1 notes.").arg(selectedNoteIds.length));
                     }
                 }
+                enabled: selectedNoteIds.length > 0
             }
         }
 
@@ -163,6 +328,8 @@ Page {
                             cardColor: modelData.color || "#1c1d29"
                             height: implicitHeight
                             isSelected: selectedNoteIds.indexOf(modelData.id) !== -1
+                            selectedBorderColor: trashNoteCardInstance.isSelected ? "#FFFFFF" : "#00000000"
+                            selectedBorderWidth: trashNoteCardInstance.isSelected ? Theme.borderWidthSmall : 0
 
                             onSelectionToggled: {
                                 if (isCurrentlySelected) {
@@ -188,7 +355,7 @@ Page {
                                     noteContent: content,
                                     noteIsPinned: isPinned,
                                     noteTags: tags,
-                                    noteCreationDate: creationDate,
+                                    noteCreationDate: noteCreationDate,
                                     noteEditDate: editDate,
                                     noteColor: color,
                                     isDeleted: true
@@ -221,34 +388,46 @@ Page {
         id: toastManager
     }
 
+    // --- Styled Confirmation Dialog ---
     Item {
         id: manualConfirmDialog
         anchors.fill: parent
-        visible: false
+        visible: trashPage.confirmDialogVisible
         z: 100
+        opacity: 0
 
         Rectangle {
             anchors.fill: parent
             color: "#000000"
-            opacity: 0.9125
+            opacity: manualConfirmDialog.opacity * 0.5
+            Behavior on opacity { NumberAnimation { duration: 200 } }
         }
 
         Rectangle {
             id: dialogContent
             width: parent.width * 0.8
-            height: implicitHeight
-            color: Theme.backgroundColor
-            radius: Theme.itemCornerRadius
+            height: dialogColumn.implicitHeight + Theme.paddingLarge * 2
+            color: "#1c1d29"
+            radius: Theme.itemSizeSmall / 2
             anchors.centerIn: parent
 
+            Behavior on opacity { NumberAnimation { duration: 200 } }
+            Behavior on transform {
+                PropertyAnimation { property: "scale"; from: 0.9; to: 1.0; duration: 200; easing.type: Easing.OutBack; exclude: !manualConfirmDialog.visible }
+                PropertyAnimation { property: "scale"; from: 1.0; to: 0.9; duration: 200; easing.type: Easing.InBack; exclude: manualConfirmDialog.visible }
+            }
+
             Column {
-                width: parent.width
+                id: dialogColumn
+                width: parent.width - Theme.paddingLarge * 2
                 spacing: Theme.paddingMedium
                 anchors.margins: Theme.paddingLarge
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
 
                 Label {
                     width: parent.width
-                    text: qsTr("Confirm Deletion")
+                    text: trashPage.confirmDialogTitle
                     font.pixelSize: Theme.fontSizeLarge
                     font.bold: true
                     horizontalAlignment: Text.AlignHCenter
@@ -257,7 +436,7 @@ Page {
 
                 Label {
                     width: parent.width
-                    text: trashPage.deleteDialogMessage
+                    text: trashPage.confirmDialogMessage
                     wrapMode: Text.WordWrap
                     horizontalAlignment: Text.AlignHCenter
                     color: Theme.primaryColor
@@ -271,23 +450,38 @@ Page {
                     Button {
                         Layout.fillWidth: true
                         text: qsTr("Cancel")
-                        onClicked: manualConfirmDialog.visible = false
+                        onClicked: {
+                            trashPage.confirmDialogVisible = false;
+                            console.log(qsTr("Action cancelled by user."));
+                        }
                     }
 
                     Button {
                         Layout.fillWidth: true
-                        text: qsTr("Delete")
-                        highlightColor: Theme.errorColor
+                        text: trashPage.confirmButtonText
+                        highlightColor: trashPage.confirmButtonHighlightColor
                         onClicked: {
-                            var deletedCount = selectedNoteIds.length;
-                            DB.permanentlyDeleteNotes(selectedNoteIds);
-                            refreshDeletedNotes();
-                            toastManager.show(qsTr("%1 note(s) permanently deleted!").arg(deletedCount));
-                            manualConfirmDialog.visible = false
+                            if (trashPage.onConfirmCallback) {
+                                trashPage.onConfirmCallback();
+                            }
+                            trashPage.confirmDialogVisible = false;
                         }
                     }
                 }
             }
         }
+        onVisibleChanged: {
+            if (visible) {
+                opacity = 1;
+            } else {
+                opacity = 0;
+            }
+        }
+    }
+
+    SidePanel {
+        id: sidePanelInstance
+        open: trashPage.panelOpen
+        onClosed: trashPage.panelOpen = false
     }
 }

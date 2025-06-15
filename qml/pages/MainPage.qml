@@ -394,6 +394,7 @@ Page {
         anchors.bottom: parent.bottom
         open: panelOpen
         tags: allTags
+        onClosed: mainPage.panelOpen = false // Listen for the 'closed' signal and update page's property
     }
 
     SilicaFlickable {
