@@ -558,3 +558,25 @@ function bulkUnarchiveNotes(ids) {
         console.log("DB_MGR: Bulk unarchived notes with IDs:", ids);
     });
 }
+
+function moveNoteFromArchiveToTrash(noteId) {
+    var db = getDatabase();
+    db.transaction(function(tx) {
+        tx.executeSql(
+            'UPDATE notes SET is_archived = 0, is_deleted = 1, edit_date = ? WHERE id = ?',
+            [new Date().toISOString(), noteId]
+        );
+        console.log("DatabaseManager: Note moved from archive to trash. ID:", noteId);
+    });
+}
+
+function moveNoteFromTrashToArchive(noteId) {
+    var db = getDatabase();
+    db.transaction(function(tx) {
+        tx.executeSql(
+            'UPDATE notes SET is_deleted = 0, is_archived = 1, edit_date = ? WHERE id = ?',
+            [new Date().toISOString(), noteId]
+        );
+        console.log("DatabaseManager: Note moved from trash to archive. ID:", noteId);
+    });
+}

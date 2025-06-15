@@ -61,8 +61,35 @@ Page {
     }
 
     function handleInteractionAttempt() {
-        if (isFromTrash) {
-            restoreFromTrashDialog.visible = true;
+        var needsAction = newNotePage.isDeleted || newNotePage.isArchived;
+        if (needsAction) {
+            if (newNotePage.isDeleted) {
+                actionRequiredDialog.dialogTitle = qsTr("Cannot Edit Deleted Note");
+                actionRequiredDialog.dialogText = qsTr("To edit this note, you need to restore it first.");
+                actionRequiredDialog.confirmButtonText = qsTr("Restore");
+                actionRequiredDialog.confirmAction = function() {
+                    DB.restoreNote(newNotePage.noteId);
+                    newNotePage.isDeleted = false;
+                    newNotePage.isReadOnly = false;
+                    toastManager.show(qsTr("Note restored!"));
+                    if (onNoteSavedOrDeleted) onNoteSavedOrDeleted();
+                    noteContentInput.forceActiveFocus();
+                };
+            } else if (newNotePage.isArchived) {
+                actionRequiredDialog.dialogTitle = qsTr("Cannot Edit Archived Note");
+                actionRequiredDialog.dialogText = qsTr("To edit this note, you need to unarchive it first.");
+                actionRequiredDialog.confirmButtonText = qsTr("Unarchive");
+                actionRequiredDialog.confirmAction = function() {
+                    DB.unarchiveNote(newNotePage.noteId);
+                    newNotePage.isArchived = false;
+                    newNotePage.isReadOnly = false;
+                    toastManager.show(qsTr("Note unarchived!"));
+                    if (onNoteSavedOrDeleted) onNoteSavedOrDeleted();
+                    noteContentInput.forceActiveFocus();
+                };
+            }
+            actionRequiredDialog.visible = true;
+            actionRequiredDialog.opacity = 1;
             return false;
         }
         return true;
@@ -304,11 +331,16 @@ Page {
     }
 // новый диалог для кейса с корзиной и архивом
     Item {
-        id: restoreFromTrashDialog
+        id: actionRequiredDialog
         anchors.fill: parent
         visible: false
         z: 101
         opacity: 0
+        property string dialogTitle: ""
+        property string dialogText: ""
+        property string confirmButtonText: ""
+        property var confirmAction: null
+
         Rectangle {
             anchors.fill: parent
             color: "#000000"
@@ -333,7 +365,7 @@ Page {
                 anchors.centerIn: parent
                 Label {
                     width: parent.width
-                    text: qsTr("Cannot Edit Deleted Note")
+                    text: actionRequiredDialog.dialogTitle
                     font.pixelSize: Theme.fontSizeLarge
                     font.bold: true
                     horizontalAlignment: Text.AlignHCenter
@@ -341,7 +373,7 @@ Page {
                 }
                 Label {
                     width: parent.width
-                    text: qsTr("To edit this note, you need to restore it first.")
+                    text: actionRequiredDialog.dialogText
                     wrapMode: Text.WordWrap
                     horizontalAlignment: Text.AlignHCenter
                     color: Theme.primaryColor
@@ -363,19 +395,12 @@ Page {
                         text: qsTr("Restore")
                         highlightColor: Theme.positiveColor
                         onClicked: {
-                            DB.restoreNote(newNotePage.noteId);
-                            newNotePage.isFromTrash = false;
-                            newNotePage.isDeleted = false;
-                            newNotePage.isReadOnly = false;
-                            toastManager.show(qsTr("Note restored!"));
-                            if (onNoteSavedOrDeleted) {
-                                onNoteSavedOrDeleted();
+                            if (actionRequiredDialog.confirmAction) {
+                                actionRequiredDialog.confirmAction();
                             }
-                            restoreFromTrashDialog.visible = false;
-                            restoreFromTrashDialog.opacity = 0;
-                            noteContentInput.forceActiveFocus();
-                            Qt.inputMethod.show();
-                        }
+                            actionRequiredDialog.visible = false;
+                            actionRequiredDialog.opacity = 0;
+                        } ////// изменено
                     }
                 }
             }
@@ -614,25 +639,27 @@ Page {
             }
             MouseArea {
                 anchors.fill: parent
-                enabled: newNotePage.noteId !== -1 && !newNotePage.isReadOnly // Enable only for existing, editable notes
+                enabled: newNotePage.noteId !== -1  // Enable only for existing, editable notes
                 onPressed: duplicateRipple.ripple(mouseX, mouseY)
                 onClicked: {
-                    console.log(qsTr("Duplicate button clicked for note ID: %1").arg(newNotePage.noteId));
-                    // Push a new NotePage with the current note's data, but with noteId = -1
-                    pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
-                        onNoteSavedOrDeleted: newNotePage.onNoteSavedOrDeleted, // Use the same refresh callback
-                        noteId: -1, // This makes it a new note
-                        noteTitle: newNotePage.noteTitle + qsTr(" (copy)"), // Append "(copy)" to title
-                        noteContent: newNotePage.noteContent,
-                        noteIsPinned: newNotePage.noteIsPinned, // Duplicated notes are typically not pinned by default
-                        // ИСПРАВЛЕНО: Замена оператора spread на .slice()
-                        noteTags: Array.isArray(newNotePage.noteTags) ? newNotePage.noteTags.slice() : [],
-                        noteColor: newNotePage.noteColor, // Copy current color
-                        noteCreationDate: new Date(), // New creation date
-                        noteEditDate: new Date(), // New edit date
-                        noteModified: true // Mark as modified so it saves automatically
-                    });
+                    if (handleInteractionAttempt()) {
+                        // Оригинальная логика выполняется только если проверка пройдена
+                        console.log(qsTr("Duplicate button clicked for note ID: %1").arg(newNotePage.noteId));
+                        pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
+                           onNoteSavedOrDeleted: newNotePage.onNoteSavedOrDeleted, // Use the same refresh callback
+                           noteId: -1, // This makes it a new note
+                           noteTitle: newNotePage.noteTitle + qsTr(" (copy)"), // Append "(copy)" to title
+                           noteContent: newNotePage.noteContent,
+                           noteIsPinned: newNotePage.noteIsPinned, // Duplicated notes are typically not pinned by default
+                           // ИСПРАВЛЕНО: Замена оператора spread на .slice()
+                           noteTags: Array.isArray(newNotePage.noteTags) ? newNotePage.noteTags.slice() : [],
+                           noteColor: newNotePage.noteColor, // Copy current color
+                           noteCreationDate: new Date(), // New creation date
+                           noteEditDate: new Date(), // New edit date
+                           noteModified: true // Mark as modified so it saves automatically
+                        });
                     toastManager.show(qsTr("Note duplicated!"));
+                    }
                 }
             }
         }
@@ -678,7 +705,7 @@ Page {
                 }
                 MouseArea {
                     anchors.fill: parent
-                    enabled: !newNotePage.isReadOnly // Disable interaction in read-only mode
+                    enabled: !newNotePage.isReadOnly// Disable interaction in read-only mode
                     onPressed: paletteRipple.ripple(mouseX, mouseY)
                     onClicked: {
                         console.log(qsTr("Change color/theme - toggling panel visibility"));
@@ -830,11 +857,20 @@ Page {
                 }
                 MouseArea {
                     anchors.fill: parent
-                    // Only enable if not a new note and not in read-only mode
-                    enabled: newNotePage.noteId !== -1 && !newNotePage.isReadOnly
+                    enabled: newNotePage.noteId !== -1
                     onPressed: archiveRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        // Show the custom archive confirmation dialog
+                        if (newNotePage.isArchived) {
+                            toastManager.show(qsTr("Note is already in the archive"));
+                            return;
+                        }
+                        if (newNotePage.isDeleted) {
+                            DB.moveNoteFromTrashToArchive(newNotePage.noteId);
+                            toastManager.show(qsTr("Note moved to archive"));
+                            if (onNoteSavedOrDeleted) onNoteSavedOrDeleted();
+                            pageStack.pop();
+                            return;
+                        }
                         manualConfirmArchiveDialog.visible = true;
                     }
                 }
@@ -858,11 +894,20 @@ Page {
                 }
                 MouseArea {
                     anchors.fill: parent
-                    // Only enable if not a new note and not in read-only mode
-                    enabled: newNotePage.noteId !== -1 && !newNotePage.isReadOnly
+                    enabled: newNotePage.noteId !== -1
                     onPressed: deleteRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        // Show the custom confirmation dialog for delete
+                        if (newNotePage.isDeleted) {
+                            toastManager.show(qsTr("Note is already in the trash"));
+                            return;
+                        }
+                        if (newNotePage.isArchived) {
+                            DB.moveNoteFromArchiveToTrash(newNotePage.noteId);
+                            toastManager.show(qsTr("Note moved to trash"));
+                            if (onNoteSavedOrDeleted) onNoteSavedOrDeleted();
+                            pageStack.pop();
+                            return;
+                        }
                         manualConfirmDeleteDialog.visible = true;
                     }
                 }

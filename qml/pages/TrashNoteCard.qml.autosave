@@ -72,7 +72,7 @@ Item {
                     // вообще временные
                     //isDeleted: true,
 
-                    isArchived: pageMode === "archive", // Pass if it's from archive
+                    isArchived: pageMode === "archive", 
                     isDeleted: pageMode === "trash"
                 });
                 console.log("TrashNoteCard: Opening NotePage in view mode (from Trash). ID:", root.noteId);
