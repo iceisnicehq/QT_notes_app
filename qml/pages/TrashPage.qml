@@ -1,4 +1,4 @@
-// TrashPage.qml (No changes from your last provided version)
+// TrashPage.qml
 
 import QtQuick.LocalStorage 2.0
 import QtQuick 2.0
@@ -30,6 +30,9 @@ Page {
     property bool showEmptyLabel: deletedNotes.length === 0
     property bool selectionControlsVisible: deletedNotes.length > 0
 
+    // Новое вспомогательное свойство для определения, выбраны ли все заметки
+    property bool allNotesSelected: (selectedNoteIds.length === deletedNotes.length) && (deletedNotes.length > 0)
+
     PageHeader {
         id: pageHeader
         height: Theme.itemSizeExtraLarge
@@ -60,22 +63,24 @@ Page {
             anchors.leftMargin: Theme.paddingMedium
             anchors.rightMargin: Theme.paddingMedium
 
+            // "Select All / Deselect All" Button
             Button {
                 id: selectAllButton
                 Layout.preferredWidth: (parent.width - (parent.spacing * 2)) / 3
                 Layout.preferredHeight: Theme.buttonHeightSmall
-                icon.source: "../icons/select_all.svg"
+                // *** ИЗМЕНЕНИЕ ЗДЕСЬ: Динамическая иконка ***
+                icon.source: trashPage.allNotesSelected ? "../icons/deselect_all.svg" : "../icons/select_all.svg"
                 onClicked: {
-                    if (selectedNoteIds.length < deletedNotes.length) {
-                        selectedNoteIds = [];
-                        for (var i = 0; i < deletedNotes.length; i++) {
-                            selectedNoteIds.push(deletedNotes[i].id);
+                    var newSelectedIds = [];
+                    // Используем вспомогательное свойство allNotesSelected
+                    if (!trashPage.allNotesSelected) { // Если не все выбраны, выбираем все
+                        for (var i = 0; i < trashPage.deletedNotes.length; i++) {
+                            newSelectedIds.push(trashPage.deletedNotes[i].id);
                         }
-                    } else {
-                        selectedNoteIds = [];
-                    }
-                    selectedNoteIds = selectedNoteIds; // Reassign to trigger update
-                    console.log(qsTr("Selected note IDs after Select All/Deselect All: %1").arg(JSON.stringify(selectedNoteIds)));
+                    } // Иначе newSelectedIds останется пустым, что развыберет все
+
+                    trashPage.selectedNoteIds = newSelectedIds; // Переназначить для обновления QML
+                    console.log(qsTr("Selected note IDs after Select All/Deselect All: %1").arg(JSON.stringify(trashPage.selectedNoteIds)));
                 }
                 enabled: deletedNotes.length > 0
             }
@@ -157,23 +162,20 @@ Page {
                             tags: modelData.tags ? modelData.tags.join(' ') : ''
                             cardColor: modelData.color || "#1c1d29"
                             height: implicitHeight
-                            // This binding is crucial and remains the single source of truth for isSelected
                             isSelected: selectedNoteIds.indexOf(modelData.id) !== -1
 
                             onSelectionToggled: {
-                                // Based on the current state of isSelected (passed from TrashNoteCard),
-                                // update the selectedNoteIds list
-                                if (isCurrentlySelected) { // If it was selected, user wants to deselect
+                                if (isCurrentlySelected) {
                                     var index = selectedNoteIds.indexOf(noteId);
                                     if (index !== -1) {
                                         selectedNoteIds.splice(index, 1);
                                     }
-                                } else { // If it was deselected, user wants to select
+                                } else {
                                     if (selectedNoteIds.indexOf(noteId) === -1) {
                                         selectedNoteIds.push(noteId);
                                     }
                                 }
-                                selectedNoteIds = selectedNoteIds; // Reassign to trigger QML updates
+                                selectedNoteIds = selectedNoteIds;
                                 console.log(qsTr("Toggled selection for note ID: %1. Current selected: %2").arg(noteId).arg(JSON.stringify(selectedNoteIds)));
                             }
 

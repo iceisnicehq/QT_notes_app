@@ -20,6 +20,10 @@ Page {
     property bool showEmptyLabel: notesToDisplay.length === 0
     property bool selectionControlsVisible: notesToDisplay.length > 0
 
+    // Новое вспомогательное свойство для определения, выбраны ли все заметки
+    property bool allNotesSelected: (selectedNoteIds.length === notesToDisplay.length) && (notesToDisplay.length > 0)
+
+
     Component.onCompleted: {
         console.log(qsTr("UNIFIED_NOTES_PAGE: UnifiedNotesPage opened in %1 mode. Calling refreshNotes.").arg(pageMode));
         refreshNotes();
@@ -71,18 +75,18 @@ Page {
                 id: selectAllButton
                 Layout.preferredWidth: (parent.width - (parent.spacing * 2)) / 3
                 Layout.preferredHeight: Theme.buttonHeightSmall
-                icon.source: "../icons/select_all.svg"
+                // *** ИЗМЕНЕНИЕ ЗДЕСЬ: Динамическая иконка ***
+                icon.source: unifiedNotesPage.allNotesSelected ? "../icons/deselect_all.svg" : "../icons/select_all.svg"
                 onClicked: {
                     var newSelectedIds = [];
-                    var currentlyAllSelected = (unifiedNotesPage.selectedNoteIds.length === unifiedNotesPage.notesToDisplay.length) && (unifiedNotesPage.notesToDisplay.length > 0);
-
-                    if (!currentlyAllSelected) {
+                    // Используем вспомогательное свойство allNotesSelected
+                    if (!unifiedNotesPage.allNotesSelected) { // Если не все выбраны, выбираем все
                         for (var i = 0; i < unifiedNotesPage.notesToDisplay.length; i++) {
                             newSelectedIds.push(unifiedNotesPage.notesToDisplay[i].id);
                         }
-                    }
+                    } // Иначе newSelectedIds останется пустым, что развыберет все
 
-                    unifiedNotesPage.selectedNoteIds = newSelectedIds;
+                    unifiedNotesPage.selectedNoteIds = newSelectedIds; // Переназначить для обновления QML
                     console.log(qsTr("Selected note IDs after Select All/Deselect All: %1").arg(JSON.stringify(unifiedNotesPage.selectedNoteIds)));
                 }
                 enabled: notesToDisplay.length > 0
@@ -157,21 +161,18 @@ Page {
                             height: implicitHeight
                             isSelected: unifiedNotesPage.selectedNoteIds.indexOf(modelData.id) !== -1
 
-                            // *** ИЗМЕНЕНИЕ ЗДЕСЬ ***
                             onSelectionToggled: {
-                                // isCurrentlySelected - это то, что TrashNoteCard отправила,
-                                // т.е. СТАРОЕ состояние перед кликом.
-                                if (isCurrentlySelected) { // Если заметка БЫЛА выбрана (true), значит, пользователь хочет ее РАЗВЫБРАТЬ
+                                if (isCurrentlySelected) {
                                     var index = unifiedNotesPage.selectedNoteIds.indexOf(noteId);
                                     if (index !== -1) {
                                         unifiedNotesPage.selectedNoteIds.splice(index, 1);
                                     }
-                                } else { // Если заметка БЫЛА не выбрана (false), значит, пользователь хочет ее ВЫБРАТЬ
+                                } else {
                                     if (unifiedNotesPage.selectedNoteIds.indexOf(noteId) === -1) {
                                         unifiedNotesPage.selectedNoteIds.push(noteId);
                                     }
                                 }
-                                unifiedNotesPage.selectedNoteIds = unifiedNotesPage.selectedNoteIds; // Важно: переназначить для обновления QML
+                                unifiedNotesPage.selectedNoteIds = unifiedNotesPage.selectedNoteIds;
                                 console.log(qsTr("Toggled selection for note ID: %1. Current selected: %2").arg(noteId).arg(JSON.stringify(unifiedNotesPage.selectedNoteIds)));
                             }
 
