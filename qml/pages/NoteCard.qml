@@ -88,12 +88,13 @@ Item {
                 text: (root.title && root.title.trim()) ? root.title : "Empty"
                 font.italic: !(root.title && root.title.trim())
                 textFormat: Text.PlainText
+                horizontalAlignment: Text.AlignHCenter
                 color: "#e8eaed"
                 font.pixelSize: Theme.fontSizeLarge
                 font.bold: true
                 wrapMode: Text.Wrap
                 // ИЗМЕНЕНО: Учитываем горизонтальные отступы родителя
-                width: parent.width - Theme.paddingLarge * 2
+                width: parent.width
             }
             Rectangle {
                 width: parent.width
@@ -106,13 +107,13 @@ Item {
                 text: (root.content && root.content.trim()) ? root.content : "Empty"
                 font.italic: !(root.content && root.content.trim())
                 textFormat: Text.PlainText
-                wrapMode: Text.WordWrap
+                wrapMode: Text.Wrap
                 maximumLineCount: 5
                 elide: Text.ElideRight
                 font.pixelSize: Theme.fontSizeSmall
                 color: "#c5c8d0"
                 // ИЗМЕНЕНО: Учитываем горизонтальные отступы родителя
-                width: parent.width - Theme.paddingLarge * 2
+                width: parent.width
             }
             Rectangle {
                 width: parent.width
@@ -123,7 +124,7 @@ Item {
             Flow {
                 id: tagsFlow
                 // ИЗМЕНЕНО: Учитываем горизонтальные отступы родителя
-                width: parent.width - Theme.paddingLarge * 2
+                width: parent.width
                 spacing: Theme.paddingSmall
                 visible: tags.trim().length > 0
 
