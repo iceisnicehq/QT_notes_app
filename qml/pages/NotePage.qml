@@ -25,7 +25,7 @@ Page {
     // Properties for read-only mode, passed from calling page
     property bool isArchived: false // True if note is opened from ArchivePage
     property bool isDeleted: false  // True if note is opened from TrashPage
-    property bool isReadOnly: isArchived || isDeleted // Derived property for overall read-only state
+    property bool isReadOnly: isArchived //  || isDeleted // Derived property for overall read-only state
 
     // Property to track if the note was sent to trash from this page
     property bool sentToTrash: false
@@ -58,6 +58,14 @@ Page {
                 }
             }
         }
+    }
+
+    function handleInteractionAttempt() {
+        if (isFromTrash) {
+            restoreFromTrashDialog.visible = true;
+            return false;
+        }
+        return true;
     }
 
     // Function to add content and cursor position snapshots to history
@@ -571,13 +579,18 @@ Page {
             }
             MouseArea {
                 anchors.fill: parent
-                enabled: !newNotePage.isReadOnly // Disable interaction in read-only mode
+                // Теперь кнопка активна, если заметка не в архиве
+                enabled: !newNotePage.isReadOnly
                 onPressed: pinRipple.ripple(mouseX, mouseY)
                 onClicked: {
-                    noteIsPinned = !noteIsPinned; // Toggle pin status
-                    newNotePage.noteModified = true;
-                    var msg = noteIsPinned ? qsTr("The note was pinned") : qsTr("The note was unpinned")
-                    toastManager.show(msg)
+                    // Вызываем перехватчик
+                    if (handleInteractionAttempt()) {
+                        // Этот код выполнится, только если заметка НЕ из корзины
+                        noteIsPinned = !noteIsPinned;
+                        newNotePage.noteModified = true;
+                        var msg = noteIsPinned ? qsTr("The note was pinned") : qsTr("The note was unpinned")
+                        toastManager.show(msg)
+                    }
                 }
             }
         }
@@ -973,6 +986,19 @@ Page {
 
             Item { width: parent.width; height: Theme.paddingLarge * 2 }
         }
+
+
+
+        MouseArea {
+            anchors.fill: contentColumn // Покрывает и заголовок, и текст
+            visible: newNotePage.isFromTrash // Активна только для заметок из корзины
+            onClicked: {
+                handleInteractionAttempt();
+            }
+        }
+
+
+
 
         Label {
             id: noTagsLabel

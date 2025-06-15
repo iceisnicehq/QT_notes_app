@@ -66,9 +66,11 @@ Item {
                     noteEditDate: root.noteEditDate,
                     noteColor: root.cardColor,
 
-                    isReadOnly: true,
+                    //isReadOnly: true,
                     // read only временно или навсегда -- вообще идея другая пока
-                    isFromTrash: true
+                    isFromTrash: true,
+                    // вообще временные
+                    isDeleted: true
                 });
                 console.log("TrashNoteCard: Opening NotePage in view mode (from Trash). ID:", root.noteId);
                 Qt.inputMethod.hide(); // Скрыть клавиатуру
