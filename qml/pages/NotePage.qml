@@ -69,11 +69,12 @@ Page {
                 actionRequiredDialog.confirmButtonText = qsTr("Restore");
                 actionRequiredDialog.confirmAction = function() {
                     DB.restoreNote(newNotePage.noteId);
-                    newNotePage.isDeleted = false;
-                    newNotePage.isReadOnly = false;
+                    newNotePage.isDeleted = false; // <<< ИСПРАВЛЕНО
+                    newNotePage.isReadOnly = false; // <<< ИСПРАВЛЕНО
                     toastManager.show(qsTr("Note restored!"));
                     if (onNoteSavedOrDeleted) onNoteSavedOrDeleted();
-                    noteContentInput.forceActiveFocus();
+                    noteContentInput.forceActiveFocus(); // <<< ИСПРАВЛЕНО: Фокус после восстановления
+                    pageStack.pop(); // <<< ИСПРАВЛЕНО: Возврат на предыдущую страницу
                 };
             } else if (newNotePage.isArchived) {
                 actionRequiredDialog.dialogTitle = qsTr("Cannot Edit Archived Note");
@@ -81,11 +82,12 @@ Page {
                 actionRequiredDialog.confirmButtonText = qsTr("Unarchive");
                 actionRequiredDialog.confirmAction = function() {
                     DB.unarchiveNote(newNotePage.noteId);
-                    newNotePage.isArchived = false;
-                    newNotePage.isReadOnly = false;
+                    newNotePage.isArchived = false; // <<< ИСПРАВЛЕНО
+                    newNotePage.isReadOnly = false; // <<< ИСПРАВЛЕНО
                     toastManager.show(qsTr("Note unarchived!"));
                     if (onNoteSavedOrDeleted) onNoteSavedOrDeleted();
-                    noteContentInput.forceActiveFocus();
+                    noteContentInput.forceActiveFocus(); // <<< ИСПРАВЛЕНО: Фокус после разархивирования
+                    pageStack.pop(); // <<< ИСПРАВЛЕНО: Возврат на предыдущую страницу
                 };
             }
             actionRequiredDialog.visible = true;
@@ -386,8 +388,8 @@ Page {
                         Layout.fillWidth: true
                         text: qsTr("Cancel")
                         onClicked: {
-                            restoreFromTrashDialog.visible = false;
-                            restoreFromTrashDialog.opacity = 0;
+                            actionRequiredDialog.visible = false; // <<< ИСПРАВЛЕНО
+                            actionRequiredDialog.opacity = 0; // <<< ИСПРАВЛЕНО
                         }
                     }
                     Button {
