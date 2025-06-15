@@ -5,82 +5,68 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.Layouts 1.1
 import "DatabaseManager.js" as DB
-// Ensure TrashNoteCard.qml is accessible. If it's not in the same directory, adjust path or qmldir.
-// import "TrashNoteCard.qml"
 
 Page {
     id: unifiedNotesPage
-    // Color of the page background. Using Theme color if defined, otherwise a default.
     backgroundColor: Theme.backgroundColor !== undefined ? Theme.backgroundColor : "#121218"
-    showNavigationIndicator: false // Don't show navigation indicator (e.g., for Sailfish OS)
+    showNavigationIndicator: false
 
-    // New property to define the page's mode: "trash" or "archive"
-    property string pageMode: "archive" // Default mode is "archive" if not specified
+    property string pageMode: "archive"
 
-    // Properties for storing data and page state
-    property var notesToDisplay: [] // List of notes (either deleted or archived)
-    property var selectedNoteIds: [] // List of IDs of selected notes for bulk operations
-    property string dialogMessage: "" // Message for confirmation dialogs (restore/unarchive/delete)
+    property var notesToDisplay: []
+    property var selectedNoteIds: []
+    property string dialogMessage: ""
 
-    // Determine visibility of selection controls and empty label
     property bool showEmptyLabel: notesToDisplay.length === 0
     property bool selectionControlsVisible: notesToDisplay.length > 0
 
-    // Actions on component completion (when page is loaded)
     Component.onCompleted: {
         console.log(qsTr("UNIFIED_NOTES_PAGE: UnifiedNotesPage opened in %1 mode. Calling refreshNotes.").arg(pageMode));
-        refreshNotes(); // Load notes based on the current mode
+        refreshNotes();
     }
 
-    // Function to refresh the list of notes based on pageMode
     function refreshNotes() {
         if (pageMode === "trash") {
-            notesToDisplay = DB.getDeletedNotes(); // Get deleted notes for trash mode
+            notesToDisplay = DB.getDeletedNotes();
             console.log(qsTr("DB_MGR: getDeletedNotes found %1 deleted notes.").arg(notesToDisplay.length));
         } else if (pageMode === "archive") {
-            notesToDisplay = DB.getArchivedNotes(); // Get archived notes for archive mode
+            notesToDisplay = DB.getArchivedNotes();
             console.log(qsTr("DB_MGR: getArchivedNotes found %1 archived notes.").arg(notesToDisplay.length));
         }
-        selectedNoteIds = []; // Reset selected notes
+        selectedNoteIds = [];
         console.log(qsTr("UNIFIED_NOTES_PAGE: refreshNotes completed for %1. Count: %2").arg(pageMode).arg(notesToDisplay.length));
     }
 
-    // Page Header (Title changes based on mode)
     PageHeader {
         id: pageHeader
         height: Theme.itemSizeExtraLarge
 
         Label {
-            text: pageMode === "trash" ? qsTr("Trash") : qsTr("Archive") // Dynamic title
+            text: pageMode === "trash" ? qsTr("Trash") : qsTr("Archive")
             anchors.centerIn: parent
             font.pixelSize: Theme.fontSizeExtraLarge
-            //color: Theme.highlightColor
             font.bold: true
         }
     }
 
-    // Main layout using ColumnLayout for vertical arrangement
     ColumnLayout {
         id: mainLayout
         anchors.fill: parent
-        anchors.topMargin: pageHeader.height // Offset from page header
-        spacing: 0 // Control spacing between child elements in this layout
+        anchors.topMargin: pageHeader.height
+        spacing: 0
 
-        // SELECTION CONTROLS PANEL - Top, fixed
         Row {
             id: selectionControls
-            Layout.fillWidth: true // Fills available width in ColumnLayout
-            height: selectionControlsVisible ? Theme.buttonHeightSmall + Theme.paddingSmall : 0 // Height depends on visibility
-            visible: selectionControlsVisible // Visibility depends on whether there are notes
-            spacing: Theme.paddingSmall // Spacing between buttons
+            Layout.fillWidth: true
+            height: selectionControlsVisible ? Theme.buttonHeightSmall + Theme.paddingSmall : 0
+            visible: selectionControlsVisible
+            spacing: Theme.paddingSmall
 
-            // Internal padding for the Row so buttons don't stick to edges
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.leftMargin: Theme.paddingMedium
             anchors.rightMargin: Theme.paddingMedium
 
-            // "Select All / Deselect All" Button
             Button {
                 id: selectAllButton
                 Layout.preferredWidth: (parent.width - (parent.spacing * 2)) / 3
@@ -88,80 +74,73 @@ Page {
                 icon.source: "../icons/select_all.svg"
                 onClicked: {
                     var newSelectedIds = [];
-                    // Check if all items in notesToDisplay are already selected
-                    // If selectedNoteIds.length === notesToDisplay.length, and notesToDisplay is not empty, then all are selected
                     var currentlyAllSelected = (unifiedNotesPage.selectedNoteIds.length === unifiedNotesPage.notesToDisplay.length) && (unifiedNotesPage.notesToDisplay.length > 0);
 
-                    if (!currentlyAllSelected) { // If not all are selected, select all
+                    if (!currentlyAllSelected) {
                         for (var i = 0; i < unifiedNotesPage.notesToDisplay.length; i++) {
                             newSelectedIds.push(unifiedNotesPage.notesToDisplay[i].id);
                         }
-                    } // else { newSelectedIds will remain empty, which deselects all }
+                    }
 
-                    // Important: reassign property to ensure QML detects change
                     unifiedNotesPage.selectedNoteIds = newSelectedIds;
                     console.log(qsTr("Selected note IDs after Select All/Deselect All: %1").arg(JSON.stringify(unifiedNotesPage.selectedNoteIds)));
                 }
-                enabled: notesToDisplay.length > 0 // Button active if there are notes
+                enabled: notesToDisplay.length > 0
             }
 
-            // "Restore" / "Unarchive" Selected Button (Dynamic based on pageMode)
             Button {
                 id: primaryActionButton
                 Layout.preferredWidth: (parent.width - (parent.spacing * 2)) / 3
                 Layout.preferredHeight: Theme.buttonHeightSmall
-                icon.source: pageMode === "trash" ? "../icons/restore_notes.svg" : "../icons/unarchive.svg" // Dynamic icon
-                text: pageMode === "trash" ? qsTr("Restore") : qsTr("Unarchive") // Dynamic text
-                highlightColor: Theme.highlightColor // Highlight color
-                enabled: selectedNoteIds.length > 0 // Active if something is selected
+                icon.source: pageMode === "trash" ? "../icons/restore_notes.svg" : "../icons/unarchive.svg"
+                text: pageMode === "trash" ? qsTr("Restore") : qsTr("Unarchive")
+                highlightColor: Theme.highlightColor
+                enabled: selectedNoteIds.length > 0
                 onClicked: {
                     if (selectedNoteIds.length > 0) {
                         if (pageMode === "trash") {
-                            DB.restoreNotes(selectedNoteIds); // Restore notes from trash
+                            DB.restoreNotes(selectedNoteIds);
                             toastManager.show(qsTr("%1 note(s) restored!").arg(selectedNoteIds.length));
                             console.log(qsTr("%1 note(s) restored from trash.").arg(selectedNoteIds.length));
                         } else if (pageMode === "archive") {
-                            DB.bulkUnarchiveNotes(selectedNoteIds); // Unarchive notes
+                            DB.bulkUnarchiveNotes(selectedNoteIds);
                             toastManager.show(qsTr("%1 note(s) unarchived!").arg(selectedNoteIds.length));
                             console.log(qsTr("%1 note(s) unarchived.").arg(selectedNoteIds.length));
                         }
-                        refreshNotes(); // Refresh the list after action
+                        refreshNotes();
                     }
                 }
             }
-        } // End selectionControls Row
+        }
 
-        // Small spacing item between buttons and Flickable
         Item {
             Layout.fillWidth: true
             Layout.preferredHeight: selectionControlsVisible ? Theme.paddingMedium : 0
-            visible: selectionControlsVisible // Visible only if selection controls are visible
+            visible: selectionControlsVisible
         }
 
-        // Main scrollable area for displaying notes
         SilicaFlickable {
             id: notesFlickable
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            contentHeight: notesColumn.implicitHeight + (unifiedNotesPage.showEmptyLabel ? 0 : Theme.paddingLarge * 2) // Dynamic content height
+            contentHeight: notesColumn.implicitHeight + (unifiedNotesPage.showEmptyLabel ? 0 : Theme.paddingLarge * 2)
 
             Column {
                 id: notesColumn
                 width: parent.width
                 spacing: Theme.paddingMedium
-                visible: !unifiedNotesPage.showEmptyLabel // Visibility depends on whether there are notes
+                visible: !unifiedNotesPage.showEmptyLabel
                 anchors.top: parent.top
-                anchors.topMargin: Theme.paddingMedium // Top margin
+                anchors.topMargin: Theme.paddingMedium
 
-                // Repeater to display each note
                 Repeater {
-                    model: notesToDisplay // Data model - list of notes (deleted or archived)
+                    model: notesToDisplay
                     delegate: Column {
                         width: parent.width
-                        spacing: Theme.paddingLarge // Spacing between note cards
+                        spacing: Theme.paddingLarge
 
-                        TrashNoteCard { // Using TrashNoteCard for display
+                        TrashNoteCard {
                             id: noteCardInstance
                             anchors {
                                 left: parent.left
@@ -173,46 +152,43 @@ Page {
                             noteId: modelData.id
                             title: modelData.title
                             content: modelData.content
-                            tags: modelData.tags ? modelData.tags.join(' ') : '' // Tags as space-separated string
-                            cardColor: modelData.color || "#1c1d29" // Card color
-                            height: implicitHeight // Height adapts to content
-                            // Determine if the current note is selected
+                            tags: modelData.tags ? modelData.tags.join(' ') : ''
+                            cardColor: modelData.color || "#1c1d29"
+                            height: implicitHeight
                             isSelected: unifiedNotesPage.selectedNoteIds.indexOf(modelData.id) !== -1
 
-                            // Handler for toggling note selection
+                            // *** ИЗМЕНЕНИЕ ЗДЕСЬ ***
                             onSelectionToggled: {
-                                if (isSelected) {
-                                    // Add ID to selected list if not already there
-                                    if (unifiedNotesPage.selectedNoteIds.indexOf(noteId) === -1) {
-                                        unifiedNotesPage.selectedNoteIds.push(noteId);
-                                    }
-                                } else {
-                                    // Remove ID from selected list
+                                // isCurrentlySelected - это то, что TrashNoteCard отправила,
+                                // т.е. СТАРОЕ состояние перед кликом.
+                                if (isCurrentlySelected) { // Если заметка БЫЛА выбрана (true), значит, пользователь хочет ее РАЗВЫБРАТЬ
                                     var index = unifiedNotesPage.selectedNoteIds.indexOf(noteId);
                                     if (index !== -1) {
                                         unifiedNotesPage.selectedNoteIds.splice(index, 1);
                                     }
+                                } else { // Если заметка БЫЛА не выбрана (false), значит, пользователь хочет ее ВЫБРАТЬ
+                                    if (unifiedNotesPage.selectedNoteIds.indexOf(noteId) === -1) {
+                                        unifiedNotesPage.selectedNoteIds.push(noteId);
+                                    }
                                 }
-                                // Important: reassign property to ensure QML detects list change
-                                unifiedNotesPage.selectedNoteIds = unifiedNotesPage.selectedNoteIds;
+                                unifiedNotesPage.selectedNoteIds = unifiedNotesPage.selectedNoteIds; // Важно: переназначить для обновления QML
                                 console.log(qsTr("Toggled selection for note ID: %1. Current selected: %2").arg(noteId).arg(JSON.stringify(unifiedNotesPage.selectedNoteIds)));
                             }
-                            // Handler for opening a note for viewing
+
                             onNoteClicked: {
                                 console.log(qsTr("UNIFIED_NOTES_PAGE: Opening NotePage for note ID: %1 from %2.").arg(noteId).arg(unifiedNotesPage.pageMode));
-                                // Pass all necessary data to NotePage, including the read-only flag
                                 pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
-                                    onNoteSavedOrDeleted: unifiedNotesPage.refreshNotes, // Callback to refresh this page
+                                    onNoteSavedOrDeleted: unifiedNotesPage.refreshNotes,
                                     noteId: noteId,
                                     noteTitle: title,
                                     noteContent: content,
                                     noteIsPinned: isPinned,
-                                    noteTags: tags, // Use the parameter from the signal
+                                    noteTags: tags,
                                     noteCreationDate: creationDate,
                                     noteEditDate: editDate,
                                     noteColor: color,
-                                    isArchived: unifiedNotesPage.pageMode === "archive", // Pass if it's from archive
-                                    isDeleted: unifiedNotesPage.pageMode === "trash" // Pass if it's from trash
+                                    isArchived: unifiedNotesPage.pageMode === "archive",
+                                    isDeleted: unifiedNotesPage.pageMode === "trash"
                                 });
                             }
                         }
@@ -220,11 +196,10 @@ Page {
                 }
             }
 
-            // Label displayed if the notes list is empty (Trash is empty / Archive is empty)
             Label {
                 id: emptyLabel
                 visible: unifiedNotesPage.showEmptyLabel
-                text: pageMode === "trash" ? qsTr("Trash is empty.") : qsTr("Archive is empty.") // Dynamic text
+                text: pageMode === "trash" ? qsTr("Trash is empty.") : qsTr("Archive is empty.")
                 font.italic: true
                 color: Theme.secondaryColor
                 anchors.horizontalCenter: parent.horizontalCenter

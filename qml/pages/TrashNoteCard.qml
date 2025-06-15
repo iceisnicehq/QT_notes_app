@@ -1,8 +1,8 @@
 // TrashNoteCard.qml
 
 import QtQuick 2.0
-import Sailfish.Silica 1.0
-import "DatabaseManager.js" as DB // DB might be needed for certain functions if you choose to re-introduce logic here
+import Sailfish.Silica 1.0 // Ensure this import correctly defines Theme properties
+import "DatabaseManager.js" as DB
 
 Item {
     id: root
@@ -14,17 +14,18 @@ Item {
     property string content: ""
     property string tags: ""
     property string cardColor: "#1c1d29"
+    // isSelected property will be driven *only* by the parent (e.g., TrashPage or UnifiedNotesPage)
     property bool isSelected: false
     property int noteId: -1
 
-    // Properties for full note data (passed through signal)
     property bool noteIsPinned: false
     property date noteCreationDate: new Date()
     property date noteEditDate: new Date()
 
     // --- Signals ---
-    signal selectionToggled(int noteId, bool isSelected)
-    // Signal to notify parent page that this card was clicked for opening NotePage
+    // Signal now implies a request to toggle selection for a given noteId and its *current* state.
+    // The parent will then decide the *new* state.
+    signal selectionToggled(int noteId, bool isCurrentlySelected)
     signal noteClicked(int noteId, string title, string content, bool isPinned, var tags, date creationDate, date editDate, string color)
 
 
@@ -43,19 +44,17 @@ Item {
 
             onClicked: {
                 console.log("TrashNoteCard (ID:", root.noteId, "): Full card clicked. Emitting noteClicked signal.");
-                // Emit the 'noteClicked' signal with all necessary note data
                 root.noteClicked(
                     root.noteId,
-                    root.title,
+                    root.title, // Correctly passing title
                     root.content,
                     root.noteIsPinned,
-                    root.tags, // Note: This passes tags as a space-separated string. NotePage expects an array.
-                               // You might need to split this string into an array in NotePage or before emitting.
+                    root.tags,
                     root.noteCreationDate,
                     root.noteEditDate,
                     root.cardColor
                 );
-                Qt.inputMethod.hide(); // Hide keyboard
+                Qt.inputMethod.hide();
             }
         }
 
@@ -69,9 +68,12 @@ Item {
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
-                    root.isSelected = !root.isSelected;
-                    root.selectionToggled(root.noteId, root.isSelected); // Emit signal
-                    console.log("TrashNoteCard (ID:", root.noteId, "): Checkbox clicked. isSelected:", root.isSelected);
+                    // IMPORTANT CHANGE: Do NOT directly set root.isSelected here.
+                    // Instead, emit the signal, and let the parent (TrashPage/UnifiedNotesPage) update its selectedNoteIds list.
+                    // The 'isSelected' property of THIS TrashNoteCard instance will then update automatically
+                    // via its binding in the Repeater, and the visual states will react to that.
+                    root.selectionToggled(root.noteId, root.isSelected); // Pass current state to parent
+                    console.log("TrashNoteCard (ID:", root.noteId, "): Checkbox click detected. Emitting selectionToggled for ID:", root.noteId, "Current isSelected:", root.isSelected);
                 }
             }
 
@@ -83,9 +85,44 @@ Item {
                 height: width
                 radius: 4
 
-                color: root.isSelected ? Theme.secondaryColor : "transparent"
-                border.color: root.isSelected ? "transparent" : Theme.secondaryColor
-                border.width: root.isSelected ? 0 : 2
+                // Default properties for the checkbox (e.g., deselected state visual)
+                // These are the "base" colors that will be overridden by states
+                // Added fallbacks using '?:' operator to prevent 'undefined' errors
+                color: Theme.backgroundColor !== undefined ? Theme.backgroundColor : "#32353a" // Fallback to a dark gray
+                border.color: Theme.secondaryColor !== undefined ? Theme.secondaryColor : "#00bcd4" // Fallback to a teal/cyan
+                border.width: 2
+
+                // Define states for the checkbox based on the isSelected property
+                states: [
+                    State {
+                        name: "selected"
+                        when: root.isSelected === true
+                        PropertyChanges {
+                            target: visualCheckbox
+                            // Use Theme.secondaryColor if defined, else a default
+                            color: Theme.secondaryColor !== undefined ? Theme.secondaryColor : "#00bcd4" // Fallback to teal/cyan
+                            border.color: "transparent" // No border when selected
+                            border.width: 0
+                        }
+                    },
+                    State {
+                        name: "deselected"
+                        when: root.isSelected === false
+                        PropertyChanges {
+                            target: visualCheckbox
+                            // Use Theme.backgroundColor if defined, else a dark gray
+                            color: Theme.backgroundColor !== undefined ? Theme.backgroundColor : "#32353a" // Fallback to dark gray
+                            // Use Theme.secondaryColor if defined, else a default
+                            border.color: Theme.secondaryColor !== undefined ? Theme.secondaryColor : "#00bcd4" // Fallback to teal/cyan
+                            border.width: 2
+                        }
+                    }
+                ]
+
+                // Optional: Smooth transition between states
+                transitions: Transition {
+                    PropertyAnimation { properties: "color,border.color,border.width"; duration: 150 }
+                }
             }
         }
 
