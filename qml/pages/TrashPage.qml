@@ -253,21 +253,20 @@ Page {
         // The dialog content itself (centered rectangle)
         Rectangle {
             id: dialogContent
-            width: parent.width * 0.8 // 80% width of parent
-            height: dialogColumn.implicitHeight + Theme.paddingLarge * 2 // Height based on content with padding
-            color: Theme.backgroundColor // Dialog background color
-            radius: Theme.itemCornerRadius // Rounded corners
-            anchors.centerIn: parent // Centered within parent Item
+            width: parent.width * 0.8 // Ширина 80% от родителя
+            height: implicitHeight // Высота по содержимому
+            color: Theme.backgroundColor // Цвет фона диалога
+            radius: Theme.itemCornerRadius // Скругленные углы
+            anchors.centerIn: parent // По центру родительского Item
 
             Column {
-                id: dialogColumn
                 width: parent.width
-                spacing: Theme.paddingMedium // Spacing between elements in the column
-                anchors.margins: Theme.paddingLarge // Internal padding for the column
+                spacing: Theme.paddingMedium
+                anchors.margins: Theme.paddingLarge
 
                 Label {
                     width: parent.width
-                    text: qsTr("Confirm Deletion") // Dialog title
+                    text: qsTr("Confirm Deletion")
                     font.pixelSize: Theme.fontSizeLarge
                     font.bold: true
                     horizontalAlignment: Text.AlignHCenter
@@ -276,7 +275,7 @@ Page {
 
                 Label {
                     width: parent.width
-                    text: trashPage.deleteDialogMessage // Message text from page property
+                    text: trashPage.deleteDialogMessage // Используем свойство страницы для текста
                     wrapMode: Text.WordWrap
                     horizontalAlignment: Text.AlignHCenter
                     color: Theme.primaryColor
@@ -284,30 +283,35 @@ Page {
 
                 RowLayout {
                     width: parent.width
-                    spacing: Theme.paddingMedium // Spacing between buttons
-                    anchors.horizontalCenter: parent.horizontalCenter // Center buttons
+                    spacing: Theme.paddingMedium
+                    anchors.horizontalCenter: parent.horizontalCenter // Центрируем кнопки
+                    // Layout.topMargin: Theme.paddingLarge // *** УДАЛЕНА ПРОБЛЕМНАЯ СТРОКА
+
+                    // Чтобы добавить отступ сверху для кнопок, если spacing Column выше недостаточен
+                    // Можно использовать Item с preferredHeight, если нужен дополнительный вертикальный отступ
+                    // Item { Layout.preferredHeight: Theme.paddingLarge; } // Пример, если нужно
 
                     Button {
                         Layout.fillWidth: true
                         text: qsTr("Cancel")
-                        onClicked: manualConfirmDialog.visible = false // Hide dialog on cancel
+                        onClicked: manualConfirmDialog.visible = false // Скрываем диалог
                     }
 
                     Button {
                         Layout.fillWidth: true
-                        text: qsTr("Delete") // Delete button text
-                        highlightColor: Theme.errorColor // Highlight color (red)
+                        text: qsTr("Delete")
+                        highlightColor: Theme.errorColor
                         onClicked: {
-                            var deletedCount = selectedNoteIds.length; // Save count before clearing selectedNoteIds
-                            DB.permanentlyDeleteNotes(selectedNoteIds); // Call permanent delete function
-                            refreshDeletedNotes(); // Refresh notes list (this also clears selectedNoteIds)
-                            toastManager.show(qsTr("%1 note(s) permanently deleted!").arg(deletedCount)); // Notification
-                            manualConfirmDialog.visible = false // Hide dialog after action
-                            console.log(qsTr("%1 note(s) permanently deleted from Trash.").arg(deletedCount));
+                            // ИСПРАВЛЕНИЕ: Сохраняем количество удаляемых заметок перед сбросом selectedNoteIds
+                            var deletedCount = selectedNoteIds.length;
+                            DB.permanentlyDeleteNotes(selectedNoteIds);
+                            refreshDeletedNotes();
+                            toastManager.show(qsTr("%1 note(s) permanently deleted!").arg(deletedCount)); // Используем сохраненное количество
+                            manualConfirmDialog.visible = false // Скрываем диалог после выполнения
                         }
                     }
                 }
             }
         }
-    } // End manualConfirmDialog
+    } // Конец manualConfirmDialog
 }

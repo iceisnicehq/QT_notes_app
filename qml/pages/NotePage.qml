@@ -70,15 +70,16 @@ Page {
     function handleInteractionAttempt() {
         var needsAction = newNotePage.isDeleted || newNotePage.isArchived;
         if (needsAction) {
-            newNotePage.isReadOnly = true; // Crucial: Set to true to disable editing inputs immediately
+            // The purpose of this function is to prevent modification if in a 'read-only' state
+            // and instead offer to restore/unarchive.
+            // We set isReadOnly true *before* showing dialog to disable inputs immediately.
+            newNotePage.isReadOnly = true;
 
             if (newNotePage.isDeleted) {
                 actionRequiredDialog.dialogTitle = qsTr("Cannot Edit Deleted Note");
                 actionRequiredDialog.dialogText = qsTr("To edit this note, you need to restore it first.");
                 actionRequiredDialog.confirmButtonText = qsTr("Restore");
                 actionRequiredDialog.confirmAction = function() {
-                    // !!! ВАЖНО: ЭТА СТРОКА ВЫЗЫВАЕТ ОШИБКУ "getDatabase is not defined"
-                    // Убедитесь, что DB.restoreNote доступна в DatabaseManager.js
                     DB.restoreNote(newNotePage.noteId);
                     newNotePage.isDeleted = false; // Update the note's status
                     newNotePage.isReadOnly = false; // Allow editing now
@@ -86,7 +87,6 @@ Page {
                     if (onNoteSavedOrDeleted) {
                         onNoteSavedOrDeleted();
                     }
-                    // Do NOT pop pageStack here. Allow user to edit after restoring.
                     noteContentInput.forceActiveFocus(); // Give focus to content input
                 };
             } else if (newNotePage.isArchived) {
@@ -94,8 +94,6 @@ Page {
                 actionRequiredDialog.dialogText = qsTr("To edit this note, you need to unarchive it first.");
                 actionRequiredDialog.confirmButtonText = qsTr("Unarchive");
                 actionRequiredDialog.confirmAction = function() {
-                    // !!! ВАЖНО: ЭТА СТРОКА ВЫЗЫВАЕТ ОШИБКУ "getDatabase is not defined"
-                    // Убедитесь, что DB.unarchiveNote доступна в DatabaseManager.js
                     DB.unarchiveNote(newNotePage.noteId);
                     newNotePage.isArchived = false; // Update the note's status
                     newNotePage.isReadOnly = false; // Allow editing now
@@ -103,7 +101,6 @@ Page {
                     if (onNoteSavedOrDeleted) {
                         onNoteSavedOrDeleted();
                     }
-                    // Do NOT pop pageStack here. Allow user to edit after unarchiving.
                     noteContentInput.forceActiveFocus(); // Give focus to content input
                 };
             }
@@ -218,7 +215,6 @@ Page {
             // If note is empty (title, content, tags, pinned status)
             if (noteId !== -1) {
                 // If it was an existing note and now empty, permanently delete it
-                // !!! ВАЖНО: ЭТА СТРОКА ВЫЗЫВАЕТ ОШИБКУ "getDatabase is not defined"
                 DB.permanentlyDeleteNote(noteId);
                 console.log(qsTr("Debug: Empty existing note permanently deleted with ID: %1").arg(noteId));
             } else {
@@ -231,7 +227,6 @@ Page {
                 // If it's a new note, add it to DB
                 newNotePage.noteTitle = noteTitleInput.text;
                 newNotePage.noteContent = noteContentInput.text;
-                // !!! ВАЖНО: ЭТА СТРОКА ВЫЗЫВАЕТ ОШИБКУ "getDatabase is not defined"
                 var newId = DB.addNote(noteIsPinned, newNotePage.noteTitle, newNotePage.noteContent, noteTags, noteColor);
                 console.log(qsTr("Debug: New note added with ID: %1, Color: %2, Tags: %3").arg(newId).arg(noteColor).arg(JSON.stringify(noteTags)));
             } else {
@@ -240,7 +235,6 @@ Page {
                     newNotePage.noteTitle = noteTitleInput.text;
                     newNotePage.noteContent = noteContentInput.text;
                     newNotePage.noteEditDate = new Date(); // Update edit date
-                    // !!! ВАЖНО: ЭТА СТРОКА ВЫЗЫВАЕТ ОШИБКУ "getDatabase is not defined"
                     DB.updateNote(noteId, noteIsPinned, newNotePage.noteTitle, newNotePage.noteContent, noteTags, noteColor);
                     console.log(qsTr("Debug: Note updated with ID: %1, Color: %2, Tags: %3").arg(noteId).arg(noteColor).arg(JSON.stringify(noteTags)));
                 } else {
@@ -300,6 +294,62 @@ Page {
                 // anchors.centerIn: parent // УДАЛИТЕ ЭТОТ ЯКОРЬ, ОН ВЫЗЫВАЕТ ПРЕДУПРЕЖДЕНИЕ
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.top: parent.top
+
+                Label {
+                    width: parent.width
+                    text: qsTr("Confirm Delete")
+                    font.pixelSize: Theme.fontSizeLarge
+                    font.bold: true
+                    horizontalAlignment: Text.AlignHCenter
+                    color: Theme.highlightColor
+                }
+
+                Label {
+                    width: parent.width
+                    text: qsTr("Do you want to move this note to trash?")
+                    wrapMode: Text.WordWrap
+                    horizontalAlignment: Text.AlignHCenter
+                    color: Theme.primaryColor
+                }
+
+                RowLayout {
+                    width: parent.width
+                    spacing: Theme.paddingMedium
+                    anchors.horizontalCenter: parent.horizontalCenter
+
+                    Button {
+                        Layout.fillWidth: true
+                        text: qsTr("Cancel")
+                        onClicked: {
+                            manualConfirmDeleteDialog.visible = false;
+                            manualConfirmDeleteDialog.opacity = 0;
+                            console.log(qsTr("Delete action cancelled by user."));
+                        }
+                    }
+
+                    Button {
+                        Layout.fillWidth: true
+                        text: qsTr("Delete")
+                        highlightColor: Theme.negativeColor
+                        onClicked: {
+                            if (newNotePage.noteId !== -1) {
+                                DB.deleteNote(newNotePage.noteId); // Move to trash
+                                console.log(qsTr("Note ID: %1 moved to trash after confirmation.").arg(newNotePage.noteId));
+                                newNotePage.sentToTrash = true; // Mark that it was sent to trash
+                                toastManager.show(qsTr("Note moved to trash!"));
+                                if (onNoteSavedOrDeleted) {
+                                    onNoteSavedOrDeleted(); // Refresh data on main page
+                                }
+                            } else {
+                                // If it's a new unsaved note, just discard it without DB operation
+                                console.log(qsTr("New unsaved note discarded without deletion."));
+                            }
+                            manualConfirmDeleteDialog.visible = false;
+                            manualConfirmDeleteDialog.opacity = 0;
+                            pageStack.pop(); // Go back to the previous page after action
+                        }
+                    }
+                }
             }
         }
         // Handler for showing/hiding with animation
@@ -479,7 +529,6 @@ Page {
                         onClicked: {
                             // Logic to archive the note
                             if (newNotePage.noteId !== -1) {
-                                // !!! ВАЖНО: ЭТА СТРОКА ВЫЗЫВАЕТ ОШИБКУ "getDatabase is not defined"
                                 DB.archiveNote(newNotePage.noteId); // Call new archive function
                                 console.log(qsTr("Note ID: %1 moved to archive after confirmation.").arg(newNotePage.noteId));
                                 newNotePage.sentToArchive = true; // Mark that it was sent to archive
@@ -600,15 +649,18 @@ Page {
                 width: parent.width
                 height: parent.height
                 // Visually disable pin button in read-only mode
-                opacity: newNotePage.isReadOnly ? 0.5 : 1.0
-                color: newNotePage.isReadOnly ? Theme.secondaryColor : Theme.primaryColor
+                opacity: 1.0 // Always visible
+                color: newNotePage.isReadOnly ? Theme.secondaryColor : Theme.primaryColor // Color changes
             }
             MouseArea {
                 anchors.fill: parent
-                // Enable only if not in read-only mode
                 enabled: true // Always enabled to allow showing dialog
                 onPressed: pinRipple.ripple(mouseX, mouseY)
                 onClicked: {
+                    if (newNotePage.noteId === -1) {
+                         toastManager.show(qsTr("Cannot pin a new note. Save it first."));
+                         return;
+                    }
                     if (handleInteractionAttempt()) { // Check read-only state and show dialog if needed
                         noteIsPinned = !noteIsPinned;
                         newNotePage.noteModified = true;
@@ -633,8 +685,8 @@ Page {
                 width: parent.width
                 height: parent.height
                 // Visually disable if new note
-                opacity: (newNotePage.noteId !== -1) ? 1.0 : 0.5
-                color: (newNotePage.noteId !== -1) ? Theme.primaryColor : Theme.secondaryColor
+                opacity: (newNotePage.noteId !== -1) ? 1.0 : 0.5 // Always visible, opacity changes
+                color: (newNotePage.noteId !== -1) ? (newNotePage.isReadOnly ? Theme.secondaryColor : Theme.primaryColor) : Theme.secondaryColor
             }
             MouseArea {
                 anchors.fill: parent
@@ -696,9 +748,8 @@ Page {
                     anchors.centerIn: parent
                     width: parent.width
                     height: parent.height
-                    // Visually disable in read-only mode
-                    opacity: newNotePage.isReadOnly ? 0.5 : 1.0
-                    color: newNotePage.isReadOnly ? Theme.secondaryColor : Theme.primaryColor
+                    opacity: 1.0 // Always visible
+                    color: newNotePage.isReadOnly ? Theme.secondaryColor : Theme.primaryColor // Color changes
                 }
                 MouseArea {
                     anchors.fill: parent
@@ -729,9 +780,8 @@ Page {
                     anchors.centerIn: parent
                     width: parent.width
                     height: parent.height
-                    // Visually disable in read-only mode
-                    opacity: newNotePage.isReadOnly ? 0.5 : 1.0
-                    color: newNotePage.isReadOnly ? Theme.secondaryColor : Theme.primaryColor
+                    opacity: 1.0 // Always visible
+                    color: newNotePage.isReadOnly ? Theme.secondaryColor : Theme.primaryColor // Color changes
                 }
                 MouseArea {
                     anchors.fill: parent
@@ -775,8 +825,8 @@ Page {
                     width: parent.width
                     height: parent.height
                     // Visually disable if no history to undo (historyIndex is 0 if only initial state exists)
-                    opacity: (newNotePage.historyIndex > 0 && !newNotePage.isReadOnly) ? 1.0 : 0.5
-                    color: (newNotePage.historyIndex > 0 && !newNotePage.isReadOnly) ? Theme.primaryColor : Theme.secondaryColor
+                    opacity: 1.0 // Always visible
+                    color: (newNotePage.historyIndex > 0 && !newNotePage.isReadOnly) ? Theme.primaryColor : Theme.secondaryColor // Color changes
                 }
                 MouseArea {
                     anchors.fill: parent
@@ -814,8 +864,8 @@ Page {
                     width: parent.width
                     height: parent.height
                     // Visually disable if no history to redo
-                    opacity: (newNotePage.historyIndex < newNotePage.contentHistory.length - 1 && !newNotePage.isReadOnly) ? 1.0 : 0.5
-                    color: (newNotePage.historyIndex < newNotePage.contentHistory.length - 1 && !newNotePage.isReadOnly) ? Theme.primaryColor : Theme.secondaryColor
+                    opacity: 1.0 // Always visible
+                    color: (newNotePage.historyIndex < newNotePage.contentHistory.length - 1 && !newNotePage.isReadOnly) ? Theme.primaryColor : Theme.secondaryColor // Color changes
                 }
                 MouseArea {
                     anchors.fill: parent
@@ -863,7 +913,8 @@ Page {
                     width: parent.width
                     height: parent.height
                     // Visually disable if new note or already archived
-                    opacity: (newNotePage.noteId !== -1 && !newNotePage.isArchived) ? 1.0 : 0.5
+                    opacity: 1.0 // Always visible
+                    // Color logic: primary if not archived, secondary if archived
                     color: (newNotePage.noteId !== -1 && !newNotePage.isArchived) ? Theme.primaryColor : Theme.secondaryColor
                 }
                 MouseArea {
@@ -871,27 +922,29 @@ Page {
                     enabled: newNotePage.noteId !== -1 // Always active if note is not new (even if archived/deleted)
                     onPressed: archiveRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        // Нет необходимости в handleInteractionAttempt здесь, так как этот путь
-                        // уже обрабатывает специфические состояния архива/корзины.
                         if (newNotePage.isArchived) {
-                            toastManager.show(qsTr("Note is already in the archive"));
-                            return; // Exit, do nothing
-                        }
-                        if (newNotePage.isDeleted) {
+                            // If note is already archived, unarchive it
+                            DB.unarchiveNote(newNotePage.noteId);
+                            newNotePage.isArchived = false; // Update status
+                            newNotePage.isReadOnly = false; // Now considered active
+                            newNotePage.sentToArchive = false; // Not archived anymore
+                            toastManager.show(qsTr("Note unarchived!"));
+                            if (onNoteSavedOrDeleted) onNoteSavedOrDeleted();
+                            // Do not pop, allow editing
+                        } else if (newNotePage.isDeleted) {
                             // If note is in trash, move to archive
-                            // !!! ВАЖНО: ЭТА СТРОКА ВЫЗЫВАЕТ ОШИБКУ "getDatabase is not defined"
                             DB.moveNoteFromTrashToArchive(newNotePage.noteId);
                             newNotePage.isDeleted = false; // Update status
                             newNotePage.isArchived = true; // Update status
-                            newNotePage.isReadOnly = false; // Now considered active in Archive, potentially editable if unarchived later
+                            newNotePage.isReadOnly = true; // Remains read-only in archive (similar to how Trash is)
                             newNotePage.sentToArchive = true; // Mark that it was sent to archive
                             toastManager.show(qsTr("Note moved to archive!"));
                             if (onNoteSavedOrDeleted) onNoteSavedOrDeleted();
                             pageStack.pop(); // Return to previous page
-                            return;
+                        } else {
+                            // If note is neither archived nor deleted, show archive confirmation
+                            manualConfirmArchiveDialog.visible = true;
                         }
-                        // If note is neither archived nor deleted, show archive confirmation
-                        manualConfirmArchiveDialog.visible = true;
                     }
                 }
             }
@@ -909,35 +962,35 @@ Page {
                     width: parent.width
                     height: parent.height
                     // Visually disable if new note or already deleted
-                    opacity: (newNotePage.noteId !== -1 && !newNotePage.isDeleted) ? 1.0 : 0.5
-                    color: (newNotePage.noteId !== -1 && !newNotePage.isDeleted) ? Theme.primaryColor : Theme.secondaryColor
+                    opacity: 1.0 // Always visible
+                    // Color logic: negative if not deleted, secondary if deleted
+                    color: (newNotePage.noteId !== -1 && !newNotePage.isDeleted) ? Theme.negativeColor : Theme.secondaryColor
                 }
                 MouseArea {
                     anchors.fill: parent
                     enabled: newNotePage.noteId !== -1 // Always active if note is not new
                     onPressed: deleteRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        // Нет необходимости в handleInteractionAttempt здесь, так как этот путь
-                        // уже обрабатывает специфические состояния архива/корзины.
                         if (newNotePage.isDeleted) {
+                            // If note is already in trash, show permanent delete dialog? Or do nothing?
+                            // For now, doing nothing and just showing a toast
                             toastManager.show(qsTr("Note is already in the trash"));
                             return; // Exit, do nothing
                         }
                         if (newNotePage.isArchived) {
                             // If note is in archive, move to trash
-                            // !!! ВАЖНО: ЭТА СТРОКА ВЫЗЫВАЕТ ОШИБКУ "getDatabase is not defined"
                             DB.moveNoteFromArchiveToTrash(newNotePage.noteId);
                             newNotePage.isArchived = false; // Update status
                             newNotePage.isDeleted = true; // Update status
-                            newNotePage.isReadOnly = false; // Now considered active in Trash
+                            newNotePage.isReadOnly = true; // Remains read-only in trash
                             newNotePage.sentToTrash = true; // Mark that it was sent to trash
                             toastManager.show(qsTr("Note moved to trash!"));
                             if (onNoteSavedOrDeleted) onNoteSavedOrDeleted();
                             pageStack.pop(); // Return to previous page
-                            return;
+                        } else {
+                            // If note is neither deleted nor archived, show delete confirmation
+                            manualConfirmDeleteDialog.visible = true;
                         }
-                        // If note is neither deleted nor archived, show delete confirmation
-                        manualConfirmDeleteDialog.visible = true;
                     }
                 }
             }
@@ -1279,7 +1332,6 @@ Page {
         // Function to load tags into the ListModel for the current note
         function loadTagsForTagPanel() {
             availableTagsModel.clear(); // Clear existing items
-            // !!! ВАЖНО: ЭТА СТРОКА ВЫЗЫВАЕТ ОШИБКУ "getDatabase is not defined"
             var allTags = DB.getAllTags(); // Get all available tags from the database (assuming DB is globally accessible)
 
             // Always use newNotePage.noteTags for determining selected tags
@@ -1420,11 +1472,9 @@ Page {
                                     // Update the database if it's an existing note
                                     if (newNotePage.noteId !== -1) {
                                         if (newCheckedState) {
-                                            // !!! ВАЖНО: ЭТА СТРОКА ВЫЗЫВАЕТ ОШИБКУ "getDatabase is not defined"
                                             DB.addTagToNote(newNotePage.noteId, model.name);
                                             console.log(qsTr("Added tag '%1' to note ID %2").arg(model.name).arg(newNotePage.noteId));
                                         } else {
-                                            // !!! ВАЖНО: ЭТА СТРОКА ВЫЗЫВАЕТ ОШИБКУ "getDatabase is not defined"
                                             DB.deleteTagFromNote(newNotePage.noteId, model.name);
                                             console.log(qsTr("Removed tag '%1' from note ID %2").arg(model.name).arg(newNotePage.noteId));
                                         }

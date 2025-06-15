@@ -129,27 +129,6 @@ Page {
                     }
                 }
             }
-
-            // "Permanently Delete" Selected Button
-            Button {
-                id: deleteSelectedButton
-                Layout.preferredWidth: (parent.width - (parent.spacing * 2)) / 3
-                Layout.preferredHeight: Theme.buttonHeightSmall
-                icon.source: "../icons/delete.svg" // Delete icon
-                highlightColor: Theme.errorColor // Highlight color (red)
-                enabled: selectedNoteIds.length > 0 // Active if something is selected
-                onClicked: {
-                    if (selectedNoteIds.length > 0) {
-                        // Formulate confirmation dialog message dynamically
-                        dialogMessage = qsTr("Are you sure you want to permanently delete %1 selected notes from %2? This action cannot be undone.")
-                                          .arg(selectedNoteIds.length)
-                                          .arg(pageMode === "trash" ? qsTr("trash") : qsTr("archive"));
-                        // Show the custom confirmation dialog
-                        manualConfirmDialog.visible = true;
-                        console.log(qsTr("Showing permanent delete confirmation dialog for %1 notes.").arg(pageMode));
-                    }
-                }
-            }
         } // End selectionControls Row
 
         // Small spacing item between buttons and Flickable
@@ -254,81 +233,11 @@ Page {
                 horizontalAlignment: Text.AlignHCenter
             }
         }
-
-        // Scrollbar for SilicaFlickable
         ScrollBar {
             flickableSource: notesFlickable
         }
-    } // End mainLayout ColumnLayout
-
-    // Toast Manager for displaying pop-up messages
+    }
     ToastManager {
         id: toastManager
     }
-
-    // Manual Overlay / Confirmation Dialog for permanent deletion
-    Item {
-        id: manualConfirmDialog
-        anchors.fill: parent
-        visible: false // Hidden by default
-        z: 100 // Ensure dialog is on top of other elements
-        // Background to dim the page
-        Rectangle {
-            anchors.fill: parent
-            color: "#000000"
-            opacity: 0.6
-        }
-        // The dialog content itself (centered rectangle)
-        Rectangle {
-            id: dialogContent
-            width: parent.width * 0.8 // 80% width of parent
-            height: dialogColumn.implicitHeight + Theme.paddingLarge * 2 // Height based on content with padding
-            color: Theme.backgroundColor // Dialog background color
-            radius: Theme.itemCornerRadius // Rounded corners
-            anchors.centerIn: parent // Centered within parent Item
-            Column {
-                id: dialogColumn
-                width: parent.width
-                spacing: Theme.paddingMedium // Spacing between elements in the column
-                anchors.margins: Theme.paddingLarge // Internal padding for the column
-                Label {
-                    width: parent.width
-                    text: qsTr("Confirm Permanent Deletion") // Dialog title
-                    font.pixelSize: Theme.fontSizeLarge
-                    font.bold: true
-                    horizontalAlignment: Text.AlignHCenter
-                    color: Theme.highlightColor
-                }
-                Label {
-                    width: parent.width
-                    text: unifiedNotesPage.dialogMessage // Message text from page property
-                    wrapMode: Text.WordWrap
-                    horizontalAlignment: Text.AlignHCenter
-                    color: Theme.primaryColor
-                }
-                RowLayout {
-                    width: parent.width
-                    spacing: Theme.paddingMedium // Spacing between buttons
-                    anchors.horizontalCenter: parent.horizontalCenter // Center buttons
-                    Button {
-                        Layout.fillWidth: true
-                        text: qsTr("Cancel")
-                        onClicked: manualConfirmDialog.visible = false // Hide dialog on cancel
-                    }
-                    Button {
-                        Layout.fillWidth: true
-                        text: qsTr("Delete") // Delete button text
-                        highlightColor: Theme.errorColor // Highlight color (red)
-                        onClicked: {
-                            DB.permanentlyDeleteNotes(selectedNoteIds); // Call permanent delete function
-                            refreshNotes(); // Refresh notes list
-                            toastManager.show(qsTr("%1 note(s) permanently deleted!").arg(selectedNoteIds.length)); // Notification
-                            manualConfirmDialog.visible = false // Hide dialog after action
-                            console.log(qsTr("%1 note(s) permanently deleted from %2.").arg(selectedNoteIds.length).arg(unifiedNotesPage.pageMode));
-                        }
-                    }
-                }
-            }
-        }
-    } // End manualConfirmDialog
 }

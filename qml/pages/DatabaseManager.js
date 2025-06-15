@@ -559,24 +559,29 @@ function bulkUnarchiveNotes(ids) {
     });
 }
 
+// ИСПРАВЛЕНО: Теперь эти функции используют initDatabase() и глобальную переменную db
 function moveNoteFromArchiveToTrash(noteId) {
-    var db = getDatabase();
+    initDatabase(); // Инициализация базы данных
     db.transaction(function(tx) {
+        // Используем correct column names: 'deleted' и 'archived' вместо 'is_deleted'/'is_archived'
+        // и 'updated_at' вместо 'edit_date'
         tx.executeSql(
-            'UPDATE notes SET is_archived = 0, is_deleted = 1, edit_date = ? WHERE id = ?',
-            [new Date().toISOString(), noteId]
+            'UPDATE Notes SET archived = 0, deleted = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+            [noteId]
         );
-        console.log("DatabaseManager: Note moved from archive to trash. ID:", noteId);
+        console.log("DB_MGR: Note moved from archive to trash. ID:", noteId);
     });
 }
 
 function moveNoteFromTrashToArchive(noteId) {
-    var db = getDatabase();
+    initDatabase(); // Инициализация базы данных
     db.transaction(function(tx) {
+        // Используем correct column names: 'deleted' и 'archived' вместо 'is_deleted'/'is_archived'
+        // и 'updated_at' вместо 'edit_date'
         tx.executeSql(
-            'UPDATE notes SET is_deleted = 0, is_archived = 1, edit_date = ? WHERE id = ?',
-            [new Date().toISOString(), noteId]
+            'UPDATE Notes SET deleted = 0, archived = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+            [noteId]
         );
-        console.log("DatabaseManager: Note moved from trash to archive. ID:", noteId);
+        console.log("DB_MGR: Note moved from trash to archive. ID:", noteId);
     });
 }
