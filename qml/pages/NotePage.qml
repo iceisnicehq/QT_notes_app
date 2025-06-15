@@ -1,4 +1,4 @@
-//NotePage.qml
+// NotePage.qml
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.Layouts 1.1
@@ -25,7 +25,7 @@ Page {
     // Properties for read-only mode, passed from calling page
     property bool isArchived: false // True if note is opened from ArchivePage
     property bool isDeleted: false  // True if note is opened from TrashPage
-    property bool isReadOnly: isArchived //  || isDeleted // Derived property for overall read-only state
+    property bool isReadOnly: isArchived || isDeleted // Derived property for overall read-only state
 
     // Property to track if the note was sent to trash from this page
     property bool sentToTrash: false
@@ -60,21 +60,32 @@ Page {
         }
     }
 
+    /**
+     * @brief handleInteractionAttempt
+     * Checks if the note is in a state (deleted or archived) that requires user action
+     * before allowing editing or other modifications. If so, it shows a confirmation dialog.
+     * This function is intended to be called BEFORE any action that modifies the note's content or properties.
+     * @returns {boolean} True if interaction is allowed (note is editable), false otherwise.
+     */
     function handleInteractionAttempt() {
         var needsAction = newNotePage.isDeleted || newNotePage.isArchived;
         if (needsAction) {
+            newNotePage.isReadOnly = true; // Crucial: Set to true to disable editing inputs immediately
+
             if (newNotePage.isDeleted) {
                 actionRequiredDialog.dialogTitle = qsTr("Cannot Edit Deleted Note");
                 actionRequiredDialog.dialogText = qsTr("To edit this note, you need to restore it first.");
                 actionRequiredDialog.confirmButtonText = qsTr("Restore");
                 actionRequiredDialog.confirmAction = function() {
                     DB.restoreNote(newNotePage.noteId);
-                    newNotePage.isDeleted = false; // <<< ИСПРАВЛЕНО
-                    newNotePage.isReadOnly = false; // <<< ИСПРАВЛЕНО
+                    newNotePage.isDeleted = false; // Update the note's status
+                    newNotePage.isReadOnly = false; // Allow editing now
                     toastManager.show(qsTr("Note restored!"));
-                    if (onNoteSavedOrDeleted) onNoteSavedOrDeleted();
-                    noteContentInput.forceActiveFocus(); // <<< ИСПРАВЛЕНО: Фокус после восстановления
-                    pageStack.pop(); // <<< ИСПРАВЛЕНО: Возврат на предыдущую страницу
+                    if (onNoteSavedOrDeleted) {
+                        onNoteSavedOrDeleted();
+                    }
+                    // Do NOT pop pageStack here. Allow user to edit after restoring.
+                    noteContentInput.forceActiveFocus(); // Give focus to content input
                 };
             } else if (newNotePage.isArchived) {
                 actionRequiredDialog.dialogTitle = qsTr("Cannot Edit Archived Note");
@@ -82,20 +93,26 @@ Page {
                 actionRequiredDialog.confirmButtonText = qsTr("Unarchive");
                 actionRequiredDialog.confirmAction = function() {
                     DB.unarchiveNote(newNotePage.noteId);
-                    newNotePage.isArchived = false; // <<< ИСПРАВЛЕНО
-                    newNotePage.isReadOnly = false; // <<< ИСПРАВЛЕНО
+                    newNotePage.isArchived = false; // Update the note's status
+                    newNotePage.isReadOnly = false; // Allow editing now
                     toastManager.show(qsTr("Note unarchived!"));
-                    if (onNoteSavedOrDeleted) onNoteSavedOrDeleted();
-                    noteContentInput.forceActiveFocus(); // <<< ИСПРАВЛЕНО: Фокус после разархивирования
-                    pageStack.pop(); // <<< ИСПРАВЛЕНО: Возврат на предыдущую страницу
+                    if (onNoteSavedOrDeleted) {
+                        onNoteSavedOrDeleted();
+                    }
+                    // Do NOT pop pageStack here. Allow user to edit after unarchiving.
+                    noteContentInput.forceActiveFocus(); // Give focus to content input
                 };
             }
             actionRequiredDialog.visible = true;
             actionRequiredDialog.opacity = 1;
-            return false;
+            return false; // Interaction is NOT allowed yet, dialog is shown
         }
-        return true;
+        // If no action is needed (note is neither deleted nor archived),
+        // ensure isReadOnly is false to allow editing.
+        newNotePage.isReadOnly = false;
+        return true; // Interaction is allowed
     }
+
 
     // Function to add content and cursor position snapshots to history
     function addToContentHistory(content, cursorPos) {
@@ -144,14 +161,13 @@ Page {
 
     // Actions on component completion (when page is loaded)
     Component.onCompleted: {
-        console.log(qsTr("NewNotePage opened. ReadOnly mode: %1").arg(newNotePage.isReadOnly));
+        console.log(qsTr("NewNotePage opened. ReadOnly mode: %1, isArchived: %2, isDeleted: %3").arg(newNotePage.isReadOnly).arg(newNotePage.isArchived).arg(newNotePage.isDeleted));
         if (noteId !== -1) {
             // If noteId is set, it's an existing note (EDIT or VIEW mode)
             noteTitleInput.text = noteTitle;
             noteContentInput.text = noteContent;
             // Убедимся, что noteTags - это массив, если он пришел как строка
             if (typeof noteTags === 'string') {
-                // ИСПРАВЛЕНО: Замена стрелочной функции на анонимную функцию
                 newNotePage.noteTags = noteTags.split(' ').filter(function(tag) { return tag.length > 0; });
             }
             console.log(qsTr("NewNotePage opened in EDIT mode for ID: %1").arg(noteId));
@@ -171,6 +187,8 @@ Page {
         if (!newNotePage.isReadOnly) {
             newNotePage.addToContentHistory(noteContentInput.text, noteContentInput.cursorPosition);
             console.log(qsTr("Initial history state: Index %1, History: %2").arg(newNotePage.historyIndex).arg(JSON.stringify(newNotePage.contentHistory)));
+        } else {
+            console.log(qsTr("Note in read-only mode, history not initialized."));
         }
     }
 
@@ -186,8 +204,8 @@ Page {
         } else if (sentToTrash || sentToArchive) {
             // If note was explicitly sent to trash or archive, do nothing on destruction
             console.log(qsTr("Debug: Note already sent to trash/archive. Skipping save/delete on destruction."));
-        } else if (trimmedTitle === "" && trimmedContent === "") {
-            // If note is empty
+        } else if (trimmedTitle === "" && trimmedContent === "" && newNotePage.noteTags.length === 0 && !newNotePage.noteIsPinned) {
+            // If note is empty (title, content, tags, pinned status)
             if (noteId !== -1) {
                 // If it was an existing note and now empty, permanently delete it
                 DB.permanentlyDeleteNote(noteId);
@@ -346,7 +364,7 @@ Page {
         Rectangle {
             anchors.fill: parent
             color: "#000000"
-            opacity: restoreFromTrashDialog.opacity * 0.5
+            opacity: actionRequiredDialog.opacity * 0.5 // Use actionRequiredDialog.opacity for dimming
             Behavior on opacity { NumberAnimation { duration: 200 } }
         }
         Rectangle {
@@ -357,7 +375,7 @@ Page {
             anchors.centerIn: parent
             Behavior on opacity { NumberAnimation { duration: 200 } }
             Behavior on transform {
-                PropertyAnimation { property: "scale"; from: 0.9; to: 1.0; duration: 200; easing.type: Easing.OutBack; exclude: !restoreFromTrashDialog.visible }
+                PropertyAnimation { property: "scale"; from: 0.9; to: 1.0; duration: 200; easing.type: Easing.OutBack; exclude: !actionRequiredDialog.visible } // Use actionRequiredDialog.visible
             }
             Column {
                 id: dialogColumn
@@ -388,21 +406,25 @@ Page {
                         Layout.fillWidth: true
                         text: qsTr("Cancel")
                         onClicked: {
-                            actionRequiredDialog.visible = false; // <<< ИСПРАВЛЕНО
-                            actionRequiredDialog.opacity = 0; // <<< ИСПРАВЛЕНО
+                            actionRequiredDialog.visible = false;
+                            actionRequiredDialog.opacity = 0;
+                            // Re-set isReadOnly to true if it was a read-only note
+                            // This ensures inputs remain disabled if user cancels restore/unarchive
+                            newNotePage.isReadOnly = newNotePage.isArchived || newNotePage.isDeleted;
                         }
                     }
                     Button {
                         Layout.fillWidth: true
-                        text: qsTr("Restore")
+                        text: actionRequiredDialog.confirmButtonText // Use dynamic button text
                         highlightColor: Theme.positiveColor
                         onClicked: {
                             if (actionRequiredDialog.confirmAction) {
-                                actionRequiredDialog.confirmAction();
+                                actionRequiredDialog.confirmAction(); // Execute the dynamic action (restore/unarchive)
                             }
                             actionRequiredDialog.visible = false;
                             actionRequiredDialog.opacity = 0;
-                        } ////// изменено
+                            // isReadOnly will be handled by confirmAction if successful
+                        }
                     }
                 }
             }
@@ -584,7 +606,19 @@ Page {
             MouseArea {
                 anchors.fill: parent
                 onPressed: backRipple.ripple(mouseX, mouseY)
-                onClicked: pageStack.pop() // Pop page on click
+                onClicked: {
+                    // Check if in read-only mode and handle accordingly
+                    if (newNotePage.isReadOnly) {
+                        pageStack.pop(); // Simply pop back if in read-only mode (from Trash/Archive)
+                    } else if (newNotePage.noteId === -1 && noteTitleInput.text.trim() === "" && noteContentInput.text.trim() === "") {
+                        // New, empty note, just pop without saving
+                        pageStack.pop();
+                    } else {
+                        // For new note with content or existing modified note, save on pop if not read-only
+                        // The onDestruction handler will take care of saving
+                        pageStack.pop();
+                    }
+                }
             }
         }
         // Pin button
@@ -606,13 +640,12 @@ Page {
             }
             MouseArea {
                 anchors.fill: parent
-                // Теперь кнопка активна, если заметка не в архиве
+                // Enable only if not in read-only mode
                 enabled: !newNotePage.isReadOnly
                 onPressed: pinRipple.ripple(mouseX, mouseY)
                 onClicked: {
-                    // Вызываем перехватчик
+                    // Call handleInteractionAttempt only for actions that modify the note
                     if (handleInteractionAttempt()) {
-                        // Этот код выполнится, только если заметка НЕ из корзины
                         noteIsPinned = !noteIsPinned;
                         newNotePage.noteModified = true;
                         var msg = noteIsPinned ? qsTr("The note was pinned") : qsTr("The note was unpinned")
@@ -641,26 +674,25 @@ Page {
             }
             MouseArea {
                 anchors.fill: parent
-                enabled: newNotePage.noteId !== -1  // Enable only for existing, editable notes
+                enabled: newNotePage.noteId !== -1 && !newNotePage.isReadOnly // Enable only for existing, editable notes
                 onPressed: duplicateRipple.ripple(mouseX, mouseY)
                 onClicked: {
                     if (handleInteractionAttempt()) {
-                        // Оригинальная логика выполняется только если проверка пройдена
+                        // Original logic executes only if the check passes
                         console.log(qsTr("Duplicate button clicked for note ID: %1").arg(newNotePage.noteId));
                         pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
                            onNoteSavedOrDeleted: newNotePage.onNoteSavedOrDeleted, // Use the same refresh callback
                            noteId: -1, // This makes it a new note
                            noteTitle: newNotePage.noteTitle + qsTr(" (copy)"), // Append "(copy)" to title
                            noteContent: newNotePage.noteContent,
-                           noteIsPinned: newNotePage.noteIsPinned, // Duplicated notes are typically not pinned by default
-                           // ИСПРАВЛЕНО: Замена оператора spread на .slice()
+                           noteIsPinned: newNotePage.noteIsPinned,
                            noteTags: Array.isArray(newNotePage.noteTags) ? newNotePage.noteTags.slice() : [],
                            noteColor: newNotePage.noteColor, // Copy current color
                            noteCreationDate: new Date(), // New creation date
                            noteEditDate: new Date(), // New edit date
                            noteModified: true // Mark as modified so it saves automatically
                         });
-                    toastManager.show(qsTr("Note duplicated!"));
+                        toastManager.show(qsTr("Note duplicated!"));
                     }
                 }
             }
@@ -707,15 +739,18 @@ Page {
                 }
                 MouseArea {
                     anchors.fill: parent
-                    enabled: !newNotePage.isReadOnly// Disable interaction in read-only mode
+                    enabled: !newNotePage.isReadOnly // Disable interaction in read-only mode
                     onPressed: paletteRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        console.log(qsTr("Change color/theme - toggling panel visibility"));
-                        // Toggle color selection panel visibility
-                        if (colorSelectionPanel.opacity > 0.01) {
-                            colorSelectionPanel.opacity = 0;
-                        } else {
-                            colorSelectionPanel.opacity = 1;
+                        // Call handleInteractionAttempt only for actions that modify the note
+                        if (handleInteractionAttempt()) {
+                            console.log(qsTr("Change color/theme - toggling panel visibility"));
+                            // Toggle color selection panel visibility
+                            if (colorSelectionPanel.opacity > 0.01) {
+                                colorSelectionPanel.opacity = 0;
+                            } else {
+                                colorSelectionPanel.opacity = 1;
+                            }
                         }
                     }
                 }
@@ -741,12 +776,15 @@ Page {
                     enabled: !newNotePage.isReadOnly // Disable interaction in read-only mode
                     onPressed: addTagRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        console.log(qsTr("Add Tag button clicked. Opening tag selection panel."));
-                        // Toggle tag selection panel visibility
-                        if (tagSelectionPanel.opacity > 0.01) {
-                            tagSelectionPanel.opacity = 0;
-                        } else {
-                            tagSelectionPanel.opacity = 1;
+                        // Call handleInteractionAttempt only for actions that modify the note
+                        if (handleInteractionAttempt()) {
+                            console.log(qsTr("Add Tag button clicked. Opening tag selection panel."));
+                            // Toggle tag selection panel visibility
+                            if (tagSelectionPanel.opacity > 0.01) {
+                                tagSelectionPanel.opacity = 0;
+                            } else {
+                                tagSelectionPanel.opacity = 1;
+                            }
                         }
                     }
                 }
@@ -783,15 +821,18 @@ Page {
                     enabled: newNotePage.historyIndex > 0 && !newNotePage.isReadOnly
                     onPressed: undoRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        console.log(qsTr("Undo action triggered!"));
-                        if (newNotePage.historyIndex > 0) {
-                            newNotePage.isUndoingRedoing = true; // Prevent history update for this programmatic change
-                            newNotePage.historyIndex--; // Move back in history
-                            var historicalState = newNotePage.contentHistory[newNotePage.historyIndex];
-                            noteContentInput.text = historicalState.text; // Set text to previous state
-                            noteContentInput.cursorPosition = historicalState.cursorPosition; // Restore cursor position
-                            newNotePage.isUndoingRedoing = false; // Re-enable history updates
-                            toastManager.show(qsTr("Undo successful!"));
+                        if (handleInteractionAttempt()) { // Check read-only state for undo/redo
+                            console.log(qsTr("Undo action triggered!"));
+                            if (newNotePage.historyIndex > 0) {
+                                newNotePage.isUndoingRedoing = true; // Prevent history update for this programmatic change
+                                newNotePage.historyIndex--; // Move back in history
+                                var historicalState = newNotePage.contentHistory[newNotePage.historyIndex];
+                                noteContentInput.text = historicalState.text; // Set text to previous state
+                                noteContentInput.cursorPosition = historicalState.cursorPosition; // Restore cursor position
+                                newNotePage.isUndoingRedoing = false; // Re-enable history updates
+                                newNotePage.noteModified = true; // Undo/Redo is a modification
+                                toastManager.show(qsTr("Undo successful!"));
+                            }
                         }
                     }
                 }
@@ -818,15 +859,18 @@ Page {
                     enabled: newNotePage.historyIndex < newNotePage.contentHistory.length - 1 && !newNotePage.isReadOnly
                     onPressed: redoRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        console.log(qsTr("Redo action triggered!"));
-                        if (newNotePage.historyIndex < newNotePage.contentHistory.length - 1) {
-                            newNotePage.isUndoingRedoing = true; // Prevent history update for this programmatic change
-                            newNotePage.historyIndex++; // Move forward in history
-                            var historicalState = newNotePage.contentHistory[newNotePage.historyIndex];
-                            noteContentInput.text = historicalState.text; // Set text to next state
-                            noteContentInput.cursorPosition = historicalState.cursorPosition; // Restore cursor position
-                            newNotePage.isUndoingRedoing = false; // Re-enable history updates
-                            toastManager.show(qsTr("Redo successful!"));
+                        if (handleInteractionAttempt()) { // Check read-only state for undo/redo
+                            console.log(qsTr("Redo action triggered!"));
+                            if (newNotePage.historyIndex < newNotePage.contentHistory.length - 1) {
+                                newNotePage.isUndoingRedoing = true; // Prevent history update for this programmatic change
+                                newNotePage.historyIndex++; // Move forward in history
+                                var historicalState = newNotePage.contentHistory[newNotePage.historyIndex];
+                                noteContentInput.text = historicalState.text; // Set text to next state
+                                noteContentInput.cursorPosition = historicalState.cursorPosition; // Restore cursor position
+                                newNotePage.isUndoingRedoing = false; // Re-enable history updates
+                                newNotePage.noteModified = true; // Undo/Redo is a modification
+                                toastManager.show(qsTr("Redo successful!"));
+                            }
                         }
                     }
                 }
@@ -853,26 +897,32 @@ Page {
                     anchors.centerIn: parent
                     width: parent.width
                     height: parent.height
-                    // Visually disable if new note or in read-only mode
-                    opacity: (newNotePage.noteId !== -1 && !newNotePage.isReadOnly) ? 1.0 : 0.5
-                    color: (newNotePage.noteId !== -1 && !newNotePage.isReadOnly) ? Theme.primaryColor : Theme.secondaryColor
+                    // Visually disable if new note or already archived
+                    opacity: (newNotePage.noteId !== -1 && !newNotePage.isArchived) ? 1.0 : 0.5
+                    color: (newNotePage.noteId !== -1 && !newNotePage.isArchived) ? Theme.primaryColor : Theme.secondaryColor
                 }
                 MouseArea {
                     anchors.fill: parent
-                    enabled: newNotePage.noteId !== -1
+                    enabled: newNotePage.noteId !== -1 // Always active if note is not new (even if archived/deleted)
                     onPressed: archiveRipple.ripple(mouseX, mouseY)
                     onClicked: {
                         if (newNotePage.isArchived) {
                             toastManager.show(qsTr("Note is already in the archive"));
-                            return;
+                            return; // Exit, do nothing
                         }
                         if (newNotePage.isDeleted) {
+                            // If note is in trash, move to archive
                             DB.moveNoteFromTrashToArchive(newNotePage.noteId);
-                            toastManager.show(qsTr("Note moved to archive"));
+                            newNotePage.isDeleted = false; // Update status
+                            newNotePage.isArchived = true; // Update status
+                            newNotePage.isReadOnly = false; // Now considered active in Archive, potentially editable if unarchived later
+                            newNotePage.sentToArchive = true; // Mark that it was sent to archive
+                            toastManager.show(qsTr("Note moved to archive!"));
                             if (onNoteSavedOrDeleted) onNoteSavedOrDeleted();
-                            pageStack.pop();
+                            pageStack.pop(); // Return to previous page
                             return;
                         }
+                        // If note is neither archived nor deleted, show archive confirmation
                         manualConfirmArchiveDialog.visible = true;
                     }
                 }
@@ -890,26 +940,32 @@ Page {
                     anchors.centerIn: parent
                     width: parent.width
                     height: parent.height
-                    // Visually disable if new note or in read-only mode
-                    opacity: (newNotePage.noteId !== -1 && !newNotePage.isReadOnly) ? 1.0 : 0.5
-                    color: (newNotePage.noteId !== -1 && !newNotePage.isReadOnly) ? Theme.primaryColor : Theme.secondaryColor
+                    // Visually disable if new note or already deleted
+                    opacity: (newNotePage.noteId !== -1 && !newNotePage.isDeleted) ? 1.0 : 0.5
+                    color: (newNotePage.noteId !== -1 && !newNotePage.isDeleted) ? Theme.primaryColor : Theme.secondaryColor
                 }
                 MouseArea {
                     anchors.fill: parent
-                    enabled: newNotePage.noteId !== -1
+                    enabled: newNotePage.noteId !== -1 // Always active if note is not new
                     onPressed: deleteRipple.ripple(mouseX, mouseY)
                     onClicked: {
                         if (newNotePage.isDeleted) {
                             toastManager.show(qsTr("Note is already in the trash"));
-                            return;
+                            return; // Exit, do nothing
                         }
                         if (newNotePage.isArchived) {
+                            // If note is in archive, move to trash
                             DB.moveNoteFromArchiveToTrash(newNotePage.noteId);
-                            toastManager.show(qsTr("Note moved to trash"));
+                            newNotePage.isArchived = false; // Update status
+                            newNotePage.isDeleted = true; // Update status
+                            newNotePage.isReadOnly = false; // Now considered active in Trash
+                            newNotePage.sentToTrash = true; // Mark that it was sent to trash
+                            toastManager.show(qsTr("Note moved to trash!"));
                             if (onNoteSavedOrDeleted) onNoteSavedOrDeleted();
-                            pageStack.pop();
+                            pageStack.pop(); // Return to previous page
                             return;
                         }
+                        // If note is neither deleted nor archived, show delete confirmation
                         manualConfirmDeleteDialog.visible = true;
                     }
                 }
@@ -983,7 +1039,6 @@ Page {
                 width: parent.width
                 spacing: Theme.paddingMedium
                 visible: newNotePage.noteTags.length > 0 // Only visible if tags exist
-                // ИСПРАВЛЕНО: model: newNotePage.noteTags - noteTags уже должен быть массивом
                 Repeater {
                     model: newNotePage.noteTags // Model for tags - напрямую используем noteTags (массив)
                     delegate: Rectangle {
@@ -1016,7 +1071,6 @@ Page {
                             onReleased: {
                                 tagRectangle.color = tagRectangle.normalColor
                                 console.log(qsTr("Tag clicked for editing: %1").arg(modelData))
-                                console.log()
                                 Qt.inputMethod.hide();
                                 // Open tag selection panel when a tag is clicked
                                 if (tagSelectionPanel.opacity > 0.01) {
@@ -1034,24 +1088,21 @@ Page {
             Item { width: parent.width; height: Theme.paddingLarge * 2 }
         }
 
-
-
+        // Overlay MouseArea for handling interaction attempts in read-only mode for main content
         MouseArea {
-            anchors.fill: contentColumn // Покрывает и заголовок, и текст
-            visible: newNotePage.isFromTrash // Активна только для заметок из корзины
+            anchors.fill: contentColumn // Covers both title and content inputs
+            visible: newNotePage.isReadOnly // Only active when in read-only mode
             onClicked: {
-                handleInteractionAttempt();
+                handleInteractionAttempt(); // Call the handler to show the dialog
             }
         }
-
-
 
 
         Label {
             id: noTagsLabel
             text: qsTr("No tags")
             font.italic: true
-            visible: newNotePage.noteTags.length === 0
+            visible: newNotePage.noteTags.length === 0 && !newNotePage.isReadOnly // Show "No tags" only if no tags and not in read-only (where it might be misleading)
             font.pixelSize: Theme.fontSizeSmall
             color: Theme.secondaryColor
             anchors.horizontalCenter: parent.horizontalCenter
@@ -1102,7 +1153,7 @@ Page {
             width: parent.width
             height: colorPanelContentColumn.implicitHeight + Theme.paddingMedium * 2 + 2 * colorSelectionPanel.panelRadius
             color: newNotePage.noteColor // Color panel's background matches current note color
-            //radius: colorSelectionPanel.panelRadius
+            //radius: colorSelectionPanel.panelRadius // Consider if this should be here or on inner content
             y: 0
 
             Column {
@@ -1255,8 +1306,8 @@ Page {
             availableTagsModel.clear(); // Clear existing items
             var allTags = DB.getAllTags(); // Get all available tags from the database (assuming DB is globally accessible)
 
-            // ИСПРАВЛЕНО: Всегда используем newNotePage.noteTags для определения выбранных тегов
-            // так как она теперь должна быть актуальной (массивом).
+            // Always use newNotePage.noteTags for determining selected tags
+            // as it should now be up-to-date (an array).
             var currentNoteTags = Array.isArray(newNotePage.noteTags) ? newNotePage.noteTags : [];
 
             var selectedTags = [];
@@ -1265,7 +1316,7 @@ Page {
             // Populate separate arrays for selected and unselected tags
             for (var i = 0; i < allTags.length; i++) {
                 var tagName = allTags[i];
-                var isChecked = currentNoteTags.indexOf(tagName) !== -1; // Проверяем наличие в актуальном массиве
+                var isChecked = currentNoteTags.indexOf(tagName) !== -1; // Check for presence in the current note's tags
                 if (isChecked) {
                     selectedTags.push({ name: tagName, isChecked: true });
                 } else {
@@ -1311,17 +1362,62 @@ Page {
                     anchors.centerIn: parent
                 }
             }
+            // Input for new tag creation - CHANGED TO TextField
+            TextField { // Changed from TextInput to TextField
+                id: newTagInput
+                width: parent.width * 0.9 // Slightly smaller than parent for padding
+                anchors.horizontalCenter: parent.horizontalCenter
+                placeholderText: qsTr("Add new tag...") // Now supported
+                font.pixelSize: Theme.fontSizeMedium
+                color: Theme.primaryColor
+                readOnly: newNotePage.isReadOnly // Inherit read-only state
+                // onEditingFinished: { // <-- ЭТА СТРОКА УДАЛЕНА
+                //     if (newNotePage.isReadOnly) {
+                //         return; // Prevent adding tags in read-only mode
+                //     }
+                //     var newTagName = newTagInput.text.trim();
+                //     if (newTagName.length > 0) {
+                //         // Check if tag already exists in availableTagsModel
+                //         var tagExists = false;
+                //         for (var i = 0; i < availableTagsModel.count; i++) {
+                //             if (availableTagsModel.get(i).name === newTagName) {
+                //                 tagExists = true;
+                //                 break;
+                //             }
+                //         }
+                //         if (!tagExists) {
+                //             DB.addTag(newTagName); // Add to master tag list in DB
+                //             availableTagsModel.append({ name: newTagName, isChecked: true }); // Add to current model and check it
+
+                //             // Immediately update noteTags to include the new checked tag
+                //             var currentTags = newNotePage.noteTags.slice(); // Create a shallow copy
+                //             if (currentTags.indexOf(newTagName) === -1) {
+                //                 currentTags.push(newTagName);
+                //                 newNotePage.noteTags = currentTags; // Reassign with new array instance
+                //                 newNotePage.noteModified = true;
+                //             }
+                //             newTagInput.text = ""; // Clear input
+                //             console.log(qsTr("New tag '%1' added and selected.").arg(newTagName));
+                //             tagsPanelFlickable.contentY = tagsPanelFlickable.contentHeight; // Scroll to bottom to see new tag
+                //         } else {
+                //             toastManager.show(qsTr("Tag '%1' already exists!").arg(newTagName));
+                //             console.log(qsTr("Tag '%1' already exists!").arg(newTagName));
+                //         }
+                //     }
+                // }
+            }
+
 
             // --- Flickable Area for Tag List ---
             // Allows scrolling if the list of tags exceeds the panel height.
             SilicaFlickable {
                 id: tagsPanelFlickable
                 width: parent.width
-                anchors.top: tagPanelHeader.bottom // Anchored below the header
+                anchors.top: newTagInput.bottom // Anchored below the new tag input
                 anchors.bottom: doneButton.top // Anchored above the Done button
                 anchors.left: parent.left
                 anchors.right: parent.right
-                anchors.topMargin: Theme.paddingMedium // Space from header
+                anchors.topMargin: Theme.paddingMedium // Space from new tag input
                 anchors.bottomMargin: Theme.paddingMedium // Space from done button
                 contentHeight: tagsPanelListView.contentHeight // Content height dynamically set by ListView
                 clip: true // Clips content that overflows
@@ -1343,7 +1439,7 @@ Page {
                         clip: true
                         // Dynamic background color based on checked state
                         // Selected tag uses the note's color, unselected uses a standard darker shade
-                        color: model.isChecked ? newNotePage.noteColor : "#2a2c3a" // New styling colors
+                        color: model.isChecked ? newNotePage.noteColor : newNotePage.darkenColor(newNotePage.noteColor, 0.25) // New styling colors
 
                         // Ripple effect for visual feedback on touch/click
                         RippleEffect { id: tagPanelDelegateRipple }
@@ -1359,23 +1455,24 @@ Page {
                                 // Update the model for immediate UI reflection
                                 availableTagsModel.set(index, { name: model.name, isChecked: newCheckedState });
 
-                                // Logic to update noteTags (either locally for new note or via DB for existing)
-                                if (newNotePage.noteId === -1) {
-                                    // Для новой заметки: явно создаем новый массив
-                                    // ИСПРАВЛЕНО: Замена оператора spread на .slice()
-                                    var currentTagsForNewNote = Array.isArray(newNotePage.noteTags) ? newNotePage.noteTags.slice() : []; // Делаем копию
-                                    if (newCheckedState) {
-                                        if (currentTagsForNewNote.indexOf(model.name) === -1) {
-                                            currentTagsForNewNote.push(model.name);
-                                        }
-                                    } else {
-                                        // ИСПРАВЛЕНО: Замена стрелочной функции на анонимную функцию
-                                        currentTagsForNewNote = currentTagsForNewNote.filter(function(tag) { return tag !== model.name; });
+                                // Logic to update newNotePage.noteTags
+                                var currentNoteTagsCopy = Array.isArray(newNotePage.noteTags) ? newNotePage.noteTags.slice() : [];
+
+                                if (newCheckedState) {
+                                    // Add tag if it's checked and not already in the array
+                                    if (currentNoteTagsCopy.indexOf(model.name) === -1) {
+                                        currentNoteTagsCopy.push(model.name);
                                     }
-                                    newNotePage.noteTags = currentTagsForNewNote; // ПЕРЕПРИСВАИВАЕМ НОВЫМ МАССИВОМ
-                                    console.log(qsTr("New note's tags updated directly (new instance assigned): %1").arg(JSON.stringify(newNotePage.noteTags)));
                                 } else {
-                                    // Для существующей заметки: обновляем через БД
+                                    // Remove tag if it's unchecked
+                                    currentNoteTagsCopy = currentNoteTagsCopy.filter(function(tag) {
+                                        return tag !== model.name;
+                                    });
+                                }
+                                newNotePage.noteTags = currentNoteTagsCopy; // Assign the new array instance
+
+                                // Update the database if it's an existing note
+                                if (newNotePage.noteId !== -1) {
                                     if (newCheckedState) {
                                         DB.addTagToNote(newNotePage.noteId, model.name);
                                         console.log(qsTr("Added tag '%1' to note ID %2").arg(model.name).arg(newNotePage.noteId));
@@ -1383,12 +1480,10 @@ Page {
                                         DB.deleteTagFromNote(newNotePage.noteId, model.name);
                                         console.log(qsTr("Removed tag '%1' from note ID %2").arg(model.name).arg(newNotePage.noteId));
                                     }
-                                    // ИСПРАВЛЕНО: Явно переприсваиваем newNotePage.noteTags новым экземпляром массива
-                                    var updatedTagsFromDb = DB.getTagsForNote(null, newNotePage.noteId);
-                                    newNotePage.noteTags = Array.isArray(updatedTagsFromDb) ? updatedTagsFromDb.slice() : []; // Убеждаемся, что это массив и делаем копию
-                                    console.log(qsTr("NewNotePage: main tagsFlow updated after DB change: %1").arg(JSON.stringify(newNotePage.noteTags)));
                                 }
+
                                 newNotePage.noteModified = true; // Mark note as modified
+                                console.log(qsTr("Note's tags updated: %1").arg(JSON.stringify(newNotePage.noteTags)));
                             }
                         }
 
@@ -1408,7 +1503,7 @@ Page {
                                 width: Theme.iconSizeMedium
                                 height: Theme.iconSizeMedium
                                 anchors.verticalCenter: parent.verticalCenter
-                                fillMode: Image.PreserveAspectFit
+                                // Icon component typically handles fillMode and color tinting for SVGs
                             }
 
                             // Label for the tag name
@@ -1436,7 +1531,7 @@ Page {
                                 clip: false
 
                                 // Checkbox icon (changes based on model.isChecked)
-                                Image {
+                                Image { // Changed from Icon to Image for flexibility, if Icon causes issues for dynamic source
                                     id: tagPanelCheckIcon
                                     source: model.isChecked ? "../icons/box-checked.svg" : "../icons/box.svg" // Checked or unchecked box icon
                                     anchors.centerIn: parent
@@ -1465,6 +1560,9 @@ Page {
                 text: qsTr("Done") // Localized text for the button
                 onClicked: {
                     tagSelectionPanel.opacity = 0; // Close the tag picker when Done is clicked
+                    // No need to explicitly re-sync noteTags here, as it's updated on each click within the delegate
+                    // Ensure the note is marked as modified if any tag changes happened
+                    newNotePage.noteModified = true;
                     console.log(qsTr("Tag picker closed by Done button."));
                 }
                 anchors.bottom: parent.bottom

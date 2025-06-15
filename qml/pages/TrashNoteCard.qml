@@ -1,8 +1,8 @@
-// TrashNoteCard.qml (Corrected version)
+// TrashNoteCard.qml
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import "DatabaseManager.js" as DB
+import "DatabaseManager.js" as DB // DB might be needed for certain functions if you choose to re-introduce logic here
 
 Item {
     id: root
@@ -16,18 +16,16 @@ Item {
     property string cardColor: "#1c1d29"
     property bool isSelected: false
     property int noteId: -1
-    property var trashPageInstance: null // Reference to TrashPage
 
-    // NEW: Add properties passed from NoteCard
+    // Properties for full note data (passed through signal)
     property bool noteIsPinned: false
     property date noteCreationDate: new Date()
     property date noteEditDate: new Date()
-    property bool isFromTrash: true // Default to true for TrashNoteCard
 
     // --- Signals ---
     signal selectionToggled(int noteId, bool isSelected)
-    // CORRECTED: Declare 'noteClicked' as a signal with its parameters
-    signal noteClicked(int noteId, string title, string content, bool isPinned, var tags, date creationDate, date editDate, string color, bool isArchived, bool isDeleted)
+    // Signal to notify parent page that this card was clicked for opening NotePage
+    signal noteClicked(int noteId, string title, string content, bool isPinned, var tags, date creationDate, date editDate, string color)
 
 
     // --- UI Components ---
@@ -38,31 +36,30 @@ Item {
         border.color: "#43484e"
         border.width: 1
 
+        // MouseArea for clicking the entire card (to open NotePage)
         MouseArea {
             id: wholeCardMouseArea
             anchors.fill: parent
 
             onClicked: {
                 console.log("TrashNoteCard (ID:", root.noteId, "): Full card clicked. Emitting noteClicked signal.");
-                // CORRECTED: Emit the 'noteClicked' signal
-                // Pass all necessary data directly from the model/root properties
+                // Emit the 'noteClicked' signal with all necessary note data
                 root.noteClicked(
                     root.noteId,
                     root.title,
                     root.content,
                     root.noteIsPinned,
-                    root.tags, // Ensure this is handled as an array if NotePage expects it
+                    root.tags, // Note: This passes tags as a space-separated string. NotePage expects an array.
+                               // You might need to split this string into an array in NotePage or before emitting.
                     root.noteCreationDate,
                     root.noteEditDate,
-                    root.cardColor,
-                    false, // isArchived: TrashNoteCard is not for archived notes by itself
-                    true   // isDeleted: TrashNoteCard implies it's from trash
+                    root.cardColor
                 );
                 Qt.inputMethod.hide(); // Hide keyboard
             }
         }
 
-        // --- Checkbox container with enlarged click area ---
+        // --- Container for the checkbox with enlarged click area ---
         Item {
             id: checkboxClickArea
             anchors { verticalCenter: parent.verticalCenter; right: parent.right; rightMargin: Theme.paddingMedium }
@@ -78,6 +75,7 @@ Item {
                 }
             }
 
+            // --- The visual checkbox itself (Rectangle) ---
             Rectangle {
                 id: visualCheckbox
                 anchors.centerIn: parent
@@ -100,9 +98,9 @@ Item {
             anchors.topMargin: Theme.paddingLarge
             anchors.leftMargin: Theme.paddingLarge
             anchors.bottomMargin: Theme.paddingLarge
-            anchors.rightMargin: checkboxClickArea.width + Theme.paddingMedium
+            anchors.rightMargin: checkboxClickArea.width + Theme.paddingMedium // Adjust right margin to prevent overlap with checkbox
 
-            width: parent.width - (anchors.leftMargin + anchors.rightMargin)
+            width: parent.width - (anchors.leftMargin + anchors.rightMargin) // Calculate width dynamically
 
             spacing: Theme.paddingSmall
 
@@ -134,16 +132,17 @@ Item {
                 id: tagsFlow
                 width: parent.width
                 spacing: Theme.paddingSmall
-                visible: root.tags && root.tags.trim().length > 0
+                visible: root.tags && root.tags.trim().length > 0 // Only show if tags string is not empty
 
+                // Repeater to display each tag
                 Repeater {
-                    model: root.tags.split(" ").filter(function(tag) { return tag.trim() !== "" })
+                    model: root.tags.split(" ").filter(function(tag) { return tag.trim() !== "" }) // Split string into array, filter out empty tags
                     delegate: Rectangle {
-                        visible: index < 2
+                        visible: index < 2 // Show only first 2 tags
                         color: "#32353a"
                         radius: 12
                         height: tagText.implicitHeight + Theme.paddingSmall
-                        width: Math.min(tagText.implicitWidth + Theme.paddingMedium * 2, parent.width * 0.45)
+                        width: Math.min(tagText.implicitWidth + Theme.paddingMedium * 2, parent.width * 0.45) // Max width for tag bubble
 
                         Text {
                             id: tagText
@@ -158,6 +157,7 @@ Item {
                     }
                 }
 
+                // "+X" bubble for more than 2 tags
                 Rectangle {
                     visible: root.tags.split(" ").filter(function(tag) { return tag.trim() !== "" }).length > 2
                     color: "#32353a"

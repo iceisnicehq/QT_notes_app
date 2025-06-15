@@ -5,9 +5,8 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.Layouts 1.1
 import "DatabaseManager.js" as DB
-
-// Assuming TrashNoteCard.qml is in the same directory or its path is set in qmldir
-// import "TrashNoteCard.qml" // You might uncomment this if your project setup requires explicit import here.
+// Ensure TrashNoteCard.qml is accessible. If it's not in the same directory, adjust path or qmldir.
+// import "TrashNoteCard.qml"
 
 Page {
     id: trashPage
@@ -200,7 +199,7 @@ Page {
                                     noteTitle: title,
                                     noteContent: content,
                                     noteIsPinned: isPinned,
-                                    noteTags: tags, // Ensure 'tags' is passed as an array if NotePage expects it
+                                    noteTags: tags, // Use the parameter from the signal
                                     noteCreationDate: creationDate,
                                     noteEditDate: editDate,
                                     noteColor: color,
