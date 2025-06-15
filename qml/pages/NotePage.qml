@@ -359,6 +359,113 @@ Page {
             }
         }
     }
+    // ADDED: Custom Confirmation Dialog for Duplicate
+        Item {
+            id: manualConfirmDuplicateDialog
+            anchors.fill: parent
+            visible: false // Hidden by default
+            z: 100 // Ensure it's on top of almost everything
+            opacity: 0 // Start hidden for animation
+
+            // Background overlay to dim the rest of the page
+            Rectangle {
+                anchors.fill: parent
+                color: "#000000"
+                opacity: manualConfirmDuplicateDialog.opacity * 0.5 // Dimming effect
+                Behavior on opacity { NumberAnimation { duration: 200 } }
+            }
+
+            // The actual dialog content
+            Rectangle {
+                id: duplicateDialogContent
+                width: parent.width * 0.8 // 80% width of the overlay
+                height: duplicateDialogColumn.implicitHeight + Theme.paddingLarge * 2 // Height based on content plus padding
+                color: newNotePage.darkenColor(newNotePage.noteColor, 0.15) // Consistent dark background
+                radius: Theme.itemSizeSmall / 2 // Rounded corners
+                anchors.centerIn: parent // Center the dialog within the overlay
+
+                // Behavior for smooth appearance/disappearance
+                Behavior on opacity { NumberAnimation { duration: 200 } }
+                Behavior on transform {
+                    PropertyAnimation { property: "scale"; from: 0.9; to: 1.0; duration: 200; easing.type: Easing.OutBack; exclude: !manualConfirmDuplicateDialog.visible }
+                    PropertyAnimation { property: "scale"; from: 1.0; to: 0.9; duration: 200; easing.type: Easing.InBack; exclude: manualConfirmDuplicateDialog.visible }
+                }
+
+                Column {
+                    id: duplicateDialogColumn
+                    width: parent.width - Theme.paddingLarge * 2 // Column width, considering parent's padding
+                    spacing: Theme.paddingMedium
+                    anchors.margins: Theme.paddingLarge // Padding around the column content
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.top: parent.top
+
+                    Label {
+                        width: parent.width
+                        text: qsTr("Confirm Duplicate") // Title for duplicate dialog
+                        font.pixelSize: Theme.fontSizeLarge
+                        font.bold: true
+                        horizontalAlignment: Text.AlignHCenter
+                        color: Theme.highlightColor
+                    }
+
+                    Label {
+                        width: parent.width
+                        text: qsTr("Do you want to create a copy of this note?") // Message for duplicate dialog
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        color: Theme.primaryColor
+                    }
+
+                    RowLayout {
+                        width: parent.width
+                        spacing: Theme.paddingMedium
+                        anchors.horizontalCenter: parent.horizontalCenter // Center the buttons
+
+                        Button {
+                            Layout.fillWidth: true
+                            text: qsTr("Cancel")
+                            onClicked: {
+                                manualConfirmDuplicateDialog.visible = false; // Hide the dialog
+                                manualConfirmDuplicateDialog.opacity = 0; // Reset opacity for next show
+                                console.log(qsTr("Duplicate action cancelled by user."));
+                            }
+                        }
+
+                        Button {
+                            Layout.fillWidth: true
+                            text: qsTr("Duplicate") // Button text
+                            highlightColor: Theme.positiveColor // A positive color for duplication
+                            onClicked: {
+                                // Original duplication logic moved here
+                                console.log(qsTr("Duplicate button clicked for note ID: %1 (confirmed)").arg(newNotePage.noteId));
+                                pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
+                                   onNoteSavedOrDeleted: newNotePage.onNoteSavedOrDeleted, // Use the same refresh callback
+                                   noteId: -1, // This makes it a new note
+                                   noteTitle: newNotePage.noteTitle + qsTr(" (copy)"), // Append "(copy)" to title
+                                   noteContent: newNotePage.noteContent,
+                                   noteIsPinned: newNotePage.noteIsPinned,
+                                   noteTags: Array.isArray(newNotePage.noteTags) ? newNotePage.noteTags.slice() : [],
+                                   noteColor: newNotePage.noteColor, // Copy current color
+                                   noteCreationDate: new Date(), // New creation date
+                                   noteEditDate: new Date(), // New edit date
+                                   noteModified: true // Mark as modified so it saves automatically
+                                });
+                                toastManager.show(qsTr("Note duplicated!"));
+
+                                manualConfirmDuplicateDialog.visible = false; // Hide dialog after action
+                                manualConfirmDuplicateDialog.opacity = 0; // Reset opacity for next show
+                            }
+                        }
+                    }
+                }
+            }
+            // Handler for showing/hiding with animation
+            onVisibleChanged: {
+                if (visible) {
+                    opacity = 1;
+                }
+            }
+        }
 // новый диалог для кейса с корзиной и архивом
     Item {
         id: actionRequiredDialog
@@ -690,24 +797,17 @@ Page {
             }
             MouseArea {
                 anchors.fill: parent
-                enabled: newNotePage.noteId !== -1 // Always enabled for existing notes to allow dialog
+                enabled: newNotePage.noteId !== -1 // Only enabled if it's an existing note
                 onPressed: duplicateRipple.ripple(mouseX, mouseY)
                 onClicked: {
+                    if (newNotePage.noteId === -1) {
+                         toastManager.show(qsTr("Cannot duplicate a new note. Save it first."));
+                         return;
+                    }
                     if (handleInteractionAttempt()) { // Check read-only state and show dialog if needed
-                        console.log(qsTr("Duplicate button clicked for note ID: %1").arg(newNotePage.noteId));
-                        pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
-                           onNoteSavedOrDeleted: newNotePage.onNoteSavedOrDeleted, // Use the same refresh callback
-                           noteId: -1, // This makes it a new note
-                           noteTitle: newNotePage.noteTitle + qsTr(" (copy)"), // Append "(copy)" to title
-                           noteContent: newNotePage.noteContent,
-                           noteIsPinned: newNotePage.noteIsPinned,
-                           noteTags: Array.isArray(newNotePage.noteTags) ? newNotePage.noteTags.slice() : [],
-                           noteColor: newNotePage.noteColor, // Copy current color
-                           noteCreationDate: new Date(), // New creation date
-                           noteEditDate: new Date(), // New edit date
-                           noteModified: true // Mark as modified so it saves automatically
-                        });
-                        toastManager.show(qsTr("Note duplicated!"));
+                        // Show the confirmation dialog
+                        manualConfirmDuplicateDialog.visible = true;
+                        console.log(qsTr("Showing duplicate confirmation dialog for note ID: %1").arg(newNotePage.noteId));
                     }
                 }
             }
