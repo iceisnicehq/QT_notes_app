@@ -178,7 +178,7 @@ Item {
                         noteCount: sidePanel.archivedNotesCount
                         onClicked: {
                             sidePanel.currentPage = "archive"
-                            pageStack.push(Qt.resolvedUrl("trashArchivePage.qml"), {
+                            pageStack.push(Qt.resolvedUrl("ArchivePage.qml"), {
                                 pageMode: "archive"
                             });
                             mainPage.panelOpen = false

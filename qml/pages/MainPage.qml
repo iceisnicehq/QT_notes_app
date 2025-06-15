@@ -3,6 +3,7 @@
 import QtQuick.LocalStorage 2.0
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import QtQuick.Layouts 1.1
 import "Database.js" as Data // Assuming this contains DB initialization
 import "DatabaseManager.js" as DB // Assuming this contains actual DB operations like getAllNotes, searchNotes, etc.
 
@@ -30,7 +31,13 @@ Page {
     property bool selectionMode: false
     // List to store IDs of selected notes
     property var selectedNoteIds: []
-
+    // New properties for generic confirmation dialog
+    property bool confirmDialogVisible: false
+    property string confirmDialogTitle: ""
+    property string confirmDialogMessage: ""
+    property string confirmButtonText: ""
+    property color confirmButtonHighlightColor: Theme.primaryColor // Default, will be overridden
+    property var onConfirmCallback: null // Function to call when user confirms
     // --- ToastManager definition (Crucial for showing messages) ---
     ToastManager {
         id: toastManager
@@ -320,11 +327,20 @@ Page {
                         anchors.fill: parent
                         onClicked: {
                             if (mainPage.selectedNoteIds.length > 0) {
-                                var idsToMove = mainPage.selectedNoteIds;
-                                DB.bulkMoveToTrash(idsToMove);
-                                toastManager.show(qsTr("%1 note(s) moved to trash!").arg(idsToMove.length));
-                                mainPage.resetSelection();
-                                mainPage.refreshData();
+                                // Configure and show the generic confirmation dialog for deletion
+                                mainPage.confirmDialogTitle = qsTr("Confirm Deletion");
+                                mainPage.confirmDialogMessage = qsTr("Are you sure you want to move %1 selected note(s) to trash?").arg(mainPage.selectedNoteIds.length);
+                                mainPage.confirmButtonText = qsTr("Delete");
+                                mainPage.confirmButtonHighlightColor = Theme.errorColor;
+                                mainPage.onConfirmCallback = function() {
+                                    var idsToMove = mainPage.selectedNoteIds;
+                                    DB.bulkMoveToTrash(idsToMove);
+                                    toastManager.show(qsTr("%1 note(s) moved to trash!").arg(idsToMove.length));
+                                    mainPage.resetSelection();
+                                    mainPage.refreshData();
+                                };
+                                mainPage.confirmDialogVisible = true;
+                                console.log("Showing delete confirmation dialog.");
                             } else {
                                 toastManager.show(qsTr("No notes selected."));
                             }
@@ -332,7 +348,6 @@ Page {
                         onPressed: deleteRipple.ripple(mouseX, mouseY)
                     }
                 }
-
                 // Right: Archive button (left of delete button)
                 Item {
                     id: archiveButton
@@ -348,11 +363,20 @@ Page {
                         anchors.fill: parent
                         onClicked: {
                             if (mainPage.selectedNoteIds.length > 0) {
-                                var idsToArchive = mainPage.selectedNoteIds;
-                                DB.bulkArchiveNotes(idsToArchive);
-                                toastManager.show(qsTr("%1 note(s) archived!").arg(idsToArchive.length));
-                                mainPage.resetSelection();
-                                mainPage.refreshData();
+                                // Configure and show the generic confirmation dialog for archiving
+                                mainPage.confirmDialogTitle = qsTr("Confirm Archiving");
+                                mainPage.confirmDialogMessage = qsTr("Are you sure you want to archive %1 selected note(s)?").arg(mainPage.selectedNoteIds.length);
+                                mainPage.confirmButtonText = qsTr("Archive");
+                                mainPage.confirmButtonHighlightColor = Theme.primaryColor; // Or a custom archive color if you have one
+                                mainPage.onConfirmCallback = function() {
+                                    var idsToArchive = mainPage.selectedNoteIds;
+                                    DB.bulkArchiveNotes(idsToArchive);
+                                    toastManager.show(qsTr("%1 note(s) archived!").arg(idsToArchive.length));
+                                    mainPage.resetSelection();
+                                    mainPage.refreshData();
+                                };
+                                mainPage.confirmDialogVisible = true;
+                                console.log("Showing archive confirmation dialog.");
                             } else {
                                 toastManager.show(qsTr("No notes selected."));
                             }
@@ -798,4 +822,101 @@ Page {
             }
         }
     }
+    // --- Generic Confirmation Dialog ---
+        // Place this at the very end of MainPage.qml, before the closing brace '}'
+        Item {
+            id: genericConfirmDialog
+            anchors.fill: parent
+            visible: mainPage.confirmDialogVisible // Controlled by mainPage property
+            z: 100 // Ensure it's on top of almost everything
+            opacity: 0 // Start hidden for animation
+
+            // Background overlay to dim the rest of the page
+            Rectangle {
+                anchors.fill: parent
+                color: "#000000"
+                opacity: genericConfirmDialog.opacity * 0.5 // Dimming effect
+                Behavior on opacity { NumberAnimation { duration: 200 } }
+            }
+
+            // The actual dialog content
+            Rectangle {
+                id: dialogContent
+                width: parent.width * 0.8 // 80% width of the overlay
+                // Height based on content plus padding
+                height: dialogColumn.implicitHeight + Theme.paddingLarge * 2
+                // Using a darker background color for the dialog, adjust as needed
+                color: "#1c1d29" // A slightly darker shade than the main background
+                radius: Theme.itemSizeSmall / 2 // Rounded corners
+                anchors.centerIn: parent // Center the dialog within the overlay
+
+                // Behavior for smooth appearance/disappearance
+                Behavior on opacity { NumberAnimation { duration: 200 } }
+                Behavior on transform {
+                    PropertyAnimation { property: "scale"; from: 0.9; to: 1.0; duration: 200; easing.type: Easing.OutBack; exclude: !genericConfirmDialog.visible }
+                    PropertyAnimation { property: "scale"; from: 1.0; to: 0.9; duration: 200; easing.type: Easing.InBack; exclude: genericConfirmDialog.visible }
+                }
+
+                Column {
+                    id: dialogColumn
+                    width: parent.width - Theme.paddingLarge * 2 // Column width, considering parent's padding
+                    spacing: Theme.paddingMedium
+                    anchors.margins: Theme.paddingLarge // Padding around the column content
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.top: parent.top
+
+                    Label {
+                        width: parent.width
+                        text: mainPage.confirmDialogTitle // Bound to mainPage property
+                        font.pixelSize: Theme.fontSizeLarge
+                        font.bold: true
+                        horizontalAlignment: Text.AlignHCenter
+                        color: Theme.highlightColor
+                    }
+
+                    Label {
+                        width: parent.width
+                        text: mainPage.confirmDialogMessage // Bound to mainPage property
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        color: Theme.primaryColor
+                    }
+
+                    RowLayout {
+                        width: parent.width
+                        spacing: Theme.paddingMedium
+                        anchors.horizontalCenter: parent.horizontalCenter
+
+                        Button {
+                            Layout.fillWidth: true
+                            text: qsTr("Cancel")
+                            onClicked: {
+                                mainPage.confirmDialogVisible = false; // Just hide the dialog
+                                console.log(qsTr("Action cancelled by user."));
+                            }
+                        }
+
+                        Button {
+                            Layout.fillWidth: true
+                            text: mainPage.confirmButtonText // Bound to mainPage property
+                            highlightColor: mainPage.confirmButtonHighlightColor // Bound to mainPage property
+                            onClicked: {
+                                if (mainPage.onConfirmCallback) {
+                                    mainPage.onConfirmCallback(); // Execute the stored callback function
+                                }
+                                mainPage.confirmDialogVisible = false; // Hide the dialog
+                            }
+                        }
+                    }
+                }
+            }
+            // Handler for showing/hiding with animation
+            onVisibleChanged: {
+                if (visible) {
+                    opacity = 1;
+                } else {
+                    opacity = 0;
+                }
+            }
+        }
 }

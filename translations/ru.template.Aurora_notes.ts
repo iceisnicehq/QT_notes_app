@@ -32,6 +32,94 @@
     </message>
 </context>
 <context>
+    <name>ArchivePage</name>
+    <message>
+        <location filename="../qml/pages/ArchivePage.qml" line="28"/>
+        <source>UNIFIED_NOTES_PAGE: UnifiedNotesPage opened in %1 mode. Calling refreshNotes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ArchivePage.qml" line="35"/>
+        <source>DB_MGR: getDeletedNotes found %1 deleted notes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ArchivePage.qml" line="38"/>
+        <source>DB_MGR: getArchivedNotes found %1 archived notes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ArchivePage.qml" line="41"/>
+        <source>UNIFIED_NOTES_PAGE: refreshNotes completed for %1. Count: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ArchivePage.qml" line="49"/>
+        <source>Trash</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ArchivePage.qml" line="49"/>
+        <source>Archive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ArchivePage.qml" line="90"/>
+        <source>Selected note IDs after Select All/Deselect All: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ArchivePage.qml" line="100"/>
+        <source>Restore</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ArchivePage.qml" line="100"/>
+        <source>Unarchive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ArchivePage.qml" line="107"/>
+        <source>%1 note(s) restored!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ArchivePage.qml" line="108"/>
+        <source>%1 note(s) restored from trash.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ArchivePage.qml" line="111"/>
+        <source>%1 note(s) unarchived!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ArchivePage.qml" line="112"/>
+        <source>%1 note(s) unarchived.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ArchivePage.qml" line="176"/>
+        <source>Toggled selection for note ID: %1. Current selected: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ArchivePage.qml" line="180"/>
+        <source>UNIFIED_NOTES_PAGE: Opening NotePage for note ID: %1 from %2.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ArchivePage.qml" line="203"/>
+        <source>Trash is empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ArchivePage.qml" line="203"/>
+        <source>Archive is empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>DefaultCoverPage</name>
     <message>
         <location filename="../qml/cover/DefaultCoverPage.qml" line="10"/>
@@ -449,67 +537,92 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="1102"/>
+        <location filename="../qml/pages/NotePage.qml" line="1106"/>
         <source>Tag clicked for editing: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="1134"/>
+        <location filename="../qml/pages/NotePage.qml" line="1138"/>
         <source>No tags</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="1203"/>
+        <location filename="../qml/pages/NotePage.qml" line="1207"/>
         <source>Select Note Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="1297"/>
+        <location filename="../qml/pages/NotePage.qml" line="1301"/>
         <source>Tag picker closed by clicking overlay.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="1328"/>
+        <location filename="../qml/pages/NotePage.qml" line="1334"/>
         <source>Tag selection panel opened. Loading tags and scrolling to top.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="1368"/>
+        <location filename="../qml/pages/NotePage.qml" line="1352"/>
+        <source>Tag name cannot be empty!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="1364"/>
+        <source>Error: Tag &apos;%1&apos; already exists.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="1365"/>
+        <source>Tag &apos;%1&apos; already exists!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="1369"/>
+        <source>New tag &apos;%1&apos; added to DB.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="1378"/>
+        <source>Tag &apos;%1&apos; also added to current note&apos;s tags.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="1387"/>
+        <source>Tag &apos;%1&apos; created and added!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="1422"/>
         <source>TagSelectionPanel: Loaded tags for display in panel. Model items: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="1392"/>
-        <source>Select Tags</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/NotePage.qml" line="1403"/>
+        <location filename="../qml/pages/NotePage.qml" line="1450"/>
         <source>Add new tag...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="1489"/>
+        <location filename="../qml/pages/NotePage.qml" line="1576"/>
         <source>Note&apos;s tags updated: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="1481"/>
+        <location filename="../qml/pages/NotePage.qml" line="1568"/>
         <source>Added tag &apos;%1&apos; to note ID %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="1484"/>
+        <location filename="../qml/pages/NotePage.qml" line="1571"/>
         <source>Removed tag &apos;%1&apos; from note ID %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="1564"/>
+        <location filename="../qml/pages/NotePage.qml" line="1651"/>
         <source>Done</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="1570"/>
+        <location filename="../qml/pages/NotePage.qml" line="1657"/>
         <source>Tag picker closed by Done button.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -931,94 +1044,6 @@
     <message>
         <location filename="../qml/pages/TrashPage.qml" line="205"/>
         <source>Trash is empty.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>trashArchivePage</name>
-    <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="28"/>
-        <source>UNIFIED_NOTES_PAGE: UnifiedNotesPage opened in %1 mode. Calling refreshNotes.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="35"/>
-        <source>DB_MGR: getDeletedNotes found %1 deleted notes.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="38"/>
-        <source>DB_MGR: getArchivedNotes found %1 archived notes.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="41"/>
-        <source>UNIFIED_NOTES_PAGE: refreshNotes completed for %1. Count: %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="49"/>
-        <source>Trash</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="49"/>
-        <source>Archive</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="90"/>
-        <source>Selected note IDs after Select All/Deselect All: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="100"/>
-        <source>Restore</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="100"/>
-        <source>Unarchive</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="107"/>
-        <source>%1 note(s) restored!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="108"/>
-        <source>%1 note(s) restored from trash.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="111"/>
-        <source>%1 note(s) unarchived!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="112"/>
-        <source>%1 note(s) unarchived.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="176"/>
-        <source>Toggled selection for note ID: %1. Current selected: %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="180"/>
-        <source>UNIFIED_NOTES_PAGE: Opening NotePage for note ID: %1 from %2.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="203"/>
-        <source>Trash is empty.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="203"/>
-        <source>Archive is empty.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
