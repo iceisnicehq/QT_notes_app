@@ -819,10 +819,49 @@
     </message>
 </context>
 <context>
+    <name>SettingsPage</name>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="17"/>
+        <source>Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="31"/>
+        <source>Language</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="37"/>
+        <source>Russian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="44"/>
+        <source>Language changed to Russian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="47"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="65"/>
+        <source>Failed to change language.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="55"/>
+        <source>English</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="62"/>
+        <source>Language changed to English</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>TrashNoteCard</name>
     <message>
-        <location filename="../qml/pages/TrashNoteCard.qml" line="146"/>
-        <location filename="../qml/pages/TrashNoteCard.qml" line="157"/>
+        <location filename="../qml/pages/TrashNoteCard.qml" line="148"/>
+        <location filename="../qml/pages/TrashNoteCard.qml" line="159"/>
         <source>Empty</source>
         <translation type="unfinished"></translation>
     </message>

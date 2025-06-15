@@ -3,18 +3,21 @@ TARGET = ru.template.Aurora_notes
 CONFIG += \
     auroraapp
 
-QT += quick quick-private core gui widgets
+QT += qml quick core gui
 
 PKGCONFIG += \
 
 SOURCES += \
+    src/appsettings.cpp \
     src/main.cpp \
 
-HEADERS +=
+HEADERS += \
+    src/appsettings.h
 
 DISTFILES += \
     qml/pages/ConfirmationDialog.qml \
     qml/pages/ImportExportPage.qml \
+    qml/pages/SettingsPage.qml \
     qml/pages/TrashNoteCard.qml \
     rpm/ru.template.Aurora_notes.spec \
 

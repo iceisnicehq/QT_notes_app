@@ -215,6 +215,7 @@ Item {
                         selected: sidePanel.currentPage === "settings"
                         onClicked: {
                             sidePanel.currentPage = "settings"
+                            pageStack.push(Qt.resolvedUrl("SettingsPage.qml"))
                             mainPage.panelOpen = false
                         }
                     }
