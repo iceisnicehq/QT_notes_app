@@ -111,318 +111,405 @@
 <context>
     <name>NotePage</name>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="49"/>
+        <location filename="../qml/pages/NotePage.qml" line="52"/>
         <source>History auto-saved: &quot;%1&quot; (cursor: %2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="54"/>
+        <location filename="../qml/pages/NotePage.qml" line="57"/>
         <source>Initial history state added by timer: &quot;%1&quot; (cursor: %2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="83"/>
+        <location filename="../qml/pages/NotePage.qml" line="79"/>
+        <source>Cannot Edit Deleted Note</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="80"/>
+        <source>To edit this note, you need to restore it first.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="81"/>
+        <source>Restore</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="86"/>
+        <source>Note restored!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="93"/>
+        <source>Cannot Edit Archived Note</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="94"/>
+        <source>To edit this note, you need to unarchive it first.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="95"/>
+        <source>Unarchive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="100"/>
+        <source>Note unarchived!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="141"/>
         <source>Added to history: &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="83"/>
+        <location filename="../qml/pages/NotePage.qml" line="141"/>
         <source>History size: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="83"/>
+        <location filename="../qml/pages/NotePage.qml" line="141"/>
         <source>Current index: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="107"/>
-        <source>NewNotePage opened. ReadOnly mode: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/NotePage.qml" line="117"/>
+        <location filename="../qml/pages/NotePage.qml" line="180"/>
         <source>NewNotePage opened in EDIT mode for ID: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="118"/>
+        <location filename="../qml/pages/NotePage.qml" line="181"/>
         <source>Note color on open: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="124"/>
+        <location filename="../qml/pages/NotePage.qml" line="187"/>
         <source>NewNotePage opened in CREATE mode. Default color: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="133"/>
+        <location filename="../qml/pages/NotePage.qml" line="196"/>
         <source>Initial history state: Index %1, History: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="139"/>
+        <location filename="../qml/pages/NotePage.qml" line="204"/>
         <source>NewNotePage being destroyed. Attempting to save/delete note.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="145"/>
+        <location filename="../qml/pages/NotePage.qml" line="210"/>
         <source>Debug: In read-only mode. Skipping save/delete on destruction.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="148"/>
+        <location filename="../qml/pages/NotePage.qml" line="213"/>
         <source>Debug: Note already sent to trash/archive. Skipping save/delete on destruction.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="154"/>
+        <location filename="../qml/pages/NotePage.qml" line="219"/>
         <source>Debug: Empty existing note permanently deleted with ID: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="157"/>
+        <location filename="../qml/pages/NotePage.qml" line="222"/>
         <source>Debug: New empty note not saved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="166"/>
+        <location filename="../qml/pages/NotePage.qml" line="231"/>
         <source>Debug: New note added with ID: %1, Color: %2, Tags: %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="174"/>
+        <location filename="../qml/pages/NotePage.qml" line="239"/>
         <source>Debug: Note updated with ID: %1, Color: %2, Tags: %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="176"/>
+        <location filename="../qml/pages/NotePage.qml" line="241"/>
         <source>Debug: Note with ID: %1 not modified, skipping update.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="231"/>
-        <source>Confirm Deletion</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/NotePage.qml" line="240"/>
-        <source>Do you want to move this note to the trash?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/NotePage.qml" line="253"/>
-        <location filename="../qml/pages/NotePage.qml" line="358"/>
+        <location filename="../qml/pages/NotePage.qml" line="322"/>
+        <location filename="../qml/pages/NotePage.qml" line="419"/>
+        <location filename="../qml/pages/NotePage.qml" line="517"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="257"/>
+        <location filename="../qml/pages/NotePage.qml" line="326"/>
         <source>Delete action cancelled by user.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="263"/>
+        <location filename="../qml/pages/NotePage.qml" line="332"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="269"/>
+        <location filename="../qml/pages/NotePage.qml" line="337"/>
         <source>Note ID: %1 moved to trash after confirmation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="271"/>
+        <location filename="../qml/pages/NotePage.qml" line="339"/>
+        <location filename="../qml/pages/NotePage.qml" line="992"/>
         <source>Note moved to trash!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="277"/>
-        <source>New unsaved note discarded after confirmation.</source>
+        <location filename="../qml/pages/NotePage.qml" line="171"/>
+        <source>NewNotePage opened. ReadOnly mode: %1, isArchived: %2, isDeleted: %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="336"/>
-        <source>Confirm Archive</source>
+        <location filename="../qml/pages/NotePage.qml" line="198"/>
+        <source>Note in read-only mode, history not initialized.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="300"/>
+        <source>Confirm Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="309"/>
+        <source>Do you want to move this note to trash?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="345"/>
+        <source>New unsaved note discarded without deletion.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="495"/>
+        <source>Confirm Archive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="504"/>
         <source>Do you want to archive this note?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="362"/>
+        <location filename="../qml/pages/NotePage.qml" line="521"/>
         <source>Archive action cancelled by user.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="368"/>
+        <location filename="../qml/pages/NotePage.qml" line="527"/>
         <source>Archive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="374"/>
+        <location filename="../qml/pages/NotePage.qml" line="533"/>
         <source>Note ID: %1 moved to archive after confirmation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="376"/>
+        <location filename="../qml/pages/NotePage.qml" line="535"/>
         <source>Note archived!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="382"/>
+        <location filename="../qml/pages/NotePage.qml" line="541"/>
         <source>New unsaved note discarded without archiving.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="412"/>
+        <location filename="../qml/pages/NotePage.qml" line="571"/>
         <source>New Note</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="412"/>
+        <location filename="../qml/pages/NotePage.qml" line="571"/>
         <source>Edit Note</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="421"/>
+        <location filename="../qml/pages/NotePage.qml" line="580"/>
         <source>Created: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="427"/>
+        <location filename="../qml/pages/NotePage.qml" line="586"/>
         <source>Edited: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="491"/>
+        <location filename="../qml/pages/NotePage.qml" line="661"/>
+        <source>Cannot pin a new note. Save it first.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="667"/>
         <source>The note was pinned</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="491"/>
+        <location filename="../qml/pages/NotePage.qml" line="667"/>
         <source>The note was unpinned</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="519"/>
+        <location filename="../qml/pages/NotePage.qml" line="697"/>
         <source>Duplicate button clicked for note ID: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="524"/>
+        <location filename="../qml/pages/NotePage.qml" line="701"/>
         <source> (copy)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="534"/>
+        <location filename="../qml/pages/NotePage.qml" line="710"/>
         <source>Note duplicated!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="583"/>
+        <location filename="../qml/pages/NotePage.qml" line="760"/>
         <source>Change color/theme - toggling panel visibility</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="614"/>
+        <location filename="../qml/pages/NotePage.qml" line="792"/>
         <source>Add Tag button clicked. Opening tag selection panel.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="656"/>
+        <location filename="../qml/pages/NotePage.qml" line="838"/>
         <source>Undo action triggered!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="664"/>
+        <location filename="../qml/pages/NotePage.qml" line="847"/>
         <source>Undo successful!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="691"/>
+        <location filename="../qml/pages/NotePage.qml" line="849"/>
+        <source>Nothing to undo.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="878"/>
         <source>Redo action triggered!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="699"/>
+        <location filename="../qml/pages/NotePage.qml" line="887"/>
         <source>Redo successful!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="794"/>
+        <location filename="../qml/pages/NotePage.qml" line="889"/>
+        <source>Nothing to redo.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="929"/>
+        <source>Cannot archive a new note. Save it first.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="933"/>
+        <source>Note is already archived</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="942"/>
+        <source>Note moved to archive!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="977"/>
+        <source>Cannot delete a new note. Save it first.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="982"/>
+        <source>Note is already in the trash</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="1027"/>
         <source>Title</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="815"/>
+        <location filename="../qml/pages/NotePage.qml" line="1048"/>
         <source>Note</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="870"/>
+        <location filename="../qml/pages/NotePage.qml" line="1102"/>
         <source>Tag clicked for editing: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="891"/>
+        <location filename="../qml/pages/NotePage.qml" line="1134"/>
         <source>No tags</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="960"/>
+        <location filename="../qml/pages/NotePage.qml" line="1203"/>
         <source>Select Note Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="1052"/>
+        <location filename="../qml/pages/NotePage.qml" line="1297"/>
         <source>Tag picker closed by clicking overlay.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="1083"/>
+        <location filename="../qml/pages/NotePage.qml" line="1328"/>
         <source>Tag selection panel opened. Loading tags and scrolling to top.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="1123"/>
+        <location filename="../qml/pages/NotePage.qml" line="1368"/>
         <source>TagSelectionPanel: Loaded tags for display in panel. Model items: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="1147"/>
+        <location filename="../qml/pages/NotePage.qml" line="1392"/>
         <source>Select Tags</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="1215"/>
-        <source>New note&apos;s tags updated directly (new instance assigned): %1</source>
+        <location filename="../qml/pages/NotePage.qml" line="1403"/>
+        <source>Add new tag...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="1220"/>
+        <location filename="../qml/pages/NotePage.qml" line="1489"/>
+        <source>Note&apos;s tags updated: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="1481"/>
         <source>Added tag &apos;%1&apos; to note ID %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="1223"/>
+        <location filename="../qml/pages/NotePage.qml" line="1484"/>
         <source>Removed tag &apos;%1&apos; from note ID %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="1228"/>
-        <source>NewNotePage: main tagsFlow updated after DB change: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/NotePage.qml" line="1304"/>
+        <location filename="../qml/pages/NotePage.qml" line="1564"/>
         <source>Done</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="1307"/>
+        <location filename="../qml/pages/NotePage.qml" line="1570"/>
         <source>Tag picker closed by Done button.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -734,8 +821,8 @@
 <context>
     <name>TrashNoteCard</name>
     <message>
-        <location filename="../qml/pages/TrashNoteCard.qml" line="54"/>
-        <location filename="../qml/pages/TrashNoteCard.qml" line="66"/>
+        <location filename="../qml/pages/TrashNoteCard.qml" line="146"/>
+        <location filename="../qml/pages/TrashNoteCard.qml" line="157"/>
         <source>Empty</source>
         <translation type="unfinished"></translation>
     </message>
@@ -743,8 +830,13 @@
 <context>
     <name>TrashPage</name>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="38"/>
+        <location filename="../qml/pages/TrashPage.qml" line="41"/>
         <source>Trash</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/TrashPage.qml" line="83"/>
+        <source>Selected note IDs after Select All/Deselect All: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -753,32 +845,52 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../qml/pages/TrashPage.qml" line="101"/>
+        <source>%1 note(s) restored from trash.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../qml/pages/TrashPage.qml" line="115"/>
         <source>Are you sure you want to permanently delete %1 selected notes? This action cannot be undone.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="238"/>
+        <location filename="../qml/pages/TrashPage.qml" line="117"/>
+        <source>Showing permanent delete confirmation dialog for %1 notes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/TrashPage.qml" line="179"/>
+        <source>Toggled selection for note ID: %1. Current selected: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/TrashPage.qml" line="183"/>
+        <source>TRASH_PAGE: Opening NotePage for note ID: %1 from Trash.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/TrashPage.qml" line="251"/>
         <source>Confirm Deletion</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="271"/>
+        <location filename="../qml/pages/TrashPage.qml" line="279"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="265"/>
+        <location filename="../qml/pages/TrashPage.qml" line="273"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="278"/>
+        <location filename="../qml/pages/TrashPage.qml" line="285"/>
         <source>%1 note(s) permanently deleted!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="190"/>
+        <location filename="../qml/pages/TrashPage.qml" line="205"/>
         <source>Trash is empty.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -786,82 +898,87 @@
 <context>
     <name>trashArchivePage</name>
     <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="29"/>
+        <location filename="../qml/pages/trashArchivePage.qml" line="28"/>
         <source>UNIFIED_NOTES_PAGE: UnifiedNotesPage opened in %1 mode. Calling refreshNotes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="37"/>
+        <location filename="../qml/pages/trashArchivePage.qml" line="35"/>
         <source>DB_MGR: getDeletedNotes found %1 deleted notes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="40"/>
+        <location filename="../qml/pages/trashArchivePage.qml" line="38"/>
         <source>DB_MGR: getArchivedNotes found %1 archived notes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="43"/>
+        <location filename="../qml/pages/trashArchivePage.qml" line="41"/>
         <source>UNIFIED_NOTES_PAGE: refreshNotes completed for %1. Count: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="52"/>
+        <location filename="../qml/pages/trashArchivePage.qml" line="49"/>
         <source>Trash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="52"/>
+        <location filename="../qml/pages/trashArchivePage.qml" line="49"/>
         <source>Archive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="101"/>
+        <location filename="../qml/pages/trashArchivePage.qml" line="90"/>
         <source>Selected note IDs after Select All/Deselect All: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="112"/>
+        <location filename="../qml/pages/trashArchivePage.qml" line="100"/>
         <source>Restore</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="112"/>
+        <location filename="../qml/pages/trashArchivePage.qml" line="100"/>
         <source>Unarchive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="119"/>
+        <location filename="../qml/pages/trashArchivePage.qml" line="107"/>
         <source>%1 note(s) restored!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="120"/>
+        <location filename="../qml/pages/trashArchivePage.qml" line="108"/>
         <source>%1 note(s) restored from trash.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="123"/>
+        <location filename="../qml/pages/trashArchivePage.qml" line="111"/>
         <source>%1 note(s) unarchived!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="124"/>
+        <location filename="../qml/pages/trashArchivePage.qml" line="112"/>
         <source>%1 note(s) unarchived.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="217"/>
+        <location filename="../qml/pages/trashArchivePage.qml" line="176"/>
         <source>Toggled selection for note ID: %1. Current selected: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="246"/>
+        <location filename="../qml/pages/trashArchivePage.qml" line="180"/>
+        <source>UNIFIED_NOTES_PAGE: Opening NotePage for note ID: %1 from %2.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/trashArchivePage.qml" line="203"/>
         <source>Trash is empty.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/trashArchivePage.qml" line="246"/>
+        <location filename="../qml/pages/trashArchivePage.qml" line="203"/>
         <source>Archive is empty.</source>
         <translation type="unfinished"></translation>
     </message>

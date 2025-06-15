@@ -12,6 +12,7 @@ HEADERS += \
 
 DISTFILES += \
     qml/pages/ConfirmationDialog.qml \
+    qml/pages/ImportExportPage.qml \
     qml/pages/TrashNoteCard.qml \
     rpm/ru.template.Aurora_notes.spec \
 

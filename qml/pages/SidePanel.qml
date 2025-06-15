@@ -17,6 +17,7 @@ Item {
     property var tags: [] // [{name: "tag1", count: 5}, {name: "tag2", count: 2}]
     property int totalNotesCount: 0 // New property for total notes count
     property int trashNotesCount: 0 // New property for trash notes count
+    property int archivedNotesCount: 0 // НОВОЕ СВОЙСТВО: для количества заметок в архиве
 
     Behavior on opacity {
         NumberAnimation { duration: 300; easing.type: Easing.OutQuad }
@@ -36,8 +37,10 @@ Item {
     function refreshNoteCounts() {
         totalNotesCount = DB.getAllNotes().length; // Assuming this function exists
         trashNotesCount = DB.getDeletedNotes().length; // Assuming this function exists
+        archivedNotesCount = DB.getArchivedNotes().length; // НОВОЕ: Получаем количество заметок в архиве
         console.log("SidePanel: Total notes count:", totalNotesCount);
         console.log("SidePanel: Trash notes count:", trashNotesCount);
+        console.log("SidePanel: Archived notes count:", archivedNotesCount); // Логируем
     }
 
     Component.onCompleted: {
@@ -168,20 +171,11 @@ Item {
                         }
                     }
 
-                    // Reminders Button
-//                    NavigationButton {
-//                        icon: "../icons/reminders.svg"
-//                        text: "Reminders"
-//                        selected: sidePanel.currentPage === "reminders"
-//                        onClicked: {
-//                            sidePanel.currentPage = "reminders"
-//                            mainPage.panelOpen = false
-//                        }
-//                    }
                     NavigationButton {
                         icon: "../icons/archive.svg"
                         text: "Archive"
                         selected: sidePanel.currentPage === "archive"
+                        noteCount: sidePanel.archivedNotesCount
                         onClicked: {
                             sidePanel.currentPage = "archive"
                             pageStack.push(Qt.resolvedUrl("trashArchivePage.qml"), {
@@ -195,10 +189,22 @@ Item {
                         icon: "../icons/trash.svg"
                         text: "Trash"
                         selected: sidePanel.currentPage === "trash"
-                        noteCount: sidePanel.trashNotesCount // Pass trash notes count
+                        noteCount: sidePanel.trashNotesCount
                         onClicked: {
                             sidePanel.currentPage = "trash"
                             pageStack.push(Qt.resolvedUrl("TrashPage.qml"))
+                            mainPage.panelOpen = false
+                        }
+                    }
+
+                    //  Button
+                    NavigationButton {
+                        icon: "../icons/import_export.svg"
+                        text: "Import & Export"
+                        selected: sidePanel.currentPage === "import/export"
+                        onClicked: {
+                            sidePanel.currentPage = "import/export"
+                            pageStack.push(Qt.resolvedUrl("ImportExportPage.qml"))
                             mainPage.panelOpen = false
                         }
                     }
@@ -238,7 +244,7 @@ Item {
                     width: parent.width
                     spacing: Theme.paddingSmall
 
-                    SectionHeader { // "Tags" header remains
+                    SectionHeader {
                         text: "Tags"
                         font.pixelSize: Theme.fontSizeSmall
                         color: "#a0a1ab"

@@ -574,7 +574,7 @@ function moveNoteFromArchiveToTrash(noteId) {
 }
 
 function moveNoteFromTrashToArchive(noteId) {
-    initDatabase(); // Инициализация базы данных
+    initDatabase(); // Инициализация базы данныхты
     db.transaction(function(tx) {
         // Используем correct column names: 'deleted' и 'archived' вместо 'is_deleted'/'is_archived'
         // и 'updated_at' вместо 'edit_date'
