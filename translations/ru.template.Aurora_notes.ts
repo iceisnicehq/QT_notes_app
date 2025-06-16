@@ -785,39 +785,141 @@
 <context>
     <name>SettingsPage</name>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="17"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="58"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="60"/>
+        <source>N/A</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="103"/>
         <source>Settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="31"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="126"/>
         <source>Language</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="37"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="139"/>
         <source>Russian</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="44"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="152"/>
         <source>Language changed to Russian</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="47"/>
-        <location filename="../qml/pages/SettingsPage.qml" line="65"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="155"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="186"/>
         <source>Failed to change language.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="55"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="170"/>
         <source>English</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="62"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="183"/>
         <source>Language changed to English</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="198"/>
+        <source>Theme Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="210"/>
+        <source>Dark Theme</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="223"/>
+        <source>Theme changed to Dark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="225"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="254"/>
+        <source>Failed to change theme.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="239"/>
+        <source>Light Theme</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="252"/>
+        <source>Theme changed to Light</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="278"/>
+        <source>Custom Background Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="297"/>
+        <source>Data Management</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="305"/>
+        <source>Last Export:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="310"/>
+        <source>Notes Exported:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="337"/>
+        <source>Export Notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="352"/>
+        <source>Notes exported successfully!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="354"/>
+        <source>Failed to export notes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="364"/>
+        <source>Last Import:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="369"/>
+        <source>Notes Imported:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="396"/>
+        <source>Import Notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="411"/>
+        <source>Notes imported successfully!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="414"/>
+        <source>Failed to import notes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="495"/>
+        <source>Select Theme Color</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -832,116 +934,125 @@
 <context>
     <name>TrashArchiveNoteCard</name>
     <message>
-        <location filename="../qml/pages/TrashArchiveNoteCard.qml" line="173"/>
-        <location filename="../qml/pages/TrashArchiveNoteCard.qml" line="184"/>
-        <source>Empty</source>
+        <location filename="../qml/pages/TrashArchiveNoteCard.qml" line="175"/>
+        <source>(No Title)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/TrashArchiveNoteCard.qml" line="187"/>
+        <source>(No Content)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>TrashPage</name>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="110"/>
+        <location filename="../qml/pages/TrashPage.qml" line="117"/>
         <source>Trash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="166"/>
+        <location filename="../qml/pages/TrashPage.qml" line="172"/>
         <source>Select</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="180"/>
+        <location filename="../qml/pages/TrashPage.qml" line="186"/>
         <source>Selected note IDs after Select All/Deselect All: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="208"/>
-        <location filename="../qml/pages/TrashPage.qml" line="227"/>
+        <location filename="../qml/pages/TrashPage.qml" line="212"/>
+        <location filename="../qml/pages/TrashPage.qml" line="231"/>
         <source>Restore</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="216"/>
+        <location filename="../qml/pages/TrashPage.qml" line="220"/>
         <source>Are you sure you want to restore %1 selected notes to your main notes?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="223"/>
+        <location filename="../qml/pages/TrashPage.qml" line="227"/>
         <source>%1 note(s) restored!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="224"/>
+        <location filename="../qml/pages/TrashPage.qml" line="228"/>
         <source>%1 note(s) restored from trash.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="226"/>
+        <location filename="../qml/pages/TrashPage.qml" line="230"/>
         <source>Confirm Restoration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="230"/>
+        <location filename="../qml/pages/TrashPage.qml" line="234"/>
         <source>Showing restore confirmation dialog for %1 notes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="267"/>
+        <location filename="../qml/pages/TrashPage.qml" line="269"/>
         <source>Are you sure you want to permanently delete %1 selected notes? This action cannot be undone.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="275"/>
+        <location filename="../qml/pages/TrashPage.qml" line="277"/>
         <source>%1 note(s) permanently deleted.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="277"/>
+        <location filename="../qml/pages/TrashPage.qml" line="279"/>
         <source>Confirm Permanent Deletion</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="281"/>
+        <location filename="../qml/pages/TrashPage.qml" line="283"/>
         <source>Showing permanent delete confirmation dialog for %1 notes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="346"/>
+        <location filename="../qml/pages/TrashPage.qml" line="349"/>
         <source>Toggled selection for note ID: %1. Current selected: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="350"/>
+        <location filename="../qml/pages/TrashPage.qml" line="353"/>
         <source>TRASH_PAGE: Opening NotePage for note ID: %1 from Trash.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="410"/>
+        <location filename="../qml/pages/TrashPage.qml" line="384"/>
+        <source>Will be permanently deleted on: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/TrashPage.qml" line="438"/>
         <source>Action cancelled by user.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/pages/TrashPage.qml" line="21"/>
-        <location filename="../qml/pages/TrashPage.qml" line="47"/>
+        <location filename="../qml/pages/TrashPage.qml" line="54"/>
         <source>Confirm Deletion</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/pages/TrashPage.qml" line="23"/>
-        <location filename="../qml/pages/TrashPage.qml" line="50"/>
-        <location filename="../qml/pages/TrashPage.qml" line="259"/>
-        <location filename="../qml/pages/TrashPage.qml" line="278"/>
+        <location filename="../qml/pages/TrashPage.qml" line="57"/>
+        <location filename="../qml/pages/TrashPage.qml" line="261"/>
+        <location filename="../qml/pages/TrashPage.qml" line="280"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="274"/>
+        <location filename="../qml/pages/TrashPage.qml" line="276"/>
         <source>%1 note(s) permanently deleted!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="372"/>
+        <location filename="../qml/pages/TrashPage.qml" line="400"/>
         <source>Trash is empty.</source>
         <translation type="unfinished"></translation>
     </message>

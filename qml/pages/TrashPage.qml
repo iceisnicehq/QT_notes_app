@@ -1,6 +1,6 @@
 // TrashPage.qml
 
-import QtQuick.LocalStorage 2.0
+import QtQuick.LocalStorage 2.0 // Explicitly import LocalStorage
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.Layouts 1.1
@@ -26,15 +26,22 @@ Page {
 
 
     Component.onCompleted: {
-        console.log("TRASH_PAGE: TrashPage opened. Calling refreshDeletedNotes.");
+        console.log("TRASH_PAGE: TrashPage opened. Initializing DB and calling refreshDeletedNotes.");
+        // Initialize the DatabaseManager with the LocalStorage object
+        DB.initDatabase(); // Pass the LocalStorage object here
+        // Clean up expired notes immediately when entering the trash page
+        DB.permanentlyDeleteExpiredDeletedNotes();
+        // Then refresh the displayed notes
         refreshDeletedNotes();
+        // Add logging to see the actual count of notes loaded
+        console.log("TRASH_PAGE: Deleted notes after refresh. Count:", deletedNotes.length);
         // Set the current page for the side panel instance
         sidePanelInstance.currentPage = "trash"; // Corrected this line to explicitly set "trash"
     }
 
     function refreshDeletedNotes() {
-        deletedNotes = DB.getDeletedNotes();
-        selectedNoteIds = [];
+        deletedNotes = DB.getDeletedNotes(); // Get notes that remain after cleanup
+        selectedNoteIds = []; // Clear any existing selections
         console.log("DB_MGR: getDeletedNotes found", deletedNotes.length, "deleted notes.");
         console.log("TRASH_PAGE: refreshDeletedNotes completed. Count:", deletedNotes.length);
     }
@@ -143,7 +150,6 @@ Page {
             Button {
                 id: selectAllButton
                 width: parent.calculatedButtonWidth // Use calculated width
-                Layout.preferredHeight: Theme.buttonHeightSmall
                 highlightColor: Theme.highlightColor
 
                 // NEW: Inner Column to stack Icon and Label for consistent styling
@@ -185,13 +191,11 @@ Page {
             Button {
                 id: restoreSelectedButton
                 width: parent.calculatedButtonWidth // Use calculated width
-                Layout.preferredHeight: Theme.buttonHeightSmall
                 highlightColor: Theme.highlightColor
 
                 // NEW: Inner Column to stack Icon and Label for consistent styling
                 Column {
                     anchors.centerIn: parent
-                    spacing: Theme.paddingTiny
 
                     Item { // Wrapper Item for the Icon to control its precise size and centering
                         width: Theme.fontSizeExtraLarge * 0.9 // Adjusted size for icons in buttons
@@ -236,13 +240,11 @@ Page {
             Button {
                 id: deleteSelectedButton
                 width: parent.calculatedButtonWidth // Use calculated width
-                Layout.preferredHeight: Theme.buttonHeightSmall
                 highlightColor: Theme.errorColor
 
                 // NEW: Inner Column to stack Icon and Label for consistent styling
                 Column {
                     anchors.centerIn: parent
-                    spacing: Theme.paddingTiny
 
                     Item { // Wrapper Item for the Icon to control its precise size and centering
                         width: Theme.fontSizeExtraLarge * 0.9 // Adjusted size for icons in buttons
@@ -301,7 +303,7 @@ Page {
             Column {
                 id: trashColumn
                 width: parent.width
-                spacing: Theme.paddingMedium
+                spacing: Theme.paddingMedium // Spacing between each full note entry (card + date label)
                 visible: !trashPage.showEmptyLabel
                 anchors.top: parent.top
                 anchors.topMargin: Theme.paddingMedium
@@ -309,8 +311,9 @@ Page {
                 Repeater {
                     model: deletedNotes
                     delegate: Column {
+                        // This Column acts as the container for a single note card AND its deletion date label
                         width: parent.width
-                        spacing: Theme.paddingLarge
+                        spacing: Theme.paddingSmall // Spacing between the card and the label below it
 
                         TrashArchiveNoteCard {
                             id: trashNoteCardInstance
@@ -326,7 +329,7 @@ Page {
                             content: modelData.content
                             tags: modelData.tags ? modelData.tags.join(' ') : ''
                             cardColor: modelData.color || "#1c1d29"
-                            height: implicitHeight
+                            height: implicitHeight // Let the card determine its height based on its content
                             isSelected: selectedNoteIds.indexOf(modelData.id) !== -1
                             selectedBorderColor: trashNoteCardInstance.isSelected ? "#FFFFFF" : "#00000000"
                             selectedBorderWidth: trashNoteCardInstance.isSelected ? Theme.borderWidthSmall : 0
@@ -361,6 +364,31 @@ Page {
                                     isDeleted: true
                                 });
                             }
+                        }
+
+                        // Label for deletion date, now explicitly outside TrashArchiveNoteCard
+                        Label {
+                            // Only visible if modelData.updated_at exists and is a string
+                            visible: modelData.updated_at !== undefined && modelData.updated_at !== null && modelData.updated_at !== ""
+                            width: parent.width - (Theme.paddingMedium * 2) // Match card width
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text: {
+                                if (modelData.updated_at) {
+                                    var deletedAt = new Date(modelData.updated_at);
+                                    var thirtyDaysLater = new Date(deletedAt);
+                                    thirtyDaysLater.setDate(deletedAt.getDate() + 30);
+
+                                    // Use Qt.formatDateTime for dd.mm.yyyy format
+                                    var formattedDate = Qt.formatDateTime(thirtyDaysLater, "dd.MM.yyyy");
+
+                                    return qsTr("Will be permanently deleted on: %1").arg(formattedDate);
+                                }
+                                return "";
+                            }
+                            font.pixelSize: Theme.fontSizeSmall // Smaller font for auxiliary info
+                            color: Theme.secondaryColor // Subtle color
+                            horizontalAlignment: Text.AlignHCenter
+                            wrapMode: Text.WordWrap
                         }
                     }
                 }
