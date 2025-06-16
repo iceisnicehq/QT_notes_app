@@ -37,6 +37,15 @@ Page {
     property int historyIndex: -1   // Current position in the contentHistory array
     property bool isUndoingRedoing: false // Flag to prevent history updates during undo/redo operations
 
+    // Properties for generic confirmation dialog (used by ConfirmDialog component)
+    property bool confirmDialogVisible: false
+    property string confirmDialogTitle: ""
+    property string confirmDialogMessage: ""
+    property string confirmButtonText: ""
+    property color confirmButtonHighlightColor: Theme.primaryColor // Default, will be overridden
+    property var onConfirmCallback: null // Function to call when user confirms
+
+
     // Timer for continuous history saving
     Timer {
         id: historySaveTimer
@@ -61,6 +70,25 @@ Page {
     }
 
     /**
+     * @brief showGeneralConfirmDialog
+     * Helper function to configure and show the single ConfirmDialog component.
+     * @param message Text message for the dialog.
+     * @param callback Function to execute if the user confirms.
+     * @param title Title for the dialog (optional, uses default if not provided).
+     * @param buttonText Text for the confirm button (optional, uses default "Confirm" if not provided).
+     * @param highlightColor Highlight color for the confirm button (optional, uses default Theme.primaryColor if not provided).
+     */
+    function showGeneralConfirmDialog(message, callback, title, buttonText, highlightColor) {
+        newNotePage.confirmDialogMessage = message;
+        newNotePage.onConfirmCallback = callback;
+        newNotePage.confirmDialogTitle = title !== undefined ? title : qsTr("Confirm Action");
+        newNotePage.confirmButtonText = buttonText !== undefined ? buttonText : qsTr("Confirm");
+        newNotePage.confirmButtonHighlightColor = highlightColor !== undefined ? highlightColor : Theme.primaryColor;
+        newNotePage.confirmDialogVisible = true;
+    }
+
+
+    /**
      * @brief handleInteractionAttempt
      * Checks if the note is in a state (deleted or archived) that requires user action
      * before allowing editing or other modifications. If so, it shows a confirmation dialog.
@@ -70,18 +98,21 @@ Page {
     function handleInteractionAttempt() {
         var needsAction = newNotePage.isDeleted || newNotePage.isArchived;
         if (needsAction) {
-            // The purpose of this function is to prevent modification if in a 'read-only' state
-            // and instead offer to restore/unarchive.
-            // We set isReadOnly true *before* showing dialog to disable inputs immediately.
-            newNotePage.isReadOnly = true;
+            newNotePage.isReadOnly = true; // Disable inputs immediately
+
+            var message = "";
+            var title = "";
+            var buttonText = "";
+            var highlight = Theme.primaryColor; // Default for restore/unarchive
+            var callbackFunction;
 
             if (newNotePage.isDeleted) {
-                actionRequiredDialog.dialogTitle = qsTr("Cannot Edit Deleted Note");
-                actionRequiredDialog.dialogText = qsTr("To edit this note, you need to restore it first.");
-                actionRequiredDialog.confirmButtonText = qsTr("Restore");
-                actionRequiredDialog.confirmAction = function() {
+                title = qsTr("Cannot Edit Deleted Note");
+                message = qsTr("To edit this note, you need to restore it first.");
+                buttonText = qsTr("Restore");
+                callbackFunction = function() {
                     DB.restoreNote(newNotePage.noteId);
-                    newNotePage.isDeleted = false; // Update the note's status
+                    newNotePage.isDeleted = false;
                     newNotePage.isReadOnly = false; // Allow editing now
                     toastManager.show(qsTr("Note restored!"));
                     if (onNoteSavedOrDeleted) {
@@ -90,12 +121,12 @@ Page {
                     noteContentInput.forceActiveFocus(); // Give focus to content input
                 };
             } else if (newNotePage.isArchived) {
-                actionRequiredDialog.dialogTitle = qsTr("Cannot Edit Archived Note");
-                actionRequiredDialog.dialogText = qsTr("To edit this note, you need to unarchive it first.");
-                actionRequiredDialog.confirmButtonText = qsTr("Unarchive");
-                actionRequiredDialog.confirmAction = function() {
+                title = qsTr("Cannot Edit Archived Note");
+                message = qsTr("To edit this note, you need to unarchive it first.");
+                buttonText = qsTr("Unarchive");
+                callbackFunction = function() {
                     DB.unarchiveNote(newNotePage.noteId);
-                    newNotePage.isArchived = false; // Update the note's status
+                    newNotePage.isArchived = false;
                     newNotePage.isReadOnly = false; // Allow editing now
                     toastManager.show(qsTr("Note unarchived!"));
                     if (onNoteSavedOrDeleted) {
@@ -104,12 +135,9 @@ Page {
                     noteContentInput.forceActiveFocus(); // Give focus to content input
                 };
             }
-            actionRequiredDialog.visible = true;
-            actionRequiredDialog.opacity = 1;
+            newNotePage.showGeneralConfirmDialog(message, callbackFunction, title, buttonText, highlight);
             return false; // Interaction is NOT allowed yet, dialog is shown
         }
-        // If no action is needed (note is neither deleted nor archived),
-        // ensure isReadOnly is false to allow editing.
         newNotePage.isReadOnly = false;
         return true; // Interaction is allowed
     }
@@ -186,7 +214,7 @@ Page {
             Qt.inputMethod.show(); // Show keyboard
             console.log(qsTr("NewNotePage opened in CREATE mode. Default color: %1").arg(noteColor));
             noteModified = true; // New note is inherently modified
-            // Для новой заметки, убедимся, что noteTags - это пустой массив
+            // Для новой заметки, убесимся, что noteTags - это пустой массив
             newNotePage.noteTags = [];
         }
         // Initialize history with the current note content and cursor position after all initial setup
@@ -251,418 +279,6 @@ Page {
     ToastManager {
         id: toastManager
     }
-
-    // Custom Confirmation Dialog for Delete
-    Item {
-        id: manualConfirmDeleteDialog
-        anchors.fill: parent
-        visible: false // Hidden by default
-        z: 100 // Ensure it's on top of almost everything
-        opacity: 0 // Start hidden for animation
-
-        // Background overlay to dim the rest of the page
-        Rectangle {
-            anchors.fill: parent
-            color: "#000000"
-            opacity: manualConfirmDeleteDialog.opacity * 0.5 // Dimming effect
-            Behavior on opacity { NumberAnimation { duration: 200 } }
-        }
-
-        // The actual dialog content
-        Rectangle {
-            id: deleteDialogContent
-            width: parent.width * 0.8 // 80% width of the overlay
-            // Исправлено: Вместо anchors.centerIn в Column, используем просто height: deleteDialogColumn.implicitHeight + Theme.paddingLarge * 2
-            // чтобы избежать конфликта якорей.
-            height: deleteDialogColumn.implicitHeight + Theme.paddingLarge * 2 // Height based on content plus padding
-            color: newNotePage.darkenColor(newNotePage.noteColor, 0.15)
-            radius: Theme.itemSizeSmall / 2 // Rounded corners
-            anchors.centerIn: parent // Center the dialog within the overlay
-
-            // Behavior for smooth appearance/disappearance
-            Behavior on opacity { NumberAnimation { duration: 200 } }
-            Behavior on transform {
-                PropertyAnimation { property: "scale"; from: 0.9; to: 1.0; duration: 200; easing.type: Easing.OutBack; exclude: !manualConfirmDeleteDialog.visible }
-                PropertyAnimation { property: "scale"; from: 1.0; to: 0.9; duration: 200; easing.type: Easing.InBack; exclude: manualConfirmDeleteDialog.visible }
-            }
-
-            Column {
-                id: deleteDialogColumn
-                width: parent.width - Theme.paddingLarge * 2 // Column width, considering parent's padding
-                spacing: Theme.paddingMedium
-                anchors.margins: Theme.paddingLarge // Padding around the column content
-                // anchors.centerIn: parent // УДАЛИТЕ ЭТОТ ЯКОРЬ, ОН ВЫЗЫВАЕТ ПРЕДУПРЕЖДЕНИЕ
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.top: parent.top
-
-                Label {
-                    width: parent.width
-                    text: qsTr("Confirm Delete")
-                    font.pixelSize: Theme.fontSizeLarge
-                    font.bold: true
-                    horizontalAlignment: Text.AlignHCenter
-                    color: Theme.highlightColor
-                }
-
-                Label {
-                    width: parent.width
-                    text: qsTr("Do you want to move this note to trash?")
-                    wrapMode: Text.WordWrap
-                    horizontalAlignment: Text.AlignHCenter
-                    color: Theme.primaryColor
-                }
-
-                RowLayout {
-                    width: parent.width
-                    spacing: Theme.paddingMedium
-                    anchors.horizontalCenter: parent.horizontalCenter
-
-                    Button {
-                        Layout.fillWidth: true
-                        text: qsTr("Cancel")
-                        onClicked: {
-                            manualConfirmDeleteDialog.visible = false;
-                            manualConfirmDeleteDialog.opacity = 0;
-                            console.log(qsTr("Delete action cancelled by user."));
-                        }
-                    }
-
-                    Button {
-                        Layout.fillWidth: true
-                        text: qsTr("Delete")
-                        highlightColor: Theme.negativeColor
-                        onClicked: {
-                            if (newNotePage.noteId !== -1) {
-                                DB.deleteNote(newNotePage.noteId); // Move to trash
-                                console.log(qsTr("Note ID: %1 moved to trash after confirmation.").arg(newNotePage.noteId));
-                                newNotePage.sentToTrash = true; // Mark that it was sent to trash
-                                toastManager.show(qsTr("Note moved to trash!"));
-                                if (onNoteSavedOrDeleted) {
-                                    onNoteSavedOrDeleted(); // Refresh data on main page
-                                }
-                            } else {
-                                // If it's a new unsaved note, just discard it without DB operation
-                                console.log(qsTr("New unsaved note discarded without deletion."));
-                            }
-                            manualConfirmDeleteDialog.visible = false;
-                            manualConfirmDeleteDialog.opacity = 0;
-                            pageStack.pop(); // Go back to the previous page after action
-                        }
-                    }
-                }
-            }
-        }
-        // Handler for showing/hiding with animation
-        onVisibleChanged: {
-            if (visible) {
-                opacity = 1;
-            }
-        }
-    }
-    // ADDED: Custom Confirmation Dialog for Duplicate
-        Item {
-            id: manualConfirmDuplicateDialog
-            anchors.fill: parent
-            visible: false // Hidden by default
-            z: 100 // Ensure it's on top of almost everything
-            opacity: 0 // Start hidden for animation
-
-            // Background overlay to dim the rest of the page
-            Rectangle {
-                anchors.fill: parent
-                color: "#000000"
-                opacity: manualConfirmDuplicateDialog.opacity * 0.5 // Dimming effect
-                Behavior on opacity { NumberAnimation { duration: 200 } }
-            }
-
-            // The actual dialog content
-            Rectangle {
-                id: duplicateDialogContent
-                width: parent.width * 0.8 // 80% width of the overlay
-                height: duplicateDialogColumn.implicitHeight + Theme.paddingLarge * 2 // Height based on content plus padding
-                color: newNotePage.darkenColor(newNotePage.noteColor, 0.15) // Consistent dark background
-                radius: Theme.itemSizeSmall / 2 // Rounded corners
-                anchors.centerIn: parent // Center the dialog within the overlay
-
-                // Behavior for smooth appearance/disappearance
-                Behavior on opacity { NumberAnimation { duration: 200 } }
-                Behavior on transform {
-                    PropertyAnimation { property: "scale"; from: 0.9; to: 1.0; duration: 200; easing.type: Easing.OutBack; exclude: !manualConfirmDuplicateDialog.visible }
-                    PropertyAnimation { property: "scale"; from: 1.0; to: 0.9; duration: 200; easing.type: Easing.InBack; exclude: manualConfirmDuplicateDialog.visible }
-                }
-
-                Column {
-                    id: duplicateDialogColumn
-                    width: parent.width - Theme.paddingLarge * 2 // Column width, considering parent's padding
-                    spacing: Theme.paddingMedium
-                    anchors.margins: Theme.paddingLarge // Padding around the column content
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.top: parent.top
-
-                    Label {
-                        width: parent.width
-                        text: qsTr("Confirm Duplicate") // Title for duplicate dialog
-                        font.pixelSize: Theme.fontSizeLarge
-                        font.bold: true
-                        horizontalAlignment: Text.AlignHCenter
-                        color: Theme.highlightColor
-                    }
-
-                    Label {
-                        width: parent.width
-                        text: qsTr("Do you want to create a copy of this note?") // Message for duplicate dialog
-                        wrapMode: Text.WordWrap
-                        horizontalAlignment: Text.AlignHCenter
-                        color: Theme.primaryColor
-                    }
-
-                    RowLayout {
-                        width: parent.width
-                        spacing: Theme.paddingMedium
-                        anchors.horizontalCenter: parent.horizontalCenter // Center the buttons
-
-                        Button {
-                            Layout.fillWidth: true
-                            text: qsTr("Cancel")
-                            onClicked: {
-                                manualConfirmDuplicateDialog.visible = false; // Hide the dialog
-                                manualConfirmDuplicateDialog.opacity = 0; // Reset opacity for next show
-                                console.log(qsTr("Duplicate action cancelled by user."));
-                            }
-                        }
-
-                        Button {
-                            Layout.fillWidth: true
-                            text: qsTr("Duplicate") // Button text
-                            highlightColor: Theme.positiveColor // A positive color for duplication
-                            onClicked: {
-                                // Original duplication logic moved here
-                                console.log(qsTr("Duplicate button clicked for note ID: %1 (confirmed)").arg(newNotePage.noteId));
-                                pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
-                                   onNoteSavedOrDeleted: newNotePage.onNoteSavedOrDeleted, // Use the same refresh callback
-                                   noteId: -1, // This makes it a new note
-                                   noteTitle: newNotePage.noteTitle + qsTr(" (copy)"), // Append "(copy)" to title
-                                   noteContent: newNotePage.noteContent,
-                                   noteIsPinned: newNotePage.noteIsPinned,
-                                   noteTags: Array.isArray(newNotePage.noteTags) ? newNotePage.noteTags.slice() : [],
-                                   noteColor: newNotePage.noteColor, // Copy current color
-                                   noteCreationDate: new Date(), // New creation date
-                                   noteEditDate: new Date(), // New edit date
-                                   noteModified: true // Mark as modified so it saves automatically
-                                });
-                                toastManager.show(qsTr("Note duplicated!"));
-
-                                manualConfirmDuplicateDialog.visible = false; // Hide dialog after action
-                                manualConfirmDuplicateDialog.opacity = 0; // Reset opacity for next show
-                            }
-                        }
-                    }
-                }
-            }
-            // Handler for showing/hiding with animation
-            onVisibleChanged: {
-                if (visible) {
-                    opacity = 1;
-                }
-            }
-        }
-// новый диалог для кейса с корзиной и архивом
-    Item {
-        id: actionRequiredDialog
-        anchors.fill: parent
-        visible: false
-        z: 101
-        opacity: 0
-        property string dialogTitle: ""
-        property string dialogText: ""
-        property string confirmButtonText: ""
-        property var confirmAction: null
-
-        Rectangle {
-            anchors.fill: parent
-            color: "#000000"
-            opacity: actionRequiredDialog.opacity * 0.5 // Use actionRequiredDialog.opacity for dimming
-            Behavior on opacity { NumberAnimation { duration: 200 } }
-        }
-        Rectangle {
-            width: parent.width * 0.85
-            height: dialogColumn.implicitHeight + Theme.paddingLarge * 2
-            color: newNotePage.darkenColor(newNotePage.noteColor, 0.15)
-            radius: Theme.itemSizeSmall / 2
-            anchors.centerIn: parent
-            Behavior on opacity { NumberAnimation { duration: 200 } }
-            Behavior on transform {
-                PropertyAnimation { property: "scale"; from: 0.9; to: 1.0; duration: 200; easing.type: Easing.OutBack; exclude: !actionRequiredDialog.visible } // Use actionRequiredDialog.visible
-            }
-            Column {
-                id: dialogColumn
-                width: parent.width - Theme.paddingLarge * 2
-                spacing: Theme.paddingMedium
-                anchors.margins: Theme.paddingLarge
-                // anchors.centerIn: parent // УДАЛИТЕ ЭТОТ ЯКОРЬ, ОН ВЫЗЫВАЕТ ПРЕДУПРЕЖДЕНИЕ
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.top: parent.top
-                Label {
-                    width: parent.width
-                    text: actionRequiredDialog.dialogTitle
-                    font.pixelSize: Theme.fontSizeLarge
-                    font.bold: true
-                    horizontalAlignment: Text.AlignHCenter
-                    color: Theme.highlightColor
-                }
-                Label {
-                    width: parent.width
-                    text: actionRequiredDialog.dialogText
-                    wrapMode: Text.WordWrap
-                    horizontalAlignment: Text.AlignHCenter
-                    color: Theme.primaryColor
-                }
-                RowLayout {
-                    width: parent.width
-                    spacing: Theme.paddingMedium
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    Button {
-                        Layout.fillWidth: true
-                        text: qsTr("Cancel")
-                        onClicked: {
-                            actionRequiredDialog.visible = false;
-                            actionRequiredDialog.opacity = 0;
-                            // Re-set isReadOnly to true if it was a read-only note
-                            // This ensures inputs remain disabled if user cancels restore/unarchive
-                            newNotePage.isReadOnly = newNotePage.isArchived || newNotePage.isDeleted;
-                        }
-                    }
-                    Button {
-                        Layout.fillWidth: true
-                        text: actionRequiredDialog.confirmButtonText // Use dynamic button text
-                        highlightColor: Theme.positiveColor
-                        onClicked: {
-                            if (actionRequiredDialog.confirmAction) {
-                                actionRequiredDialog.confirmAction(); // Execute the dynamic action (restore/unarchive)
-                            }
-                            actionRequiredDialog.visible = false;
-                            actionRequiredDialog.opacity = 0;
-                            // isReadOnly will be handled by confirmAction if successful
-                        }
-                    }
-                }
-            }
-        }
-
-        onVisibleChanged: {
-            if (visible) {
-                opacity = 1;
-            }
-        }
-    }
-
-
-    // ADDED: Custom Confirmation Dialog for Archive (similar to Delete)
-    Item {
-        id: manualConfirmArchiveDialog
-        anchors.fill: parent
-        visible: false // Hidden by default
-        z: 100 // Ensure it's on top of almost everything, same as delete dialog
-        opacity: 0 // Start hidden for animation
-
-        // Background overlay to dim the rest of the page
-        Rectangle {
-            anchors.fill: parent
-            color: "#000000"
-            opacity: manualConfirmArchiveDialog.opacity * 0.5 // Dimming effect
-            Behavior on opacity { NumberAnimation { duration: 200 } }
-        }
-
-        // The actual dialog content
-        Rectangle {
-            id: archiveDialogContent
-            width: parent.width * 0.8 // 80% width of the overlay
-            height: archiveDialogColumn.implicitHeight + Theme.paddingLarge * 2 // Height based on content plus padding
-            color: newNotePage.darkenColor(newNotePage.noteColor, 0.15) // Consistent dark background
-            radius: Theme.itemSizeSmall / 2 // Rounded corners
-            anchors.centerIn: parent // Center the dialog within the overlay
-
-            // Behavior for smooth appearance/disappearance
-            Behavior on opacity { NumberAnimation { duration: 200 } }
-            Behavior on transform {
-                PropertyAnimation { property: "scale"; from: 0.9; to: 1.0; duration: 200; easing.type: Easing.OutBack; exclude: !manualConfirmArchiveDialog.visible }
-                PropertyAnimation { property: "scale"; from: 1.0; to: 0.9; duration: 200; easing.type: Easing.InBack; exclude: manualConfirmArchiveDialog.visible }
-            }
-
-            Column {
-                id: archiveDialogColumn
-                width: parent.width - Theme.paddingLarge * 2 // Column width, considering parent's padding
-                spacing: Theme.paddingMedium
-                anchors.margins: Theme.paddingLarge // Padding around the column content
-                // anchors.centerIn: parent // УДАЛИТЕ ЭТОТ ЯКОРЬ, ОН ВЫЗЫВАЕТ ПРЕДУПРЕЖДЕНИЕ
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.top: parent.top
-                Label {
-                    width: parent.width
-                    text: qsTr("Confirm Archive") // New title for archive dialog
-                    font.pixelSize: Theme.fontSizeLarge
-                    font.bold: true
-                    horizontalAlignment: Text.AlignHCenter
-                    color: Theme.highlightColor
-                }
-
-                Label {
-                    width: parent.width
-                    text: qsTr("Do you want to archive this note?") // New message for archive dialog
-                    wrapMode: Text.WordWrap
-                    horizontalAlignment: Text.AlignHCenter
-                    color: Theme.primaryColor
-                }
-
-                RowLayout {
-                    width: parent.width
-                    spacing: Theme.paddingMedium
-                    anchors.horizontalCenter: parent.horizontalCenter // Center the buttons
-
-                    Button {
-                        Layout.fillWidth: true
-                        text: qsTr("Cancel")
-                        onClicked: {
-                            manualConfirmArchiveDialog.visible = false; // Hide the dialog
-                            manualConfirmArchiveDialog.opacity = 0; // Reset opacity for next show
-                            console.log(qsTr("Archive action cancelled by user."));
-                        }
-                    }
-
-                    Button {
-                        Layout.fillWidth: true
-                        text: qsTr("Archive") // New button text
-                        highlightColor: Theme.primaryColor // You can choose a different highlight color if desired
-                        onClicked: {
-                            // Logic to archive the note
-                            if (newNotePage.noteId !== -1) {
-                                DB.archiveNote(newNotePage.noteId); // Call new archive function
-                                console.log(qsTr("Note ID: %1 moved to archive after confirmation.").arg(newNotePage.noteId));
-                                newNotePage.sentToArchive = true; // Mark that it was sent to archive
-                                toastManager.show(qsTr("Note archived!"));
-                                if (onNoteSavedOrDeleted) {
-                                    onNoteSavedOrDeleted(); // Refresh data on main page
-                                }
-                            } else {
-                                // If it's a new unsaved note, just discard it without DB operation
-                                console.log(qsTr("New unsaved note discarded without archiving."));
-                            }
-                            manualConfirmArchiveDialog.visible = false; // Hide dialog after action
-                            manualConfirmArchiveDialog.opacity = 0; // Reset opacity for next show
-                            pageStack.pop(); // Go back to the previous page after action
-                        }
-                    }
-                }
-            }
-        }
-        // Handler for showing/hiding with animation
-        onVisibleChanged: {
-            if (visible) {
-                opacity = 1;
-            }
-        }
-    }
-
 
     // --- Header Section ---
     Rectangle {
@@ -819,7 +435,29 @@ Page {
                     }
                     if (handleInteractionAttempt()) { // Check read-only state and show dialog if needed
                         // Show the confirmation dialog
-                        manualConfirmDuplicateDialog.visible = true;
+                        newNotePage.showGeneralConfirmDialog(
+                            qsTr("Do you want to create a copy of this note?"),
+                            function() {
+                                // Original duplication logic moved here
+                                console.log(qsTr("Duplicate button clicked for note ID: %1 (confirmed)").arg(newNotePage.noteId));
+                                pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
+                                   onNoteSavedOrDeleted: newNotePage.onNoteSavedOrDeleted, // Use the same refresh callback
+                                   noteId: -1, // This makes it a new note
+                                   noteTitle: newNotePage.noteTitle + qsTr(" (copy)"), // Append "(copy)" to title
+                                   noteContent: newNotePage.noteContent,
+                                   noteIsPinned: newNotePage.noteIsPinned,
+                                   noteTags: Array.isArray(newNotePage.noteTags) ? newNotePage.noteTags.slice() : [],
+                                   noteColor: newNotePage.noteColor, // Copy current color
+                                   noteCreationDate: new Date(), // New creation date
+                                   noteEditDate: new Date(), // New edit date
+                                   noteModified: true // Mark as modified so it saves automatically
+                                });
+                                toastManager.show(qsTr("Note duplicated!"));
+                            },
+                            qsTr("Confirm Duplicate"),
+                            qsTr("Duplicate"),
+                            Theme.positiveColor
+                        );
                         console.log(qsTr("Showing duplicate confirmation dialog for note ID: %1").arg(newNotePage.noteId));
                     }
                 }
@@ -1046,8 +684,27 @@ Page {
                             toastManager.show(qsTr("Note is already archived"));
                             return;
                         } else {
-                            // Если заметка не архивирована и не удалена, показать подтверждение архивирования
-                            manualConfirmArchiveDialog.visible = true;
+                            // If note is not archived and not deleted, show archive confirmation
+                            newNotePage.showGeneralConfirmDialog(
+                                qsTr("Do you want to archive this note?"),
+                                function() {
+                                    if (newNotePage.noteId !== -1) {
+                                        DB.archiveNote(newNotePage.noteId); // Call archive function
+                                        console.log(qsTr("Note ID: %1 moved to archive after confirmation.").arg(newNotePage.noteId));
+                                        newNotePage.sentToArchive = true; // Mark that it was sent to archive
+                                        toastManager.show(qsTr("Note archived!"));
+                                        if (onNoteSavedOrDeleted) {
+                                            onNoteSavedOrDeleted(); // Refresh data on main page
+                                        }
+                                    } else {
+                                        console.log(qsTr("New unsaved note discarded without archiving."));
+                                    }
+                                    pageStack.pop(); // Go back to the previous page after action
+                                },
+                                qsTr("Confirm Archive"),
+                                qsTr("Archive"),
+                                Theme.primaryColor
+                            );
                         }
                     }
                 }
@@ -1086,8 +743,27 @@ Page {
                             return; // Выход, никаких действий
                         }
                         else {
-                            // Если заметка не удалена и не архивирована, показать подтверждение удаления
-                            manualConfirmDeleteDialog.visible = true;
+                            // If note is not deleted and not archived, show delete confirmation
+                            newNotePage.showGeneralConfirmDialog(
+                                qsTr("Do you want to move this note to trash?"),
+                                function() {
+                                    if (newNotePage.noteId !== -1) {
+                                        DB.deleteNote(newNotePage.noteId); // Move to trash
+                                        console.log(qsTr("Note ID: %1 moved to trash after confirmation.").arg(newNotePage.noteId));
+                                        newNotePage.sentToTrash = true; // Mark that it was sent to trash
+                                        toastManager.show(qsTr("Note moved to trash!"));
+                                        if (onNoteSavedOrDeleted) {
+                                            onNoteSavedOrDeleted(); // Refresh data on main page
+                                        }
+                                    } else {
+                                        console.log(qsTr("New unsaved note discarded without deletion."));
+                                    }
+                                    pageStack.pop(); // Go back to the previous page after action
+                                },
+                                qsTr("Confirm Delete"),
+                                qsTr("Delete"),
+                                Theme.negativeColor
+                            );
                         }
                     }
                 }
@@ -1751,6 +1427,37 @@ Page {
                 }
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: Theme.paddingLarge // Space from the bottom of the panel
+            }
+        }
+    }
+
+    // --- Integrated Generic Confirmation Dialog Component ---
+    ConfirmDialog {
+        id: generalConfirmDialog
+        // Bind properties from newNotePage to ConfirmDialog
+        dialogVisible: newNotePage.confirmDialogVisible
+        dialogTitle: newNotePage.confirmDialogTitle
+        dialogMessage: newNotePage.confirmDialogMessage
+        confirmButtonText: newNotePage.confirmButtonText
+        confirmButtonHighlightColor: newNotePage.confirmButtonHighlightColor
+        // Pass the dynamically darkened note color for the dialog background
+        dialogBackgroundColor: newNotePage.darkenColor(newNotePage.noteColor, 0.15)
+
+        // Connect signals from ConfirmDialog back to newNotePage's logic
+        onConfirmed: {
+            if (newNotePage.onConfirmCallback) {
+                newNotePage.onConfirmCallback(); // Execute the stored callback
+            }
+            newNotePage.confirmDialogVisible = false; // Hide the dialog after confirmation
+        }
+        onCancelled: {
+            newNotePage.confirmDialogVisible = false; // Hide the dialog
+            console.log(qsTr("Action cancelled by user."));
+            // Special handling for actionRequiredDialog cancellation:
+            // Re-set isReadOnly to true if it was a read-only note and user cancelled restore/unarchive
+            // This ensures inputs remain disabled if user cancels restore/unarchive
+            if (newNotePage.isArchived || newNotePage.isDeleted) {
+                newNotePage.isReadOnly = true;
             }
         }
     }

@@ -16,7 +16,7 @@ Page {
     property var selectedNoteIds: []
     property bool panelOpen: false // Property to control side panel visibility
 
-    // Properties to control the dialog from the page's logic
+    // Properties to control the dialog from the page's logic (These will now be passed to the component)
     property bool confirmDialogVisible: false
     property string confirmDialogTitle: qsTr("Confirm Deletion") // Default title
     property string confirmDialogMessage: "" // Message for the dialog
@@ -388,94 +388,26 @@ Page {
         id: toastManager
     }
 
-    // --- Styled Confirmation Dialog ---
-    Item {
-        id: manualConfirmDialog
-        anchors.fill: parent
-        visible: trashPage.confirmDialogVisible
-        z: 100
-        opacity: 0
+    // --- Integrated Confirmation Dialog Component ---
+    ConfirmDialog {
+        id: confirmDialogInstance
+        // Bind properties from TrashPage to ConfirmDialog
+        dialogVisible: trashPage.confirmDialogVisible
+        dialogTitle: trashPage.confirmDialogTitle
+        dialogMessage: trashPage.confirmDialogMessage
+        confirmButtonText: trashPage.confirmButtonText
+        confirmButtonHighlightColor: trashPage.confirmButtonHighlightColor
 
-        Rectangle {
-            anchors.fill: parent
-            color: "#000000"
-            opacity: manualConfirmDialog.opacity * 0.5
-            Behavior on opacity { NumberAnimation { duration: 200 } }
+        // Connect signals from ConfirmDialog back to TrashPage's logic
+        onConfirmed: {
+            if (trashPage.onConfirmCallback) {
+                trashPage.onConfirmCallback(); // Execute the stored callback
+            }
+            trashPage.confirmDialogVisible = false; // Hide the dialog after confirmation
         }
-
-        Rectangle {
-            id: dialogContent
-            width: parent.width * 0.8
-            height: dialogColumn.implicitHeight + Theme.paddingLarge * 2
-            color: "#1c1d29"
-            radius: Theme.itemSizeSmall / 2
-            anchors.centerIn: parent
-
-            Behavior on opacity { NumberAnimation { duration: 200 } }
-            Behavior on transform {
-                PropertyAnimation { property: "scale"; from: 0.9; to: 1.0; duration: 200; easing.type: Easing.OutBack; exclude: !manualConfirmDialog.visible }
-                PropertyAnimation { property: "scale"; from: 1.0; to: 0.9; duration: 200; easing.type: Easing.InBack; exclude: manualConfirmDialog.visible }
-            }
-
-            Column {
-                id: dialogColumn
-                width: parent.width - Theme.paddingLarge * 2
-                spacing: Theme.paddingMedium
-                anchors.margins: Theme.paddingLarge
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.top: parent.top
-
-                Label {
-                    width: parent.width
-                    text: trashPage.confirmDialogTitle
-                    font.pixelSize: Theme.fontSizeLarge
-                    font.bold: true
-                    horizontalAlignment: Text.AlignHCenter
-                    color: Theme.highlightColor
-                }
-
-                Label {
-                    width: parent.width
-                    text: trashPage.confirmDialogMessage
-                    wrapMode: Text.WordWrap
-                    horizontalAlignment: Text.AlignHCenter
-                    color: Theme.primaryColor
-                }
-
-                RowLayout {
-                    width: parent.width
-                    spacing: Theme.paddingMedium
-                    anchors.horizontalCenter: parent.horizontalCenter
-
-                    Button {
-                        Layout.fillWidth: true
-                        text: qsTr("Cancel")
-                        onClicked: {
-                            trashPage.confirmDialogVisible = false;
-                            console.log(qsTr("Action cancelled by user."));
-                        }
-                    }
-
-                    Button {
-                        Layout.fillWidth: true
-                        text: trashPage.confirmButtonText
-                        highlightColor: trashPage.confirmButtonHighlightColor
-                        onClicked: {
-                            if (trashPage.onConfirmCallback) {
-                                trashPage.onConfirmCallback();
-                            }
-                            trashPage.confirmDialogVisible = false;
-                        }
-                    }
-                }
-            }
-        }
-        onVisibleChanged: {
-            if (visible) {
-                opacity = 1;
-            } else {
-                opacity = 0;
-            }
+        onCancelled: {
+            trashPage.confirmDialogVisible = false; // Hide the dialog
+            console.log(qsTr("Action cancelled by user."));
         }
     }
 

@@ -823,101 +823,26 @@ Page {
             }
         }
     }
-    // --- Generic Confirmation Dialog ---
-        // Place this at the very end of MainPage.qml, before the closing brace '}'
-        Item {
-            id: genericConfirmDialog
-            anchors.fill: parent
-            visible: mainPage.confirmDialogVisible // Controlled by mainPage property
-            z: 100 // Ensure it's on top of almost everything
-            opacity: 0 // Start hidden for animation
+    // --- Integrated Generic Confirmation Dialog ---
+    ConfirmDialog {
+        id: confirmDialogInstance
+        // Bind properties from mainPage to ConfirmDialog
+        dialogVisible: mainPage.confirmDialogVisible
+        dialogTitle: mainPage.confirmDialogTitle
+        dialogMessage: mainPage.confirmDialogMessage
+        confirmButtonText: mainPage.confirmButtonText
+        confirmButtonHighlightColor: mainPage.confirmButtonHighlightColor
 
-            // Background overlay to dim the rest of the page
-            Rectangle {
-                anchors.fill: parent
-                color: "#000000"
-                opacity: genericConfirmDialog.opacity * 0.5 // Dimming effect
-                Behavior on opacity { NumberAnimation { duration: 200 } }
+        // Connect signals from ConfirmDialog back to mainPage's logic
+        onConfirmed: {
+            if (mainPage.onConfirmCallback) {
+                mainPage.onConfirmCallback(); // Execute the stored callback
             }
-
-            // The actual dialog content
-            Rectangle {
-                id: dialogContent
-                width: parent.width * 0.8 // 80% width of the overlay
-                // Height based on content plus padding
-                height: dialogColumn.implicitHeight + Theme.paddingLarge * 2
-                // Using a darker background color for the dialog, adjust as needed
-                color: "#1c1d29" // A slightly darker shade than the main background
-                radius: Theme.itemSizeSmall / 2 // Rounded corners
-                anchors.centerIn: parent // Center the dialog within the overlay
-
-                // Behavior for smooth appearance/disappearance
-                Behavior on opacity { NumberAnimation { duration: 200 } }
-                Behavior on transform {
-                    PropertyAnimation { property: "scale"; from: 0.9; to: 1.0; duration: 200; easing.type: Easing.OutBack; exclude: !genericConfirmDialog.visible }
-                    PropertyAnimation { property: "scale"; from: 1.0; to: 0.9; duration: 200; easing.type: Easing.InBack; exclude: genericConfirmDialog.visible }
-                }
-
-                Column {
-                    id: dialogColumn
-                    width: parent.width - Theme.paddingLarge * 2 // Column width, considering parent's padding
-                    spacing: Theme.paddingMedium
-                    anchors.margins: Theme.paddingLarge // Padding around the column content
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.top: parent.top
-
-                    Label {
-                        width: parent.width
-                        text: mainPage.confirmDialogTitle // Bound to mainPage property
-                        font.pixelSize: Theme.fontSizeLarge
-                        font.bold: true
-                        horizontalAlignment: Text.AlignHCenter
-                        color: Theme.highlightColor
-                    }
-
-                    Label {
-                        width: parent.width
-                        text: mainPage.confirmDialogMessage // Bound to mainPage property
-                        wrapMode: Text.WordWrap
-                        horizontalAlignment: Text.AlignHCenter
-                        color: Theme.primaryColor
-                    }
-
-                    RowLayout {
-                        width: parent.width
-                        spacing: Theme.paddingMedium
-                        anchors.horizontalCenter: parent.horizontalCenter
-
-                        Button {
-                            Layout.fillWidth: true
-                            text: qsTr("Cancel")
-                            onClicked: {
-                                mainPage.confirmDialogVisible = false; // Just hide the dialog
-                                console.log(qsTr("Action cancelled by user."));
-                            }
-                        }
-
-                        Button {
-                            Layout.fillWidth: true
-                            text: mainPage.confirmButtonText // Bound to mainPage property
-                            highlightColor: mainPage.confirmButtonHighlightColor // Bound to mainPage property
-                            onClicked: {
-                                if (mainPage.onConfirmCallback) {
-                                    mainPage.onConfirmCallback(); // Execute the stored callback function
-                                }
-                                mainPage.confirmDialogVisible = false; // Hide the dialog
-                            }
-                        }
-                    }
-                }
-            }
-            // Handler for showing/hiding with animation
-            onVisibleChanged: {
-                if (visible) {
-                    opacity = 1;
-                } else {
-                    opacity = 0;
-                }
-            }
+            mainPage.confirmDialogVisible = false; // Hide the dialog after confirmation
         }
+        onCancelled: {
+            mainPage.confirmDialogVisible = false; // Hide the dialog
+            console.log(qsTr("Action cancelled by user."));
+        }
+    }
 }
