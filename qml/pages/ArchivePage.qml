@@ -1,4 +1,4 @@
-// unifiedNotesPage.qml
+// ArchivePage.qml
 
 import QtQuick.LocalStorage 2.0
 import QtQuick 2.0
@@ -339,7 +339,7 @@ Page {
                         width: parent.width
                         spacing: Theme.paddingLarge
 
-                        TrashNoteCard { // Using TrashNoteCard as it's designed for displaying deleted/archived notes
+                        TrashArchiveNoteCard { // Using TrashNoteCard as it's designed for displaying deleted/archived notes
                             id: noteCardInstance
                             anchors {
                                 left: parent.left

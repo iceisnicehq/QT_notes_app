@@ -312,7 +312,7 @@ Page {
                         width: parent.width
                         spacing: Theme.paddingLarge
 
-                        TrashNoteCard {
+                        TrashArchiveNoteCard {
                             id: trashNoteCardInstance
                             anchors {
                                 left: parent.left
