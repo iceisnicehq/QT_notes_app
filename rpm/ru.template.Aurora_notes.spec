@@ -38,5 +38,5 @@ cp %{_builddir}/translations/ru.template.Aurora_notes-ru.qm \
 %{_datadir}/applications/%{name}.desktop
 %{_datadir}/icons/hicolor/*/apps/%{name}.png
 
-%{_datadir}/%{name}/translations/ru.template.Aurora_notes.qm
+%{_datadir}/%{name}/translations/ru.template.Aurora_notes-en.qm
 %{_datadir}/%{name}/translations/ru.template.Aurora_notes-ru.qm

@@ -160,12 +160,6 @@ Page {
             anchors.right: parent.right
             anchors.leftMargin: trashPage.noteMargin
             anchors.rightMargin: trashPage.noteMargin
-
-            // NEW: Calculate button width to ensure all three fit on screen
-            // Total available width = parent.width (of Row)
-            // parent.width (of Row) = trashPage.width - (2 * Theme.paddingMedium) (from anchors.left/rightMargin)
-            // Available space for buttons = (trashPage.width - (2 * Theme.paddingMedium)) - (2 * Theme.paddingSmall) (for spaces between buttons)
-            // Each button's width = Available space / 3
             property real calculatedButtonWidth: (trashPage.width) /  3.23
 
             // "Select All / Deselect All" Button
@@ -230,7 +224,7 @@ Page {
                         }
                     }
                     Label {
-                        text: qsTr("Restore")
+                        text: qsTr("Restore the note")
                         color: Theme.primaryColor
                         font.pixelSize: Theme.fontSizeSmall
                         horizontalAlignment: Text.AlignHCenter

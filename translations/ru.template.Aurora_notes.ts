@@ -1295,8 +1295,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     <message>
         <location filename="../qml/pages/TrashPage.qml" line="26"/>
         <location filename="../qml/pages/TrashPage.qml" line="60"/>
-        <location filename="../qml/pages/TrashPage.qml" line="282"/>
-        <location filename="../qml/pages/TrashPage.qml" line="301"/>
+        <location filename="../qml/pages/TrashPage.qml" line="276"/>
+        <location filename="../qml/pages/TrashPage.qml" line="295"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1311,93 +1311,97 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="193"/>
+        <location filename="../qml/pages/TrashPage.qml" line="187"/>
         <source>Select</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="207"/>
+        <location filename="../qml/pages/TrashPage.qml" line="201"/>
         <source>Selected note IDs after Select All/Deselect All: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="233"/>
-        <location filename="../qml/pages/TrashPage.qml" line="252"/>
+        <location filename="../qml/pages/TrashPage.qml" line="246"/>
         <source>Restore</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="241"/>
+        <location filename="../qml/pages/TrashPage.qml" line="235"/>
         <source>Are you sure you want to restore %1 selected notes to your main notes?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="248"/>
+        <location filename="../qml/pages/TrashPage.qml" line="227"/>
+        <source>Restore the note</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/TrashPage.qml" line="242"/>
         <source>%1 note(s) restored!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="249"/>
+        <location filename="../qml/pages/TrashPage.qml" line="243"/>
         <source>%1 note(s) restored from trash.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="251"/>
+        <location filename="../qml/pages/TrashPage.qml" line="245"/>
         <source>Confirm Restoration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="255"/>
+        <location filename="../qml/pages/TrashPage.qml" line="249"/>
         <source>Showing restore confirmation dialog for %1 notes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="290"/>
+        <location filename="../qml/pages/TrashPage.qml" line="284"/>
         <source>Are you sure you want to permanently delete %1 selected notes? This action cannot be undone.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="297"/>
+        <location filename="../qml/pages/TrashPage.qml" line="291"/>
         <source>%1 note(s) permanently deleted!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="298"/>
+        <location filename="../qml/pages/TrashPage.qml" line="292"/>
         <source>%1 note(s) permanently deleted.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="300"/>
+        <location filename="../qml/pages/TrashPage.qml" line="294"/>
         <source>Confirm Permanent Deletion</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="304"/>
+        <location filename="../qml/pages/TrashPage.qml" line="298"/>
         <source>Showing permanent delete confirmation dialog for %1 notes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="377"/>
+        <location filename="../qml/pages/TrashPage.qml" line="371"/>
         <source>Toggled selection for note ID: %1. Current selected: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="381"/>
+        <location filename="../qml/pages/TrashPage.qml" line="375"/>
         <source>TRASH_PAGE: Opening NotePage for note ID: %1 from Trash.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="412"/>
+        <location filename="../qml/pages/TrashPage.qml" line="406"/>
         <source>Will be permanently deleted on: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="455"/>
+        <location filename="../qml/pages/TrashPage.qml" line="449"/>
         <source>Action cancelled by user.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="461"/>
+        <location filename="../qml/pages/TrashPage.qml" line="455"/>
         <source>Trash is empty.</source>
         <translation type="unfinished"></translation>
     </message>
