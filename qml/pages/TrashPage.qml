@@ -1,6 +1,6 @@
 // TrashPage.qml
 
-import QtQuick.LocalStorage 2.0
+import QtQuick.LocalStorage 2.0 // Explicitly import LocalStorage
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.Layouts 1.1
@@ -9,14 +9,17 @@ import "DatabaseManager.js" as DB
 Page {
     id: trashPage
     objectName: "trashPage" // Added objectName for easier pageStack checks in SidePanel
-    backgroundColor: Theme.backgroundColor !== undefined ? Theme.backgroundColor : "#121218"
-    showNavigationIndicator: false
+    backgroundColor: trashPage.customBackgroundColor !== undefined ? trashPage.customBackgroundColor : "#121218" // Fallback to Theme.backgroundColor if custom is not set
+
+    // Property to hold the currently selected custom background color
+    property string customBackgroundColor: DB.getThemeColor() || "#121218" // Load from DB, default to a dark color if not found    showNavigationIndicator: false
+    property int noteMargin: 20
 
     property var deletedNotes: []
     property var selectedNoteIds: []
     property bool panelOpen: false // Property to control side panel visibility
 
-    // Properties to control the dialog from the page's logic
+    // Properties to control the dialog from the page's logic (These will now be passed to the component)
     property bool confirmDialogVisible: false
     property string confirmDialogTitle: qsTr("Confirm Deletion") // Default title
     property string confirmDialogMessage: "" // Message for the dialog
@@ -26,15 +29,22 @@ Page {
 
 
     Component.onCompleted: {
-        console.log("TRASH_PAGE: TrashPage opened. Calling refreshDeletedNotes.");
+        console.log("TRASH_PAGE: TrashPage opened. Initializing DB and calling refreshDeletedNotes.");
+        // Initialize the DatabaseManager with the LocalStorage object
+        DB.initDatabase(); // Pass the LocalStorage object here
+        // Clean up expired notes immediately when entering the trash page
+        DB.permanentlyDeleteExpiredDeletedNotes();
+        // Then refresh the displayed notes
         refreshDeletedNotes();
+        // Add logging to see the actual count of notes loaded
+        console.log("TRASH_PAGE: Deleted notes after refresh. Count:", deletedNotes.length);
         // Set the current page for the side panel instance
         sidePanelInstance.currentPage = "trash"; // Corrected this line to explicitly set "trash"
     }
 
     function refreshDeletedNotes() {
-        deletedNotes = DB.getDeletedNotes();
-        selectedNoteIds = [];
+        deletedNotes = DB.getDeletedNotes(); // Get notes that remain after cleanup
+        selectedNoteIds = []; // Clear any existing selections
         console.log("DB_MGR: getDeletedNotes found", deletedNotes.length, "deleted notes.");
         console.log("TRASH_PAGE: refreshDeletedNotes completed. Count:", deletedNotes.length);
     }
@@ -107,17 +117,36 @@ Page {
         }
 
         Label {
+            id: titleLabel
             text: qsTr("Trash")
             anchors.centerIn: parent
             font.pixelSize: Theme.fontSizeExtraLarge
             font.bold: true
         }
+        Label {
+            id: infoLabel
+            text: qsTr("The notes in the trash get deleted after 30 days")
+            font.pixelSize: Theme.fontSizeSmall * 0.9 // Smaller font size
+            font.italic: true // Italicized text
+            color: Theme.secondaryColor // A subtle color for auxiliary text
+            horizontalAlignment: Text.AlignHCenter // Center horizontally
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: titleLabel.bottom // Position below the main title
+            anchors.topMargin: Theme.paddingSmall // Small margin between title and info
+            width: parent.width * 0.9 // Ensure it doesn't span full width, add some padding
+            wrapMode: Text.Wrap // Allow text to wrap if too long
+        }
+
     }
+
 
     ColumnLayout {
         id: mainLayout
-        anchors.fill: parent
-        anchors.topMargin: pageHeader.height
+        // Changed anchoring to explicitly define vertical space
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: pageHeader.bottom // Anchor directly to the bottom of the pageHeader
+        anchors.bottom: parent.bottom // Anchor to the bottom of the Page
         spacing: 0
 
         Row {
@@ -129,27 +158,25 @@ Page {
 
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.leftMargin: Theme.paddingMedium
-            anchors.rightMargin: Theme.paddingMedium
+            anchors.leftMargin: trashPage.noteMargin
+            anchors.rightMargin: trashPage.noteMargin
 
             // NEW: Calculate button width to ensure all three fit on screen
             // Total available width = parent.width (of Row)
             // parent.width (of Row) = trashPage.width - (2 * Theme.paddingMedium) (from anchors.left/rightMargin)
             // Available space for buttons = (trashPage.width - (2 * Theme.paddingMedium)) - (2 * Theme.paddingSmall) (for spaces between buttons)
             // Each button's width = Available space / 3
-            property real calculatedButtonWidth: (trashPage.width) /  3.16
+            property real calculatedButtonWidth: (trashPage.width) /  3.23
 
             // "Select All / Deselect All" Button
             Button {
                 id: selectAllButton
                 width: parent.calculatedButtonWidth // Use calculated width
-                Layout.preferredHeight: Theme.buttonHeightSmall
                 highlightColor: Theme.highlightColor
 
                 // NEW: Inner Column to stack Icon and Label for consistent styling
                 Column {
                     anchors.centerIn: parent
-                    spacing: Theme.paddingTiny // Small spacing between icon and text
 
                     Item { // Wrapper Item for the Icon to control its precise size and centering
                         width: Theme.fontSizeExtraLarge * 0.9 // Adjusted size for icons in buttons
@@ -185,13 +212,11 @@ Page {
             Button {
                 id: restoreSelectedButton
                 width: parent.calculatedButtonWidth // Use calculated width
-                Layout.preferredHeight: Theme.buttonHeightSmall
                 highlightColor: Theme.highlightColor
 
                 // NEW: Inner Column to stack Icon and Label for consistent styling
                 Column {
                     anchors.centerIn: parent
-                    spacing: Theme.paddingTiny
 
                     Item { // Wrapper Item for the Icon to control its precise size and centering
                         width: Theme.fontSizeExtraLarge * 0.9 // Adjusted size for icons in buttons
@@ -236,13 +261,11 @@ Page {
             Button {
                 id: deleteSelectedButton
                 width: parent.calculatedButtonWidth // Use calculated width
-                Layout.preferredHeight: Theme.buttonHeightSmall
                 highlightColor: Theme.errorColor
 
                 // NEW: Inner Column to stack Icon and Label for consistent styling
                 Column {
                     anchors.centerIn: parent
-                    spacing: Theme.paddingTiny
 
                     Item { // Wrapper Item for the Icon to control its precise size and centering
                         width: Theme.fontSizeExtraLarge * 0.9 // Adjusted size for icons in buttons
@@ -250,7 +273,7 @@ Page {
                         anchors.horizontalCenter: parent.horizontalCenter
 
                         Icon {
-                            source: "../icons/delete.svg"
+                            source: "../icons/perma_delete.svg"
                             anchors.fill: parent // Icon fills its wrapper Item
                             color: Theme.primaryColor
                         }
@@ -285,7 +308,9 @@ Page {
             }
         }
 
+        // Added ID to the spacer Item for accurate height calculation
         Item {
+            id: selectionSpacer // NEW ID
             Layout.fillWidth: true
             Layout.preferredHeight: selectionControlsVisible ? Theme.paddingMedium : 0
             visible: selectionControlsVisible
@@ -294,14 +319,18 @@ Page {
         SilicaFlickable {
             id: trashFlickable
             Layout.fillWidth: true
-            Layout.fillHeight: true
-
-            contentHeight: trashColumn.implicitHeight + (trashPage.showEmptyLabel ? 0 : Theme.paddingLarge * 2)
+            // --- MODIFIED: Explicit height calculation based on remaining space in ColumnLayout ---
+            // The parent.height here refers to the height of mainLayout
+            Layout.preferredHeight: parent.height // mainLayout's height
+                                  - selectionControls.height
+                                  - selectionSpacer.height
+            contentHeight: trashColumn.implicitHeight
+            clip: true // Explicitly ensure content is clipped to the flickable's bounds
 
             Column {
                 id: trashColumn
                 width: parent.width
-                spacing: Theme.paddingMedium
+                spacing: Theme.paddingMedium // Spacing between each full note entry (card + date label)
                 visible: !trashPage.showEmptyLabel
                 anchors.top: parent.top
                 anchors.topMargin: Theme.paddingMedium
@@ -309,16 +338,17 @@ Page {
                 Repeater {
                     model: deletedNotes
                     delegate: Column {
+                        // This Column acts as the container for a single note card AND its deletion date label
                         width: parent.width
-                        spacing: Theme.paddingLarge
+                        spacing: Theme.paddingSmall // Spacing between the card and the label below it
 
-                        TrashNoteCard {
+                        TrashArchiveNoteCard {
                             id: trashNoteCardInstance
                             anchors {
                                 left: parent.left
                                 right: parent.right
-                                leftMargin: Theme.paddingMedium
-                                rightMargin: Theme.paddingMedium
+                                leftMargin: trashPage.noteMargin
+                                rightMargin: trashPage.noteMargin
                             }
                             width: parent.width - (Theme.paddingMedium * 2)
                             noteId: modelData.id
@@ -326,7 +356,8 @@ Page {
                             content: modelData.content
                             tags: modelData.tags ? modelData.tags.join(' ') : ''
                             cardColor: modelData.color || "#1c1d29"
-                            height: implicitHeight
+                            height: implicitHeight // Let the card determine its height based on its content
+
                             isSelected: selectedNoteIds.indexOf(modelData.id) !== -1
                             selectedBorderColor: trashNoteCardInstance.isSelected ? "#FFFFFF" : "#00000000"
                             selectedBorderWidth: trashNoteCardInstance.isSelected ? Theme.borderWidthSmall : 0
@@ -362,6 +393,31 @@ Page {
                                 });
                             }
                         }
+
+                        // Label for deletion date, now explicitly outside TrashArchiveNoteCard
+                        Label {
+                            // Only visible if modelData.updated_at exists and is a string
+                            visible: modelData.updated_at !== undefined && modelData.updated_at !== null && modelData.updated_at !== ""
+                            width: parent.width - (Theme.paddingMedium * 2) // Match card width
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text: {
+                                if (modelData.updated_at) {
+                                    var deletedAt = new Date(modelData.updated_at);
+                                    var thirtyDaysLater = new Date(deletedAt);
+                                    thirtyDaysLater.setDate(deletedAt.getDate() + 30);
+
+                                    // Use Qt.formatDateTime for dd.mm.yyyy format
+                                    var formattedDate = Qt.formatDateTime(thirtyDaysLater, "dd.MM.yyyy");
+
+                                    return qsTr("Will be permanently deleted on: %1").arg(formattedDate);
+                                }
+                                return "";
+                            }
+                            font.pixelSize: Theme.fontSizeSmall // Smaller font for auxiliary info
+                            color: Theme.secondaryColor // Subtle color
+                            horizontalAlignment: Text.AlignHCenter
+                            wrapMode: Text.WordWrap
+                        }
                     }
                 }
             }
@@ -388,94 +444,26 @@ Page {
         id: toastManager
     }
 
-    // --- Styled Confirmation Dialog ---
-    Item {
-        id: manualConfirmDialog
-        anchors.fill: parent
-        visible: trashPage.confirmDialogVisible
-        z: 100
-        opacity: 0
+    // --- Integrated Confirmation Dialog Component ---
+    ConfirmDialog {
+        id: confirmDialogInstance
+        // Bind properties from TrashPage to ConfirmDialog
+        dialogVisible: trashPage.confirmDialogVisible
+        dialogTitle: trashPage.confirmDialogTitle
+        dialogMessage: trashPage.confirmDialogMessage
+        confirmButtonText: trashPage.confirmButtonText
+        confirmButtonHighlightColor: trashPage.confirmButtonHighlightColor
 
-        Rectangle {
-            anchors.fill: parent
-            color: "#000000"
-            opacity: manualConfirmDialog.opacity * 0.5
-            Behavior on opacity { NumberAnimation { duration: 200 } }
+        // Connect signals from ConfirmDialog back to TrashPage's logic
+        onConfirmed: {
+            if (trashPage.onConfirmCallback) {
+                trashPage.onConfirmCallback(); // Execute the stored callback
+            }
+            trashPage.confirmDialogVisible = false; // Hide the dialog after confirmation
         }
-
-        Rectangle {
-            id: dialogContent
-            width: parent.width * 0.8
-            height: dialogColumn.implicitHeight + Theme.paddingLarge * 2
-            color: "#1c1d29"
-            radius: Theme.itemSizeSmall / 2
-            anchors.centerIn: parent
-
-            Behavior on opacity { NumberAnimation { duration: 200 } }
-            Behavior on transform {
-                PropertyAnimation { property: "scale"; from: 0.9; to: 1.0; duration: 200; easing.type: Easing.OutBack; exclude: !manualConfirmDialog.visible }
-                PropertyAnimation { property: "scale"; from: 1.0; to: 0.9; duration: 200; easing.type: Easing.InBack; exclude: manualConfirmDialog.visible }
-            }
-
-            Column {
-                id: dialogColumn
-                width: parent.width - Theme.paddingLarge * 2
-                spacing: Theme.paddingMedium
-                anchors.margins: Theme.paddingLarge
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.top: parent.top
-
-                Label {
-                    width: parent.width
-                    text: trashPage.confirmDialogTitle
-                    font.pixelSize: Theme.fontSizeLarge
-                    font.bold: true
-                    horizontalAlignment: Text.AlignHCenter
-                    color: Theme.highlightColor
-                }
-
-                Label {
-                    width: parent.width
-                    text: trashPage.confirmDialogMessage
-                    wrapMode: Text.WordWrap
-                    horizontalAlignment: Text.AlignHCenter
-                    color: Theme.primaryColor
-                }
-
-                RowLayout {
-                    width: parent.width
-                    spacing: Theme.paddingMedium
-                    anchors.horizontalCenter: parent.horizontalCenter
-
-                    Button {
-                        Layout.fillWidth: true
-                        text: qsTr("Cancel")
-                        onClicked: {
-                            trashPage.confirmDialogVisible = false;
-                            console.log(qsTr("Action cancelled by user."));
-                        }
-                    }
-
-                    Button {
-                        Layout.fillWidth: true
-                        text: trashPage.confirmButtonText
-                        highlightColor: trashPage.confirmButtonHighlightColor
-                        onClicked: {
-                            if (trashPage.onConfirmCallback) {
-                                trashPage.onConfirmCallback();
-                            }
-                            trashPage.confirmDialogVisible = false;
-                        }
-                    }
-                }
-            }
-        }
-        onVisibleChanged: {
-            if (visible) {
-                opacity = 1;
-            } else {
-                opacity = 0;
-            }
+        onCancelled: {
+            trashPage.confirmDialogVisible = false; // Hide the dialog
+            console.log(qsTr("Action cancelled by user."));
         }
     }
 

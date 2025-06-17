@@ -1,4 +1,4 @@
-// DatabaseManager.js (UPDATED - with searchNotes function)
+// DatabaseManager.js (UPDATED - LocalStorage passed to initDatabase, with archiveAllNotes, moveAllNotesToTrash, and permanentlyDeleteExpiredDeletedNotes)
 
 var db = null;
 var dbName = "AuroraNotesDB";
@@ -6,13 +6,22 @@ var dbVersion = "1.0";
 var dbDescription = "Aurora Notes Database";
 var dbSize = 1000000;
 
-var defaultNoteColor = "#121218";
+var defaultNoteColor = "#1c1d29";
 
-function initDatabase() {
-    if (db) return;
+// Modified: initDatabase now accepts the LocalStorage object
+function initDatabase(localStorageInstance) {
+    // Only proceed if a localStorageInstance is provided and db is null
+    if (!localStorageInstance) {
+        console.error("DB_MGR: LocalStorage instance not provided to initDatabase.");
+        return;
+    }
+    if (db) return; // Prevent re-initialization if already done
+
     try {
-        db = LocalStorage.openDatabaseSync(dbName, dbVersion, dbDescription, dbSize);
+        // Use the passed localStorageInstance
+        db = localStorageInstance.openDatabaseSync(dbName, dbVersion, dbDescription, dbSize);
         db.transaction(function(tx) {
+            // Create Notes table
             tx.executeSql(
                 'CREATE TABLE IF NOT EXISTS Notes (' +
                 'id INTEGER PRIMARY KEY AUTOINCREMENT, ' +
@@ -26,12 +35,14 @@ function initDatabase() {
                 'archived BOOLEAN NOT NULL DEFAULT 0' +
                 ')'
             );
+            // Create Tags table
             tx.executeSql(
                 'CREATE TABLE IF NOT EXISTS Tags (' +
                 'id INTEGER PRIMARY KEY AUTOINCREMENT, ' +
                 'name TEXT UNIQUE NOT NULL' +
                 ')'
             );
+            // Create NoteTags join table
             tx.executeSql(
                 'CREATE TABLE IF NOT EXISTS NoteTags (' +
                 'note_id INTEGER NOT NULL, ' +
@@ -41,33 +52,240 @@ function initDatabase() {
                 'FOREIGN KEY(tag_id) REFERENCES Tags(id) ON DELETE CASCADE' +
                 ')'
             );
-            // Handle existing databases without the 'color' column
+
+            // --- Migrations for Notes table (if columns are missing in existing DB) ---
             try {
                 tx.executeSql('SELECT color FROM Notes LIMIT 1');
             } catch (e) {
                 console.log("DB_MGR: Adding 'color' column to Notes table.");
                 tx.executeSql('ALTER TABLE Notes ADD COLUMN color TEXT DEFAULT "' + defaultNoteColor + '"');
             }
-            // Handle existing databases without the 'deleted' column
             try {
                 tx.executeSql('SELECT deleted FROM Notes LIMIT 1');
             } catch (e) {
                 console.log("DB_MGR: Adding 'deleted' column to Notes table.");
                 tx.executeSql('ALTER TABLE Notes ADD COLUMN deleted BOOLEAN NOT NULL DEFAULT 0');
             }
-            // ADDED: Handle existing databases without the 'archived' column
             try {
                 tx.executeSql('SELECT archived FROM Notes LIMIT 1');
             } catch (e) {
                 console.log("DB_MGR: Adding 'archived' column to Notes table.");
                 tx.executeSql('ALTER TABLE Notes ADD COLUMN archived BOOLEAN NOT NULL DEFAULT 0');
             }
+
+            // --- NEW: AppSettings Table and its Migrations ---
+            tx.executeSql(
+                'CREATE TABLE IF NOT EXISTS AppSettings (' +
+                'id INTEGER PRIMARY KEY, ' + // Use a fixed ID (e.g., 1) for a singleton row
+                'themeColor TEXT, ' +
+                'language TEXT, ' +
+                'lastExportDate TIMESTAMP, ' +
+                'notesExportedCount INTEGER, ' +
+                'lastImportDate TIMESTAMP, ' +
+                'notesImportedCount INTEGER' +
+                ')'
+            );
+
+            // Check if AppSettings table is empty and insert default values if so
+            var settingsCount = tx.executeSql('SELECT COUNT(*) AS count FROM AppSettings');
+            if (settingsCount.rows.item(0).count === 0) {
+                console.log("DB_MGR: AppSettings table is empty, inserting default values.");
+                tx.executeSql(
+                    'INSERT INTO AppSettings (id, themeColor, language, notesExportedCount, notesImportedCount) ' +
+                    'VALUES (?, ?, ?, ?, ?)',
+                    [1, "dark", "en", 0, 0] // Default values: dark theme, English, 0 exported/imported
+                );
+            }
+
+            // Migrations for AppSettings table (add columns if they are missing in existing DB)
+            try { tx.executeSql('SELECT themeColor FROM AppSettings LIMIT 1'); }
+            catch (e) { console.log("DB_MGR: Adding 'themeColor' column to AppSettings."); tx.executeSql('ALTER TABLE AppSettings ADD COLUMN themeColor TEXT'); }
+
+            try { tx.executeSql('SELECT language FROM AppSettings LIMIT 1'); }
+            catch (e) { console.log("DB_MGR: Adding 'language' column to AppSettings."); tx.executeSql('ALTER TABLE AppSettings ADD COLUMN language TEXT'); }
+
+            try { tx.executeSql('SELECT lastExportDate FROM AppSettings LIMIT 1'); }
+            catch (e) { console.log("DB_MGR: Adding 'lastExportDate' column to AppSettings."); tx.executeSql('ALTER TABLE AppSettings ADD COLUMN lastExportDate TIMESTAMP'); }
+
+            try { tx.executeSql('SELECT notesExportedCount FROM AppSettings LIMIT 1'); }
+            catch (e) { console.log("DB_MGR: Adding 'notesExportedCount' column to AppSettings."); tx.executeSql('ALTER TABLE AppSettings ADD COLUMN notesExportedCount INTEGER DEFAULT 0'); }
+
+            try { tx.executeSql('SELECT lastImportDate FROM AppSettings LIMIT 1'); }
+            catch (e) { console.log("DB_MGR: Adding 'lastImportDate' column to AppSettings."); tx.executeSql('ALTER TABLE AppSettings ADD COLUMN lastImportDate TIMESTAMP'); }
+
+            try { tx.executeSql('SELECT notesImportedCount FROM AppSettings LIMIT 1'); }
+            catch (e) { console.log("DB_MGR: Adding 'notesImportedCount' column to AppSettings."); tx.executeSql('ALTER TABLE AppSettings ADD COLUMN notesImportedCount INTEGER DEFAULT 0'); }
+
         });
         console.log("DB_MGR: Database initialized successfully.");
     } catch (e) {
         console.error("DB_MGR: Failed to open or initialize database: " + e);
     }
 }
+
+// Generic function to get a setting
+function getSetting(key) {
+    // initDatabase() is called internally by specific functions that need DB access.
+    // Ensure db is not null before proceeding.
+    if (!db) {
+        console.error("DB_MGR: Database not initialized when trying to get setting:", key);
+        return null;
+    }
+    var value = null;
+    db.readTransaction(function(tx) {
+        var result = tx.executeSql('SELECT ' + key + ' FROM AppSettings WHERE id = 1');
+        if (result.rows.length > 0) {
+            value = result.rows.item(0)[key];
+        }
+    });
+    return value;
+}
+
+// Generic function to set a setting
+function setSetting(key, value) {
+    // initDatabase() is called internally by specific functions that need DB access.
+    // Ensure db is not null before proceeding.
+    if (!db) {
+        console.error("DB_MGR: Database not initialized when trying to set setting:", key);
+        return;
+    }
+    db.transaction(function(tx) {
+        tx.executeSql(
+            'UPDATE AppSettings SET ' + key + ' = ? WHERE id = 1',
+            [value]
+        );
+        console.log("DB_MGR: Setting '" + key + "' updated to '" + value + "'.");
+    });
+}
+
+// Specific functions for settings (these will call initDatabase internally if needed)
+function getThemeColor() {
+    // Note: initDatabase is now called via main QML logic before these are used,
+    // but adding a safety check here.
+    if (!db) initDatabase(LocalStorage); // Attempt to initialize if not already, though primary init is in QML
+    return getSetting('themeColor');
+}
+function getLighterColor(hex) {
+    if (!hex || typeof hex !== 'string' || hex.length !== 7 || hex[0] !== '#') {
+        console.warn("Invalid color format passed to getBorderColor:", hex);
+        return "#606060"; // Default border color for invalid input
+    }
+
+    // Remove '#'
+    hex = hex.substring(1);
+
+    // Parse R, G, B values
+    var r = parseInt(hex.substring(0, 2), 16);
+    var g = parseInt(hex.substring(2, 4), 16);
+    var b = parseInt(hex.substring(4, 6), 16);
+
+    // Calculate luminance (perceived brightness) to determine if background is dark or light
+    // Formula: L = 0.299*R + 0.587*G + 0.114*B (standard for sRGB)
+    var luminance = (0.299 * r + 0.587 * g + 0.114 * b);
+
+    var newR, newG, newB;
+    var lightenAmount = 70; // Amount to increase RGB components to lighten a color
+    var darkenAmount = 50; // Amount to decrease RGB components to darken a color
+
+    if (luminance < 128) {
+        // Background is dark, make the border a lighter version of it
+        newR = Math.min(255, r + lightenAmount);
+        newG = Math.min(255, g + lightenAmount);
+        newB = Math.min(255, b + lightenAmount);
+    } else {
+        // Background is light. Making it "lighter" won't give contrast.
+        // Instead, provide a darker, contrasting border.
+        newR = Math.max(0, r - darkenAmount);
+        newG = Math.max(0, g - darkenAmount);
+        newB = Math.max(0, b - darkenAmount);
+    }
+
+    // Convert back to hex string and ensure two digits for each component
+    var resultHex = "#" +
+                    ("00" + newR.toString(16)).slice(-2).toUpperCase() +
+                    ("00" + newG.toString(16)).slice(-2).toUpperCase() +
+                    ("00" + newB.toString(16)).slice(-2).toUpperCase();
+
+    return resultHex;
+}
+
+function darkenColor(hex, percentage) {
+    // --- ПРЕДУПРЕЖДЕНИЯ (W) unknown:258, W] unknown:419 могут быть здесь, если hex undefined ---
+    // Убедитесь, что hex инициализирован до вызова darkenColor
+    if (!hex || typeof hex !== 'string' || hex.length !== 7 || hex[0] !== '#') {
+        console.warn("Invalid color format passed to darkenColor:", hex);
+        return "#000000"; // Fallback to black
+    }
+
+    var r = parseInt(hex.substring(1, 3), 16);
+    var g = parseInt(hex.substring(3, 5), 16);
+    var b = parseInt(hex.substring(5, 7), 16);
+
+    if (percentage < 0) {
+        // Lighten the color: move towards white (255)
+        var absPercentage = Math.abs(percentage);
+        r = Math.round(r + (255 - r) * absPercentage);
+        g = Math.round(g + (255 - g) * absPercentage);
+        b = Math.round(b + (255 - b) * absPercentage);
+    } else {
+        // Darken the color: move towards black (0)
+        r = Math.round(r * (1 - percentage));
+        g = Math.round(g * (1 - percentage));
+        b = Math.round(b * (1 - percentage));
+    }
+
+    // Ensure RGB values stay within the valid range [0, 255]
+    r = Math.max(0, Math.min(255, r));
+    g = Math.max(0, Math.min(255, g));
+    b = Math.max(0, Math.min(255, b));
+
+    // Convert back to hex string and ensure two digits for each component
+    var result = "#" +
+                 ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    return result;
+}
+
+
+function setThemeColor(color) {
+    if (!db) initDatabase(LocalStorage);
+    setSetting('themeColor', color);
+}
+
+function getLanguage() {
+    if (!db) initDatabase(LocalStorage);
+    return getSetting('language');
+}
+
+function setLanguage(langCode) {
+    if (!db) initDatabase(LocalStorage);
+    setSetting('language', langCode);
+}
+
+// Placeholder functions for import/export statistics
+function updateLastExportDate() {
+    if (!db) initDatabase(LocalStorage);
+    setSetting('lastExportDate', new Date().toISOString());
+    console.log("DB_MGR: Last export date updated.");
+}
+
+function updateNotesExportedCount(count) {
+    if (!db) initDatabase(LocalStorage);
+    setSetting('notesExportedCount', count);
+    console.log("DB_MGR: Notes exported count updated to: " + count);
+}
+
+function updateLastImportDate() {
+    if (!db) initDatabase(LocalStorage);
+    setSetting('lastImportDate', new Date().toISOString());
+    console.log("DB_MGR: Last import date updated.");
+}
+
+function updateNotesImportedCount(count) {
+    if (!db) initDatabase(LocalStorage);
+    setSetting('notesImportedCount', count);
+    console.log("DB_MGR: Notes imported count updated to: " + count);
+}
+
 
 // CORRECTED LINE: Changed default parameter syntax and added 'archived' parameter
 function addNoteInternal(tx, pinned, title, content, color, deleted, archived) {
@@ -106,14 +324,14 @@ function addTagToNoteInternal(tx, noteId, tagName) {
 }
 
 function addTagToNote(noteId, tagName) {
-    initDatabase();
+    if (!db) initDatabase(LocalStorage);
     db.transaction(function(tx) {
         addTagToNoteInternal(tx, noteId, tagName);
     });
 }
 
 function deleteTagFromNote(noteId, tagName) {
-    initDatabase();
+    if (!db) initDatabase(LocalStorage);
     db.transaction(function(tx) {
         var tagResult = tx.executeSql('SELECT id FROM Tags WHERE name = ?', [tagName]);
         if (tagResult.rows.length > 0) {
@@ -127,7 +345,7 @@ function deleteTagFromNote(noteId, tagName) {
 }
 
 function getAllNotes() {
-    initDatabase();
+    if (!db) initDatabase(LocalStorage);
     var notes = [];
     db.readTransaction(function(tx) {
         // MODIFIED: Only get notes that are not deleted AND not archived
@@ -146,9 +364,10 @@ function getAllNotes() {
 }
 
 function getDeletedNotes() {
-    initDatabase();
+    if (!db) initDatabase(LocalStorage);
     var notes = [];
     db.readTransaction(function(tx) {
+        // Fetch all notes currently marked as deleted
         var result = tx.executeSql('SELECT * FROM Notes WHERE deleted = 1 ORDER BY updated_at DESC');
         console.log("DB_MGR: getDeletedNotes found " + result.rows.length + " deleted notes.");
         for (var i = 0; i < result.rows.length; i++) {
@@ -166,7 +385,7 @@ function getDeletedNotes() {
 
 // ADDED: Function to get archived notes
 function getArchivedNotes() {
-    initDatabase();
+    if (!db) initDatabase(LocalStorage);
     var notes = [];
     db.readTransaction(function(tx) {
         var result = tx.executeSql('SELECT * FROM Notes WHERE archived = 1 ORDER BY updated_at DESC');
@@ -185,7 +404,9 @@ function getArchivedNotes() {
 
 
 function getTagsForNote(tx_param, noteId) {
-    initDatabase();
+    // This function is often called from within another transaction, so it might not need its own initDatabase.
+    // However, if called standalone, it needs db to be ready.
+    if (!db) initDatabase(LocalStorage);
     var tempTags = [];
     if (tx_param) {
         var res = tx_param.executeSql(
@@ -210,7 +431,7 @@ function getTagsForNote(tx_param, noteId) {
 }
 
 function getAllTags() {
-    initDatabase();
+    if (!db) initDatabase(LocalStorage);
     var tags = [];
     db.readTransaction(function(tx) {
         var result = tx.executeSql(
@@ -229,7 +450,7 @@ function getAllTags() {
 }
 
 function getAllTagsWithCounts() {
-    initDatabase();
+    if (!db) initDatabase(LocalStorage);
     var tagsWithCounts = [];
     db.readTransaction(function(tx) {
         var result = tx.executeSql(
@@ -253,7 +474,7 @@ function getAllTagsWithCounts() {
 }
 
 function addNote(pinned, title, content, tags, color) {
-    initDatabase();
+    if (!db) initDatabase(LocalStorage);
     var returnedNoteId = -1;
     if (color === undefined || color === null || color === "") {
         color = defaultNoteColor;
@@ -270,7 +491,7 @@ function addNote(pinned, title, content, tags, color) {
 }
 
 function updateNote(id, pinned, title, content, tags, color) {
-    initDatabase();
+    if (!db) initDatabase(LocalStorage);
     if (color === undefined || color === null || color === "") {
         color = defaultNoteColor;
     }
@@ -288,7 +509,7 @@ function updateNote(id, pinned, title, content, tags, color) {
 }
 
 function deleteNote(id) {
-    initDatabase();
+    if (!db) initDatabase(LocalStorage);
     db.transaction(function(tx) {
         // MODIFIED: When deleting, also unarchive if it was archived
         tx.executeSql('UPDATE Notes SET deleted = 1, archived = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
@@ -297,7 +518,7 @@ function deleteNote(id) {
 }
 
 function restoreNote(id) {
-    initDatabase();
+    if (!db) initDatabase(LocalStorage);
     db.transaction(function(tx) {
         // MODIFIED: When restoring, ensure it's not deleted and not archived
         tx.executeSql('UPDATE Notes SET deleted = 0, archived = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
@@ -307,7 +528,7 @@ function restoreNote(id) {
 
 // ADDED: Function to archive a note
 function archiveNote(id) {
-    initDatabase();
+    if (!db) initDatabase(LocalStorage);
     db.transaction(function(tx) {
         // When archiving, also ensure it's not deleted
         tx.executeSql('UPDATE Notes SET archived = 1, deleted = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
@@ -317,7 +538,7 @@ function archiveNote(id) {
 
 // ADDED: Function to unarchive a note
 function unarchiveNote(id) {
-    initDatabase();
+    if (!db) initDatabase(LocalStorage);
     db.transaction(function(tx) {
         tx.executeSql('UPDATE Notes SET archived = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
         console.log("DB_MGR: Note ID " + id + " unarchived.");
@@ -326,7 +547,7 @@ function unarchiveNote(id) {
 
 
 function permanentlyDeleteNote(id) {
-    initDatabase();
+    if (!db) initDatabase(LocalStorage);
     db.transaction(function(tx) {
         tx.executeSql('DELETE FROM NoteTags WHERE note_id = ?', [id]);
         tx.executeSql('DELETE FROM Notes WHERE id = ?', [id]);
@@ -334,8 +555,84 @@ function permanentlyDeleteNote(id) {
     });
 }
 
+// NEW FUNCTION: Permanently delete all notes and associated tags
+function permanentlyDeleteAllNotes() {
+    if (!db) {
+        console.error("DB_MGR: Database not initialized. Cannot delete all notes.");
+        return;
+    }
+    db.transaction(function(tx) {
+        tx.executeSql('DELETE FROM NoteTags'); // Delete all note-tag associations
+        tx.executeSql('DELETE FROM Notes');    // Delete all notes
+        tx.executeSql('DELETE FROM Tags');     // Optionally delete all tags if they have no notes (clean slate)
+        console.log("DB_MGR: All notes and associated tags permanently deleted.");
+    });
+}
+
+// NEW FUNCTION: Archive all notes that are not already archived or deleted
+function archiveAllNotes() {
+    if (!db) {
+        console.error("DB_MGR: Database not initialized. Cannot archive all notes.");
+        return;
+    }
+    db.transaction(function(tx) {
+        // Archive notes that are not deleted and not already archived
+        tx.executeSql('UPDATE Notes SET archived = 1, updated_at = CURRENT_TIMESTAMP WHERE deleted = 0 AND archived = 0');
+        console.log("DB_MGR: All eligible notes moved to archive.");
+    });
+}
+
+// NEW FUNCTION: Move all notes to trash that are not already deleted
+function moveAllNotesToTrash() {
+    if (!db) {
+        console.error("DB_MGR: Database not initialized. Cannot move all notes to trash.");
+        return;
+    }
+    db.transaction(function(tx) {
+        // Move all notes to trash. Unarchive if they were archived.
+        tx.executeSql('UPDATE Notes SET deleted = 1, archived = 0, updated_at = CURRENT_TIMESTAMP WHERE deleted = 0');
+        console.log("DB_MGR: All eligible notes moved to trash.");
+    });
+}
+
+// NEW FUNCTION: Permanently delete notes from trash that are older than 30 days
+function permanentlyDeleteExpiredDeletedNotes() {
+    if (!db) {
+        console.error("DB_MGR: Database not initialized. Cannot clean up expired deleted notes.");
+        return 0; // Return 0 if DB is not ready
+    }
+
+    var deletedCount = 0;
+    var now = new Date(); // Current date and time
+    var thresholdDate = new Date(now);
+    thresholdDate.setDate(now.getDate() - 30); // 30 days ago
+
+    db.transaction(function(tx) {
+        // Select notes in trash that are older than 30 days based on updated_at (deletion date)
+        var result = tx.executeSql(
+            'SELECT id, updated_at FROM Notes WHERE deleted = 1'
+        );
+
+        for (var i = 0; i < result.rows.length; i++) {
+            var note = result.rows.item(i);
+            var noteDeletionDate = new Date(note.updated_at); // Parse the deletion timestamp
+
+            if (noteDeletionDate < thresholdDate) {
+                // If the note's deletion date is older than the threshold, delete it permanently
+                tx.executeSql('DELETE FROM NoteTags WHERE note_id = ?', [note.id]);
+                tx.executeSql('DELETE FROM Notes WHERE id = ?', [note.id]);
+                deletedCount++;
+                console.log("DB_MGR: Permanently deleted expired note ID " + note.id + " (deleted on: " + note.updated_at + ").");
+            }
+        }
+    });
+    console.log("DB_MGR: Cleaned up " + deletedCount + " expired deleted notes.");
+    return deletedCount;
+}
+
+
 function togglePinned(id, pinned) {
-    initDatabase();
+    if (!db) initDatabase(LocalStorage);
     db.transaction(function(tx) {
         tx.executeSql('UPDATE Notes SET pinned = ? WHERE id = ?', [pinned, id]);
     });
@@ -343,7 +640,7 @@ function togglePinned(id, pinned) {
 }
 
 function insertTestData() {
-    initDatabase();
+    if (!db) initDatabase(LocalStorage);
     db.transaction(function(tx) {
 //        // Clear all notes, including deleted ones, for a clean test setup
         tx.executeSql('DELETE FROM Notes');
@@ -362,9 +659,22 @@ function insertTestData() {
                 }
             }
             // Add a test note that is already deleted (explicitly pass deleted = 1, archived = 0)
-            var deletedNoteId = addNoteInternal(tx, false, "Deleted Test Note", "This note should appear in the trash.", defaultNoteColor, 1, 0); // MODIFIED
+            // Use a specific date for testing expiration
+            var twoMonthsAgo = new Date();
+            twoMonthsAgo.setDate(twoMonthsAgo.getDate() - 60); // 60 days ago
+            var deletedNoteId = addNoteInternal(tx, false, "Expired Deleted Test Note", "This note should appear in the trash and then be auto-deleted.", defaultNoteColor, 1, 0); // MODIFIED
+            tx.executeSql('UPDATE Notes SET updated_at = ? WHERE id = ?', [twoMonthsAgo.toISOString(), deletedNoteId]); // Manually set updated_at for testing
             addTagToNoteInternal(tx, deletedNoteId, "TrashTest");
-            console.log("DB_MGR: Added a pre-deleted test note with ID:", deletedNoteId);
+            console.log("DB_MGR: Added an expired pre-deleted test note with ID:", deletedNoteId);
+
+            // Add a test note that is deleted but NOT expired (e.g., deleted 5 days ago)
+            var fiveDaysAgo = new Date();
+            fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 5);
+            var nonExpiredDeletedNoteId = addNoteInternal(tx, false, "Non-Expired Deleted Test Note", "This note should appear in the trash and NOT be auto-deleted yet.", defaultNoteColor, 1, 0);
+            tx.executeSql('UPDATE Notes SET updated_at = ? WHERE id = ?', [fiveDaysAgo.toISOString(), nonExpiredDeletedNoteId]);
+            addTagToNoteInternal(tx, nonExpiredDeletedNoteId, "RecentTrashTest");
+            console.log("DB_MGR: Added a non-expired pre-deleted test note with ID:", nonExpiredDeletedNoteId);
+
 
             // ADDED: Add a test note that is already archived (explicitly pass deleted = 0, archived = 1)
             var archivedNoteId = addNoteInternal(tx, false, "Archived Test Note", "This note should appear in the archive.", defaultNoteColor, 0, 1); // ADDED
@@ -380,7 +690,7 @@ function insertTestData() {
 
 
 function addTag(tagName) {
-    initDatabase();
+    if (!db) initDatabase(LocalStorage);
     var tagId = -1;
     db.transaction(function(tx) {
         var result = tx.executeSql('SELECT id FROM Tags WHERE name = ?', [tagName]);
@@ -398,7 +708,7 @@ function addTag(tagName) {
 }
 
 function updateTagName(oldName, newName) {
-    initDatabase();
+    if (!db) initDatabase(LocalStorage);
     db.transaction(function(tx) {
         var oldTagResult = tx.executeSql('SELECT id FROM Tags WHERE name = ?', [oldName]);
         if (oldTagResult.rows.length > 0) {
@@ -412,7 +722,7 @@ function updateTagName(oldName, newName) {
 }
 
 function deleteTag(tagName) {
-    initDatabase();
+    if (!db) initDatabase(LocalStorage);
     db.transaction(function(tx) {
         var tagResult = tx.executeSql('SELECT id FROM Tags WHERE name = ?', [tagName]);
         if (tagResult.rows.length > 0) {
@@ -454,7 +764,7 @@ function permanentlyDeleteNotes(ids) {
 
 // --- NEW FUNCTION: searchNotes ---
 function searchNotes(searchText, selectedTagNames) {
-    initDatabase();
+    if (!db) initDatabase(LocalStorage);
     var notes = [];
     db.readTransaction(function(tx) {
         var query = 'SELECT N.* FROM Notes N ';
@@ -521,7 +831,7 @@ function bulkMoveToTrash(ids) {
         console.warn("DB_MGR: No IDs provided for bulkMoveToTrash.");
         return;
     }
-    initDatabase();
+    if (!db) initDatabase(LocalStorage);
     db.transaction(function(tx) {
         var placeholders = ids.map(function() { return '?'; }).join(',');
         // Set deleted = 1 and archived = 0 for the given IDs
@@ -536,7 +846,7 @@ function bulkArchiveNotes(ids) {
         console.warn("DB_MGR: No IDs provided for bulkArchiveNotes.");
         return;
     }
-    initDatabase();
+    if (!db) initDatabase(LocalStorage);
     db.transaction(function(tx) {
         var placeholders = ids.map(function() { return '?'; }).join(',');
         // Set archived = 1 and deleted = 0 for the given IDs
@@ -550,7 +860,7 @@ function bulkUnarchiveNotes(ids) {
         console.warn("DB_MGR: No IDs provided for bulkUnarchiveNotes.");
         return;
     }
-    initDatabase();
+    if (!db) initDatabase(LocalStorage);
     db.transaction(function(tx) {
         var placeholders = ids.map(function() { return '?'; }).join(',');
         // Устанавливаем archived = 0 и deleted = 0 для данных ID
@@ -561,7 +871,7 @@ function bulkUnarchiveNotes(ids) {
 
 // ИСПРАВЛЕНО: Теперь эти функции используют initDatabase() и глобальную переменную db
 function moveNoteFromArchiveToTrash(noteId) {
-    initDatabase(); // Инициализация базы данных
+    if (!db) initDatabase(LocalStorage);
     db.transaction(function(tx) {
         // Используем correct column names: 'deleted' и 'archived' вместо 'is_deleted'/'is_archived'
         // и 'updated_at' вместо 'edit_date'
@@ -574,7 +884,7 @@ function moveNoteFromArchiveToTrash(noteId) {
 }
 
 function moveNoteFromTrashToArchive(noteId) {
-    initDatabase(); // Инициализация базы данныхты
+    if (!db) initDatabase(LocalStorage);
     db.transaction(function(tx) {
         // Используем correct column names: 'deleted' и 'archived' вместо 'is_deleted'/'is_archived'
         // и 'updated_at' вместо 'edit_date'

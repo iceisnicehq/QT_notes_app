@@ -5,9 +5,14 @@ import "DatabaseManager.js" as DB
 
 Page {
     id: tagEditPage
-    backgroundColor: "#121218"
+    backgroundColor: tagEditPage.customBackgroundColor !== undefined ? tagEditPage.customBackgroundColor : "#121218" // Fallback to Theme.backgroundColor if custom is not set
     showNavigationIndicator: false
+    property bool panelOpen: false // Property to control side panel visibility
+
+    // Property to hold the currently selected custom background color
+    property string customBackgroundColor: DB.getThemeColor() || "#121218" // Load from DB, default to a dark color if not found    showNavigationIndicator: false
     property var onTagsChanged: null // Callback for MainPage to refresh tags
+    property string borderColor:  DB.getLighterColor(tagEditPage.customBackgroundColor)
 
     // Properties to control header visibility (similar to MainPage)
     property bool headerVisible: true
@@ -30,6 +35,7 @@ Page {
 
     Component.onCompleted: {
         console.log("TagEditPage opened.");
+        sidePanelInstance.currentPage = "edit"; // Highlight 'settings' in the side panel
         refreshTags();
     }
 
@@ -83,7 +89,7 @@ Page {
             id: headerContainer
             width: parent.width
             height: parent.height
-            color: "#121218" // Match page background
+            color: tagEditPage.customBackgroundColor // Match page background
 
             // Back Button (Left side)
             Item {
@@ -91,32 +97,30 @@ Page {
                 height: Theme.fontSizeExtraLarge * 1.1
                 clip: false
                 anchors { left: parent.left; verticalCenter: parent.verticalCenter; leftMargin: Theme.paddingLarge }
-                RippleEffect { id: backRipple }
+                RippleEffect { id: menuRipple }
                 Icon {
-                    id: backIcon
-                    source: "../icons/back.svg" // Changed to explicit back icon
+                    id: menuIcon
+                    source: "../icons/menu.svg" // Changed to explicit back icon
                     anchors.centerIn: parent
                     width: parent.width
                     height: parent.height
                 }
+
                 MouseArea {
                     anchors.fill: parent
-                    onPressed: backRipple.ripple(mouseX, mouseY)
+                    onPressed: menuRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        // If tags were changed, notify MainPage
-                        if (onTagsChanged) {
-                            onTagsChanged();
-                        }
-                        pageStack.pop();
+                        tagEditPage.panelOpen = true // Open the side panel
+                        console.log("Menu button clicked in TagEditPage → panelOpen = true")
                     }
                 }
             }
 
             Label {
-                text: "Edit Tags"
+                text: qsTr("Edit Tags")
                 anchors.centerIn: parent
-                font.pixelSize: Theme.fontSizeLarge
-                color: "#e8eaed"
+                font.pixelSize: Theme.fontSizeExtraLarge
+                font.bold: true
             }
         }
     }
@@ -156,7 +160,7 @@ Page {
                     height: parent.height
                     anchors.centerIn: parent
                     color: "transparent"
-                    border.color: "#43484e"
+                    border.color: tagEditPage.borderColor
                     border.width: 2
                     SearchField {
                         id: tagInput
@@ -370,7 +374,7 @@ Page {
                             height: parent.height
                             anchors.centerIn: parent
                             color: "transparent"
-                            border.color: "#43484e"
+                            border.color: tagEditPage.borderColor
                             border.width: 2
 
                             SearchField {
@@ -575,7 +579,11 @@ Page {
         flickableSource: flickable
         topAnchorItem: headerArea
     }
-
+    SidePanel {
+        id: sidePanelInstance
+        open: tagEditPage.panelOpen
+        onClosed: tagEditPage.panelOpen = false
+    }
     ToastManager {
         id: toastManager
     }

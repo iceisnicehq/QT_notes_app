@@ -1,19 +1,23 @@
-// TrashNoteCard.qml
+// qml/components/TrashArchiveNoteCard.qml
+// This component displays an individual note card within the Trash or Archive pages.
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0 // Ensure this import correctly defines Theme properties
-import "DatabaseManager.js" as DB
+import QtQuick.Layouts 1.1 // Import for ColumnLayout
+import "DatabaseManager.js" as DB // Keep if other DB functions are used here, otherwise can remove
 
-Item {
+Item { // Changed from Rectangle to Item as it's a better base for components that contain other visuals
     id: root
-    width: parent ? parent.width : 360
-    implicitHeight: cardColumn.implicitHeight + (Theme.paddingLarge * 2)
+    width: parent ? parent.width : 360 // Use parent.width for better adaptability
+    // Adjusted implicitHeight to now only account for the main card rectangle itself
+    implicitHeight: mainCardRectangle.implicitHeight
 
     // --- Properties ---
     property string title: ""
     property string content: ""
     property string tags: ""
-    property string cardColor: "#1c1d29"
+    property string cardColor: DB.getThemeColor() || "#121218" // ADDED: New property for card background color, default to a neutral grey
+    property string borderColor:  DB.getLighterColor(root.cardColor)
     // isSelected property will be driven *only* by the parent (e.g., TrashPage or UnifiedNotesPage)
     property bool isSelected: false
     property int noteId: -1
@@ -22,30 +26,34 @@ Item {
     property date noteCreationDate: new Date()
     property date noteEditDate: new Date()
 
-    // NEW: Properties to control the border appearance when selected (now directly used by the Rectangle below)
-    // These properties are still here for compatibility if other parts of your app rely on them,
-    // but the border logic is now primarily handled by states within this component.
+    // Removed: deletionDateTimestamp and inTrashContext properties are no longer here.
+    // The date display will be handled by the parent QML directly below the card.
+
+
+    // Properties for selection state (now directly used by the Rectangle below)
     property color selectedBorderColor: "#00000000" // Default to transparent
     property int selectedBorderWidth: 0 // Default to no border
 
     // --- Signals ---
-    // Signal now implies a request to toggle selection for a given noteId and its *current* state.
-    // The parent will then decide the *new* state.
     signal selectionToggled(int noteId, bool isCurrentlySelected)
-    signal noteClicked(int noteId, string title, string content, bool isPinned, var tags, date creationDate, date editDate, string color)
+    // Updated signal to include isArchived and isDeleted flags, as they were passed previously
+    signal noteClicked(int noteId, string title, string content, bool isPinned, var tags, date creationDate, date editDate, string color, bool isArchived, bool isDeleted)
 
 
     // --- UI Components ---
     Rectangle {
-        id: mainCardRectangle // Added ID for clarity when defining states
-        anchors.fill: parent
-        color: root.cardColor // This keeps the card's original color (not white background)
+        id: mainCardRectangle // Main visual container for the note card
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        implicitHeight: cardColumn.implicitHeight + (Theme.paddingLarge * 2) // Height determined by inner content + padding
+        color: root.cardColor
         radius: 20
         // Initial default border
-        border.color: "#43484e"
-        border.width: 1
+        border.color: root.borderColor
+        border.width: 2
 
-        // NEW: States for the main card's border based on selection
+        // States for the main card's border based on selection
         states: [
             State {
                 name: "selectedCard"
@@ -61,8 +69,8 @@ Item {
                 when: root.isSelected === false
                 PropertyChanges {
                     target: mainCardRectangle
-                    border.color: "#43484e" // Revert to original border color
-                    border.width: 1        // Revert to original border width
+                    border.color: root.borderColor // Revert to original border color
+                    border.width: 2        // Revert to original border width
                 }
             }
         ]
@@ -79,16 +87,18 @@ Item {
             anchors.fill: parent
 
             onClicked: {
-                console.log("TrashNoteCard (ID:", root.noteId, "): Full card clicked. Emitting noteClicked signal.");
+                console.log("TrashArchiveNoteCard (ID:", root.noteId, "): Full card clicked. Emitting noteClicked signal.");
                 root.noteClicked(
                     root.noteId,
-                    root.title, // Correctly passing title
+                    root.title,
                     root.content,
                     root.noteIsPinned,
                     root.tags,
                     root.noteCreationDate,
                     root.noteEditDate,
-                    root.cardColor
+                    root.cardColor,
+                    false, // isArchived - This card component itself doesn't know its archive status
+                    true // isDeleted - Assuming this component is always used for deleted/archived notes
                 );
                 Qt.inputMethod.hide();
             }
@@ -97,7 +107,7 @@ Item {
         // --- Container for the checkbox with enlarged click area ---
         Item {
             id: checkboxClickArea
-            anchors { verticalCenter: parent.verticalCenter; right: parent.right; rightMargin: Theme.paddingMedium }
+            anchors {  right: parent.right; rightMargin: Theme.paddingMedium }
             width: Theme.iconSizeSmall * 2.4
             height: width
 
@@ -105,7 +115,7 @@ Item {
                 anchors.fill: parent
                 onClicked: {
                     root.selectionToggled(root.noteId, root.isSelected); // Pass current state to parent
-                    console.log("TrashNoteCard (ID:", root.noteId, "): Checkbox click detected. Emitting selectionToggled for ID:", root.noteId, "Current isSelected:", root.isSelected);
+                    console.log("TrashArchiveNoteCard (ID:", root.noteId, "): Checkbox click detected. Emitting selectionToggled for ID:", root.noteId, "Current isSelected:", root.isSelected);
                 }
             }
 
@@ -154,59 +164,53 @@ Item {
         }
 
         // Column for card content
-        Column {
+        ColumnLayout { // Changed to ColumnLayout for better control over implicitHeight and alignment
             id: cardColumn
-            anchors.top: parent.top
-            anchors.left: parent.left
-            anchors.bottom: parent.bottom
-            anchors.topMargin: Theme.paddingLarge
-            anchors.leftMargin: Theme.paddingLarge
-            anchors.bottomMargin: Theme.paddingLarge
-            anchors.rightMargin: checkboxClickArea.width + Theme.paddingMedium // Adjust right margin to prevent overlap with checkbox
+            width: parent.width - (Theme.paddingLarge * 2) // Content width inside the card
+            anchors.centerIn: parent // Center content vertically within mainCardRectangle
+            spacing: Theme.paddingSmall // Spacing between elements within the card
 
-            width: parent.width - (anchors.leftMargin + anchors.rightMargin) // Calculate width dynamically
-
-            spacing: Theme.paddingSmall
-
-            Text {
-                id: titleText
+            // Note Title
+            Label {
+                Layout.fillWidth: true
                 text: (root.title && root.title.trim()) ? root.title : qsTr("Empty")
                 font.italic: !(root.title && root.title.trim())
+                horizontalAlignment: "AlignHCenter"
                 color: "#e8eaed"
                 font.pixelSize: Theme.fontSizeLarge
                 font.bold: true
                 wrapMode: Text.Wrap
-                width: parent.width
             }
 
-            Text {
-                id: contentText
+            // Note Content Snippet
+            Label {
+                Layout.fillWidth: true
                 text: (root.content && root.content.trim()) ? root.content : qsTr("Empty")
                 font.italic: !(root.content && root.content.trim())
                 textFormat: Text.PlainText
+                horizontalAlignment: "AlignJustify"
                 wrapMode: Text.Wrap
                 maximumLineCount: 5
                 elide: Text.ElideRight
                 font.pixelSize: Theme.fontSizeSmall
                 color: "#c5c8d0"
-                width: parent.width
             }
 
             Flow {
                 id: tagsFlow
-                width: parent.width
+                Layout.fillWidth: true
                 spacing: Theme.paddingSmall
-                visible: root.tags && root.tags.trim().length > 0 // Only show if tags string is not empty
+                visible: root.tags && root.tags.trim().length > 0
 
                 // Repeater to display each tag
                 Repeater {
-                    model: root.tags.split(" ").filter(function(tag) { return tag.trim() !== "" }) // Split string into array, filter out empty tags
+                    model: root.tags.split(" ").filter(function(tag) { return tag.trim() !== "" })
                     delegate: Rectangle {
-                        visible: index < 2 // Show only first 2 tags
+                        visible: index < 2
                         color: "#32353a"
                         radius: 12
                         height: tagText.implicitHeight + Theme.paddingSmall
-                        width: Math.min(tagText.implicitWidth + Theme.paddingMedium * 2, parent.width * 0.45) // Max width for tag bubble
+                        width: Math.min(tagText.implicitWidth + Theme.paddingMedium * 2, parent.width * 0.45)
 
                         Text {
                             id: tagText
@@ -240,4 +244,5 @@ Item {
             }
         }
     }
+    // Removed deletionDateText Label from here. It will be in TrashPage.qml now.
 }
