@@ -901,71 +901,84 @@ function moveNoteFromTrashToArchive(noteId) {
 
 
 
-/**
- * Функция для получения ВСЕХ заметок (включая архивные и удаленные) для полного бэкапа.
- * ИСПОЛЬЗУЕТ КОЛБЭКИ для обработки асинхронности, а не промисы.
- * @param {function(Array)} onSuccess - Колбэк, вызываемый при успехе с массивом заметок.
- * @param {function(Error)} onError - Колбэк, вызываемый при ошибке.
- */
-/**
- * Функция для получения всех заметок и их тегов для экспорта.
- * @param {function} successCallback Колбэк для успешного выполнения (принимает массив заметок).
- * @param {function} errorCallback Колбэк для ошибки (принимает объект ошибки).
- */
+
+
+
+
 function getNotesForExport(successCallback, errorCallback) {
+    if (!db) initDatabase(LocalStorage);
+    console.log("DB_MGR_DEBUG: getNotesForExport вызвана.");
+    // Критическая проверка: 'db' должен быть уже инициализирован из QML.
     if (!db) {
-        console.error("DB_MGR: База данных не инициализирована для экспорта.");
+        console.error("DB_MGR_DEBUG: getNotesForExport: База данных НЕ инициализирована (db === null). Невозможно продолжить.");
         if (errorCallback) {
             errorCallback(new Error("База данных не инициализирована."));
         }
         return;
     }
+    console.log("DB_MGR_DEBUG: База данных 'db' доступна. Начинаем транзакцию для получения заметок.");
+
     db.transaction(function(tx) {
         var notes = [];
-        // Выбираем все заметки, которые не помечены как удаленные
-        var res = tx.executeSql('SELECT id, pinned, title, content, color, created_at, updated_at, deleted, archived FROM Notes WHERE deleted = 0 ORDER BY updated_at DESC');
+        try {
+            // Выбираем все заметки, которые не помечены как удаленные
+            var res = tx.executeSql('SELECT id, pinned, title, content, color, created_at, updated_at, deleted, archived FROM Notes WHERE deleted = 0 ORDER BY updated_at DESC');
+            console.log("DB_MGR_DEBUG: Запрос заметок выполнен. Найдено строк: " + res.rows.length);
 
-        for (var i = 0; i < res.rows.length; i++) {
-            var note = res.rows.item(i);
-            note.tags = []; // Инициализируем пустой массив для тегов каждой заметки
-            notes.push(note);
-        }
-
-        // Если нет заметок, сразу возвращаем пустой массив
-        if (notes.length === 0) {
-            if (successCallback) {
-                successCallback([]);
+            for (var i = 0; i < res.rows.length; i++) {
+                var note = res.rows.item(i);
+                note.tags = []; // Инициализируем пустой массив для тегов каждой заметки
+                notes.push(note);
             }
-            return;
-        }
-        console.log("RTTETSTETS");
-        // Теперь получаем теги для каждой заметки асинхронно или вложенными запросами
-        // Этот подход обрабатывает теги для каждой заметки по очереди.
-        var tagsProcessedCount = 0;
-        for (var j = 0; j < notes.length; j++) {
-            // Используем Immediately Invoked Function Expression (IIFE) для создания замыкания,
-            // чтобы currentNote сохранялась для каждого асинхронного вызова SQL.
-            (function(currentNote) {
-                var tagRes = tx.executeSql(
-                    'SELECT T.name FROM Tags T JOIN NoteTags NT ON T.id = NT.tag_id WHERE NT.note_id = ?',
-                    [currentNote.id]
-                );
-                for (var k = 0; k < tagRes.rows.length; k++) {
-                    currentNote.tags.push(tagRes.rows.item(k).name);
-                }
-                tagsProcessedCount++;
 
-                // Когда теги для всех заметок обработаны, вызываем successCallback
-                if (tagsProcessedCount === notes.length) {
-                    if (successCallback) {
-                        successCallback(notes);
-                    }
+            // Если нет заметок, сразу возвращаем пустой массив
+            if (notes.length === 0) {
+                console.log("DB_MGR_DEBUG: Нет заметок для экспорта. Вызываем successCallback с пустым массивом.");
+                if (successCallback) {
+                    successCallback([]);
                 }
-            })(notes[j]);
+                return;
+            }
+
+            // Теперь получаем теги для каждой заметки
+            var tagsProcessedCount = 0;
+            console.log("DB_MGR_DEBUG: Начинаем обработку тегов для " + notes.length + " заметок.");
+            for (var j = 0; j < notes.length; j++) {
+                (function(currentNote) {
+                    try {
+                        var tagRes = tx.executeSql(
+                            'SELECT T.name FROM Tags T JOIN NoteTags NT ON T.id = NT.tag_id WHERE NT.note_id = ?',
+                            [currentNote.id]
+                        );
+                        for (var k = 0; k < tagRes.rows.length; k++) {
+                            currentNote.tags.push(tagRes.rows.item(k).name);
+                        }
+                    } catch (tagSqlError) {
+                        console.error("DB_MGR_DEBUG: Ошибка SQL при получении тегов для заметки ID " + currentNote.id + ": " + tagSqlError.message);
+                        // Продолжаем, но заметка может быть без тегов
+                    }
+
+                    tagsProcessedCount++;
+
+                    // Когда теги для всех заметок обработаны, вызываем successCallback
+                    if (tagsProcessedCount === notes.length) {
+                        console.log("DB_MGR_DEBUG: Все теги обработаны. Вызываем successCallback с " + notes.length + " заметками.");
+                        if (successCallback) {
+                            successCallback(notes);
+                        }
+                    }
+                })(notes[j]);
+            }
+        } catch (mainSqlError) {
+            // Ошибка на уровне выполнения основного SQL-запроса
+            console.error("DB_MGR_DEBUG: Ошибка выполнения основного SQL-запроса для заметок: " + mainSqlError.message);
+            if (errorCallback) {
+                errorCallback(mainSqlError);
+            }
         }
     }, function(error) {
         // Обработка ошибок транзакции
-        console.error("DB_MGR: Ошибка при получении заметок для экспорта: " + error.message);
+        console.error("DB_MGR_DEBUG: Ошибка транзакции при получении заметок для экспорта: " + error.message);
         if (errorCallback) {
             errorCallback(error);
         }
@@ -980,6 +993,7 @@ function getNotesForExport(successCallback, errorCallback) {
  * @param {SQLTransaction} tx Объект транзакции, если функция вызывается внутри существующей транзакции.
  */
 function addImportedNote(note, tx) {
+    initDatabase(LocalStorage)
     if (!db && !tx) {
         console.error("DB_MGR: База данных не инициализирована для импорта.");
         return;
@@ -1040,6 +1054,7 @@ function addImportedNote(note, tx) {
  * Обновляет дату последнего экспорта в базе данных.
  */
 function updateLastExportDate() {
+    initDatabase(LocalStorage)
     if (!db) {
         console.error("DB_MGR: База данных не инициализирована для обновления статистики экспорта.");
         return;
@@ -1059,19 +1074,38 @@ function updateLastExportDate() {
     });
 }
 
+function updateLastExportDate() {
+    if (!db) {
+        console.error("DB_MGR: Database not initialized for updateLastExportDate.");
+        return;
+    }
+    db.transaction(function(tx) {
+        var now = new Date().toISOString();
+        // ПРАВИЛЬНОЕ ИСПОЛЬЗОВАНИЕ: Обновление столбца в строке с id=1
+        tx.executeSql(
+            'UPDATE AppSettings SET lastExportDate = ? WHERE id = 1',
+            [now]
+        );
+        console.log("DB_MGR: Дата последнего экспорта обновлена: " + now);
+    }, function(error) {
+        console.error("DB_MGR: Ошибка при обновлении даты последнего экспорта: " + error.message);
+    });
+}
+
 /**
  * Обновляет количество экспортированных заметок в базе данных.
  * @param {number} count Количество заметок, экспортированных за последнюю операцию.
  */
 function updateNotesExportedCount(count) {
     if (!db) {
-        console.error("DB_MGR: База данных не инициализирована для обновления статистики экспорта.");
+        console.error("DB_MGR: Database not initialized for updateNotesExportedCount.");
         return;
     }
     db.transaction(function(tx) {
+        // ПРАВИЛЬНОЕ ИСПОЛЬЗОВАНИЕ: Обновление столбца в строке с id=1
         tx.executeSql(
-            'INSERT OR REPLACE INTO AppSettings (key, value) VALUES (?, ?)',
-            ['lastExportedNotesCount', count]
+            'UPDATE AppSettings SET notesExportedCount = ? WHERE id = 1',
+            [count]
         );
         console.log("DB_MGR: Количество экспортированных заметок обновлено: " + count);
     }, function(error) {
@@ -1084,15 +1118,15 @@ function updateNotesExportedCount(count) {
  */
 function updateLastImportDate() {
     if (!db) {
-        console.error("DB_MGR: База данных не инициализирована для обновления статистики импорта.");
+        console.error("DB_MGR: Database not initialized for updateLastImportDate.");
         return;
     }
     db.transaction(function(tx) {
-        // Changed: Replaced 'const' with 'var'
         var now = new Date().toISOString();
+        // ПРАВИЛЬНОЕ ИСПОЛЬЗОВАНИЕ: Обновление столбца в строке с id=1
         tx.executeSql(
-            'INSERT OR REPLACE INTO AppSettings (key, value) VALUES (?, ?)',
-            ['lastImportDate', now]
+            'UPDATE AppSettings SET lastImportDate = ? WHERE id = 1',
+            [now]
         );
         console.log("DB_MGR: Дата последнего импорта обновлена: " + now);
     }, function(error) {
@@ -1106,16 +1140,58 @@ function updateLastImportDate() {
  */
 function updateNotesImportedCount(count) {
     if (!db) {
-        console.error("DB_MGR: База данных не инициализирована для обновления статистики импорта.");
+        console.error("DB_MGR: Database not initialized for updateNotesImportedCount.");
         return;
     }
     db.transaction(function(tx) {
+        // ПРАВИЛЬНОЕ ИСПОЛЬЗОВАНИЕ: Обновление столбца в строке с id=1
         tx.executeSql(
-            'INSERT OR REPLACE INTO AppSettings (key, value) VALUES (?, ?)',
-            ['lastImportedNotesCount', count]
+            'UPDATE AppSettings SET notesImportedCount = ? WHERE id = 1',
+            [count]
         );
         console.log("DB_MGR: Количество импортированных заметок обновлено: " + count);
     }, function(error) {
         console.error("DB_MGR: Ошибка при обновлении количества импортированных заметок: " + error.message);
+    });
+}
+
+// ... (все остальные функции, которые также могут использовать setSetting или getSetting,
+// например, setThemeColor, setLanguage, getThemeColor, getLanguage,
+// должны использовать этот же подход обновления столбцов по id=1) ...
+
+// ВАЖНО: Убедитесь, что функции getSetting и setSetting (если они у вас остались)
+// тоже были изменены для работы с AppSettings (id, колонка) вместо (key, value).
+// Если вы используете getSetting/setSetting, они должны выглядеть так:
+
+// Generic function to get a setting
+function getSetting(columnName) { // Принимает имя столбца
+    if (!db) {
+        console.error("DB_MGR: Database not initialized when trying to get setting:", columnName);
+        return null;
+    }
+    var value = null;
+    db.readTransaction(function(tx) {
+        // ПРАВИЛЬНОЕ ИСПОЛЬЗОВАНИЕ: Выбираем конкретный столбец из строки с id=1
+        var result = tx.executeSql('SELECT ' + columnName + ' FROM AppSettings WHERE id = 1');
+        if (result.rows.length > 0) {
+            value = result.rows.item(0)[columnName];
+        }
+    });
+    return value;
+}
+
+// Generic function to set a setting
+function setSetting(columnName, value) { // Принимает имя столбца и значение
+    if (!db) {
+        console.error("DB_MGR: Database not initialized when trying to set setting:", columnName);
+        return;
+    }
+    db.transaction(function(tx) {
+        // ПРАВИЛЬНОЕ ИСПОЛЬЗОВАНИЕ: Обновляем конкретный столбец в строке с id=1
+        tx.executeSql(
+            'UPDATE AppSettings SET ' + columnName + ' = ? WHERE id = 1',
+            [value]
+        );
+        console.log("DB_MGR: Setting '" + columnName + "' updated to '" + value + "'.");
     });
 }

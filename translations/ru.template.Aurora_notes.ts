@@ -295,173 +295,173 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
 <context>
     <name>ImportExportPage</name>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="29"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="32"/>
         <source>Выберите файл для импорта</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="30"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="33"/>
         <source>Резервные копии (*.json *.csv)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="30"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="33"/>
         <source>JSON файлы (*.json)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="30"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="33"/>
         <source>CSV файлы (*.csv)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="59"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="61"/>
         <source>Экспорт заметок</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="63"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="65"/>
         <source>Формат файла</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="67"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="69"/>
         <source>CSV (простая таблица)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="68"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="70"/>
         <source>JSON (рекомендуется)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="75"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="77"/>
         <source>Имя файла</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="76"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="78"/>
         <source>Например, notes_backup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="80"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="82"/>
         <source>Экспортировать все заметки</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="87"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="89"/>
         <source>Импорт заметок</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="93"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="95"/>
         <source>Внимание: импорт перезапишет заметки с одинаковыми ID, если они уже существуют в базе. Теги заметки будут полностью обновлены.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="98"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="100"/>
         <source>Импортировать из файла</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="147"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="140"/>
+        <source>Ошибка: База данных не инициализирована. Перезапустите приложение.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="158"/>
         <source>Сбор данных для экспорта...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="151"/>
-        <source>Ошибка: База данных не инициализирована для экспорта.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="161"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="175"/>
         <source>Нет заметок для экспорта.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="166"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="180"/>
         <source>Подготовка </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="166"/>
-        <location filename="../qml/pages/ImportExportPage.qml" line="330"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="180"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="345"/>
         <source> заметок...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="180"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="195"/>
         <source>Ошибка экспорта: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="217"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="234"/>
         <source>Сохранение файла...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="267"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="284"/>
         <source>Ошибка сохранения файла (XHR): </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="273"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="290"/>
         <source>Ошибка сохранения файла: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="282"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="300"/>
         <source>Чтение файла: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="286"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="304"/>
         <source>Ошибка: База данных не инициализирована для импорта.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="309"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="325"/>
         <source>Ошибка чтения файла (XHR): </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="324"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="339"/>
         <source>Неподдерживаемый формат файла.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="330"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="345"/>
         <source>Импорт </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="341"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="353"/>
         <source>Ошибка импорта: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="346"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="357"/>
         <source>Импорт завершен! Обработано: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="346"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="357"/>
         <source> заметок.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="352"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="364"/>
         <source>Файл не содержит заметок для импорта.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="356"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="368"/>
         <source>Файл пуст.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="360"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="372"/>
         <source>Ошибка обработки файла: </source>
         <translation type="unfinished"></translation>
     </message>
