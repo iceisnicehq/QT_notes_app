@@ -3,18 +3,21 @@
 #include <QSettings>
 #include <QDir>
 #include <QQmlContext>
-#include <auroraapp.h> // Still needed for Aurora::Application::pathTo if you use it elsewhere.
+#include <QStandardPaths>
+#include <QCoreApplication>
+#include <QGuiApplication>
+#include <QLocale>
+
+#include <auroraapp.h>
 
 AppSettings::AppSettings(QObject *parent)
-    : QObject(parent), m_app(nullptr) // m_view no longer a member
+    : QObject(parent), m_app(nullptr)
 {
 }
 
-// Only takes QGuiApplication now
-void AppSettings::loadInitialLanguage(QGuiApplication* app) // <--- CHANGED SIGNATURE
+void AppSettings::loadInitialLanguage(QGuiApplication* app)
 {
     m_app = app;
-    // m_view is no longer stored
     QString langCode = loadLanguageSetting();
     if (langCode.isEmpty()) {
         langCode = QLocale::system().name().section('_', 0, 0);
@@ -25,57 +28,53 @@ void AppSettings::loadInitialLanguage(QGuiApplication* app) // <--- CHANGED SIGN
 
 bool AppSettings::setApplicationLanguage(const QString& languageCode)
 {
-    if (!m_app) { // No longer checking m_view
+    if (!m_app) {
         qWarning() << "AppSettings not properly initialized. Cannot change language.";
         return false;
     }
 
     m_app->removeTranslator(&m_translator);
 
-    QString translationsPath = QDir(QCoreApplication::applicationDirPath()).filePath("translations");
-    QString qmFile = QString("Aurora_notes-%1.qm").arg(languageCode);
+    // --- CORRECTED: Convert QUrl to QString for translation path ---
+    QString baseTranslationDir = Aurora::Application::pathTo(QStringLiteral("translations")).toLocalFile(); // <--- THIS IS THE CHANGE
 
-    if (m_translator.load(qmFile, translationsPath)) {
+    QString specificQmFile;
+    if (languageCode == "ru") {
+        specificQmFile = "ru.template.Aurora_notes-ru.qm";
+    } else {
+        specificQmFile = "ru.template.Aurora_notes.qm";
+    }
+
+    qDebug() << "Attempting to load translator for language:" << languageCode
+             << "at path:" << baseTranslationDir << "with file:" << specificQmFile;
+
+    if (m_translator.load(specificQmFile, baseTranslationDir)) {
         m_app->installTranslator(&m_translator);
         m_currentLanguage = languageCode;
         saveLanguageSetting(languageCode);
-        emit currentLanguageChanged(); // This signal will trigger QML reload
-
-        // --- REMOVED C++ setSource() CALLS ---
-        // QString mainQmlPath = Aurora::Application::pathTo(QStringLiteral("qml/Aurora_notes.qml"));
-        // m_view->setSource(QUrl());
-        // m_view->setSource(QUrl::fromLocalFile(mainQmlPath));
-        // --- END REMOVAL ---
-
-        qDebug() << "Language changed to:" << languageCode;
+        emit currentLanguageChanged();
+        qDebug() << "Language changed to:" << languageCode << "using" << specificQmFile;
         return true;
     } else {
-        qWarning() << "Failed to load translator for language:" << languageCode << "from" << translationsPath << "/" << qmFile;
+        qWarning() << "Failed to load specific translator:" << specificQmFile
+                   << "from" << baseTranslationDir;
 
-        if (languageCode != "en") {
-            qDebug() << "Attempting to load English as fallback.";
-            if (m_translator.load("Aurora_notes-en.qm", translationsPath)) {
-                m_app->installTranslator(&m_translator);
-                m_currentLanguage = "en";
-                saveLanguageSetting("en");
-                emit currentLanguageChanged(); // This signal will trigger QML reload
-
-                // --- REMOVED C++ setSource() CALLS (fallback) ---
-                // QString mainQmlPath = Aurora::Application::pathTo(QStringLiteral("qml/Aurora_notes.qml"));
-                // m_view->setSource(QUrl());
-                // m_view->setSource(QUrl::fromLocalFile(mainQmlPath));
-                // --- END REMOVAL ---
-
-                qDebug() << "Language set to English (fallback).";
-                return true;
-            }
+        QString baseQmFile = "ru.template.Aurora_notes.qm";
+        qDebug() << "Attempting to load base translator:" << baseQmFile;
+        if (m_translator.load(baseQmFile, baseTranslationDir)) {
+            m_app->installTranslator(&m_translator);
+            m_currentLanguage = "en";
+            saveLanguageSetting("en");
+            emit currentLanguageChanged();
+            qDebug() << "Language set to base (likely English) fallback using" << baseQmFile;
+            return true;
+        } else {
+            qWarning() << "Could not load any translator, including base:" << baseQmFile;
+            return false;
         }
-        qWarning() << "Could not load any translator.";
-        return false;
     }
 }
 
-// ... (saveLanguageSetting and loadLanguageSetting methods remain the same) ...
 void AppSettings::saveLanguageSetting(const QString& languageCode)
 {
     QSettings settings;
@@ -90,3 +89,9 @@ QString AppSettings::loadLanguageSetting()
     qDebug() << "Language setting loaded:" << lang;
     return lang;
 }
+
+// Keep this commented out or removed if you have it elsewhere.
+// QString AppSettings::currentLanguage() const
+// {
+//     return m_currentLanguage;
+// }
