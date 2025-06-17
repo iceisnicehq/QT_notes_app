@@ -4,247 +4,296 @@
 <context>
     <name>AboutPage</name>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="23"/>
+        <location filename="../qml/pages/AboutPage.qml" line="17"/>
         <source>AboutPage opened. Initializing side panel and theme.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="69"/>
+        <location filename="../qml/pages/AboutPage.qml" line="57"/>
         <source>Menu button clicked in AboutPage → panelOpen = true</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="76"/>
+        <location filename="../qml/pages/AboutPage.qml" line="62"/>
         <source>About Application</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="104"/>
+        <location filename="../qml/pages/AboutPage.qml" line="87"/>
         <source>What is this app?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="115"/>
-        <source>This is a simple yet powerful note-taking application designed to help you organize your thoughts, ideas, and tasks efficiently. It provides a clean interface for creating, editing, and managing your notes, complete with tagging capabilities and quick search functionality. Whether for personal reminders or professional project management, this app aims to be your reliable digital notebook.</source>
+        <location filename="../qml/pages/AboutPage.qml" line="98"/>
+        <source>This is a simple yet powerful note-taking application designed to help you organize your thoughts,
+                            ideas, and tasks efficiently. It provides a clean interface for creating, editing, and managing your notes, complete with tagging capabilities and quick search functionality.
+                            Whether for personal reminders or professional project management, this app aims to be your reliable digital notebook.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="121"/>
+        <location filename="../qml/pages/AboutPage.qml" line="116"/>
+        <source>This application was developed with passion and dedication by a team committed to creating intuitive and effective tools for everyday use.
+                            We believe in open-source principles and continuously work to improve the app based on user feedback. Special thanks to the Sailfish OS community for their
+                            invaluable support and resources.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="136"/>
+        <source>Copyright (c) [Year], [Developer Name/Organization]
+All rights
+                    reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification,
+                    are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+
+                    list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+
+                    this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3.
+                    Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+
+                    this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;
+AND ANY EXPRESS
+                    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO
+                    EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT
+                    NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY,
+                    WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="105"/>
         <source>Who are the Developers?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="132"/>
-        <source>This application was developed with passion and dedication by a team committed to creating intuitive and effective tools for everyday use. We believe in open-source principles and continuously work to improve the app based on user feedback. Special thanks to the Sailfish OS community for their invaluable support and resources.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/AboutPage.qml" line="138"/>
+        <location filename="../qml/pages/AboutPage.qml" line="125"/>
         <source>3-Clause BSD License</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/AboutPage.qml" line="152"/>
-        <source>Copyright (c) [Year], [Developer Name/Organization]
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice, this
-   list of conditions and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution.
-
-3. Neither the name of the copyright holder nor the names of its
-   contributors may be used to endorse or promote products derived from
-   this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot;
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ArchivePage</name>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="27"/>
-        <location filename="../qml/pages/ArchivePage.qml" line="64"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="19"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="54"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="238"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="395"/>
+        <source>archive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ArchivePage.qml" line="30"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="67"/>
         <source>Confirm Deletion</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="29"/>
-        <location filename="../qml/pages/ArchivePage.qml" line="67"/>
-        <location filename="../qml/pages/ArchivePage.qml" line="290"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="32"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="70"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="287"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="41"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="44"/>
         <source>UNIFIED_NOTES_PAGE: archivePage opened in %1 mode. Calling refreshNotes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="50"/>
-        <source>DB_MGR: getDeletedNotes found %1 deleted notes.</source>
+        <location filename="../qml/pages/ArchivePage.qml" line="51"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="123"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="207"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="213"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="227"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="267"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="396"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="438"/>
+        <source>trash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/pages/ArchivePage.qml" line="53"/>
-        <source>DB_MGR: getArchivedNotes found %1 archived notes.</source>
+        <source>DB_MGR: getDeletedNotes found %1 deleted notes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/pages/ArchivePage.qml" line="56"/>
+        <source>DB_MGR: getArchivedNotes found %1 archived notes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ArchivePage.qml" line="59"/>
         <source>UNIFIED_NOTES_PAGE: refreshNotes completed for %1. Count: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="120"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="113"/>
+        <source>Selected notes cleared in archivePage.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ArchivePage.qml" line="116"/>
+        <source>Menu button clicked in archivePage → panelOpen = true</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ArchivePage.qml" line="123"/>
         <source>Trash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="120"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="123"/>
         <source>Archive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="172"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="173"/>
         <source>Select</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="186"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="187"/>
         <source>Selected note IDs after Select All/Deselect All: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="214"/>
-        <location filename="../qml/pages/ArchivePage.qml" line="231"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="213"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="230"/>
         <source>Restore</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="214"/>
-        <location filename="../qml/pages/ArchivePage.qml" line="242"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="213"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="241"/>
         <source>Unarchive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="229"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="228"/>
         <source>Are you sure you want to restore %1 selected notes to your main notes?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="230"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="229"/>
         <source>Confirm Restoration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="236"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="235"/>
         <source>%1 note(s) restored!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="237"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="236"/>
         <source>%1 note(s) restored from trash.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="240"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="239"/>
         <source>Are you sure you want to unarchive %1 selected notes?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="241"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="240"/>
         <source>Confirm Unarchive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="247"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="246"/>
         <source>%1 note(s) unarchived!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="248"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="247"/>
         <source>%1 note(s) unarchived.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="259"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="258"/>
         <source>Showing confirmation dialog for %1 notes in %2 mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="298"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="295"/>
         <source>Are you sure you want to permanently delete %1 selected notes? This action cannot be undone.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="305"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="302"/>
         <source>%1 note(s) permanently deleted!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="306"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="303"/>
         <source>%1 note(s) permanently deleted.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="308"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="305"/>
         <source>Confirm Permanent Deletion</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="309"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="306"/>
         <source>Delete Permanently</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="312"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="309"/>
         <source>Showing permanent delete confirmation dialog for %1 notes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="383"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="380"/>
         <source>Toggled selection for note ID: %1. Current selected: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="387"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="384"/>
         <source>UNIFIED_NOTES_PAGE: Opening NotePage for note ID: %1 from %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="435"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="432"/>
         <source>Action cancelled by user.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="441"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="438"/>
         <source>Trash is empty.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="441"/>
+        <location filename="../qml/pages/ArchivePage.qml" line="438"/>
         <source>Archive is empty.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ConfirmDialog</name>
+    <message>
+        <location filename="../qml/pages/ConfirmDialog.qml" line="12"/>
+        <source></source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <location filename="../qml/pages/ConfirmDialog.qml" line="14"/>
         <source>Confirm</source>
@@ -292,18 +341,28 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ExportResultDialog.qml" line="55"/>
+        <location filename="../qml/pages/ExportResultDialog.qml" line="58"/>
         <source>Размер файла: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ExportResultDialog.qml" line="59"/>
+        <location filename="../qml/pages/ExportResultDialog.qml" line="58"/>
+        <source> KB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ExportResultDialog.qml" line="62"/>
         <source>Пример данных:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ImportExportPage</name>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="29"/>
+        <source>APP_DEBUG: Documents path is: </source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="38"/>
         <source>Выберите файл для импорта</source>
@@ -365,13 +424,48 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="154"/>
+        <source>APP_DEBUG: Export/Import Page: Component.onCompleted started.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="161"/>
+        <source>APP_DEBUG: DB.db is NULL after initDatabase call! Export/Import will likely fail.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="162"/>
         <source>Ошибка: База данных не инициализирована. Перезапустите приложение.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="164"/>
+        <source>APP_DEBUG: DB.db is successfully initialized.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="169"/>
+        <source>notes_backup_</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="174"/>
+        <source>APP_DEBUG: Export/Import Page: Component.onCompleted finished.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="180"/>
         <source>Сбор данных для экспорта...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="181"/>
+        <source>APP_DEBUG: exportData started.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="195"/>
+        <source>APP_DEBUG: getNotesForExport SUCCESS. Notes count: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -391,8 +485,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="211"/>
+        <source>APP_DEBUG: Attempting to write file to: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="216"/>
+        <source>APP_DEBUG: getNotesForExport FAILED: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="217"/>
         <source>Ошибка экспорта: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="221"/>
+        <source>APP_DEBUG: exportData finished, waiting for callbacks.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -401,8 +510,38 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="257"/>
+        <source>APP_DEBUG: writeToFile started for path: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="263"/>
+        <source>APP_DEBUG: File saved via FileIO: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="282"/>
+        <source>APP_DEBUG: FileIO not defined or write method missing, attempting to save via XMLHttpRequest.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="289"/>
+        <source>APP_DEBUG: File saved via XMLHttpRequest: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="306"/>
         <source>Ошибка сохранения файла (XHR): </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="307"/>
+        <source>APP_DEBUG: Error saving file via XHR: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="311"/>
+        <source>APP_DEBUG: EXCEPTION caught during file saving: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -411,8 +550,28 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="315"/>
+        <source>APP_DEBUG: writeToFile finished.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="324"/>
         <source>Чтение файла: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="325"/>
+        <source>APP_DEBUG: importFromFile started for path: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="326"/>
+        <source>APP_DEBUG: Type of absoluteFilePathString: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="329"/>
+        <source>DB_MGR: Database not initialized for importFromFile.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -421,8 +580,28 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="339"/>
+        <source>APP_DEBUG: File read via FileIO: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="341"/>
+        <source>APP_DEBUG: FileIO not defined or read method missing, attempting to read via XMLHttpRequest.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="348"/>
+        <source>APP_DEBUG: File read via XMLHttpRequest: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="350"/>
         <source>Ошибка чтения файла (XHR): </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="351"/>
+        <source>APP_DEBUG: Error reading file via XHR: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -433,6 +612,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="374"/>
         <source>Импорт </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="384"/>
+        <source>test</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="387"/>
+        <source>test2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -450,32 +639,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <source>Ошибка обработки файла: </source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="419"/>
+        <source>APP_DEBUG: EXCEPTION caught during file processing for import: </source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>MainPage</name>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="60"/>
-        <source>MainPage created.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/MainPage.qml" line="143"/>
-        <source>Loaded %1 tags for drawer.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/MainPage.qml" line="158"/>
-        <source>Selected note ID: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/MainPage.qml" line="161"/>
-        <source>Deselected note ID: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/MainPage.qml" line="174"/>
-        <source>Selection reset.</source>
+        <location filename="../qml/pages/MainPage.qml" line="215"/>
+        <source>Search notes...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -554,9 +728,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <source>Done</source>
         <translation type="unfinished"></translation>
     </message>
+</context>
+<context>
+    <name>NoteCard</name>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="943"/>
-        <source>Action cancelled by user.</source>
+        <location filename="../qml/pages/NoteCard.qml" line="90"/>
+        <location filename="../qml/pages/NoteCard.qml" line="109"/>
+        <source>Empty</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1036,8 +1214,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     <message>
         <location filename="../qml/pages/SettingsPage.qml" line="67"/>
         <location filename="../qml/pages/SettingsPage.qml" line="69"/>
-        <location filename="../qml/pages/SettingsPage.qml" line="521"/>
-        <location filename="../qml/pages/SettingsPage.qml" line="523"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="511"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="513"/>
         <source>N/A</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1052,209 +1230,209 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="163"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="162"/>
         <source>Russian</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="175"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="174"/>
         <source>Language changed to Russian</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="178"/>
-        <location filename="../qml/pages/SettingsPage.qml" line="207"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="177"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="205"/>
         <source>Failed to change language.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="192"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="190"/>
         <source>English</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="204"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="202"/>
         <source>Language changed to English</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="218"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="216"/>
         <source>Theme Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="229"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="226"/>
         <source>Dark Theme</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="242"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="239"/>
         <source>Theme changed to Dark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="244"/>
-        <location filename="../qml/pages/SettingsPage.qml" line="272"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="241"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="268"/>
         <source>Failed to change theme.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="257"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="253"/>
         <source>Light Theme</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="270"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="266"/>
         <source>Theme changed to Light</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="295"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="290"/>
         <source>Custom Background Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="313"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="308"/>
         <source>Data Management</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="320"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="315"/>
         <source>Last Export:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="325"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="320"/>
         <source>Notes Exported:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="351"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="345"/>
         <source>Export Notes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="364"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="358"/>
         <source>Notes exported successfully!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="366"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="360"/>
         <source>Failed to export notes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="375"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="369"/>
         <source>Last Import:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="380"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="374"/>
         <source>Notes Imported:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="406"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="399"/>
         <source>Import Notes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="419"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="412"/>
         <source>Notes imported successfully!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="421"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="414"/>
         <source>Failed to import notes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="432"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="425"/>
         <source>Data Management Actions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="444"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="436"/>
         <source>Archive All Notes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="453"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="445"/>
         <source>Are you sure you want to archive all your notes?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="456"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="448"/>
         <source>All eligible notes archived.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="458"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="450"/>
         <source>Confirm Archive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="459"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="451"/>
         <source>Archive All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="474"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="465"/>
         <source>Move All Notes to Trash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="483"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="474"/>
         <source>Are you sure you want to move all your notes to trash?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="486"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="477"/>
         <source>All eligible notes moved to trash.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="488"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="479"/>
         <source>Confirm Move to Trash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="489"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="480"/>
         <source>Move to Trash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="507"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="497"/>
         <source>Permanently Delete All Notes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="517"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="507"/>
         <source>Are you sure you want to permanently delete ALL your notes and associated tags? This action cannot be undone.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="525"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="515"/>
         <source>All notes and associated tags permanently deleted!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="527"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="517"/>
         <source>Confirm Permanent Deletion</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="528"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="518"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="601"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="591"/>
         <source>Select Theme Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="689"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="685"/>
         <source>Action cancelled by user.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1262,8 +1440,53 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
 <context>
     <name>SidePanel</name>
     <message>
-        <location filename="../qml/pages/SidePanel.qml" line="313"/>
-        <source>Navigating to search with tag: %1</source>
+        <location filename="../qml/pages/SidePanel.qml" line="140"/>
+        <source>Aurora Notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SidePanel.qml" line="187"/>
+        <source>Navigation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SidePanel.qml" line="199"/>
+        <source>Notes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SidePanel.qml" line="210"/>
+        <source>Archive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SidePanel.qml" line="221"/>
+        <source>Trash</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SidePanel.qml" line="233"/>
+        <source>Import &amp; Export</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SidePanel.qml" line="243"/>
+        <source>Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SidePanel.qml" line="253"/>
+        <source>About</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SidePanel.qml" line="276"/>
+        <source>Tags</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SidePanel.qml" line="288"/>
+        <source>Edit Tags</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1296,8 +1519,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <location filename="../qml/pages/TrashPage.qml" line="26"/>
         <location filename="../qml/pages/TrashPage.qml" line="60"/>
         <location filename="../qml/pages/TrashPage.qml" line="276"/>
-        <location filename="../qml/pages/TrashPage.qml" line="295"/>
         <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/TrashPage.qml" line="42"/>
+        <source>trash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1307,22 +1534,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     </message>
     <message>
         <location filename="../qml/pages/TrashPage.qml" line="128"/>
-        <source>The notes in the trash get deleted after 30 days</source>
+        <source>Notes in trash are deleted after 30 days.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/TrashPage.qml" line="295"/>
+        <source>Delete Permanently</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/pages/TrashPage.qml" line="187"/>
         <source>Select</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/TrashPage.qml" line="201"/>
-        <source>Selected note IDs after Select All/Deselect All: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/TrashPage.qml" line="227"/>
-        <source>Restore the note</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1336,23 +1558,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="243"/>
-        <source>%1 note(s) restored from trash.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../qml/pages/TrashPage.qml" line="245"/>
         <source>Confirm Restoration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../qml/pages/TrashPage.qml" line="227"/>
         <location filename="../qml/pages/TrashPage.qml" line="246"/>
         <source>Restore</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/TrashPage.qml" line="249"/>
-        <source>Showing restore confirmation dialog for %1 notes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1366,28 +1579,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="292"/>
-        <source>%1 note(s) permanently deleted.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../qml/pages/TrashPage.qml" line="294"/>
         <source>Confirm Permanent Deletion</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/TrashPage.qml" line="298"/>
-        <source>Showing permanent delete confirmation dialog for %1 notes.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/TrashPage.qml" line="371"/>
-        <source>Toggled selection for note ID: %1. Current selected: %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/TrashPage.qml" line="375"/>
-        <source>TRASH_PAGE: Opening NotePage for note ID: %1 from Trash.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1396,12 +1589,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="449"/>
-        <source>Action cancelled by user.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/TrashPage.qml" line="455"/>
+        <location filename="../qml/pages/TrashPage.qml" line="456"/>
         <source>Trash is empty.</source>
         <translation type="unfinished"></translation>
     </message>

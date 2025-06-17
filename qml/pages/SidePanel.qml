@@ -34,7 +34,7 @@ Item {
         tags.sort(function(a, b) {
             return b.count - a.count;
         });
-        console.log(qsTr("SidePanel: Tags refreshed with counts.", JSON.stringify(tags)));
+        console.log(("SidePanel: Tags refreshed with counts.", JSON.stringify(tags)));
     }
 
     // Function to refresh general note counts
@@ -42,15 +42,15 @@ Item {
         totalNotesCount = DB.getAllNotes().length; // Assuming this function exists
         trashNotesCount = DB.getDeletedNotes().length; // Assuming this function exists
         archivedNotesCount = DB.getArchivedNotes().length; // НОВОЕ: Получаем количество заметок в архиве
-        console.log(qsTr("SidePanel: Total notes count:", totalNotesCount));
-        console.log(qsTr("SidePanel: Trash notes count:", trashNotesCount));
-        console.log(qsTr("SidePanel: Archived notes count:", archivedNotesCount)); // Логируем
+        console.log("SidePanel: Total notes count:", totalNotesCount);
+        console.log("SidePanel: Trash notes count:", trashNotesCount);
+        console.log("SidePanel: Archived notes count:", archivedNotesCount); // Логируем
     }
 
-    // Helper function to handle navigation logic
+    // Helper function to handle navigation logic for main sections
     function navigateAndManageStack(targetPageUrl, newCurrentPageProperty, targetPageObjectName) {
         if (sidePanel.currentPage === newCurrentPageProperty) {
-            // If already on this page type, just close the side panel
+            // If already on this page type (based on side panel's selected state), just close the side panel
             sidePanel.closed();
             return;
         }
@@ -59,15 +59,22 @@ Item {
         var currentStackPageObjectName = pageStack.currentPage ? pageStack.currentPage.objectName : "";
 
         if (currentStackPageObjectName === "mainPage") {
-            // If the current page on the stack is MainPage, push the new page
+            // If the current page on the stack is MainPage, push the new page onto the stack.
+            // This allows swiping back to MainPage.
             pageStack.push(targetPageUrl);
         } else {
-            // If we are on any other page (not MainPage), replace it with the new page
+            if (targetPageUrl === Qt.resolvedUrl("MainPage.qml")) {
+               pageStack.pop();
+            }
+            else {
+            // If we are on any other page (not MainPage), replace it with the new page.
             // This ensures the stack never gets deeper than [MainPage, SidePanelNavigatedPage]
-            pageStack.replace(targetPageUrl);
+                pageStack.replace(targetPageUrl);
+            }
         }
         sidePanel.closed(); // Close the side panel after navigation
     }
+
     Component.onCompleted: {
         DB.permanentlyDeleteExpiredDeletedNotes();
         refreshTagsInSidePanel(); // Load tags when the panel component is ready
@@ -294,19 +301,35 @@ Item {
                             noteCount: modelData.count // Pass the note count
                             selectedColor: sidePanel.activeSectionColor
                             onClicked: {
-                                console.log(qsTr("Tag selected:", modelData.name));
-                                sidePanel.closed(); // Emit signal to close the panel
+                                console.log(("Tag selected:", modelData.name));
 
-                                // Tags are handled slightly differently as they filter MainPage
-                                // We replace the current page with a new MainPage instance, applying the filter.
-                                // This ensures that swiping back from a tag filter will go to the previous
-                                // page before the tag filter was applied (e.g., main notes list without filter).
-                                pageStack.replace(Qt.resolvedUrl("MainPage.qml"), { selectedTags: [modelData.name], currentSearchText: "" });
+                                // Check if the current page object in the stack is MainPage
+                                var isMainPageActive = pageStack.currentPage && pageStack.currentPage.objectName === "mainPage";
 
-                                // Update sidePanel.currentPage to reflect that 'notes' view is active, but with a tag filter
-                                // This assumes that "notes" is the primary section for tag filtering.
-                                sidePanel.currentPage = "notes";
-                                console.log(qsTr("Navigating to search with tag: %1").arg(modelData.name));
+                                if (isMainPageActive) {
+                                    // If MainPage is currently active, update its properties directly
+                                    // This assumes MainPage.qml has properties like 'selectedTags' and 'currentSearchText'
+                                    // that it observes and uses to filter its content.
+                                    pageStack.currentPage.selectedTags = [modelData.name];
+//                                    pageStack.currentPage.currentSearchText = ""; // Clear search text when a tag is applied
+                                    console.log(("Updated existing MainPage with tag filter: %1").arg(modelData.name));
+                                    mainPage.performSearch("", [modelData.name])
+                                    // If you want the 'Notes' navigation button to appear 'selected' when a tag is applied
+                                    sidePanel.currentPage = "notes";
+                                } else {
+                                    // If not MainPage, navigate to a new MainPage instance, applying the filter.
+                                    // This uses 'replace' so that if you're on, say, 'ArchivePage', it goes directly
+                                    // to the filtered 'MainPage' and clears 'ArchivePage' from the stack.
+                                    pageStack.pop();
+                                    pageStack.completeAnimation();
+                                    pageStack.replace(Qt.resolvedUrl("MainPage.qml"), { selectedTags: [modelData.name], currentSearchText: "" });
+                                    console.log(("Navigating to new MainPage with tag filter: %1").arg(modelData.name));
+
+                                    // Update the side panel's internal state to reflect "notes" section is active
+                                    sidePanel.currentPage = "notes";
+                                }
+
+                                sidePanel.closed(); // Always close the side panel after tag selection
                             }
                         }
                     }

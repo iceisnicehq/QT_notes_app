@@ -25,7 +25,7 @@ Item {
 
     // Debugging: Log when isSelected changes
     onIsSelectedChanged: {
-        console.log(qsTr("NoteCard ID:", root.noteId, "isSelected changed to:", root.isSelected, "Border width:", root.isSelected ? 8 : 2));
+        console.log(("NoteCard ID:", root.noteId, "isSelected changed to:", root.isSelected, "Border width:", root.isSelected ? 8 : 2));
     }
 
     // --- NEW PROPERTIES FOR CUSTOM LONG PRESS DETECTION ---
@@ -39,7 +39,7 @@ Item {
         running: false
         repeat: false
         onTriggered: {
-            console.log(qsTr("Long press detected for note ID:", root.noteId));
+            console.log(("Long press detected for note ID:", root.noteId));
             // If a long press is detected, activate selection mode and toggle this note's selection
             if (root.mainPageInstance) {
                 if (!root.mainPageInstance.selectionMode) {
@@ -212,7 +212,7 @@ Item {
                             noteColor: root.cardColor
 
                         });
-                        console.log(qsTr("Opening NotePage in EDIT mode for ID:", root.noteId, "from NoteCard. Color:", root.cardColor));
+                        console.log(("Opening NotePage in EDIT mode for ID:", root.noteId, "from NoteCard. Color:", root.cardColor));
                         Qt.inputMethod.hide(); // Hide keyboard
                         // Added check for existence of searchField on mainPageInstance
                         if (root.mainPageInstance && typeof root.mainPageInstance.searchField !== 'undefined') {

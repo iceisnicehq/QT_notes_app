@@ -57,7 +57,7 @@ Page {
     }
 
     Component.onCompleted: {
-        console.log(qsTr("MainPage created."));
+        console.log(("MainPage created."));
         DB.initDatabase()
         DB.insertTestData() // Ensure test data is available for demonstration
         DB.permanentlyDeleteExpiredDeletedNotes();
@@ -71,7 +71,7 @@ Page {
             sidePanel.currentPage = "notes"
             Qt.inputMethod.hide(); // Explicitly hide the keyboard
             resetSelection(); // Reset selection mode when page becomes active
-            console.log(qsTr("MainPage active (status changed to Active), search field focus cleared and keyboard hidden."));
+            console.log(("MainPage active (status changed to Active), search field focus cleared and keyboard hidden."));
         }
     }
 
@@ -87,17 +87,17 @@ Page {
     // Main search function that calls the DatabaseManager and updates searchResults
     function performSearch(text, tags) {
         searchResults = DB.searchNotes(text, tags);
-        console.log(qsTr("MAIN_PAGE: Search performed. Keyword:", text, "Tags:", JSON.stringify(tags), "Results count:", searchResults.length));
+        console.log("MAIN_PAGE: Search performed. Keyword:", text, "Tags:", JSON.stringify(tags), "Results count:", searchResults.length);
     }
 
     // Function to handle adding/removing tags from selectedTags
     function toggleTagSelection(tagName) {
         if (selectedTags.indexOf(tagName) !== -1) {
             selectedTags = selectedTags.filter(function(tag) { return tag !== tagName; });
-            console.log(qsTr("MAIN_PAGE: Removed tag:", tagName, "Selected tags:", JSON.stringify(selectedTags)));
+            console.log(("MAIN_PAGE: Removed tag:", tagName, "Selected tags:", JSON.stringify(selectedTags)));
         } else {
             selectedTags = selectedTags.concat(tagName);
-            console.log(qsTr("MAIN_PAGE: Added tag:", tagName, "Selected tags:", JSON.stringify(selectedTags)));
+            console.log("MAIN_PAGE: Added tag:", tagName, "Selected tags:", JSON.stringify(selectedTags));
         }
         performSearch(currentSearchText, selectedTags);
     }
@@ -130,7 +130,7 @@ Page {
             availableTagsModel.append(unselectedTags[i]);
         }
 
-        console.log(qsTr("MAIN_PAGE: loadTagsForTagPanel executed. Filter:", filterText, "Model items:", availableTagsModel.count));
+        console.log(("MAIN_PAGE: loadTagsForTagPanel executed. Filter:", filterText, "Model items:", availableTagsModel.count));
     }
 
     // Function to load tags for the drawer menu
@@ -140,7 +140,7 @@ Page {
         for (var i = 0; i < tagsWithCounts.length; i++) {
             tagsModel.append(tagsWithCounts[i]);
         }
-        console.log(qsTr("Loaded %1 tags for drawer.").arg(tagsWithCounts.length));
+        console.log(("Loaded %1 tags for drawer.").arg(tagsWithCounts.length));
     }
 
     // --- Selection Mode Functions ---
@@ -155,10 +155,10 @@ Page {
         var index = newSelectedIds.indexOf(noteId);
         if (index === -1) {
             newSelectedIds.push(noteId);
-            console.log(qsTr("Selected note ID: %1").arg(noteId));
+            console.log(("Selected note ID: %1").arg(noteId));
         } else {
             newSelectedIds.splice(index, 1);
-            console.log(qsTr("Deselected note ID: %1").arg(noteId));
+            console.log(("Deselected note ID: %1").arg(noteId));
         }
 
         mainPage.selectedNoteIds = newSelectedIds; // Assign the new array reference
@@ -171,7 +171,7 @@ Page {
     function resetSelection() {
         mainPage.selectedNoteIds = [];
         mainPage.selectionMode = false;
-        console.log(qsTr("Selection reset."));
+        console.log(("Selection reset."));
         if (pinnedNotes) pinnedNotes.forceLayout();
         if (otherNotes) otherNotes.forceLayout();
     }
@@ -222,7 +222,7 @@ Page {
                     }
 
                     EnterKey.onClicked: {
-                        console.log(qsTr("Searching for:", text))
+                        console.log(("Searching for:", text))
                         Qt.inputMethod.hide();
                         searchField.focus = false;
                     }
@@ -251,10 +251,10 @@ Page {
                                     searchField.text = ""; // Clears the main search field
                                     mainPage.selectedTags = [];
                                     performSearch("", []);
-                                    console.log(qsTr("Search cleared (text and tags)."));
+                                    console.log(("Search cleared (text and tags)."));
                                 } else {
                                     mainPage.panelOpen = true
-                                    console.log(qsTr("Menu button clicked → panelOpen = true"))
+                                    console.log(("Menu button clicked → panelOpen = true"))
                                 }
                                 onPressed: menuRipple.ripple(mouseX, mouseY)
                                 Qt.inputMethod.hide();
@@ -283,7 +283,7 @@ Page {
                             anchors.fill: parent
                             onClicked: {
                                 mainPage.tagPickerOpen = true;
-                                console.log(qsTr("MAIN_PAGE: Tag picker opened from right icon."));
+                                console.log(("MAIN_PAGE: Tag picker opened from right icon."));
                             }
                             onPressed: rightRipple.ripple(mouseX, mouseY)
                         }
@@ -350,7 +350,7 @@ Page {
                                     mainPage.refreshData();
                                 };
                                 mainPage.confirmDialogVisible = true;
-                                console.log(qsTr("Showing delete confirmation dialog."));
+                                console.log(("Showing delete confirmation dialog."));
                             } else {
                                 toastManager.show(qsTr("No notes selected."));
                             }
@@ -386,7 +386,7 @@ Page {
                                     mainPage.refreshData();
                                 };
                                 mainPage.confirmDialogVisible = true;
-                                console.log(qsTr("Showing archive confirmation dialog."));
+                                console.log(("Showing archive confirmation dialog."));
                             } else {
                                 toastManager.show(qsTr("No notes selected."));
                             }
@@ -635,7 +635,7 @@ Page {
                     noteColor: DB.getThemeColor() || "#121218" // Load from DB, default to a dark color if not found    showNavigationIndicator: false
 
                 });
-                console.log(qsTr("Opening NewNotePage in CREATE mode (from FAB)."));
+                console.log(("Opening NewNotePage in CREATE mode (from FAB)."));
                 Qt.inputMethod.hide();
                 searchField.focus = false;
             }
@@ -659,7 +659,7 @@ Page {
             enabled: tagPickerOverlay.visible
             onClicked: {
                 mainPage.tagPickerOpen = false;
-                console.log(qsTr("MAIN_PAGE: Tag picker overlay clicked, closing picker."));
+                console.log(("MAIN_PAGE: Tag picker overlay clicked, closing picker."));
             }
         }
     }
@@ -693,7 +693,7 @@ Page {
                     tagPickerPanel.tagPickerSearchText = ""; // Clear on open for a fresh search in picker
                     mainPage.loadTagsForTagPanel(tagPickerPanel.tagPickerSearchText);
                     tagsPanelFlickable.contentY = 0; // Scroll to the top of the flickable area.
-                    console.log(qsTr("Tag picker panel opened. Loading tags and scrolling to top."));
+                    console.log(("Tag picker panel opened. Loading tags and scrolling to top."));
                 } else {
                     // When the panel closes, clear its internal search text.
                     tagPickerPanel.tagPickerSearchText = "";
@@ -784,7 +784,7 @@ Page {
                                         tagSearchInput.text = ""; // Update UI
                                         // Reload tags to show all tags after clearing search.
                                         mainPage.loadTagsForTagPanel(""); // Use empty filter for all tags
-                                        console.log(qsTr("Tag picker search field cleared by right icon."));
+                                        console.log(("Tag picker search field cleared by right icon."));
                                     }
                                 }
                             }
@@ -836,7 +836,7 @@ Page {
 
                                     // Use mainPage.toggleTagSelection to update the global selectedTags and trigger a note search.
                                     mainPage.toggleTagSelection(model.name);
-                                    console.log(qsTr("MAIN_PAGE: Toggling tag from picker: " + model.name + ", isChecked: " + newCheckedState + ", Current selectedTags:", JSON.stringify(mainPage.selectedTags)));
+                                    console.log(("MAIN_PAGE: Toggling tag from picker: " + model.name + ", isChecked: " + newCheckedState + ", Current selectedTags:", JSON.stringify(mainPage.selectedTags)));
                                     // mainPage.performSearch is called by mainPage.toggleTagSelection, so no need to call it here.
                                 }
                             }
@@ -914,7 +914,7 @@ Page {
                     text: qsTr("Done") // Localized text for the button.
                     onClicked: {
                         mainPage.tagPickerOpen = false; // Close the tag picker panel.
-                        console.log(qsTr("MAIN_PAGE: Tag picker closed by Done button."));
+                        console.log(("MAIN_PAGE: Tag picker closed by Done button."));
                     }
                     anchors.bottom: parent.bottom
                     anchors.bottomMargin: Theme.paddingLarge // Space from the bottom of the panel.
@@ -940,7 +940,7 @@ Page {
         }
         onCancelled: {
             mainPage.confirmDialogVisible = false; // Hide the dialog
-            console.log(qsTr("Action cancelled by user."));
+            console.log(("Action cancelled by user."));
         }
     }
 }

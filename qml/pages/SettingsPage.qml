@@ -158,7 +158,6 @@ Page {
                 highlightColor: Theme.highlightColor
                 Column {
                     anchors.centerIn: parent
-                    spacing: Theme.paddingTiny
                     Label {
                         text: qsTr("Russian")
                         color: Theme.primaryColor
@@ -187,7 +186,6 @@ Page {
                 highlightColor: Theme.highlightColor
                 Column {
                     anchors.centerIn: parent
-                    spacing: Theme.paddingTiny
                     Label {
                         text: qsTr("English")
                         color: Theme.primaryColor
@@ -224,7 +222,6 @@ Page {
                 highlightColor: Theme.highlightColor
                 Column {
                     anchors.centerIn: parent
-                    spacing: Theme.paddingTiny
                     Label {
                         text: qsTr("Dark Theme")
                         color: Theme.primaryColor
@@ -252,7 +249,6 @@ Page {
                 highlightColor: Theme.highlightColor
                 Column {
                     anchors.centerIn: parent
-                    spacing: Theme.paddingTiny
                     Label {
                         text: qsTr("Light Theme")
                         color: Theme.primaryColor
@@ -281,14 +277,13 @@ Page {
 
                 Column {
                     anchors.centerIn: parent
-                    spacing: Theme.paddingTiny
                     Rectangle {
                         width: Theme.iconSizeSmall * 0.9
                         height: Theme.iconSizeSmall * 0.9
                         radius: width / 2
                         color: settingsPage.customBackgroundColor
                         border.color: Theme.primaryColor
-                        border.width: Theme.borderWidthSmall
+                        border.width: 2
                         anchors.horizontalCenter: parent.horizontalCenter
                     }
                     Label {
@@ -334,7 +329,6 @@ Page {
                 highlightColor: Theme.highlightColor
                 Column {
                     anchors.centerIn: parent
-                    spacing: Theme.paddingTiny
 
                     Item {
                         width: Theme.fontSizeExtraLarge * 0.8
@@ -389,7 +383,6 @@ Page {
                 highlightColor: Theme.highlightColor
                 Column {
                     anchors.centerIn: parent
-                    spacing: Theme.paddingTiny
 
                     Item {
                         width: Theme.fontSizeExtraLarge * 0.8
@@ -439,7 +432,6 @@ Page {
                 highlightColor: Theme.highlightColor
                 Column {
                     anchors.centerIn: parent
-                    spacing: Theme.paddingTiny
                     Label {
                         text: qsTr("Archive All Notes")
                         color: Theme.primaryColor
@@ -469,7 +461,6 @@ Page {
                 highlightColor: Theme.highlightColor
                 Column {
                     anchors.centerIn: parent
-                    spacing: Theme.paddingTiny
                     Label {
                         text: qsTr("Move All Notes to Trash")
                         color: Theme.primaryColor
@@ -502,7 +493,6 @@ Page {
 
                 Column {
                     anchors.centerIn: parent
-                    spacing: Theme.paddingTiny
                     Label {
                         text: qsTr("Permanently Delete All Notes")
                         color: "white" // White text for better contrast on red background
@@ -658,6 +648,12 @@ Page {
                                     settingsPage.customBackgroundColor = modelData;
                                     DB.setThemeColor(modelData);
                                     colorSelectionPanel.opacity = 0;
+                                    pageStack.clear();
+                                    pageStack.completeAnimation();
+                                    pageStack.push(Qt.resolvedUrl("MainPage.qml"));
+                                    pageStack.completeAnimation();
+                                    pageStack.push(Qt.resolvedUrl("SettingsPage.qml"));
+                                    pageStack.completeAnimation();
                                 }
                             }
                         }
