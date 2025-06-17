@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1">
+<TS version="2.1" language="en">
 <context>
     <name>AboutPage</name>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="76"/>
         <source>About Application</source>
-        <translation type="unfinished"></translation>
+        <translation>About Application</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="104"/>
@@ -26,11 +26,6 @@
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="133"/>
         <source>This application was developed with passion and dedication by a team committed to creating intuitive and effective tools for everyday use. We believe in open-source principles and continuously work to improve the app based on user feedback. Special thanks to the Sailfish OS community for their invaluable support and resources.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/AboutPage.qml" line="139"/>
-        <source>3-Clause BSD License</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -63,6 +58,11 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="139"/>
+        <source>3-Clause BSD License</source>
+        <translation>3-Clause BSD License</translation>
     </message>
 </context>
 <context>
@@ -218,11 +218,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ArchivePage.qml" line="435"/>
-        <source>Action cancelled by user.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../qml/pages/ArchivePage.qml" line="441"/>
         <source>Trash is empty.</source>
         <translation type="unfinished"></translation>
@@ -230,6 +225,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     <message>
         <location filename="../qml/pages/ArchivePage.qml" line="441"/>
         <source>Archive is empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ArchivePage.qml" line="435"/>
+        <source>Action cancelled by user.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -251,7 +251,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     <message>
         <location filename="../qml/cover/DefaultCoverPage.qml" line="10"/>
         <source>Notes</source>
-        <translation type="unfinished"></translation>
+        <translation>Notes</translation>
     </message>
 </context>
 <context>
@@ -350,93 +350,103 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="141"/>
-        <source>Вернуться на главную</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="162"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="152"/>
         <source>Ошибка: База данных не инициализирована. Перезапустите приложение.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="180"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="170"/>
         <source>Сбор данных для экспорта...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="197"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="187"/>
         <source>Нет заметок для экспорта.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="202"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="192"/>
         <source>Подготовка </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="202"/>
-        <location filename="../qml/pages/ImportExportPage.qml" line="374"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="192"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="366"/>
         <source> заметок...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="217"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="207"/>
         <source>Ошибка экспорта: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="256"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="246"/>
         <source>Сохранение файла...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="306"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="296"/>
         <source>Ошибка сохранения файла (XHR): </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="312"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="302"/>
         <source>Ошибка сохранения файла: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="324"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="314"/>
         <source>Чтение файла: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="330"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="320"/>
         <source>Ошибка: База данных не инициализирована для импорта.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="350"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="341"/>
         <source>Ошибка чтения файла (XHR): </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="368"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="360"/>
         <source>Неподдерживаемый формат файла.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="374"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="366"/>
         <source>Импорт </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="409"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="374"/>
+        <source>Ошибка импорта: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="378"/>
+        <source>Импорт завершен! Обработано: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="378"/>
+        <source> заметок.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="385"/>
         <source>Файл не содержит заметок для импорта.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="414"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="390"/>
         <source>Файл пуст.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="418"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="394"/>
         <source>Ошибка обработки файла: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -469,6 +479,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../qml/pages/MainPage.qml" line="384"/>
+        <source>%1 note(s) archived!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MainPage.qml" line="355"/>
+        <location filename="../qml/pages/MainPage.qml" line="391"/>
+        <source>No notes selected.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../qml/pages/MainPage.qml" line="341"/>
         <source>Confirm Deletion</source>
         <translation type="unfinished"></translation>
@@ -489,12 +510,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="355"/>
-        <location filename="../qml/pages/MainPage.qml" line="391"/>
-        <source>No notes selected.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../qml/pages/MainPage.qml" line="377"/>
         <source>Confirm Archiving</source>
         <translation type="unfinished"></translation>
@@ -507,11 +522,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="379"/>
         <source>Archive</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/MainPage.qml" line="384"/>
-        <source>%1 note(s) archived!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -560,16 +570,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="66"/>
         <source>Initial history state added by timer: &quot;%1&quot; (cursor: %2)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/NotePage.qml" line="84"/>
-        <source>Confirm Action</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/NotePage.qml" line="85"/>
-        <source>Confirm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -628,11 +628,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="180"/>
-        <source>NewNotePage opened. ReadOnly mode: %1, isArchived: %2, isDeleted: %3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../qml/pages/NotePage.qml" line="189"/>
         <source>NewNotePage opened in EDIT mode for ID: %1</source>
         <translation type="unfinished"></translation>
@@ -650,11 +645,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="205"/>
         <source>Initial history state: Index %1, History: %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/NotePage.qml" line="207"/>
-        <source>Note in read-only mode, history not initialized.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -695,6 +685,96 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="250"/>
         <source>Debug: Note with ID: %1 not modified, skipping update.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="745"/>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="733"/>
+        <source>Note ID: %1 moved to trash after confirmation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="735"/>
+        <source>Note moved to trash!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="180"/>
+        <source>NewNotePage opened. ReadOnly mode: %1, isArchived: %2, isDeleted: %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="207"/>
+        <source>Note in read-only mode, history not initialized.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="744"/>
+        <source>Confirm Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="729"/>
+        <source>Do you want to move this note to trash?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="740"/>
+        <source>New unsaved note discarded without deletion.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="438"/>
+        <source>Confirm Duplicate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="420"/>
+        <source>Do you want to create a copy of this note?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="439"/>
+        <source>Duplicate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="423"/>
+        <source>Duplicate button clicked for note ID: %1 (confirmed)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="685"/>
+        <source>Confirm Archive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="670"/>
+        <source>Do you want to archive this note?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="686"/>
+        <source>Archive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="674"/>
+        <source>Note ID: %1 moved to archive after confirmation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="676"/>
+        <source>Note archived!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="681"/>
+        <source>New unsaved note discarded without archiving.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -743,21 +823,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="414"/>
-        <source>Cannot duplicate a new note. Save it first.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/NotePage.qml" line="420"/>
-        <source>Do you want to create a copy of this note?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/NotePage.qml" line="423"/>
-        <source>Duplicate button clicked for note ID: %1 (confirmed)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../qml/pages/NotePage.qml" line="427"/>
         <source> (copy)</source>
         <translation type="unfinished"></translation>
@@ -768,13 +833,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="438"/>
-        <source>Confirm Duplicate</source>
+        <location filename="../qml/pages/NotePage.qml" line="414"/>
+        <source>Cannot duplicate a new note. Save it first.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="439"/>
-        <source>Duplicate</source>
+        <location filename="../qml/pages/NotePage.qml" line="84"/>
+        <source>Confirm Action</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="85"/>
+        <source>Confirm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -834,36 +904,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="670"/>
-        <source>Do you want to archive this note?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/NotePage.qml" line="674"/>
-        <source>Note ID: %1 moved to archive after confirmation.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/NotePage.qml" line="676"/>
-        <source>Note archived!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/NotePage.qml" line="681"/>
-        <source>New unsaved note discarded without archiving.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/NotePage.qml" line="685"/>
-        <source>Confirm Archive</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/NotePage.qml" line="686"/>
-        <source>Archive</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../qml/pages/NotePage.qml" line="718"/>
         <source>Cannot delete a new note. Save it first.</source>
         <translation type="unfinished"></translation>
@@ -871,36 +911,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="723"/>
         <source>Note is already in the trash</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/NotePage.qml" line="729"/>
-        <source>Do you want to move this note to trash?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/NotePage.qml" line="733"/>
-        <source>Note ID: %1 moved to trash after confirmation.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/NotePage.qml" line="735"/>
-        <source>Note moved to trash!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/NotePage.qml" line="740"/>
-        <source>New unsaved note discarded without deletion.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/NotePage.qml" line="744"/>
-        <source>Confirm Delete</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/NotePage.qml" line="745"/>
-        <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -979,6 +989,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../qml/pages/NotePage.qml" line="1341"/>
+        <source>Note&apos;s tags updated: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="1451"/>
+        <source>Action cancelled by user.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../qml/pages/NotePage.qml" line="1333"/>
         <source>Added tag &apos;%1&apos; to note ID %2</source>
         <translation type="unfinished"></translation>
@@ -989,11 +1009,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotePage.qml" line="1341"/>
-        <source>Note&apos;s tags updated: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../qml/pages/NotePage.qml" line="1416"/>
         <source>Done</source>
         <translation type="unfinished"></translation>
@@ -1001,11 +1016,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="1422"/>
         <source>Tag picker closed by Done button.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/NotePage.qml" line="1451"/>
-        <source>Action cancelled by user.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1277,20 +1287,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
 <context>
     <name>TrashPage</name>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="24"/>
-        <location filename="../qml/pages/TrashPage.qml" line="57"/>
-        <source>Confirm Deletion</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/TrashPage.qml" line="26"/>
-        <location filename="../qml/pages/TrashPage.qml" line="60"/>
-        <location filename="../qml/pages/TrashPage.qml" line="282"/>
-        <location filename="../qml/pages/TrashPage.qml" line="301"/>
-        <source>Delete</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../qml/pages/TrashPage.qml" line="121"/>
         <source>Trash</source>
         <translation type="unfinished"></translation>
@@ -1347,11 +1343,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="297"/>
-        <source>%1 note(s) permanently deleted!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../qml/pages/TrashPage.qml" line="298"/>
         <source>%1 note(s) permanently deleted.</source>
         <translation type="unfinished"></translation>
@@ -1384,6 +1375,25 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     <message>
         <location filename="../qml/pages/TrashPage.qml" line="455"/>
         <source>Action cancelled by user.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/TrashPage.qml" line="24"/>
+        <location filename="../qml/pages/TrashPage.qml" line="57"/>
+        <source>Confirm Deletion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/TrashPage.qml" line="26"/>
+        <location filename="../qml/pages/TrashPage.qml" line="60"/>
+        <location filename="../qml/pages/TrashPage.qml" line="282"/>
+        <location filename="../qml/pages/TrashPage.qml" line="301"/>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/TrashPage.qml" line="297"/>
+        <source>%1 note(s) permanently deleted!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
