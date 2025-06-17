@@ -690,6 +690,7 @@ Page {
         }
     }
 
+
     SidePanel {
         id: sidePanelInstance
         open: settingsPage.panelOpen
