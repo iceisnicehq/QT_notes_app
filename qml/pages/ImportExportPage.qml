@@ -385,6 +385,7 @@ Page {
                     statusText = qsTr("Файл не содержит заметок для импорта.");
                     processInProgress = false;
                 }
+
             } else {
                 statusText = qsTr("Файл пуст.");
                 processInProgress = false;
