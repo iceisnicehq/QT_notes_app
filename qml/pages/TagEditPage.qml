@@ -12,7 +12,7 @@ Page {
     // Property to hold the currently selected custom background color
     property string customBackgroundColor: DB.getThemeColor() || "#121218" // Load from DB, default to a dark color if not found    showNavigationIndicator: false
     property var onTagsChanged: null // Callback for MainPage to refresh tags
-    property string borderColor:  DB.getLighterColor(tagEditPage.customBackgroundColor)
+    property string borderColor:  DB.darkenColor((tagEditPage.customBackgroundColor), -0.3)
 
     // Properties to control header visibility (similar to MainPage)
     property bool headerVisible: true
@@ -166,7 +166,7 @@ Page {
                         id: tagInput
                         anchors.fill: parent
                         highlighted: false
-                        placeholderText: "Create new tag"
+                        placeholderText: qsTr("Create new tag")
                         text: newTagNameInput
                         onTextChanged: newTagNameInput = text
                         font.pixelSize: Theme.fontSizeMedium
@@ -214,7 +214,7 @@ Page {
                                     // If not ignoring, and input is empty, then genuinely cancel.
                                     if (newTagNameInput.trim() === "") {
                                         creatingNewTag = false; // This will hide the keyboard
-                                        if (toastManager) toastManager.show("Tag creation cancelled.");
+                                        if (toastManager) toastManager.show(qsTr("Tag creation cancelled."));
                                         console.log("Tag creation cancelled (empty field, lost focus).");
                                     }
                                 }
@@ -253,7 +253,7 @@ Page {
                                         creatingNewTag = false;
                                         newTagNameInput = "";
                                         tagInput.forceActiveFocus(false); // Hide keyboard
-                                        if (toastManager) toastManager.show("Tag creation cancelled.");
+                                        if (toastManager) toastManager.show(qsTr("Tag creation cancelled."));
                                     } else {
                                         // Start creating (showing Plus), so activate creation mode
                                         // If another tag is currently being edited, reset its state first.
@@ -294,7 +294,7 @@ Page {
                             function performCreationLogic() {
                                 var trimmedTag = newTagNameInput.trim();
                                 if (trimmedTag === "") {
-                                    if (toastManager) toastManager.show("Tag name cannot be empty!");
+                                    if (toastManager) toastManager.show(qsTr("Tag name cannot be empty!"));
                                 } else {
                                     // Removed toLowerCase() for case-sensitive check
                                     var tagExists = allTagsWithCounts.some(function(t) {
@@ -303,7 +303,7 @@ Page {
 
                                     if (tagExists) {
                                         console.log("Error: Tag '" + trimmedTag + "' already exists.");
-                                        if (toastManager) toastManager.show("Tag '" + trimmedTag + "' already exists!");
+                                        if (toastManager) toastManager.show(qsTr("Tag '%1' already exists!").arg(trimmedTag));
                                     } else {
                                         // Pass the tag with its original casing to the database manager
                                         DB.addTag(trimmedTag);
@@ -312,7 +312,7 @@ Page {
                                         creatingNewTag = false; // Exit creation mode
                                         tagInput.forceActiveFocus(false); // Hide keyboard
                                         if (onTagsChanged) { onTagsChanged(); } // Notify MainPage
-                                        if (toastManager) toastManager.show("Tag '" + trimmedTag + "' created!");
+                                        if (toastManager) toastManager.show(qsTr("Tag '%1' created!").arg(trimmedTag));
                                     }
                                 }
                             }
@@ -382,7 +382,7 @@ Page {
                                 anchors.fill: parent
                                 highlighted: false // Keep this false as we control highlighting via 'color' property
                                 text: isEditing ? editingTagName : tagName
-                                placeholderText: "Edit tag name"
+                                placeholderText: qsTr("Edit tag name")
                                 font.pixelSize: Theme.fontSizeMedium
                                 // Highlight text color when editing, error color on error
                                 color: editingInputError ? Theme.errorColor : (isEditing ? Theme.highlightColor : "#e8eaed")
@@ -421,7 +421,7 @@ Page {
                                             } else {
                                                 // Changes were made but not saved explicitly (e.g., clicked away after typing)
                                                 tagListItemDelegate.resetEditState();
-                                                if (toastManager) toastManager.show("Edit cancelled."); // Show toast for unsaved changes
+                                                if (toastManager) toastManager.show(qsTr("Edit cancelled.")); // Show toast for unsaved changes
                                                 console.log("Delegate lost focus, changes made but not explicitly saved. Resetting state.");
                                             }
                                         }
@@ -471,7 +471,7 @@ Page {
                                                 // For this QML side, we are passing the exact tagName from the model.
                                                 DB.deleteTag(tagName);
                                                 tagListItemDelegate.resetEditState(); // Reset delegate and clear global state
-                                                if (toastManager) toastManager.show("Deleted tag '" + tagName + "'");
+                                                if (toastManager) toastManager.show(qsTr("Deleted tag '%1'").arg(tagName));
                                                 tagEditPage.refreshTags(); // Refresh list in parent
                                                 if (tagEditPage.onTagsChanged) { tagEditPage.onTagsChanged(); }
                                             } else {
@@ -520,7 +520,7 @@ Page {
                                                 } else {
                                                     // This is effectively the "Cancel" action (cross button)
                                                     tagListItemDelegate.resetEditState();
-                                                    if (toastManager) toastManager.show("Edit cancelled.");
+                                                    if (toastManager) toastManager.show(qsTr("Edit cancelled."));
                                                 }
                                             } else {
                                                 // If not editing THIS specific tag, clicking should initiate edit
@@ -535,13 +535,13 @@ Page {
                                     var trimmedEditTag = editingTagName.trim();
                                     if (trimmedEditTag === "") {
                                         editingInputError = true;
-                                        if (toastManager) toastManager.show("Tag name cannot be empty!");
+                                        if (toastManager) toastManager.show(qsTr("Tag name cannot be empty!"));
                                         return;
                                     }
                                     // Case-sensitive check for no change in tag name
                                     if (trimmedEditTag === tagName) {
                                         console.log("No change in tag name, finishing edit.");
-                                        if (toastManager) toastManager.show("Edit cancelled.");
+                                        if (toastManager) toastManager.show(qsTr("Edit cancelled."));
                                         tagListItemDelegate.resetEditState();
                                         return;
                                     }
@@ -556,13 +556,13 @@ Page {
                                     if (tagExists) {
                                         editingInputError = true;
                                         console.log("Error: Tag '" + trimmedEditTag + "' already exists.");
-                                        if (toastManager) toastManager.show("Tag '" + trimmedEditTag + "' already exists!");
+                                        if (toastManager) toastManager.show(qsTr("Tag '%1' already exists!").arg(trimmedEditTag));
                                     } else {
                                         // Pass original tag name and the new, user-provided casing
                                         // IMPORTANT: Ensure your DB.updateTagName can handle exact case matching for original tag name.
                                         DB.updateTagName(tagName, trimmedEditTag);
                                         tagListItemDelegate.resetEditState(); // Resets delegate and clears global state
-                                        if (toastManager) toastManager.show("Updated tag '" + tagName + "' to '" + trimmedEditTag + "'");
+                                        if (toastManager) toastManager.show(qsTr("Updated tag '%1' to '%2'").arg(tagName).arg(trimmedEditTag));
                                         tagEditPage.refreshTags(); // Call refresh after showing toast
                                         if (tagEditPage.onTagsChanged) { tagEditPage.onTagsChanged(); }
                                     }

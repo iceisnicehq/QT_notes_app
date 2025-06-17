@@ -172,7 +172,12 @@ Page {
                     if (AppSettings.setApplicationLanguage("ru")) {
                         DB.setLanguage("ru");
                         toastManager.show(qsTr("Language changed to Russian"));
-                        pageStack.pop();
+                        pageStack.clear();
+                        pageStack.completeAnimation();
+                        pageStack.push(Qt.resolvedUrl("MainPage.qml"));
+                        pageStack.completeAnimation();
+                        pageStack.push(Qt.resolvedUrl("SettingsPage.qml"));
+                        pageStack.completeAnimation();
                     } else {
                         toastManager.show(qsTr("Failed to change language."));
                     }
@@ -200,7 +205,12 @@ Page {
                     if (AppSettings.setApplicationLanguage("en")) {
                         DB.setLanguage("en");
                         toastManager.show(qsTr("Language changed to English"));
-                        pageStack.pop();
+                        pageStack.clear();
+                        pageStack.completeAnimation();
+                        pageStack.push(Qt.resolvedUrl("MainPage.qml"));
+                        pageStack.completeAnimation();
+                        pageStack.push(Qt.resolvedUrl("SettingsPage.qml"));
+                        pageStack.completeAnimation();
                     } else {
                         toastManager.show(qsTr("Failed to change language."));
                     }

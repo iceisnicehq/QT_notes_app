@@ -14,7 +14,7 @@ Item {
     property string content: ""
     property var tags: [] // This property receives a string like "tag1 tag2" or ""
     property string cardColor: DB.getThemeColor() || "#121218" // ADDED: New property for card background color, default to a neutral grey
-    property string borderColor:  DB.getLighterColor(root.cardColor)
+    property string borderColor:  DB.darkenColor((root.cardColor), -0.3)
     // --- NEW PROPERTIES FOR SELECTION AND NAVIGATION DATA ---
     property int noteId: -1 // To identify the note for selection
     property bool isSelected: false // Controls the visual selection state

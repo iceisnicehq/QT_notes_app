@@ -573,7 +573,7 @@ Page {
         width: Theme.itemSizeLarge
         height: Theme.itemSizeLarge
         radius: width / 2
-        color:  DB.getLighterColor(mainPage.customBackgroundColor)
+        color:  DB.darkenColor((mainPage.customBackgroundColor), -0.3)
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         anchors.rightMargin: Theme.paddingLarge * 2
@@ -919,6 +919,18 @@ Page {
                     anchors.bottom: parent.bottom
                     anchors.bottomMargin: Theme.paddingLarge // Space from the bottom of the panel.
                 }
+            }
+            Label {
+                id: noTagsFoundLabel
+                width: parent.width
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                text: qsTr("No tags found matching your search")
+                font.italic: true
+                color: Theme.secondaryColor
+                font.pixelSize: Theme.fontSizeSmall
+                anchors.centerIn: parent // Center within the flickable
+                visible: availableTagsModel.count === 0 && tagPickerPanel.tagPickerSearchText !== ""
             }
         }
     // --- Integrated Generic Confirmation Dialog ---

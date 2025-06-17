@@ -17,7 +17,7 @@ Item { // Changed from Rectangle to Item as it's a better base for components th
     property string content: ""
     property string tags: ""
     property string cardColor: DB.getThemeColor() || "#121218" // ADDED: New property for card background color, default to a neutral grey
-    property string borderColor:  DB.getLighterColor(root.cardColor)
+    property string borderColor:  DB.darkenColor((root.cardColor), -0.3)
     // isSelected property will be driven *only* by the parent (e.g., TrashPage or UnifiedNotesPage)
     property bool isSelected: false
     property int noteId: -1
