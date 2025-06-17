@@ -34,7 +34,7 @@ Item {
         tags.sort(function(a, b) {
             return b.count - a.count;
         });
-        console.log("SidePanel: Tags refreshed with counts.", JSON.stringify(tags));
+        console.log(qsTr("SidePanel: Tags refreshed with counts.", JSON.stringify(tags)));
     }
 
     // Function to refresh general note counts
@@ -42,9 +42,9 @@ Item {
         totalNotesCount = DB.getAllNotes().length; // Assuming this function exists
         trashNotesCount = DB.getDeletedNotes().length; // Assuming this function exists
         archivedNotesCount = DB.getArchivedNotes().length; // НОВОЕ: Получаем количество заметок в архиве
-        console.log("SidePanel: Total notes count:", totalNotesCount);
-        console.log("SidePanel: Trash notes count:", trashNotesCount);
-        console.log("SidePanel: Archived notes count:", archivedNotesCount); // Логируем
+        console.log(qsTr("SidePanel: Total notes count:", totalNotesCount));
+        console.log(qsTr("SidePanel: Trash notes count:", trashNotesCount));
+        console.log(qsTr("SidePanel: Archived notes count:", archivedNotesCount)); // Логируем
     }
 
     // Helper function to handle navigation logic
@@ -130,7 +130,7 @@ Item {
                     height: Theme.itemSizeLarge
 
                     Label {
-                        text: "Aurora Notes"
+                        text: qsTr("Aurora Notes")
                         color: "#e2e3e8"
                         font.pixelSize: Theme.fontSizeExtraLarge
                         font.bold: true
@@ -177,7 +177,7 @@ Item {
                     spacing: Theme.paddingSmall
 
                     SectionHeader {
-                        text: "Navigation"
+                        text: qsTr("Navigation")
                         font.pixelSize: Theme.fontSizeSmall
                         color: "#a0a1ab"
                         anchors.left: parent.left
@@ -189,7 +189,7 @@ Item {
                     // Notes Button
                     NavigationButton {
                         icon: "../icons/notes.svg"
-                        text: "Notes"
+                        text: qsTr("Notes")
                         selected: sidePanel.currentPage === "notes"
                         noteCount: sidePanel.totalNotesCount
                         selectedColor: sidePanel.activeSectionColor
@@ -200,7 +200,7 @@ Item {
 
                     NavigationButton {
                         icon: "../icons/archive.svg"
-                        text: "Archive"
+                        text: qsTr("Archive")
                         selected: sidePanel.currentPage === "archive"
                         noteCount: sidePanel.archivedNotesCount
                         selectedColor: sidePanel.activeSectionColor
@@ -211,7 +211,7 @@ Item {
 
                     NavigationButton {
                         icon: "../icons/trash.svg"
-                        text: "Trash"
+                        text: qsTr("Trash")
                         selected: sidePanel.currentPage === "trash"
                         noteCount: sidePanel.trashNotesCount
                         selectedColor: sidePanel.activeSectionColor
@@ -223,7 +223,7 @@ Item {
                     // Import & Export Button
                     NavigationButton {
                         icon: "../icons/import_export.svg"
-                        text: "Import & Export"
+                        text: qsTr("Import & Export")
                         selected: sidePanel.currentPage === "import/export"
                         selectedColor: sidePanel.activeSectionColor
                         onClicked: {
@@ -233,7 +233,7 @@ Item {
 
                     NavigationButton {
                         icon: "../icons/settings.svg"
-                        text: "Settings"
+                        text: qsTr("Settings")
                         selected: sidePanel.currentPage === "settings"
                         selectedColor: sidePanel.activeSectionColor
                         onClicked: {
@@ -243,7 +243,7 @@ Item {
 
                     NavigationButton {
                         icon: "../icons/about.svg"
-                        text: "About"
+                        text: qsTr("About")
                         selected: sidePanel.currentPage === "about"
                         selectedColor: sidePanel.activeSectionColor
                         onClicked: {
@@ -266,7 +266,7 @@ Item {
                     spacing: Theme.paddingSmall
 
                     SectionHeader {
-                        text: "Tags"
+                        text: qsTr("Tags")
                         font.pixelSize: Theme.fontSizeSmall
                         color: "#a0a1ab"
                         anchors.left: parent.left
@@ -278,7 +278,7 @@ Item {
                     NavigationButton {
                         width: parent.width
                         icon: "../icons/edit.svg"
-                        text: "Edit Tags"
+                        text: qsTr("Edit Tags")
                         selected: sidePanel.currentPage === "edit"
                         selectedColor: sidePanel.activeSectionColor
                         onClicked: {
@@ -294,7 +294,7 @@ Item {
                             noteCount: modelData.count // Pass the note count
                             selectedColor: sidePanel.activeSectionColor
                             onClicked: {
-                                console.log("Tag selected:", modelData.name);
+                                console.log(qsTr("Tag selected:", modelData.name));
                                 sidePanel.closed(); // Emit signal to close the panel
 
                                 // Tags are handled slightly differently as they filter MainPage
