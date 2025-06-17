@@ -11,6 +11,7 @@ Page {
     objectName: "trashPage" // Added objectName for easier pageStack checks in SidePanel
     backgroundColor: Theme.backgroundColor !== undefined ? Theme.backgroundColor : "#121218"
     showNavigationIndicator: false
+    property int noteMargin: 20
 
     property var deletedNotes: []
     property var selectedNoteIds: []
@@ -114,17 +115,36 @@ Page {
         }
 
         Label {
+            id: titleLabel
             text: qsTr("Trash")
             anchors.centerIn: parent
             font.pixelSize: Theme.fontSizeExtraLarge
             font.bold: true
         }
+        Label {
+            id: infoLabel
+            text: qsTr("The notes in the trash get deleted after 30 days")
+            font.pixelSize: Theme.fontSizeSmall * 0.9 // Smaller font size
+            font.italic: true // Italicized text
+            color: Theme.secondaryColor // A subtle color for auxiliary text
+            horizontalAlignment: Text.AlignHCenter // Center horizontally
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: titleLabel.bottom // Position below the main title
+            anchors.topMargin: Theme.paddingSmall // Small margin between title and info
+            width: parent.width * 0.9 // Ensure it doesn't span full width, add some padding
+            wrapMode: Text.Wrap // Allow text to wrap if too long
+        }
+
     }
+
 
     ColumnLayout {
         id: mainLayout
-        anchors.fill: parent
-        anchors.topMargin: pageHeader.height
+        // Changed anchoring to explicitly define vertical space
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: pageHeader.bottom // Anchor directly to the bottom of the pageHeader
+        anchors.bottom: parent.bottom // Anchor to the bottom of the Page
         spacing: 0
 
         Row {
@@ -136,15 +156,15 @@ Page {
 
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.leftMargin: Theme.paddingMedium
-            anchors.rightMargin: Theme.paddingMedium
+            anchors.leftMargin: trashPage.noteMargin
+            anchors.rightMargin: trashPage.noteMargin
 
             // NEW: Calculate button width to ensure all three fit on screen
             // Total available width = parent.width (of Row)
             // parent.width (of Row) = trashPage.width - (2 * Theme.paddingMedium) (from anchors.left/rightMargin)
             // Available space for buttons = (trashPage.width - (2 * Theme.paddingMedium)) - (2 * Theme.paddingSmall) (for spaces between buttons)
             // Each button's width = Available space / 3
-            property real calculatedButtonWidth: (trashPage.width) /  3.16
+            property real calculatedButtonWidth: (trashPage.width) /  3.23
 
             // "Select All / Deselect All" Button
             Button {
@@ -286,7 +306,9 @@ Page {
             }
         }
 
+        // Added ID to the spacer Item for accurate height calculation
         Item {
+            id: selectionSpacer // NEW ID
             Layout.fillWidth: true
             Layout.preferredHeight: selectionControlsVisible ? Theme.paddingMedium : 0
             visible: selectionControlsVisible
@@ -295,9 +317,13 @@ Page {
         SilicaFlickable {
             id: trashFlickable
             Layout.fillWidth: true
-            Layout.fillHeight: true
-
-            contentHeight: trashColumn.implicitHeight + (trashPage.showEmptyLabel ? 0 : Theme.paddingLarge * 2)
+            // --- MODIFIED: Explicit height calculation based on remaining space in ColumnLayout ---
+            // The parent.height here refers to the height of mainLayout
+            Layout.preferredHeight: parent.height // mainLayout's height
+                                  - selectionControls.height
+                                  - selectionSpacer.height
+            contentHeight: trashColumn.implicitHeight
+            clip: true // Explicitly ensure content is clipped to the flickable's bounds
 
             Column {
                 id: trashColumn
@@ -319,8 +345,8 @@ Page {
                             anchors {
                                 left: parent.left
                                 right: parent.right
-                                leftMargin: Theme.paddingMedium
-                                rightMargin: Theme.paddingMedium
+                                leftMargin: trashPage.noteMargin
+                                rightMargin: trashPage.noteMargin
                             }
                             width: parent.width - (Theme.paddingMedium * 2)
                             noteId: modelData.id
@@ -329,6 +355,7 @@ Page {
                             tags: modelData.tags ? modelData.tags.join(' ') : ''
                             cardColor: modelData.color || "#1c1d29"
                             height: implicitHeight // Let the card determine its height based on its content
+
                             isSelected: selectedNoteIds.indexOf(modelData.id) !== -1
                             selectedBorderColor: trashNoteCardInstance.isSelected ? "#FFFFFF" : "#00000000"
                             selectedBorderWidth: trashNoteCardInstance.isSelected ? Theme.borderWidthSmall : 0

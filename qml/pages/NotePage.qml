@@ -911,6 +911,21 @@ Page {
             color: Theme.secondaryColor
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top: contentColumn.bottom
+            MouseArea {
+                anchors.fill: parent
+                enabled: true // Always enabled to allow showing dialog
+                onClicked: {
+                    if (handleInteractionAttempt()) { // Check read-only state and show dialog if needed
+                        console.log(qsTr("Add Tag button clicked. Opening tag selection panel."));
+                        // Toggle tag selection panel visibility
+                        if (tagSelectionPanel.opacity > 0.01) {
+                            tagSelectionPanel.opacity = 0;
+                        } else {
+                            tagSelectionPanel.opacity = 1;
+                        }
+                    }
+                }
+            }
         }
     }
 

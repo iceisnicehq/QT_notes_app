@@ -7,10 +7,11 @@ import QtQuick.Layouts 1.1
 import "DatabaseManager.js" as DB
 
 Page {
-    id: unifiedNotesPage
-    objectName: "unifiedNotesPage" // Added objectName for easier pageStack checks in SidePanel
+    id: archivePage
+    objectName: "archivePage" // Added objectName for easier pageStack checks in SidePanel
     backgroundColor: Theme.backgroundColor !== undefined ? Theme.backgroundColor : "#121218"
     showNavigationIndicator: false
+    property int noteMargin: 20
 
     property string pageMode: "archive" // Can be "archive" or "trash"
 
@@ -34,7 +35,7 @@ Page {
 
 
     Component.onCompleted: {
-        console.log(qsTr("UNIFIED_NOTES_PAGE: UnifiedNotesPage opened in %1 mode. Calling refreshNotes.").arg(pageMode));
+        console.log(qsTr("UNIFIED_NOTES_PAGE: archivePage opened in %1 mode. Calling refreshNotes.").arg(pageMode));
         refreshNotes();
         // Set the current page for the side panel instance
         sidePanelInstance.currentPage = pageMode; // Use pageMode to set current page
@@ -89,7 +90,7 @@ Page {
             // Dynamic Icon based on selection state, styled like the menu button's icon
             Icon {
                 id: leftIcon // Renamed for clarity
-                source: unifiedNotesPage.selectedNoteIds.length > 0 ? "../icons/close.svg" : "../icons/menu.svg"
+                source: archivePage.selectedNoteIds.length > 0 ? "../icons/close.svg" : "../icons/menu.svg"
                 anchors.centerIn: parent
                 width: parent.width
                 height: parent.height
@@ -100,13 +101,13 @@ Page {
                 anchors.fill: parent
                 onPressed: menuRipple.ripple(mouseX, mouseY) // Keep ripple effect
                 onClicked: {
-                    // Logic adjusted for UnifiedNotesPage context
-                    if (unifiedNotesPage.selectedNoteIds.length > 0) {
-                        unifiedNotesPage.selectedNoteIds = []; // Clear selected notes
-                        console.log("Selected notes cleared in UnifiedNotesPage.");
+                    // Logic adjusted for archivePage context
+                    if (archivePage.selectedNoteIds.length > 0) {
+                        archivePage.selectedNoteIds = []; // Clear selected notes
+                        console.log("Selected notes cleared in archivePage.");
                     } else {
-                        unifiedNotesPage.panelOpen = true // Open the side panel
-                        console.log("Menu button clicked in UnifiedNotesPage → panelOpen = true")
+                        archivePage.panelOpen = true // Open the side panel
+                        console.log("Menu button clicked in archivePage → panelOpen = true")
                     }
                 }
             }
@@ -123,7 +124,7 @@ Page {
     ColumnLayout {
         id: mainLayout
         anchors.fill: parent
-        anchors.topMargin: pageHeader.height
+        anchors.topMargin: pageHeader.height // This anchors mainLayout below the header
         spacing: 0
 
         Row {
@@ -135,11 +136,11 @@ Page {
 
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.leftMargin: Theme.paddingMedium
-            anchors.rightMargin: Theme.paddingMedium
+            anchors.leftMargin: archivePage.noteMargin
+            anchors.rightMargin: archivePage.noteMargin
 
             // Changed: Calculate button width to consistently fit three buttons, matching TrashPage
-            property real calculatedButtonWidth: (unifiedNotesPage.width) / 2.08
+            property real calculatedButtonWidth: (archivePage.width) / 2.13
 
             // "Select All / Deselect All" Button
             Button {
@@ -159,7 +160,7 @@ Page {
                         anchors.horizontalCenter: parent.horizontalCenter
 
                         Icon {
-                            source: unifiedNotesPage.allNotesSelected ? "../icons/deselect_all.svg" : "../icons/select_all.svg"
+                            source: archivePage.allNotesSelected ? "../icons/deselect_all.svg" : "../icons/select_all.svg"
                             anchors.fill: parent // Icon fills its wrapper Item
                             color: Theme.primaryColor // Match menu icon color style
                         }
@@ -173,13 +174,13 @@ Page {
                 }
                 onClicked: {
                     var newSelectedIds = [];
-                    if (!unifiedNotesPage.allNotesSelected) {
-                        for (var i = 0; i < unifiedNotesPage.notesToDisplay.length; i++) {
-                            newSelectedIds.push(unifiedNotesPage.notesToDisplay[i].id);
+                    if (!archivePage.allNotesSelected) {
+                        for (var i = 0; i < archivePage.notesToDisplay.length; i++) {
+                            newSelectedIds.push(archivePage.notesToDisplay[i].id);
                         }
                     }
-                    unifiedNotesPage.selectedNoteIds = newSelectedIds;
-                    console.log(qsTr("Selected note IDs after Select All/Deselect All: %1").arg(JSON.stringify(unifiedNotesPage.selectedNoteIds)));
+                    archivePage.selectedNoteIds = newSelectedIds;
+                    console.log(qsTr("Selected note IDs after Select All/Deselect All: %1").arg(JSON.stringify(archivePage.selectedNoteIds)));
                 }
                 enabled: notesToDisplay.length > 0
             }
@@ -245,7 +246,7 @@ Page {
                             };
                         }
 
-                        unifiedNotesPage.showConfirmDialog(
+                        archivePage.showConfirmDialog(
                             message,
                             callbackFunction,
                             confirmTitle,
@@ -261,7 +262,7 @@ Page {
             // NEW: Permanently Delete Button (only visible in "trash" mode)
             Button {
                 id: deleteSelectedButton
-                visible: unifiedNotesPage.pageMode === "trash"
+                visible: archivePage.pageMode === "trash"
                 width: parent.calculatedButtonWidth // Use calculated width
                 Layout.preferredHeight: Theme.buttonHeightSmall
                 highlightColor: Theme.errorColor
@@ -292,7 +293,7 @@ Page {
                 onClicked: {
                     if (selectedNoteIds.length > 0) {
                         var message = qsTr("Are you sure you want to permanently delete %1 selected notes? This action cannot be undone.").arg(selectedNoteIds.length);
-                        unifiedNotesPage.showConfirmDialog(
+                        archivePage.showConfirmDialog(
                             message,
                             function() {
                                 var deletedCount = selectedNoteIds.length;
@@ -312,7 +313,9 @@ Page {
             }
         }
 
+        // Added ID to the spacer Item for accurate height calculation
         Item {
+            id: selectionSpacer // NEW ID
             Layout.fillWidth: true
             Layout.preferredHeight: selectionControlsVisible ? Theme.paddingMedium : 0
             visible: selectionControlsVisible
@@ -321,15 +324,19 @@ Page {
         SilicaFlickable {
             id: notesFlickable
             Layout.fillWidth: true
-            Layout.fillHeight: true
-
-            contentHeight: notesColumn.implicitHeight + (unifiedNotesPage.showEmptyLabel ? 0 : Theme.paddingLarge * 2)
+            // --- MODIFIED: Explicit height calculation based on remaining space in ColumnLayout ---
+            // The parent.height here refers to the height of mainLayout
+            Layout.preferredHeight: parent.height
+                                  - selectionControls.height
+                                  - selectionSpacer.height
+            contentHeight: notesColumn.implicitHeight
+            clip: true // Explicitly ensure content is clipped to the flickable's bounds
 
             Column {
                 id: notesColumn
                 width: parent.width
                 spacing: Theme.paddingMedium
-                visible: !unifiedNotesPage.showEmptyLabel
+                visible: !archivePage.showEmptyLabel
                 anchors.top: parent.top
                 anchors.topMargin: Theme.paddingMedium
 
@@ -344,8 +351,8 @@ Page {
                             anchors {
                                 left: parent.left
                                 right: parent.right
-                                leftMargin: Theme.paddingMedium
-                                rightMargin: Theme.paddingMedium
+                                leftMargin: archivePage.noteMargin
+                                rightMargin: archivePage.noteMargin
                             }
                             width: parent.width - (Theme.paddingMedium * 2)
                             noteId: modelData.id
@@ -354,29 +361,29 @@ Page {
                             tags: modelData.tags ? modelData.tags.join(' ') : ''
                             cardColor: modelData.color || "#1c1d29"
                             height: implicitHeight
-                            isSelected: unifiedNotesPage.selectedNoteIds.indexOf(modelData.id) !== -1
+                            isSelected: archivePage.selectedNoteIds.indexOf(modelData.id) !== -1
                             selectedBorderColor: noteCardInstance.isSelected ? "#FFFFFF" : "#00000000"
                             selectedBorderWidth: noteCardInstance.isSelected ? Theme.borderWidthSmall : 0
 
                             onSelectionToggled: {
                                 if (isCurrentlySelected) {
-                                    var index = unifiedNotesPage.selectedNoteIds.indexOf(noteId);
+                                    var index = archivePage.selectedNoteIds.indexOf(noteId);
                                     if (index !== -1) {
-                                        unifiedNotesPage.selectedNoteIds.splice(index, 1);
+                                        archivePage.selectedNoteIds.splice(index, 1);
                                     }
                                 } else {
-                                    if (unifiedNotesPage.selectedNoteIds.indexOf(noteId) === -1) {
-                                        unifiedNotesPage.selectedNoteIds.push(noteId);
+                                    if (archivePage.selectedNoteIds.indexOf(noteId) === -1) {
+                                        archivePage.selectedNoteIds.push(noteId);
                                     }
                                 }
-                                unifiedNotesPage.selectedNoteIds = unifiedNotesPage.selectedNoteIds;
-                                console.log(qsTr("Toggled selection for note ID: %1. Current selected: %2").arg(noteId).arg(JSON.stringify(unifiedNotesPage.selectedNoteIds)));
+                                archivePage.selectedNoteIds = archivePage.selectedNoteIds;
+                                console.log(qsTr("Toggled selection for note ID: %1. Current selected: %2").arg(noteId).arg(JSON.stringify(archivePage.selectedNoteIds)));
                             }
 
                             onNoteClicked: {
-                                console.log(qsTr("UNIFIED_NOTES_PAGE: Opening NotePage for note ID: %1 from %2.").arg(noteId).arg(unifiedNotesPage.pageMode));
+                                console.log(qsTr("UNIFIED_NOTES_PAGE: Opening NotePage for note ID: %1 from %2.").arg(noteId).arg(archivePage.pageMode));
                                 pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
-                                    onNoteSavedOrDeleted: unifiedNotesPage.refreshNotes,
+                                    onNoteSavedOrDeleted: archivePage.refreshNotes,
                                     noteId: noteId,
                                     noteTitle: title,
                                     noteContent: content,
@@ -385,8 +392,8 @@ Page {
                                     noteCreationDate: creationDate,
                                     noteEditDate: editDate,
                                     noteColor: color,
-                                    isArchived: unifiedNotesPage.pageMode === "archive",
-                                    isDeleted: unifiedNotesPage.pageMode === "trash"
+                                    isArchived: archivePage.pageMode === "archive",
+                                    isDeleted: archivePage.pageMode === "trash"
                                 });
                             }
                         }
@@ -396,7 +403,7 @@ Page {
 
             Label {
                 id: emptyLabel
-                visible: unifiedNotesPage.showEmptyLabel
+                visible: archivePage.showEmptyLabel
                 text: pageMode === "trash" ? qsTr("Trash is empty.") : qsTr("Archive is empty.")
                 font.italic: true
                 color: Theme.secondaryColor
@@ -418,29 +425,29 @@ Page {
     // --- Integrated Confirmation Dialog Component ---
     ConfirmDialog {
         id: confirmDialogInstance
-        // Bind properties from unifiedNotesPage to ConfirmDialog
-        dialogVisible: unifiedNotesPage.confirmDialogVisible
-        dialogTitle: unifiedNotesPage.confirmDialogTitle
-        dialogMessage: unifiedNotesPage.confirmDialogMessage
-        confirmButtonText: unifiedNotesPage.confirmButtonText
-        confirmButtonHighlightColor: unifiedNotesPage.confirmButtonHighlightColor
+        // Bind properties from archivePage to ConfirmDialog
+        dialogVisible: archivePage.confirmDialogVisible
+        dialogTitle: archivePage.confirmDialogTitle
+        dialogMessage: archivePage.confirmDialogMessage
+        confirmButtonText: archivePage.confirmButtonText
+        confirmButtonHighlightColor: archivePage.confirmButtonHighlightColor
 
-        // Connect signals from ConfirmDialog back to unifiedNotesPage's logic
+        // Connect signals from ConfirmDialog back to archivePage's logic
         onConfirmed: {
-            if (unifiedNotesPage.onConfirmCallback) {
-                unifiedNotesPage.onConfirmCallback(); // Execute the stored callback
+            if (archivePage.onConfirmCallback) {
+                archivePage.onConfirmCallback(); // Execute the stored callback
             }
-            unifiedNotesPage.confirmDialogVisible = false; // Hide the dialog after confirmation
+            archivePage.confirmDialogVisible = false; // Hide the dialog after confirmation
         }
         onCancelled: {
-            unifiedNotesPage.confirmDialogVisible = false; // Hide the dialog
+            archivePage.confirmDialogVisible = false; // Hide the dialog
             console.log(qsTr("Action cancelled by user."));
         }
     }
 
     SidePanel {
         id: sidePanelInstance
-        open: unifiedNotesPage.panelOpen
-        onClosed: unifiedNotesPage.panelOpen = false
+        open: archivePage.panelOpen
+        onClosed: archivePage.panelOpen = false
     }
 }
