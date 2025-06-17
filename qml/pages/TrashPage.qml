@@ -422,17 +422,6 @@ Page {
                 }
             }
 
-            Label {
-                id: emptyLabel
-                visible: trashPage.showEmptyLabel
-                text: qsTr("Trash is empty.")
-                font.italic: true
-                color: Theme.secondaryColor
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.verticalCenter: parent.verticalCenter
-                width: parent.width * 0.8
-                horizontalAlignment: Text.AlignHCenter
-            }
         }
 
         ScrollBar {
@@ -466,7 +455,18 @@ Page {
             console.log(qsTr("Action cancelled by user."));
         }
     }
-
+    Label {
+        id: emptyLabel
+        visible: trashPage.showEmptyLabel
+        text: qsTr("Trash is empty.")
+        font.italic: true
+        color: Theme.secondaryColor
+        anchors.centerIn: trashPage
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.verticalCenter: trashPage.verticalCenter
+        width: parent.width * 0.8
+        horizontalAlignment: Text.AlignHCenter
+    }
     SidePanel {
         id: sidePanelInstance
         open: trashPage.panelOpen

@@ -403,18 +403,6 @@ Page {
                     }
                 }
             }
-
-            Label {
-                id: emptyLabel
-                visible: archivePage.showEmptyLabel
-                text: pageMode === "trash" ? qsTr("Trash is empty.") : qsTr("Archive is empty.")
-                font.italic: true
-                color: Theme.secondaryColor
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.verticalCenter: parent.verticalCenter
-                width: parent.width * 0.8
-                horizontalAlignment: Text.AlignHCenter
-            }
         }
         ScrollBar {
             flickableSource: notesFlickable
@@ -447,7 +435,17 @@ Page {
             console.log(qsTr("Action cancelled by user."));
         }
     }
-
+    Label {
+        id: emptyLabel
+        visible: archivePage.showEmptyLabel
+        text: pageMode === "trash" ? qsTr("Trash is empty.") : qsTr("Archive is empty.")
+        font.italic: true
+        color: Theme.secondaryColor
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.verticalCenter: parent.verticalCenter
+        width: parent.width * 0.8
+        horizontalAlignment: Text.AlignHCenter
+    }
     SidePanel {
         id: sidePanelInstance
         open: archivePage.panelOpen
