@@ -57,6 +57,7 @@ Page {
         console.log(qsTr("MainPage created."));
         DB.initDatabase()
         DB.insertTestData() // Ensure test data is available for demonstration
+        DB.permanentlyDeleteExpiredDeletedNotes();
         refreshData()
     }
 

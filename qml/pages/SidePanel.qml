@@ -47,6 +47,7 @@ Item {
     }
 
     Component.onCompleted: {
+        DB.permanentlyDeleteExpiredDeletedNotes();
         refreshTagsInSidePanel(); // Load tags when the panel component is ready
         refreshNoteCounts(); // Load note counts when the panel component is ready
     }
