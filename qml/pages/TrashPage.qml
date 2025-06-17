@@ -10,7 +10,7 @@ Page {
     id: trashPage
     objectName: "trashPage" // Added objectName for easier pageStack checks in SidePanel
     backgroundColor: trashPage.customBackgroundColor !== undefined ? trashPage.customBackgroundColor : "#121218" // Fallback to Theme.backgroundColor if custom is not set
-
+    showNavigationIndicator: false
     // Property to hold the currently selected custom background color
     property string customBackgroundColor: DB.getThemeColor() || "#121218" // Load from DB, default to a dark color if not found    showNavigationIndicator: false
     property int noteMargin: 20

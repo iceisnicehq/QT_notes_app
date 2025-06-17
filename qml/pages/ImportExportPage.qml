@@ -16,7 +16,7 @@ import QtQuick.LocalStorage 2.0 // Explicitly import LocalStorage
 Page {
     id: importExportPage
     allowedOrientations: Orientation.All
-
+    showNavigationIndicator: false
     property string statusText: ""
     property bool processInProgress: false
 

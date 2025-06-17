@@ -149,13 +149,11 @@ Page {
             Button {
                 id: selectAllButton
                 width: parent.calculatedButtonWidth // Use calculated width
-                Layout.preferredHeight: Theme.buttonHeightSmall
                 highlightColor: Theme.highlightColor
 
                 // NEW: Inner Column to stack Icon and Label for consistent styling
                 Column {
                     anchors.centerIn: parent
-                    spacing: Theme.paddingTiny // Small spacing between icon and text
 
                     Item { // Wrapper Item for the Icon to control its precise size and centering
                         width: Theme.fontSizeExtraLarge * 0.9 // Adjusted size for icons in buttons
@@ -191,13 +189,11 @@ Page {
             Button {
                 id: primaryActionButton
                 width: parent.calculatedButtonWidth // Use calculated width
-                Layout.preferredHeight: Theme.buttonHeightSmall
                 highlightColor: Theme.highlightColor
 
                 // NEW: Inner Column to stack Icon and Label for consistent styling
                 Column {
                     anchors.centerIn: parent
-                    spacing: Theme.paddingTiny
 
                     Item { // Wrapper Item for the Icon to control its precise size and centering
                         width: Theme.fontSizeExtraLarge * 0.9 // Adjusted size for icons in buttons
@@ -267,13 +263,11 @@ Page {
                 id: deleteSelectedButton
                 visible: archivePage.pageMode === "trash"
                 width: parent.calculatedButtonWidth // Use calculated width
-                Layout.preferredHeight: Theme.buttonHeightSmall
                 highlightColor: Theme.errorColor
 
                 // NEW: Inner Column to stack Icon and Label for consistent styling
                 Column {
                     anchors.centerIn: parent
-                    spacing: Theme.paddingTiny
 
                     Item { // Wrapper Item for the Icon to control its precise size and centering
                         width: Theme.fontSizeExtraLarge * 0.9 // Adjusted size for icons in buttons

@@ -13,7 +13,7 @@ Item {
     property string customBackgroundColor:  DB.darkenColor(DB.getThemeColor(), 0.30)
     property string activeSectionColor: DB.getThemeColor()
     property bool open: false
-    property string currentPage: "notes"
+    property string currentPage: "notes" // Tracks the currently selected item in the side panel
     // tags property now holds objects with name and count
     property var tags: [] // [{name: "tag1", count: 5}, {name: "tag2", count: 2}]
     property int totalNotesCount: 0 // New property for total notes count
@@ -47,6 +47,27 @@ Item {
         console.log("SidePanel: Archived notes count:", archivedNotesCount); // Логируем
     }
 
+    // Helper function to handle navigation logic
+    function navigateAndManageStack(targetPageUrl, newCurrentPageProperty, targetPageObjectName) {
+        if (sidePanel.currentPage === newCurrentPageProperty) {
+            // If already on this page type, just close the side panel
+            sidePanel.closed();
+            return;
+        }
+
+        sidePanel.currentPage = newCurrentPageProperty;
+        var currentStackPageObjectName = pageStack.currentPage ? pageStack.currentPage.objectName : "";
+
+        if (currentStackPageObjectName === "mainPage") {
+            // If the current page on the stack is MainPage, push the new page
+            pageStack.push(targetPageUrl);
+        } else {
+            // If we are on any other page (not MainPage), replace it with the new page
+            // This ensures the stack never gets deeper than [MainPage, SidePanelNavigatedPage]
+            pageStack.replace(targetPageUrl);
+        }
+        sidePanel.closed(); // Close the side panel after navigation
+    }
     Component.onCompleted: {
         DB.permanentlyDeleteExpiredDeletedNotes();
         refreshTagsInSidePanel(); // Load tags when the panel component is ready
@@ -164,19 +185,16 @@ Item {
                         horizontalAlignment: Text.AlignLeft
                     }
 
+
                     // Notes Button
                     NavigationButton {
                         icon: "../icons/notes.svg"
                         text: "Notes"
                         selected: sidePanel.currentPage === "notes"
-                        noteCount: sidePanel.totalNotesCount // Pass total notes count
-                        selectedColor: sidePanel.activeSectionColor // <--- ADD THIS LINE
+                        noteCount: sidePanel.totalNotesCount
+                        selectedColor: sidePanel.activeSectionColor
                         onClicked: {
-                            sidePanel.currentPage = "notes"
-                            // Use replace to prevent stacking multiple MainPages if already on one
-                            // Ensure MainPage.qml can receive and handle `selectedTags` and `currentSearchText` properties
-                            pageStack.replace(Qt.resolvedUrl("MainPage.qml"));
-                            sidePanel.closed(); // Emit signal to close the panel
+                            navigateAndManageStack(Qt.resolvedUrl("MainPage.qml"), "notes", "mainPage");
                         }
                     }
 
@@ -185,14 +203,9 @@ Item {
                         text: "Archive"
                         selected: sidePanel.currentPage === "archive"
                         noteCount: sidePanel.archivedNotesCount
-                        selectedColor: sidePanel.activeSectionColor // <--- ADD THIS LINE
+                        selectedColor: sidePanel.activeSectionColor
                         onClicked: {
-                            sidePanel.currentPage = "archive"
-                            // Check if current page is already ArchivePage to avoid re-pushing
-                            if (pageStack.currentPage.objectName !== "archivePage") {
-                                pageStack.replace(Qt.resolvedUrl("ArchivePage.qml"));
-                            }
-                            sidePanel.closed(); // Emit signal to close the panel
+                            navigateAndManageStack(Qt.resolvedUrl("ArchivePage.qml"), "archive", "archivePage");
                         }
                     }
 
@@ -201,30 +214,20 @@ Item {
                         text: "Trash"
                         selected: sidePanel.currentPage === "trash"
                         noteCount: sidePanel.trashNotesCount
-                        selectedColor: sidePanel.activeSectionColor // <--- ADD THIS LINE
+                        selectedColor: sidePanel.activeSectionColor
                         onClicked: {
-                            sidePanel.currentPage = "trash"
-                            // Check if current page is already TrashPage to avoid re-pushing
-                            if (pageStack.currentPage.objectName !== "trashPage") {
-                                pageStack.replace(Qt.resolvedUrl("TrashPage.qml"))
-                            }
-                            sidePanel.closed(); // Emit signal to close the panel
+                            navigateAndManageStack(Qt.resolvedUrl("TrashPage.qml"), "trash", "trashPage");
                         }
                     }
 
-                    //  Button
+                    // Import & Export Button
                     NavigationButton {
                         icon: "../icons/import_export.svg"
                         text: "Import & Export"
                         selected: sidePanel.currentPage === "import/export"
-                        selectedColor: sidePanel.activeSectionColor // <--- ADD THIS LINE
+                        selectedColor: sidePanel.activeSectionColor
                         onClicked: {
-                            sidePanel.currentPage = "import/export"
-                            // Check if current page is already ImportExportPage to avoid re-pushing
-                            if (pageStack.currentPage.objectName !== "importExportPage") {
-                                pageStack.replace(Qt.resolvedUrl("ImportExportPage.qml"))
-                            }
-                            sidePanel.closed(); // Emit signal to close the panel
+                            navigateAndManageStack(Qt.resolvedUrl("ImportExportPage.qml"), "import/export", "importExportPage");
                         }
                     }
 
@@ -232,14 +235,9 @@ Item {
                         icon: "../icons/settings.svg"
                         text: "Settings"
                         selected: sidePanel.currentPage === "settings"
-                        selectedColor: sidePanel.activeSectionColor // <--- ADD THIS LINE
+                        selectedColor: sidePanel.activeSectionColor
                         onClicked: {
-                            sidePanel.currentPage = "settings"
-                            // Check if current page is already SettingsPage to avoid re-pushing
-                            if (pageStack.currentPage.objectName !== "settingsPage") {
-                                pageStack.replace(Qt.resolvedUrl("SettingsPage.qml"))
-                            }
-                            sidePanel.closed(); // Emit signal to close the panel
+                            navigateAndManageStack(Qt.resolvedUrl("SettingsPage.qml"), "settings", "settingsPage");
                         }
                     }
 
@@ -247,14 +245,9 @@ Item {
                         icon: "../icons/about.svg"
                         text: "About"
                         selected: sidePanel.currentPage === "about"
-                        selectedColor: sidePanel.activeSectionColor // <--- ADD THIS LINE
+                        selectedColor: sidePanel.activeSectionColor
                         onClicked: {
-                            sidePanel.currentPage = "about"
-                            // Check if current page is already AboutPage to avoid re-pushing
-                            if (pageStack.currentPage.objectName !== "aboutPage") {
-                                pageStack.replace(Qt.resolvedUrl("AboutPage.qml"))
-                            }
-                            sidePanel.closed(); // Emit signal to close the panel
+                            navigateAndManageStack(Qt.resolvedUrl("AboutPage.qml"), "about", "aboutPage");
                         }
                     }
                 }
@@ -281,17 +274,15 @@ Item {
                         horizontalAlignment: Text.AlignLeft
                     }
 
-                    // New Row to hold "Add Tag" and "Edit Tags" buttons side-by-side
+                    // Edit Tags Button
                     NavigationButton {
-                        width: parent.width // Make it take the full width of the parent Row
+                        width: parent.width
                         icon: "../icons/edit.svg"
                         text: "Edit Tags"
                         selected: sidePanel.currentPage === "edit"
-                        selectedColor: sidePanel.activeSectionColor // <--- ADD THIS LINE
+                        selectedColor: sidePanel.activeSectionColor
                         onClicked: {
-                            sidePanel.currentPage = "edit"
-                            pageStack.push(Qt.resolvedUrl("TagEditPage.qml"))
-                            sidePanel.closed(); // Emit signal to close the panel
+                            navigateAndManageStack(Qt.resolvedUrl("TagEditPage.qml"), "edit", "tagEditPage");
                         }
                     }
 
@@ -301,15 +292,20 @@ Item {
                             icon: "../icons/tag.svg"
                             text: modelData.name // Pass the tag name
                             noteCount: modelData.count // Pass the note count
-                            selectedColor: sidePanel.activeSectionColor // <--- ADD THIS LINE (within Repeater delegate)
+                            selectedColor: sidePanel.activeSectionColor
                             onClicked: {
-                                console.log("Tag selected:", modelData.name)
+                                console.log("Tag selected:", modelData.name);
                                 sidePanel.closed(); // Emit signal to close the panel
 
-                                // Navigate to MainPage and apply the tag filter.
-                                // This assumes MainPage can handle these parameters for filtering.
+                                // Tags are handled slightly differently as they filter MainPage
+                                // We replace the current page with a new MainPage instance, applying the filter.
+                                // This ensures that swiping back from a tag filter will go to the previous
+                                // page before the tag filter was applied (e.g., main notes list without filter).
                                 pageStack.replace(Qt.resolvedUrl("MainPage.qml"), { selectedTags: [modelData.name], currentSearchText: "" });
 
+                                // Update sidePanel.currentPage to reflect that 'notes' view is active, but with a tag filter
+                                // This assumes that "notes" is the primary section for tag filtering.
+                                sidePanel.currentPage = "notes";
                                 console.log(qsTr("Navigating to search with tag: %1").arg(modelData.name));
                             }
                         }
