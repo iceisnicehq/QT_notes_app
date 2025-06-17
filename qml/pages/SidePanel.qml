@@ -170,6 +170,7 @@ Item {
                         text: "Notes"
                         selected: sidePanel.currentPage === "notes"
                         noteCount: sidePanel.totalNotesCount // Pass total notes count
+                        selectedColor: sidePanel.activeSectionColor // <--- ADD THIS LINE
                         onClicked: {
                             sidePanel.currentPage = "notes"
                             // Use replace to prevent stacking multiple MainPages if already on one
@@ -184,6 +185,7 @@ Item {
                         text: "Archive"
                         selected: sidePanel.currentPage === "archive"
                         noteCount: sidePanel.archivedNotesCount
+                        selectedColor: sidePanel.activeSectionColor // <--- ADD THIS LINE
                         onClicked: {
                             sidePanel.currentPage = "archive"
                             // Check if current page is already ArchivePage to avoid re-pushing
@@ -199,6 +201,7 @@ Item {
                         text: "Trash"
                         selected: sidePanel.currentPage === "trash"
                         noteCount: sidePanel.trashNotesCount
+                        selectedColor: sidePanel.activeSectionColor // <--- ADD THIS LINE
                         onClicked: {
                             sidePanel.currentPage = "trash"
                             // Check if current page is already TrashPage to avoid re-pushing
@@ -214,6 +217,7 @@ Item {
                         icon: "../icons/import_export.svg"
                         text: "Import & Export"
                         selected: sidePanel.currentPage === "import/export"
+                        selectedColor: sidePanel.activeSectionColor // <--- ADD THIS LINE
                         onClicked: {
                             sidePanel.currentPage = "import/export"
                             // Check if current page is already ImportExportPage to avoid re-pushing
@@ -228,6 +232,7 @@ Item {
                         icon: "../icons/settings.svg"
                         text: "Settings"
                         selected: sidePanel.currentPage === "settings"
+                        selectedColor: sidePanel.activeSectionColor // <--- ADD THIS LINE
                         onClicked: {
                             sidePanel.currentPage = "settings"
                             // Check if current page is already SettingsPage to avoid re-pushing
@@ -242,6 +247,7 @@ Item {
                         icon: "../icons/about.svg"
                         text: "About"
                         selected: sidePanel.currentPage === "about"
+                        selectedColor: sidePanel.activeSectionColor // <--- ADD THIS LINE
                         onClicked: {
                             sidePanel.currentPage = "about"
                             // Check if current page is already AboutPage to avoid re-pushing
@@ -281,6 +287,7 @@ Item {
                         icon: "../icons/edit.svg"
                         text: "Edit Tags"
                         selected: sidePanel.currentPage === "edit"
+                        selectedColor: sidePanel.activeSectionColor // <--- ADD THIS LINE
                         onClicked: {
                             sidePanel.currentPage = "edit"
                             pageStack.push(Qt.resolvedUrl("TagEditPage.qml"))
@@ -294,6 +301,7 @@ Item {
                             icon: "../icons/tag.svg"
                             text: modelData.name // Pass the tag name
                             noteCount: modelData.count // Pass the note count
+                            selectedColor: sidePanel.activeSectionColor // <--- ADD THIS LINE (within Repeater delegate)
                             onClicked: {
                                 console.log("Tag selected:", modelData.name)
                                 sidePanel.closed(); // Emit signal to close the panel

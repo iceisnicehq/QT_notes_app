@@ -2,7 +2,7 @@
 
 var db = null;
 var dbName = "AuroraNotesDB";
-var dbVersion = "1.0";
+var dbVersion = "1.1";
 var dbDescription = "Aurora Notes Database";
 var dbSize = 1000000;
 
