@@ -5,7 +5,6 @@ import Sailfish.Silica 1.0
 
 ApplicationWindow {
     initialPage: mainLoader.source // Use Loader for initial page
-
     // Define the Loader
     Loader {
         id: mainLoader

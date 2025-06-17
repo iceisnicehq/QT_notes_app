@@ -16,7 +16,7 @@ function initDatabase(localStorageInstance) {
         return;
     }
     if (db) return; // Prevent re-initialization if already done
-
+    console.log("DB_MGR: Инициализация базы данных...");
     try {
         // Use the passed localStorageInstance
         db = localStorageInstance.openDatabaseSync(dbName, dbVersion, dbDescription, dbSize);
@@ -643,6 +643,7 @@ function insertTestData() {
     if (!db) initDatabase(LocalStorage);
     db.transaction(function(tx) {
 //        // Clear all notes, including deleted ones, for a clean test setup
+
         tx.executeSql('DELETE FROM Notes');
         tx.executeSql('DELETE FROM NoteTags');
         tx.executeSql('DELETE FROM Tags');
@@ -906,37 +907,68 @@ function moveNoteFromTrashToArchive(noteId) {
  * @param {function(Array)} onSuccess - Колбэк, вызываемый при успехе с массивом заметок.
  * @param {function(Error)} onError - Колбэк, вызываемый при ошибке.
  */
-function getNotesForExport(onSuccess, onError) {
+/**
+ * Функция для получения всех заметок и их тегов для экспорта.
+ * @param {function} successCallback Колбэк для успешного выполнения (принимает массив заметок).
+ * @param {function} errorCallback Колбэк для ошибки (принимает объект ошибки).
+ */
+function getNotesForExport(successCallback, errorCallback) {
     if (!db) {
-        var error = new Error("База данных не инициализирована.");
-        console.error("DB_MGR: " + error.message + " (для экспорта)");
-        if (onError) {
-            onError(error);
+        console.error("DB_MGR: База данных не инициализирована для экспорта.");
+        if (errorCallback) {
+            errorCallback(new Error("База данных не инициализирована."));
         }
         return;
     }
 
-    db.readTransaction(function(tx) {
-        try {
-            var notes = [];
-            var result = tx.executeSql('SELECT * FROM Notes');
-            console.log("DB_MGR: Найдено для экспорта " + result.rows.length + " заметок.");
+    db.transaction(function(tx) {
+        var notes = [];
+        // Выбираем все заметки, которые не помечены как удаленные
+        var res = tx.executeSql('SELECT id, pinned, title, content, color, created_at, updated_at, deleted, archived FROM Notes WHERE deleted = 0 ORDER BY updated_at DESC');
 
-            for (var i = 0; i < result.rows.length; i++) {
-                var note = result.rows.item(i);
-                // Предполагается, что getTagsForNote - синхронная функция внутри транзакции
-                note.tags = getTagsForNote(tx, note.id);
-                notes.push(note);
-            }
+        for (var i = 0; i < res.rows.length; i++) {
+            var note = res.rows.item(i);
+            note.tags = []; // Инициализируем пустой массив для тегов каждой заметки
+            notes.push(note);
+        }
 
-            if (onSuccess) {
-                onSuccess(notes);
+        // Если нет заметок, сразу возвращаем пустой массив
+        if (notes.length === 0) {
+            if (successCallback) {
+                successCallback([]);
             }
-        } catch (e) {
-            console.error("DB_MGR: Ошибка при получении заметок для экспорта: " + e.message);
-            if (onError) {
-                onError(e);
-            }
+            return;
+        }
+
+        // Теперь получаем теги для каждой заметки асинхронно или вложенными запросами
+        // Этот подход обрабатывает теги для каждой заметки по очереди.
+        var tagsProcessedCount = 0;
+        for (var j = 0; j < notes.length; j++) {
+            // Используем Immediately Invoked Function Expression (IIFE) для создания замыкания,
+            // чтобы currentNote сохранялась для каждого асинхронного вызова SQL.
+            (function(currentNote) {
+                var tagRes = tx.executeSql(
+                    'SELECT T.name FROM Tags T JOIN NoteTags NT ON T.id = NT.tag_id WHERE NT.note_id = ?',
+                    [currentNote.id]
+                );
+                for (var k = 0; k < tagRes.rows.length; k++) {
+                    currentNote.tags.push(tagRes.rows.item(k).name);
+                }
+                tagsProcessedCount++;
+
+                // Когда теги для всех заметок обработаны, вызываем successCallback
+                if (tagsProcessedCount === notes.length) {
+                    if (successCallback) {
+                        successCallback(notes);
+                    }
+                }
+            })(notes[j]);
+        }
+    }, function(error) {
+        // Обработка ошибок транзакции
+        console.error("DB_MGR: Ошибка при получении заметок для экспорта: " + error.message);
+        if (errorCallback) {
+            errorCallback(error);
         }
     });
 }

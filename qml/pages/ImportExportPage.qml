@@ -1,15 +1,25 @@
+// ImportExportPage.qml
+
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import Sailfish.Pickers 1.0 // ЗАМЕНА: Используем стандартный модуль для выбора файлов
+import Sailfish.Pickers 1.0
 import QtQuick.Layouts 1.1
-import "DatabaseManager.js" as DB
+import Nemo.Configuration 1.0 // Для получения пути к документам
+import "DatabaseManager.js" as DB // Ваш менеджер базы данных
 
 Page {
-    id: importExportPage
+    id: importExportPage // Теперь это главная страница для импорта/экспорта
     allowedOrientations: Orientation.All
 
     property string statusText: ""
     property bool processInProgress: false
+
+    // ConfigurationValue для получения пути к документам
+    ConfigurationValue {
+        id: documentsPathConfig
+        key: "/desktop/nemo/preferences/documents_path"
+        defaultValue: StandardPaths.documents // Запасной вариант
+    }
 
     // КОМПОНЕНТ ДЛЯ ВЫБОРА ФАЙЛА (ДЛЯ ИМПОРТА)
     Component {
@@ -19,11 +29,10 @@ Page {
             title: qsTr("Выберите файл для импорта")
             nameFilters: [qsTr("Резервные копии (*.json *.csv)"), qsTr("JSON файлы (*.json)"), qsTr("CSV файлы (*.csv)")]
 
-            // Этот обработчик сработает, когда пользователь выберет файл
             onSelectedContentPropertiesChanged: {
                 if (selectedContentProperties !== null) {
                     var filePath = "" + selectedContentProperties.filePath;
-                    // Убираем префикс "file://" из пути
+                    // Убираем префикс "file://" из пути, если он есть
                     if (filePath.indexOf("file://") === 0) {
                         filePath = filePath.substring(7);
                     }
@@ -44,7 +53,7 @@ Page {
             id: column
             width: parent.width
             spacing: Theme.paddingLarge
-            anchors.horizontalCenter: parent.horizontalCenter
+            // якоря top, bottom, verticalCenter, fill или centerIn для items внутри Column не нужны
 
             // --- СЕКЦИЯ ЭКСПОРТА ---
             SectionHeader { text: qsTr("Экспорт заметок") }
@@ -71,7 +80,7 @@ Page {
                 text: qsTr("Экспортировать все заметки")
                 anchors.horizontalCenter: parent.horizontalCenter
                 enabled: !processInProgress && fileNameField.text.length > 0
-                onClicked: exportData() // Логика экспорта теперь прямая
+                onClicked: exportData()
             }
 
             // --- СЕКЦИЯ ИМПОРТА ---
@@ -119,6 +128,10 @@ Page {
 
     // --- ИНИЦИАЛИЗАЦИЯ ---
     Component.onCompleted: {
+        // Инициализация базы данных
+        // Убедитесь, что LocalStorage доступен в вашем контексте
+        DB.initDatabase(LocalStorage);
+
         var updateFileName = function() {
             var fileExtension = exportFormatCombo.currentIndex === 0 ? ".csv" : ".json";
             var baseName = "notes_backup_" + Qt.formatDateTime(new Date(), "yyyyMMdd_HHmmss");
@@ -128,12 +141,19 @@ Page {
         exportFormatCombo.currentIndexChanged.connect(updateFileName);
     }
 
-    // --- ЛОГИКА ЭКСПОРТА (ПЕРЕПИСАНА ПОД КОЛБЭКИ) ---
+    // --- ЛОГИКА ЭКСПОРТА ---
     function exportData() {
-        processInProgress = true;
+        processInProgress = true; // Сразу показываем индикатор прогресса
         statusText = qsTr("Сбор данных для экспорта...");
 
-        // Вызываем функцию с двумя колбэками: для успеха и для ошибки
+        // Проверяем, инициализирована ли DB, перед вызовом getNotesForExport
+        if (!DB.db) {
+            statusText = qsTr("Ошибка: База данных не инициализирована для экспорта.");
+            processInProgress = false;
+            console.error("DB_MGR: База данных не инициализирована при попытке экспорта.");
+            return;
+        }
+
         DB.getNotesForExport(
             // 1. Функция, которая выполнится при успехе
             function(notes) {
@@ -151,8 +171,8 @@ Page {
                     generatedData = generateJson(notes);
                 }
 
-                var documentsPath = StandardPaths.writableLocation(StandardPaths.DocumentsLocation);
-                var finalPath = documentsPath + "/" + fileNameField.text;
+                // Используем значение из ConfigurationValue для пути к документам
+                var finalPath = documentsPathConfig.value + "/" + fileNameField.text;
                 writeToFile(finalPath, generatedData);
             },
             // 2. Функция, которая выполнится при ошибке
@@ -162,8 +182,6 @@ Page {
             }
         );
     }
-
-    // --- Остальные функции остаются без изменений ---
 
     function generateCsv(data) {
         var headers = ["id", "title", "content", "color", "pinned", "deleted", "archived", "created_at", "updated_at", "tags"];
@@ -195,19 +213,24 @@ Page {
     }
 
     function writeToFile(filePath, textData) {
+        processInProgress = true;
         statusText = qsTr("Сохранение файла...");
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState !== XMLHttpRequest.DONE) return;
 
-            if (xhr.status === 200 || xhr.status === 0) {
+        try {
+            // Пытаемся использовать глобальный объект FileIO, если он предоставлен (как в примере коллеги)
+            // Это предпочтительный способ, если у вас есть C++ плагин FileIO
+            if (typeof FileIO !== 'undefined' && FileIO.write) {
+                FileIO.write(filePath, textData);
+                console.log("DB_MGR: Файл сохранен через FileIO: " + filePath);
+                // Продолжаем обновлять статистику и показывать диалог
                 var notesCount = (exportFormatCombo.currentIndex === 0)
-                                 ? (textData.split('\n').length - 2)
-                                 : JSON.parse(textData).length;
+                                 ? (textData.split('\n').length - 2) // Для CSV: минус заголовок и потенциальная пустая строка в конце
+                                 : JSON.parse(textData).length; // Для JSON
 
                 DB.updateLastExportDate();
                 DB.updateNotesExportedCount(notesCount);
 
+                // Переход на страницу с результатом экспорта
                 pageStack.push(Qt.resolvedUrl("ExportResultDialog.qml"), {
                     fileName: filePath.split('/').pop(),
                     filePath: filePath,
@@ -215,89 +238,155 @@ Page {
                     dataSize: textData.length,
                     sampleData: textData.substring(0, 250) + (textData.length > 250 ? "..." : "")
                 });
-                statusText = "";
-
+                statusText = ""; // Очищаем статус после завершения
             } else {
-                statusText = qsTr("Ошибка сохранения файла: Код ") + xhr.status;
+                // FALLBACK: Используем XMLHttpRequest для записи файла, если FileIO недоступен
+                console.warn("DB_MGR: FileIO не определен, попытка сохранить через XMLHttpRequest.");
+                var xhr = new XMLHttpRequest();
+                xhr.open("PUT", "file://" + filePath, false); // false делает запрос синхронным
+                xhr.send(textData);
+
+                if (xhr.status === 0 || xhr.status === 200) { // status 0 часто означает успех для локальных файлов
+                    console.log("DB_MGR: Файл сохранен через XMLHttpRequest: " + filePath);
+                    var notesCount = (exportFormatCombo.currentIndex === 0)
+                                     ? (textData.split('\n').length - 2)
+                                     : JSON.parse(textData).length;
+
+                    DB.updateLastExportDate();
+                    DB.updateNotesExportedCount(notesCount);
+
+                    pageStack.push(Qt.resolvedUrl("ExportResultDialog.qml"), {
+                        fileName: filePath.split('/').pop(),
+                        filePath: filePath,
+                        operationsCount: notesCount,
+                        dataSize: textData.length,
+                        sampleData: textData.substring(0, 250) + (textData.length > 250 ? "..." : "")
+                    });
+                    statusText = "";
+                } else {
+                    statusText = qsTr("Ошибка сохранения файла (XHR): ") + xhr.statusText + " (" + xhr.status + ")";
+                    console.error("DB_MGR: Ошибка сохранения файла через XHR: " + xhr.statusText + " (" + xhr.status + ")");
+                }
             }
-            processInProgress = false;
+        } catch (e) {
+            console.error("DB_MGR: Ошибка при сохранении файла: " + e.message);
+            statusText = qsTr("Ошибка сохранения файла: ") + e.message;
+        } finally {
+            processInProgress = false; // Важно всегда сбрасывать индикатор
         }
-        xhr.open("PUT", "file://" + filePath, true);
-        xhr.send(textData);
     }
 
+    // --- ЛОГИКА ИМПОРТА ---
     function importFromFile(filePath) {
         processInProgress = true;
         statusText = qsTr("Чтение файла: ") + filePath.split('/').pop();
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState !== XMLHttpRequest.DONE) return;
 
-            if (xhr.status === 200 || xhr.status === 0) {
-                try {
-                    var fileContent = xhr.responseText;
-                    var notes;
-                    statusText = qsTr("Анализ данных...");
-                    if (filePath.endsWith(".csv")) {
-                        notes = parseCsv(fileContent);
-                    } else if (filePath.endsWith(".json")) {
-                        notes = JSON.parse(fileContent);
-                    } else {
-                        throw new Error(qsTr("Неподдерживаемый формат файла."));
-                    }
-                    if (notes && notes.length > 0) {
-                        statusText = qsTr("Найдено ") + notes.length + qsTr(" заметок. Запуск импорта...");
-                        DB.db.transaction(function(tx) {
-                            for (var i = 0; i < notes.length; i++) {
-                                DB.addImportedNote(notes[i], tx);
-                            }
-                        }, function(error) {
-                            statusText = qsTr("Ошибка транзакции при импорте: ") + error.message;
-                            processInProgress = false;
-                        }, function() {
-                            statusText = qsTr("Импорт завершен! Обработано: ") + notes.length + qsTr(" заметок.");
-                            DB.updateLastImportDate();
-                            DB.updateNotesImportedCount(notes.length);
-                            processInProgress = false;
-                        });
-                    } else {
-                        statusText = qsTr("В файле нет заметок для импорта.");
+        // Проверяем, инициализирована ли DB, перед началом импорта
+        if (!DB.db) {
+            statusText = qsTr("Ошибка: База данных не инициализирована для импорта.");
+            processInProgress = false;
+            console.error("DB_MGR: База данных не инициализирована при попытке импорта.");
+            return;
+        }
+
+        try {
+            var fileContent;
+            // Пробуем читать через FileIO, если доступен
+            if (typeof FileIO !== 'undefined' && FileIO.read) {
+                fileContent = FileIO.read(filePath);
+                console.log("DB_MGR: Файл прочитан через FileIO: " + filePath);
+            } else {
+                // FALLBACK: Используем XMLHttpRequest для чтения файла
+                console.warn("DB_MGR: FileIO не определен, попытка прочитать через XMLHttpRequest.");
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", "file://" + filePath, false); // Синхронный запрос
+                xhr.send();
+
+                if (xhr.status === 0 || xhr.status === 200) {
+                    fileContent = xhr.responseText;
+                    console.log("DB_MGR: Файл прочитан через XMLHttpRequest: " + filePath);
+                } else {
+                    statusText = qsTr("Ошибка чтения файла (XHR): ") + xhr.statusText + " (" + xhr.status + ")";
+                    console.error("DB_MGR: Ошибка чтения файла через XHR: " + xhr.statusText + " (" + xhr.status + ")");
+                    processInProgress = false;
+                    return;
+                }
+            }
+
+            if (fileContent) {
+                var notes;
+                // Определяем формат по расширению файла
+                if (filePath.endsWith(".json")) {
+                    notes = JSON.parse(fileContent);
+                } else if (filePath.endsWith(".csv")) {
+                    notes = parseCsv(fileContent);
+                } else {
+                    statusText = qsTr("Неподдерживаемый формат файла.");
+                    processInProgress = false;
+                    return;
+                }
+
+                if (notes && notes.length > 0) {
+                    statusText = qsTr("Импорт ") + notes.length + qsTr(" заметок...");
+                    var importedCount = 0;
+                    // Оборачиваем импорт всех заметок в одну транзакцию для производительности и целостности
+                    DB.db.transaction(function(tx) {
+                        for (var i = 0; i < notes.length; i++) {
+                            // addImportedNote теперь может использовать переданную транзакцию
+                            DB.addImportedNote(notes[i], tx);
+                            importedCount++;
+                        }
+                    }, function(error) {
+                        // Обработка ошибок транзакции
+                        statusText = qsTr("Ошибка импорта: ") + error.message;
+                        console.error("DB_MGR: Ошибка транзакции импорта: " + error.message);
                         processInProgress = false;
-                    }
-                } catch (e) {
-                    statusText = qsTr("Ошибка обработки файла: ") + e.message;
+                    }, function() {
+                        // Успешное завершение транзакции
+                        statusText = qsTr("Импорт завершен! Обработано: ") + importedCount + qsTr(" заметок.");
+                        DB.updateLastImportDate();
+                        DB.updateNotesImportedCount(importedCount);
+                        processInProgress = false;
+                    });
+                } else {
+                    statusText = qsTr("Файл не содержит заметок для импорта.");
                     processInProgress = false;
                 }
             } else {
-                statusText = qsTr("Ошибка чтения файла: Код ") + xhr.status;
+                statusText = qsTr("Файл пуст.");
                 processInProgress = false;
             }
+        } catch (e) {
+            statusText = qsTr("Ошибка обработки файла: ") + e.message;
+            console.error("DB_MGR: Ошибка обработки файла при импорте: " + e.message);
+            processInProgress = false;
         }
-        xhr.open("GET", "file://" + filePath, true);
-        xhr.send();
     }
 
+    // Вспомогательная функция для парсинга CSV
     function parseCsv(content) {
         var lines = content.split('\n');
-        if (lines.length < 2) return [];
+        if (lines.length < 2) return []; // Минимум заголовок и одна строка данных
         var headers = lines[0].trim().split(',');
         var notes = [];
         for (var i = 1; i < lines.length; i++) {
             var line = lines[i].trim();
-            if (line === "") continue;
+            if (line === "") continue; // Пропускаем пустые строки
             var values = line.split(',');
             var note = {};
             for(var j = 0; j < headers.length; j++) {
                 if (values[j] !== undefined) {
+                    // Удаляем внешние кавычки и заменяем двойные кавычки на одинарные внутри поля
                     note[headers[j].trim()] = values[j].replace(/^"|"$/g, '').replace(/""/g, '"');
                 }
             }
+            // Преобразование типов данных
             note.id = parseInt(note.id, 10);
             note.pinned = parseInt(note.pinned, 10) === 1;
             note.deleted = parseInt(note.deleted, 10) === 1;
             note.archived = parseInt(note.archived, 10) === 1;
-            note.tags = note.tags ? note.tags.split(';') : [];
-            if (!isNaN(note.id)) {
+            note.tags = note.tags ? note.tags.split(';') : []; // Теги в виде массива
+            if (!isNaN(note.id)) { // Добавляем заметку только если ID корректен
                notes.push(note);
             }
         }
