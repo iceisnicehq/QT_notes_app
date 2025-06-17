@@ -133,12 +133,12 @@ Page {
     }
 
     // Flickable for broader compatibility and scrollability
-    Flickable {
+    SilicaFlickable {
         anchors.fill: parent
         anchors.topMargin: pageHeader.height
         contentHeight: contentLayout.implicitHeight // Ensure Flickable can scroll the full content height
         flickableDirection: Flickable.VerticalFlick // Only allow vertical scrolling
-
+        clip: true
         // The content of the Flickable, organized in a ColumnLayout
         ColumnLayout {
             id: contentLayout // Added ID to reference its implicitHeight
@@ -525,7 +525,7 @@ Page {
                             toastManager.show(qsTr("All notes and associated tags permanently deleted!"));
                         },
                         qsTr("Confirm Permanent Deletion"),
-                        qsTr("Delete Permanently"),
+                        qsTr("Delete"),
                         Theme.errorColor // Use error color for the confirm button in the dialog
                     );
                 }
