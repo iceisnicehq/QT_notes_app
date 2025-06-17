@@ -130,7 +130,7 @@ Page {
     Component.onCompleted: {
         // Инициализация базы данных
         // Убедитесь, что LocalStorage доступен в вашем контексте
-        DB.initDatabase(LocalStorage);
+        //DB.initDatabase();
 
         var updateFileName = function() {
             var fileExtension = exportFormatCombo.currentIndex === 0 ? ".csv" : ".json";
@@ -145,14 +145,7 @@ Page {
     function exportData() {
         processInProgress = true; // Сразу показываем индикатор прогресса
         statusText = qsTr("Сбор данных для экспорта...");
-
-        // Проверяем, инициализирована ли DB, перед вызовом getNotesForExport
-        if (!DB.db) {
-            statusText = qsTr("Ошибка: База данных не инициализирована для экспорта.");
-            processInProgress = false;
-            console.error("DB_MGR: База данных не инициализирована при попытке экспорта.");
-            return;
-        }
+        statusText = qsTr("Метка 1");
 
         DB.getNotesForExport(
             // 1. Функция, которая выполнится при успехе
@@ -163,6 +156,12 @@ Page {
                     return;
                 }
 
+
+
+                statusText = qsTr("Метка 1/1");
+
+
+
                 statusText = qsTr("Подготовка ") + notes.length + qsTr(" заметок...");
                 var generatedData;
                 if (exportFormatCombo.currentIndex === 0) { // CSV
@@ -170,6 +169,14 @@ Page {
                 } else { // JSON
                     generatedData = generateJson(notes);
                 }
+
+
+
+
+                statusText = qsTr("Метка 1/2");
+
+
+
 
                 // Используем значение из ConfigurationValue для пути к документам
                 var finalPath = documentsPathConfig.value + "/" + fileNameField.text;
@@ -181,6 +188,7 @@ Page {
                 processInProgress = false;
             }
         );
+        statusText = qsTr("Метка 2");
     }
 
     function generateCsv(data) {

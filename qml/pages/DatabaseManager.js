@@ -920,7 +920,6 @@ function getNotesForExport(successCallback, errorCallback) {
         }
         return;
     }
-
     db.transaction(function(tx) {
         var notes = [];
         // Выбираем все заметки, которые не помечены как удаленные
@@ -939,7 +938,7 @@ function getNotesForExport(successCallback, errorCallback) {
             }
             return;
         }
-
+        console.log("RTTETSTETS");
         // Теперь получаем теги для каждой заметки асинхронно или вложенными запросами
         // Этот подход обрабатывает теги для каждой заметки по очереди.
         var tagsProcessedCount = 0;
