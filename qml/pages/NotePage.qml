@@ -1209,7 +1209,7 @@ Page {
             // Input for new tag creation - CHANGED TO TextField
             SearchField {
                 id: newTagInput
-                width: parent.width * 0.9
+                width: parent.width * 0.95
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: tagPanelHeader.verticalCenter
                 placeholderText: qsTr("Add new tag...")
@@ -1293,7 +1293,7 @@ Page {
                         clip: true
                         // Dynamic background color based on checked state
                         // Selected tag uses the note's color, unselected uses a standard darker shade
-                        color: model.isChecked ? newNotePage.noteColor : DB.darkenColor(newNotePage.noteColor, 0.25) // New styling colors
+                        color: model.isChecked ? DB.darkenColor(newNotePage.noteColor, -0.25) : DB.darkenColor(newNotePage.noteColor, 0.25) // New styling colors
 
                         // Ripple effect for visual feedback on touch/click
                         RippleEffect { id: tagPanelDelegateRipple }

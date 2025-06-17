@@ -26,7 +26,7 @@ Page {
 
     // New properties for search functionality
     property var selectedTags: [] // Tags currently selected for filtering
-    property var currentSearchText: "" // Current text in the search field
+    property var currentSearchText: "" // Current text in the main note search field
     property var searchResults: [] // Notes matching the search criteria
     property bool tagPickerOpen: false // Controls visibility of the tag picker overlay
 
@@ -103,17 +103,23 @@ Page {
     }
 
     // Function to load tags into the ListModel for the tag selection panel
-    function loadTagsForTagPanel() {
+    // This function now accepts an optional 'filterText' parameter
+    function loadTagsForTagPanel(filterText) {
         availableTagsModel.clear();
+        var currentSearchLower = (filterText || "").toLowerCase(); // Use the provided filterText
+
         var selectedOnlyTags = [];
         var unselectedTags = [];
 
         for (var i = 0; i < allTags.length; i++) {
             var tagName = allTags[i];
-            if (selectedTags.indexOf(tagName) !== -1) {
-                selectedOnlyTags.push({ name: tagName, isChecked: true });
-            } else {
-                unselectedTags.push({ name: tagName, isChecked: false });
+            // Filter logic: if filterText is provided, include only matching tags.
+            if (currentSearchLower === "" || tagName.toLowerCase().indexOf(currentSearchLower) !== -1) {
+                if (selectedTags.indexOf(tagName) !== -1) {
+                    selectedOnlyTags.push({ name: tagName, isChecked: true });
+                } else {
+                    unselectedTags.push({ name: tagName, isChecked: false });
+                }
             }
         }
 
@@ -124,7 +130,7 @@ Page {
             availableTagsModel.append(unselectedTags[i]);
         }
 
-        console.log("TagSelectionPanel: Loaded tags for display in panel. Model items:", availableTagsModel.count);
+        console.log("MAIN_PAGE: loadTagsForTagPanel executed. Filter:", filterText, "Model items:", availableTagsModel.count);
     }
 
     // Function to load tags for the drawer menu
@@ -208,10 +214,10 @@ Page {
                     anchors.fill: parent
                     placeholderText: "Search notes..."
                     highlighted: false
-                    text: currentSearchText
+                    text: currentSearchText // This binds to mainPage.currentSearchText
 
                     onTextChanged: {
-                        mainPage.currentSearchText = text;
+                        mainPage.currentSearchText = text; // Update mainPage's property
                         performSearch(text, selectedTags);
                     }
 
@@ -242,7 +248,7 @@ Page {
                             onClicked: {
                                 if (searchField.text.length > 0 || selectedTags.length > 0) {
                                     mainPage.currentSearchText = "";
-                                    searchField.text = "";
+                                    searchField.text = ""; // Clears the main search field
                                     mainPage.selectedTags = [];
                                     performSearch("", []);
                                     console.log("Search cleared (text and tags).");
@@ -659,176 +665,262 @@ Page {
     }
 
     // --- Tag Picker Panel ---
-    Rectangle {
-        id: tagPickerPanel
-        width: parent.width
-        height: parent.height * 0.53
-        color: "#1c1d29" // Tag picker panel background color
-        radius: 15
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: parent.bottom
-        z: 4
-        opacity: mainPage.tagPickerOpen ? 1 : 0
-        visible: mainPage.tagPickerOpen || opacity > 0.01
+        Rectangle {
+            id: tagPickerPanel
+            // New property for the tag picker's internal search text
+            property string tagPickerSearchText: "" // Initialize as empty
 
-        Behavior on opacity {
-            NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
-        }
+            width: parent.width
+            height: parent.height * 0.53
+            color: mainPage.customBackgroundColor // Tag picker panel background color
+            radius: 15
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: parent.bottom
+            z: 4
+            opacity: mainPage.tagPickerOpen ? 1 : 0
+            visible: mainPage.tagPickerOpen || opacity > 0.01
 
-        onVisibleChanged: {
-            if (visible) {
-                loadTagsForTagPanel();
-                tagsPanelFlickable.contentY = 0;
-                console.log("Tag picker panel opened. Loading tags and scrolling to top.");
+            Behavior on opacity {
+                NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
             }
-        }
 
-        Column {
-            id: tagPanelContentColumn
-            anchors.fill: parent
-            spacing: Theme.paddingMedium
-
-            Rectangle {
-                id: tagPanelHeader
-                width: parent.width
-                height: Theme.itemSizeExtraSmall
-                color: "#1c1d29" // Tag picker header background color
-                anchors.top: parent.top
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.leftMargin: Theme.paddingLarge
-                anchors.rightMargin: Theme.paddingLarge
-
-
-                Label {
-                    id: selectTagsText
-                    text: "Select Tags"
-                    font.pixelSize: Theme.fontSizeLarge
-                    color: "#e2e3e8"
-                    anchors.centerIn: parent
+            onVisibleChanged: {
+                if (visible) {
+                    // When the panel opens, use its own search text property to filter tags.
+                    // Initialize it from mainPage.currentSearchText, if that's desired,
+                    // but it should probably start fresh for tag filtering.
+                    // For now, let's keep it isolated.
+                    tagPickerPanel.tagPickerSearchText = ""; // Clear on open for a fresh search in picker
+                    mainPage.loadTagsForTagPanel(tagPickerPanel.tagPickerSearchText);
+                    tagsPanelFlickable.contentY = 0; // Scroll to the top of the flickable area.
+                    console.log("Tag picker panel opened. Loading tags and scrolling to top.");
+                } else {
+                    // When the panel closes, clear its internal search text.
+                    tagPickerPanel.tagPickerSearchText = "";
                 }
             }
 
-            SilicaFlickable {
-                id: tagsPanelFlickable
-                width: parent.width
-                anchors.top: tagPanelHeader.bottom
-                anchors.bottom: doneButton.top
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.topMargin: Theme.paddingMedium
-                anchors.bottomMargin: Theme.paddingMedium
-                contentHeight: tagsPanelListView.contentHeight
-                clip: true
-                ScrollBar { flickableSource: tagsPanelFlickable; z: 5 }
+            // Note: availableTagsModel is defined in mainPage's scope, as per our last conversation.
+            // So, no ListModel definition needed here.
 
-                ListView {
-                    id: tagsPanelListView
+            Column {
+                id: tagPanelContentColumn
+                anchors.fill: parent
+                spacing: Theme.paddingMedium
+
+                // Header section for the tag picker panel, now including the search field.
+                Rectangle {
+                    id: tagPanelHeader
                     width: parent.width
-                    height: contentHeight
-                    model: availableTagsModel
-                    orientation: ListView.Vertical
-                    spacing: Theme.paddingSmall
+                    // Adjusted height to accommodate both the "Select Tags" label and the search field.
+                    height: Theme.itemSizeMedium // Increased height for both label and search field
+                    color: DB.darkenColor(mainPage.customBackgroundColor, 0.15) // Header background color
+                    anchors.top: parent.top
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.leftMargin: Theme.paddingLarge
+                    anchors.rightMargin: Theme.paddingLarge
 
-                    delegate: Rectangle {
-                        id: tagPanelDelegateRoot
+                    // Column to stack the label and the search field vertically within the header.
+                    Column {
                         width: parent.width
-                        height: Theme.itemSizeMedium
-                        clip: true
-                        color: model.isChecked ? "#5c607a" : "#2a2c3a"
+                        height: parent.height
+                        anchors.centerIn: parent
+                        spacing: Theme.paddingSmall // Spacing between the label and the search field.
 
-                        RippleEffect { id: tagPanelDelegateRipple }
+                        // SearchField for filtering the list of available tags.
+                        SearchField {
+                            id: tagSearchInput
+                            width: parent.width * 0.95 // Take up 90% of the parent's width.
+                            anchors.horizontalCenter: parent.horizontalCenter // Center horizontally within the column.
+                            placeholderText: qsTr("Search tags...") // Placeholder text for the input field.
+                            font.pixelSize: Theme.fontSizeMedium
+                            highlighted: false
+                            color: "#e2e3e8" // Text color for the input.
+                            readOnly: false // The search field should always be editable.
 
-                        MouseArea {
-                            anchors.fill: parent
-                            onPressed: tagPanelDelegateRipple.ripple(mouseX, mouseY)
-                            onClicked: {
-                                var newCheckedState = !model.isChecked;
-                                availableTagsModel.set(index, { name: model.name, isChecked: newCheckedState });
+                            // *** IMPORTANT CHANGE HERE ***
+                            // Bind the text property of the SearchField to tagPickerPanel.tagPickerSearchText.
+                            text: tagPickerPanel.tagPickerSearchText
 
-                                if (newCheckedState) {
-                                    if (mainPage.selectedTags.indexOf(model.name) === -1) {
-                                        mainPage.selectedTags = mainPage.selectedTags.concat(model.name);
-                                    }
-                                } else {
-                                    mainPage.selectedTags = mainPage.selectedTags.filter(function(tag) { return tag !== model.name; });
-                                }
-                                console.log("MAIN_PAGE: Toggling tag from picker: " + model.name + ", isChecked: " + newCheckedState + ", Current selectedTags:", JSON.stringify(mainPage.selectedTags));
-                                mainPage.performSearch(mainPage.currentSearchText, mainPage.selectedTags);
-                            }
-                        }
-
-                        Row {
-                            id: tagPanelRow
-                            anchors.verticalCenter: parent.verticalCenter
-                            anchors.left: parent.left; anchors.leftMargin: Theme.paddingLarge
-                            anchors.right: parent.right; anchors.rightMargin: Theme.paddingLarge
-                            spacing: Theme.paddingMedium
-
-                            Icon {
-                                id: tagPanelTagIcon
-                                source: "../icons/tag-white.svg"
-                                color: "#e2e3e8"
-                                width: Theme.iconSizeMedium
-                                height: Theme.iconSizeMedium
-                                anchors.verticalCenter: parent.verticalCenter
-                                fillMode: Image.PreserveAspectFit
+                            // When the text in the search field changes, update tagPickerPanel.tagPickerSearchText
+                            // and then call mainPage's function to reload/filter the tags in the list view.
+                            onTextChanged: {
+                                tagPickerPanel.tagPickerSearchText = text; // Update the internal property
+                                mainPage.loadTagsForTagPanel(tagPickerPanel.tagPickerSearchText); // Use the internal property for filtering
                             }
 
-                            Text {
-                                id: tagPanelTagNameLabel
-                                text: model.name
-                                color: "#e2e3e8"
-                                font.pixelSize: Theme.fontSizeMedium
-                                anchors.verticalCenter: parent.verticalCenter
-                                elide: Text.ElideRight
-                                anchors.left: tagPanelTagIcon.right
-                                anchors.leftMargin: tagPanelRow.spacing
-                                anchors.right: tagPanelCheckButtonContainer.left
-                                anchors.rightMargin: tagPanelRow.spacing
-                            }
+                            // Left Item: Search Icon (Static as requested)
+                            leftItem: Item { }
 
-                            Item {
-                                id: tagPanelCheckButtonContainer
-                                width: Theme.iconSizeMedium
-                                height: Theme.iconSizeMedium
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
+                            // Right Item: Close/Clear Search Icon
+                            rightItem: Item {
+                                width: Theme.fontSizeExtraLarge * 1.25
+                                height: Theme.fontSizeExtraLarge * 1.25
                                 clip: false
 
-                                Image {
-                                    id: tagPanelCheckIcon
-                                    source: model.isChecked ? "../icons/box-checked.svg" : "../icons/box.svg"
+                                // Opacity depends on whether the tag picker's search field has text.
+                                opacity: tagSearchInput.text.length > 0 ? 1 : 0.3
+                                Behavior on opacity { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+
+                                Icon {
+                                    id: rightIconCloseTagSearch
+                                    source: "../icons/close.svg" // Static close icon.
+                                    color: Theme.primaryColor
                                     anchors.centerIn: parent
                                     width: parent.width
                                     height: parent.height
-                                    fillMode: Image.PreserveAspectFit
+                                }
+
+                                RippleEffect { id: rightClearRippleTagSearch }
+
+                                MouseArea {
+                                    anchors.fill: parent
+                                    // Enabled only if there is text in the search field to clear.
+                                    enabled: tagSearchInput.text.length > 0
+                                    onPressed: rightClearRippleTagSearch.ripple(mouseX, mouseY)
+                                    onClicked: {
+                                        // Clear the tag picker's search field and its internal property.
+                                        tagPickerPanel.tagPickerSearchText = "";
+                                        tagSearchInput.text = ""; // Update UI
+                                        // Reload tags to show all tags after clearing search.
+                                        mainPage.loadTagsForTagPanel(""); // Use empty filter for all tags
+                                        console.log("Tag picker search field cleared by right icon.");
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
-            ScrollBar {
-                flickableSource: tagsPanelFlickable
-                anchors.top: tagsPanelFlickable.top
-                anchors.bottom: tagsPanelFlickable.bottom
-                anchors.right: parent.right
-                width: Theme.paddingSmall
-            }
 
-            Button {
-                id: doneButton
-                anchors.horizontalCenter: parent.horizontalCenter
-                text: qsTr("Done")
-                onClicked: {
-                    mainPage.tagPickerOpen = false;
-                    console.log("MAIN_PAGE: Tag picker closed by Done button.");
+                // Flickable area for the list of tags, allowing scrolling.
+                SilicaFlickable {
+                    id: tagsPanelFlickable
+                    width: parent.width
+                    anchors.top: tagPanelHeader.bottom // Anchored below the header.
+                    anchors.bottom: doneButton.top // Anchored above the Done button.
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.topMargin: Theme.paddingMedium
+                    anchors.bottomMargin: Theme.paddingMedium
+                    contentHeight: tagsPanelListView.contentHeight // Content height is driven by the ListView.
+                    clip: true // Clip content that extends beyond the flickable's bounds.
+                    ScrollBar { flickableSource: tagsPanelFlickable; z: 5 } // Scrollbar for the flickable.
+
+                    // ListView to display the individual tag items.
+                    ListView {
+                        id: tagsPanelListView
+                        width: parent.width
+                        height: contentHeight // Height adapts to the content of the model.
+                        model: availableTagsModel // Uses the ListModel defined above.
+                        orientation: ListView.Vertical // Tags are arranged vertically.
+                        spacing: Theme.paddingSmall // Spacing between each tag item.
+
+                        // Delegate defines how each item in the ListView looks and behaves.
+                        delegate: Rectangle {
+                            id: tagPanelDelegateRoot
+                            width: parent.width
+                            height: Theme.itemSizeMedium // Fixed height for each tag item.
+                            clip: true
+                            // Background color changes based on whether the tag is checked/selected.
+                            color: model.isChecked ? DB.darkenColor(mainPage.customBackgroundColor, -0.25) : DB.darkenColor(mainPage.customBackgroundColor, 0.25)
+
+                            RippleEffect { id: tagPanelDelegateRipple } // Visual feedback on touch/click.
+
+                            MouseArea {
+                                anchors.fill: parent
+                                onPressed: tagPanelDelegateRipple.ripple(mouseX, mouseY) // Trigger ripple effect.
+                                onClicked: {
+                                    var newCheckedState = !model.isChecked; // Toggle the checked state.
+                                    // Update the model immediately to reflect the change in UI.
+                                    availableTagsModel.set(index, { name: model.name, isChecked: newCheckedState });
+
+                                    // Use mainPage.toggleTagSelection to update the global selectedTags and trigger a note search.
+                                    mainPage.toggleTagSelection(model.name);
+                                    console.log("MAIN_PAGE: Toggling tag from picker: " + model.name + ", isChecked: " + newCheckedState + ", Current selectedTags:", JSON.stringify(mainPage.selectedTags));
+                                    // mainPage.performSearch is called by mainPage.toggleTagSelection, so no need to call it here.
+                                }
+                            }
+
+                            // Row layout for icon, tag name, and checkbox icon.
+                            Row {
+                                id: tagPanelRow
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left; anchors.leftMargin: Theme.paddingLarge // Left padding.
+                                anchors.right: parent.right; anchors.rightMargin: Theme.paddingLarge // Right padding.
+                                spacing: Theme.paddingMedium // Spacing between elements in the row.
+
+                                // Icon for the tag.
+                                Icon {
+                                    id: tagPanelTagIcon
+                                    source: "../icons/tag-white.svg" // Path to the tag icon SVG.
+                                    color: "#e2e3e8" // Color of the tag icon.
+                                    width: Theme.iconSizeMedium
+                                    height: Theme.iconSizeMedium
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    fillMode: Image.PreserveAspectFit
+                                }
+
+                                // Label to display the tag name.
+                                Text {
+                                    id: tagPanelTagNameLabel
+                                    text: model.name // Display the tag name from the model.
+                                    color: "#e2e3e8" // Text color.
+                                    font.pixelSize: Theme.fontSizeMedium
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    elide: Text.ElideRight // Elide long tag names with "..."
+                                    // Positioned flexibly between the icon and the checkbox.
+                                    anchors.left: tagPanelTagIcon.right
+                                    anchors.leftMargin: tagPanelRow.spacing
+                                    anchors.right: tagPanelCheckButtonContainer.left
+                                    anchors.rightMargin: tagPanelRow.spacing
+                                }
+
+                                // Container for the checkbox icon.
+                                Item {
+                                    id: tagPanelCheckButtonContainer
+                                    width: Theme.iconSizeMedium
+                                    height: Theme.iconSizeMedium
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.right: parent.right // Anchored to the far right.
+                                    clip: false
+
+                                    // Image component for the checkbox icon (checked or unchecked).
+                                    Image {
+                                        id: tagPanelCheckIcon
+                                        source: model.isChecked ? "../icons/box-checked.svg" : "../icons/box.svg" // Dynamic source based on checked state.
+                                        anchors.centerIn: parent
+                                        width: parent.width
+                                        height: parent.height
+                                        fillMode: Image.PreserveAspectFit
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
-                anchors.bottom: parent.bottom
-                anchors.bottomMargin: Theme.paddingLarge
+                // Scrollbar for the tag list.
+                ScrollBar {
+                    flickableSource: tagsPanelFlickable
+                    anchors.top: tagsPanelFlickable.top
+                    anchors.bottom: tagsPanelFlickable.bottom
+                    anchors.right: parent.right
+                    width: Theme.paddingSmall
+                }
+
+                // Done button to close the tag picker panel.
+                Button {
+                    id: doneButton
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: qsTr("Done") // Localized text for the button.
+                    onClicked: {
+                        mainPage.tagPickerOpen = false; // Close the tag picker panel.
+                        console.log("MAIN_PAGE: Tag picker closed by Done button.");
+                    }
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: Theme.paddingLarge // Space from the bottom of the panel.
+                }
             }
         }
-    }
     // --- Integrated Generic Confirmation Dialog ---
     ConfirmDialog {
         id: confirmDialogInstance
