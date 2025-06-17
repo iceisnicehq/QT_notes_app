@@ -993,54 +993,34 @@ function getNotesForExport(successCallback, errorCallback) {
  * @param {SQLTransaction} tx Объект транзакции, если функция вызывается внутри существующей транзакции.
  */
 function addImportedNote(note, tx) {
-    initDatabase(LocalStorage)
-    if (!db && !tx) {
-        console.error("DB_MGR: База данных не инициализирована для импорта.");
-        return;
-    }
-
-    // Fixed: Replaced arrow function with traditional 'function'
-    var processNote = function(currentTx) {
-        // Проверяем, существует ли уже заметка с таким ID
-        var existing = currentTx.executeSql('SELECT id FROM Notes WHERE id = ?', [note.id]);
-
-        if (existing.rows.length > 0) {
-            // Если да, то ОБНОВЛЯЕМ её
-            console.log("DB_MGR: Обновление существующей заметки при импорте, ID:", note.id);
-            currentTx.executeSql(
-                'UPDATE Notes SET pinned = ?, title = ?, content = ?, color = ?, created_at = ?, updated_at = ?, deleted = ?, archived = ? WHERE id = ?',
-                [note.pinned, note.title, note.content, note.color, note.created_at, note.updated_at, note.deleted, note.archived, note.id]
+    console.log("DB_MGR_DEBUG: Processing note for import: ID " + note.id); // NEW
+    tx.executeSql("INSERT OR REPLACE INTO Notes (id, title, content, color, pinned, deleted, archived, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [note.id, note.title, note.content, note.color, note.pinned ? 1 : 0, note.deleted ? 1 : 0, note.archived ? 1 : 0, note.created_at, note.updated_at],
+        function(tx, rs) {
+            console.log("DB_MGR_DEBUG: Note (ID " + note.id + ") inserted/replaced successfully."); // NEW
+            // Удаляем старые теги для этой заметки
+            tx.executeSql("DELETE FROM NoteTags WHERE note_id = ?", [note.id],
+                function(tx, rs) {
+                    console.log("DB_MGR_DEBUG: Old tags for note ID " + note.id + " deleted successfully."); // NEW
+                    // Добавляем новые теги
+                    if (note.tags && note.tags.length > 0) {
+                        for (var i = 0; i < note.tags.length; i++) {
+                            addTagToNoteInternal(note.tags[i], note.id, tx);
+                        }
+                        console.log("DB_MGR_DEBUG: All new tags for note ID " + note.id + " processed."); // NEW
+                    } else {
+                        console.log("DB_MGR_DEBUG: No tags to add for note ID " + note.id + "."); // NEW
+                    }
+                },
+                function(tx, error) {
+                    console.error("DB_MGR_DEBUG: Error deleting old tags for note ID " + note.id + ": " + error.message); // NEW
+                }
             );
-            // Удаляем старые теги перед добавлением новых
-            currentTx.executeSql('DELETE FROM NoteTags WHERE note_id = ?', [note.id]);
-        } else {
-            // Если нет, то ВСТАВЛЯЕМ новую заметку. Нам нужно временно разрешить вставку ID.
-            console.log("DB_MGR: Вставка новой заметки при импорте, ID:", note.id);
-            currentTx.executeSql(
-                'INSERT INTO Notes (id, pinned, title, content, color, created_at, updated_at, deleted, archived) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                [note.id, note.pinned, note.title, note.content, note.color, note.created_at, note.updated_at, note.deleted, note.archived]
-            );
+        },
+        function(tx, error) {
+            console.error("DB_MGR_DEBUG: Error inserting/replacing note ID " + note.id + ": " + error.message); // NEW
         }
-
-        // Добавляем теги для этой заметки (и для новой, и для обновленной)
-        if (note.tags && note.tags.length > 0) {
-            for (var i = 0; i < note.tags.length; i++) {
-                addTagToNoteInternal(currentTx, note.id, note.tags[i]);
-            }
-        }
-    };
-
-    if (tx) {
-        // Если транзакция передана, используем её
-        processNote(tx);
-    } else {
-        // Иначе, выполняем в отдельной транзакции
-        db.transaction(function(newTx) {
-            processNote(newTx);
-        }, function(error) {
-            console.error("DB_MGR: Ошибка при импорте заметки (отдельная транзакция): " + error.message);
-        });
-    }
+    );
 }
 
 

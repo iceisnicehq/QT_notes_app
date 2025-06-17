@@ -324,7 +324,6 @@ Page {
 
         try {
             var fileContent;
-            // ... (код чтения файла, остается без изменений, используйте absoluteFilePathString) ...
             if (typeof FileIO !== 'undefined' && FileIO.read) {
                 fileContent = FileIO.read(absoluteFilePathString);
                 console.log("APP_DEBUG: File read via FileIO: " + absoluteFilePathString);
@@ -344,7 +343,6 @@ Page {
                     return;
                 }
             }
-
 
             if (fileContent) {
                 var notes;
@@ -369,18 +367,34 @@ Page {
                         for (var i = 0; i < notes.length; i++) {
                             DB.addImportedNote(notes[i], tx);
                             importedCount++;
+                            console.log(importedCount);
                         }
-                    }, function(error) {
-                        statusText = qsTr("Ошибка импорта: ") + error.message;
-                        console.error("APP_DEBUG: Error during import transaction: " + error.message);
-                        processInProgress = false;
-                    }, function() {
-                        statusText = qsTr("Импорт завершен! Обработано: ") + importedCount + qsTr(" заметок.");
-                        DB.updateLastImportDate();
-                        DB.updateNotesImportedCount(importedCount);
-                        processInProgress = false;
-                        console.log("APP_DEBUG: Import finished. Imported:", importedCount);
+
+
+                        console.log("test");
+
                     });
+                    console.log("test2");
+//                    , function(error) {
+//                        console.log("test1");
+//                        statusText = qsTr("Ошибка импорта: ") + error.message;
+//                        console.error("APP_DEBUG: Error during import transaction: " + error.message);
+//                        processInProgress = false;
+
+
+//                        console.log("test1");
+//                    }, function() {
+//                        console.log("test2");
+//                        statusText = qsTr("Импорт завершен! Обработано: ") + importedCount + qsTr(" заметок.");
+//                        DB.updateLastImportDate();
+//                        DB.updateNotesImportedCount(importedCount);
+//                        processInProgress = false;
+//                        console.log("APP_DEBUG: Import finished. Imported:", importedCount);
+
+
+//                        console.log("test3");
+//                    }
+//                    );
                 } else {
                     statusText = qsTr("Файл не содержит заметок для импорта.");
                     processInProgress = false;
@@ -395,10 +409,12 @@ Page {
             console.error("APP_DEBUG: EXCEPTION caught during file processing for import: " + e.message);
             processInProgress = false;
         }
+
+        processInProgress = false;
+
     }
 
     function parseCsv(content) {
-        // ... (ваш код parseCsv без изменений) ...
         var lines = content.split('\n');
         if (lines.length < 2) return [];
         var headers = lines[0].trim().split(',');
@@ -412,6 +428,7 @@ Page {
                 if (values[j] !== undefined) {
                     note[headers[j].trim()] = values[j].replace(/^"|"$/g, '').replace(/""/g, '"');
                 }
+
             }
             note.id = parseInt(note.id, 10);
             note.pinned = parseInt(note.pinned, 10) === 1;
