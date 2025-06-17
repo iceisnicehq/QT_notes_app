@@ -136,6 +136,16 @@ Page {
                 text: statusText
                 visible: statusText !== ""
             }
+
+            Button {
+                text: qsTr("Вернуться на главную")
+                anchors.horizontalCenter: parent.horizontalCenter
+                visible: !processInProgress // Видна, когда процесс не идет
+                onClicked: {
+                    pageStack.replace(Qt.resolvedUrl("MainPage.qml"));
+                }
+            }
+
         }
     }
 
@@ -409,8 +419,9 @@ Page {
             console.error("APP_DEBUG: EXCEPTION caught during file processing for import: " + e.message);
             processInProgress = false;
         }
-
         processInProgress = false;
+        DB.updateLastImportDate();
+        DB.updateNotesImportedCount(importedCount);
 
     }
 
