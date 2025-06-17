@@ -26,7 +26,7 @@ Page {
         key: "/desktop/nemo/preferences/documents_path"
         defaultValue: StandardPaths.documents // Запасной вариант
         onValueChanged: {
-            console.log("APP_DEBUG: Documents path is: " + value); // Логируем путь
+            console.log(qsTr("APP_DEBUG: Documents path is: ") + value); // Логируем путь, обернул в qsTr
         }
     }
 
@@ -36,7 +36,7 @@ Page {
 
         FilePickerPage {
             title: qsTr("Выберите файл для импорта")
-            //nameFilters: [qsTr("Резервные копии (*.json *.csv)"), qsTr("JSON файлы (*.json)"), qsTr("CSV файлы (*.csv)")]
+            // nameFilters: [qsTr("Резервные копии (*.json *.csv)"), qsTr("JSON файлы (*.json)"), qsTr("CSV файлы (*.csv)")] // Эти строки уже были обернуты, закомментировал, чтобы показать, что они не изменились.
 
             onSelectedContentPropertiesChanged: {
                 if (selectedContentProperties !== null) {
@@ -151,40 +151,40 @@ Page {
 
     // --- ИНИЦИАЛИЗАЦИЯ (ОЧЕНЬ ВАЖНОЕ МЕСТО) ---
     Component.onCompleted: {
-        console.log("APP_DEBUG: Export/Import Page: Component.onCompleted started.");
+        console.log(qsTr("APP_DEBUG: Export/Import Page: Component.onCompleted started.")); // обернул в qsTr
         // Инициализация базы данных - ТОЛЬКО ЗДЕСЬ!
         // Передаем LocalStorage, который доступен в QML-контексте, в JS-модуль.
         //DB.initDatabase(LocalStorage);
         DB.initDatabase(LocalStorage)
         // Проверяем, успешно ли инициализировалась база данных
         if (DB.db === null) {
-            console.error("APP_DEBUG: DB.db is NULL after initDatabase call! Export/Import will likely fail.");
+            console.error(qsTr("APP_DEBUG: DB.db is NULL after initDatabase call! Export/Import will likely fail.")); // обернул в qsTr
             statusText = qsTr("Ошибка: База данных не инициализирована. Перезапустите приложение.");
         } else {
-            console.log("APP_DEBUG: DB.db is successfully initialized.");
+            console.log(qsTr("APP_DEBUG: DB.db is successfully initialized.")); // обернул в qsTr
         }
 
         var updateFileName = function() {
             var fileExtension = exportFormatCombo.currentIndex === 0 ? ".csv" : ".json";
-            var baseName = "notes_backup_" + Qt.formatDateTime(new Date(), "yyyyMMdd_HHmmss");
+            var baseName = qsTr("notes_backup_") + Qt.formatDateTime(new Date(), "yyyyMMdd_HHmmss"); // обернул в qsTr
             fileNameField.text = baseName + fileExtension;
         };
         updateFileName();
         exportFormatCombo.currentIndexChanged.connect(updateFileName);
-        console.log("APP_DEBUG: Export/Import Page: Component.onCompleted finished.");
+        console.log(qsTr("APP_DEBUG: Export/Import Page: Component.onCompleted finished.")); // обернул в qsTr
     }
 
     // --- ЛОГИКА ЭКСПОРТА ---
     function exportData() {
         processInProgress = true; // <-- РАСКОММЕНТИРУЙТЕ ЭТО! Показываем индикатор
         statusText = qsTr("Сбор данных для экспорта...");
-        console.log("APP_DEBUG: exportData started.");
+        console.log(qsTr("APP_DEBUG: exportData started.")); // обернул в qsTr
 
 //        // Проверяем, инициализирована ли DB здесь, перед вызовом getNotesForExport
 //        if (!DB.db) {
 //            statusText = qsTr("Ошибка: База данных не инициализирована для экспорта. (Повторная проверка)");
 //            processInProgress = false;
-//            console.error("APP_DEBUG: База данных не инициализирована при попытке экспорта.");
+//            console.error(qsTr("APP_DEBUG: База данных не инициализирована при попытке экспорта.")); // обернул в qsTr
 //            return;
 //        }
 
@@ -192,7 +192,7 @@ Page {
         DB.getNotesForExport(
             // 1. Функция, которая выполнится при успехе
             function(notes) {
-                console.log("APP_DEBUG: getNotesForExport SUCCESS. Notes count:", notes ? notes.length : 0);
+                console.log(qsTr("APP_DEBUG: getNotesForExport SUCCESS. Notes count: ") + (notes ? notes.length : 0)); // обернул в qsTr
                 if (!notes || notes.length === 0) {
                     statusText = qsTr("Нет заметок для экспорта.");
                     processInProgress = false;
@@ -208,22 +208,22 @@ Page {
                 }
 
                 var finalPath = documentsPathConfig.value + "/" + fileNameField.text;
-                console.log("APP_DEBUG: Attempting to write file to: " + finalPath);
+                console.log(qsTr("APP_DEBUG: Attempting to write file to: ") + finalPath); // обернул в qsTr
                 writeToFile(finalPath, generatedData); // Вызов функции сохранения
             },
             // 2. Функция, которая выполнится при ошибке
             function(error) {
-                console.error("APP_DEBUG: getNotesForExport FAILED: " + error.message);
+                console.error(qsTr("APP_DEBUG: getNotesForExport FAILED: ") + error.message); // обернул в qsTr
                 statusText = qsTr("Ошибка экспорта: ") + error.message;
                 processInProgress = false;
             }
         );
-        console.log("APP_DEBUG: exportData finished, waiting for callbacks.");
+        console.log(qsTr("APP_DEBUG: exportData finished, waiting for callbacks.")); // обернул в qsTr
     }
 
     function generateCsv(data) {
 
-        var headers = ["id", "title", "content", "color", "pinned", "deleted", "archived", "created_at", "updated_at", "tags"];
+        var headers = ["id", "title", "content", "color", "pinned", "deleted", "archived", "created_at", "updated_at", "tags"]; // Эти заголовки обычно не локализуются, т.к. это внутренний формат CSV/JSON
         var csv = headers.join(",") + "\n";
         var escapeCsvField = function(field) {
             return "\"" + String(field || '').replace(/"/g, '""') + "\"";
@@ -254,13 +254,13 @@ Page {
     function writeToFile(filePath, textData) {
         // processInProgress = true; // Уже установлено в exportData
         statusText = qsTr("Сохранение файла...");
-        console.log("APP_DEBUG: writeToFile started for path: " + filePath);
+        console.log(qsTr("APP_DEBUG: writeToFile started for path: ") + filePath); // обернул в qsTr
 
         try {
             // Пытаемся использовать глобальный объект FileIO, если он предоставлен (из C++)
             if (typeof FileIO !== 'undefined' && FileIO.write) {
                 FileIO.write(filePath, textData);
-                console.log("APP_DEBUG: File saved via FileIO: " + filePath);
+                console.log(qsTr("APP_DEBUG: File saved via FileIO: ") + filePath); // обернул в qsTr
                 // Продолжаем обновлять статистику и показывать диалог
                 var notesCount = (exportFormatCombo.currentIndex === 0)
                                  ? (textData.split('\n').length - 2) // Для CSV: минус заголовок и потенциальная пустая строка
@@ -279,14 +279,14 @@ Page {
                 statusText = ""; // Очищаем статус после завершения диалога
             } else {
                 // FALLBACK: Используем XMLHttpRequest для записи файла, если FileIO недоступен
-                console.warn("APP_DEBUG: FileIO not defined or write method missing, attempting to save via XMLHttpRequest.");
+                console.warn(qsTr("APP_DEBUG: FileIO not defined or write method missing, attempting to save via XMLHttpRequest.")); // обернул в qsTr
                 var xhr = new XMLHttpRequest();
                 // Синхронный PUT запрос на локальный файл. 'file://' обязателен.
                 xhr.open("PUT", "file://" + filePath, false);
                 xhr.send(textData);
 
                 if (xhr.status === 0 || xhr.status === 200) { // status 0 часто означает успех для локальных файлов
-                    console.log("APP_DEBUG: File saved via XMLHttpRequest: " + filePath);
+                    console.log(qsTr("APP_DEBUG: File saved via XMLHttpRequest: ") + filePath); // обернул в qsTr
                     var notesCount = (exportFormatCombo.currentIndex === 0)
                                      ? (textData.split('\n').length - 2)
                                      : JSON.parse(textData).length;
@@ -304,15 +304,15 @@ Page {
                     statusText = "";
                 } else {
                     statusText = qsTr("Ошибка сохранения файла (XHR): ") + xhr.statusText + " (" + xhr.status + ")";
-                    console.error("APP_DEBUG: Error saving file via XHR: " + xhr.statusText + " (" + xhr.status + ")");
+                    console.error(qsTr("APP_DEBUG: Error saving file via XHR: ") + xhr.statusText + " (" + xhr.status + ")"); // обернул в qsTr
                 }
             }
         } catch (e) {
-            console.error("APP_DEBUG: EXCEPTION caught during file saving: " + e.message);
+            console.error(qsTr("APP_DEBUG: EXCEPTION caught during file saving: ") + e.message); // обернул в qsTr
             statusText = qsTr("Ошибка сохранения файла: ") + e.message;
         } finally {
             processInProgress = false; // Важно всегда сбрасывать индикатор
-            console.log("APP_DEBUG: writeToFile finished.");
+            console.log(qsTr("APP_DEBUG: writeToFile finished.")); // обернул в qsTr
         }
     }
 
@@ -322,11 +322,11 @@ Page {
         var absoluteFilePathString = String(filePath); // Оставляем эту строку для надежности
 
         statusText = qsTr("Чтение файла: ") + absoluteFilePathString.split('/').pop();
-        console.log("APP_DEBUG: importFromFile started for path: " + absoluteFilePathString);
-        console.log("APP_DEBUG: Type of absoluteFilePathString:", typeof absoluteFilePathString); // Оставляем для проверки
+        console.log(qsTr("APP_DEBUG: importFromFile started for path: ") + absoluteFilePathString); // обернул в qsTr
+        console.log(qsTr("APP_DEBUG: Type of absoluteFilePathString: ") + typeof absoluteFilePathString); // обернул в qsTr
 
         if (!DB.db) {
-            console.error("DB_MGR: Database not initialized for importFromFile.");
+            console.error(qsTr("DB_MGR: Database not initialized for importFromFile.")); // обернул в qsTr
             statusText = qsTr("Ошибка: База данных не инициализирована для импорта.");
             processInProgress = false;
             return;
@@ -336,19 +336,19 @@ Page {
             var fileContent;
             if (typeof FileIO !== 'undefined' && FileIO.read) {
                 fileContent = FileIO.read(absoluteFilePathString);
-                console.log("APP_DEBUG: File read via FileIO: " + absoluteFilePathString);
+                console.log(qsTr("APP_DEBUG: File read via FileIO: ") + absoluteFilePathString); // обернул в qsTr
             } else {
-                console.warn("APP_DEBUG: FileIO not defined or read method missing, attempting to read via XMLHttpRequest.");
+                console.warn(qsTr("APP_DEBUG: FileIO not defined or read method missing, attempting to read via XMLHttpRequest.")); // обернул в qsTr
                 var xhr = new XMLHttpRequest();
                 xhr.open("GET", "file://" + absoluteFilePathString, false);
                 xhr.send();
 
                 if (xhr.status === 0 || xhr.status === 200) {
                     fileContent = xhr.responseText;
-                    console.log("APP_DEBUG: File read via XMLHttpRequest: " + absoluteFilePathString);
+                    console.log(qsTr("APP_DEBUG: File read via XMLHttpRequest: ") + absoluteFilePathString); // обернул в qsTr
                 } else {
                     statusText = qsTr("Ошибка чтения файла (XHR): ") + xhr.statusText + " (" + xhr.status + ")";
-                    console.error("APP_DEBUG: Error reading file via XHR: " + xhr.statusText + " (" + xhr.status + ")");
+                    console.error(qsTr("APP_DEBUG: Error reading file via XHR: ") + xhr.statusText + " (" + xhr.status + ")"); // обернул в qsTr
                     processInProgress = false;
                     return;
                 }
@@ -377,32 +377,32 @@ Page {
                         for (var i = 0; i < notes.length; i++) {
                             DB.addImportedNote(notes[i], tx);
                             importedCount++;
-                            console.log(importedCount);
+                            console.log(importedCount); // Это отладочный лог, можно оставить без qsTr, если не предполагается для пользователя.
                         }
 
 
-                        console.log("test");
+                        console.log(qsTr("test")); // обернул в qsTr
 
                     });
-                    console.log("test2");
+                    console.log(qsTr("test2")); // обернул в qsTr
 //                    , function(error) {
-//                        console.log("test1");
+//                        console.log(qsTr("test1")); // обернул в qsTr
 //                        statusText = qsTr("Ошибка импорта: ") + error.message;
-//                        console.error("APP_DEBUG: Error during import transaction: " + error.message);
+//                        console.error(qsTr("APP_DEBUG: Error during import transaction: ") + error.message); // обернул в qsTr
 //                        processInProgress = false;
 
 
-//                        console.log("test1");
+//                        console.log(qsTr("test1")); // обернул в qsTr
 //                    }, function() {
-//                        console.log("test2");
-//                        statusText = qsTr("Импорт завершен! Обработано: ") + importedCount + qsTr(" заметок.");
+//                        console.log(qsTr("test2")); // обернул в qsTr
+//                        statusText = qsTr("Импорт завершен! Обработано: ") + importedCount + qsTr(" заметок."); // обернул в qsTr
 //                        DB.updateLastImportDate();
 //                        DB.updateNotesImportedCount(importedCount);
 //                        processInProgress = false;
-//                        console.log("APP_DEBUG: Import finished. Imported:", importedCount);
+//                        console.log(qsTr("APP_DEBUG: Import finished. Imported: ") + importedCount); // обернул в qsTr
 
 
-//                        console.log("test3");
+//                        console.log(qsTr("test3")); // обернул в qsTr
 //                    }
 //                    );
                 } else {
@@ -416,12 +416,14 @@ Page {
             }
         } catch (e) {
             statusText = qsTr("Ошибка обработки файла: ") + e.message;
-            console.error("APP_DEBUG: EXCEPTION caught during file processing for import: " + e.message);
+            console.error(qsTr("APP_DEBUG: EXCEPTION caught during file processing for import: ") + e.message); // обернул в qsTr
             processInProgress = false;
         }
         processInProgress = false;
+        // IMPORTANT: ImportedCount might be undefined here if the transaction callback logic is incomplete or commented out.
+        // Make sure 'importedCount' is reliably set before this point if these updates are critical.
         DB.updateLastImportDate();
-        DB.updateNotesImportedCount(importedCount);
+        DB.updateNotesImportedCount(importedCount); // This will only work if importedCount is set outside the transaction.
 
     }
 

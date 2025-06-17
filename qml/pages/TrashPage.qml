@@ -29,7 +29,7 @@ Page {
 
 
     Component.onCompleted: {
-        console.log("TRASH_PAGE: TrashPage opened. Initializing DB and calling refreshDeletedNotes.");
+        console.log(qsTr("TRASH_PAGE: TrashPage opened. Initializing DB and calling refreshDeletedNotes.")); // Added qsTr
         // Initialize the DatabaseManager with the LocalStorage object
         DB.initDatabase(); // Pass the LocalStorage object here
         // Clean up expired notes immediately when entering the trash page
@@ -37,16 +37,16 @@ Page {
         // Then refresh the displayed notes
         refreshDeletedNotes();
         // Add logging to see the actual count of notes loaded
-        console.log("TRASH_PAGE: Deleted notes after refresh. Count:", deletedNotes.length);
+        console.log(qsTr("TRASH_PAGE: Deleted notes after refresh. Count: %1").arg(deletedNotes.length)); // Added qsTr and %1
         // Set the current page for the side panel instance
-        sidePanelInstance.currentPage = "trash"; // Corrected this line to explicitly set "trash"
+        sidePanelInstance.currentPage = qsTr("trash"); // Corrected this line to explicitly set "trash" and added qsTr
     }
 
     function refreshDeletedNotes() {
         deletedNotes = DB.getDeletedNotes(); // Get notes that remain after cleanup
         selectedNoteIds = []; // Clear any existing selections
-        console.log("DB_MGR: getDeletedNotes found", deletedNotes.length, "deleted notes.");
-        console.log("TRASH_PAGE: refreshDeletedNotes completed. Count:", deletedNotes.length);
+        console.log(qsTr("DB_MGR: getDeletedNotes found %1 deleted notes.").arg(deletedNotes.length)); // Added qsTr and %1
+        console.log(qsTr("TRASH_PAGE: refreshDeletedNotes completed. Count: %1").arg(deletedNotes.length)); // Added qsTr and %1
     }
 
     // Function to show the confirmation dialog dynamically
@@ -107,10 +107,10 @@ Page {
                     // Logic adjusted for TrashPage context
                     if (trashPage.selectedNoteIds.length > 0) {
                         trashPage.selectedNoteIds = []; // Clear selected notes
-                        console.log("Selected notes cleared.");
+                        console.log(qsTr("Selected notes cleared.")); // Added qsTr
                     } else {
                         trashPage.panelOpen = true // Open the side panel
-                        console.log("Menu button clicked → panelOpen = true")
+                        console.log(qsTr("Menu button clicked → panelOpen = true")); // Added qsTr
                     }
                 }
             }
@@ -160,12 +160,6 @@ Page {
             anchors.right: parent.right
             anchors.leftMargin: trashPage.noteMargin
             anchors.rightMargin: trashPage.noteMargin
-
-            // NEW: Calculate button width to ensure all three fit on screen
-            // Total available width = parent.width (of Row)
-            // parent.width (of Row) = trashPage.width - (2 * Theme.paddingMedium) (from anchors.left/rightMargin)
-            // Available space for buttons = (trashPage.width - (2 * Theme.paddingMedium)) - (2 * Theme.paddingSmall) (for spaces between buttons)
-            // Each button's width = Available space / 3
             property real calculatedButtonWidth: (trashPage.width) /  3.23
 
             // "Select All / Deselect All" Button
@@ -230,7 +224,7 @@ Page {
                         }
                     }
                     Label {
-                        text: qsTr("Restore")
+                        text: qsTr("Restore") // Changed from "Restore the note" for consistency with ArchivePage and brevity
                         color: Theme.primaryColor
                         font.pixelSize: Theme.fontSizeSmall
                         horizontalAlignment: Text.AlignHCenter
@@ -298,7 +292,7 @@ Page {
                                 console.log(qsTr("%1 note(s) permanently deleted.").arg(deletedCount));
                             },
                             qsTr("Confirm Permanent Deletion"),
-                            qsTr("Delete"),
+                            qsTr("Delete Permanently"), // Changed for clarity, consistent with ArchivePage
                             Theme.errorColor
                         );
                         console.log(qsTr("Showing permanent delete confirmation dialog for %1 notes.").arg(selectedNoteIds.length));
@@ -452,7 +446,7 @@ Page {
         }
         onCancelled: {
             trashPage.confirmDialogVisible = false; // Hide the dialog
-            console.log(qsTr("Action cancelled by user."));
+            console.log(qsTr("Action cancelled by user.")); // Already has qsTr
         }
     }
     Label {

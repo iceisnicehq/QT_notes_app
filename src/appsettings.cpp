@@ -42,7 +42,7 @@ bool AppSettings::setApplicationLanguage(const QString& languageCode)
     if (languageCode == "ru") {
         specificQmFile = "ru.template.Aurora_notes-ru.qm";
     } else {
-        specificQmFile = "ru.template.Aurora_notes.qm";
+        specificQmFile = "ru.template.Aurora_notes-en.qm";
     }
 
     qDebug() << "Attempting to load translator for language:" << languageCode

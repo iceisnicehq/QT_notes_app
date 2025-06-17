@@ -4,6 +4,16 @@
 <context>
     <name>AboutPage</name>
     <message>
+        <location filename="../qml/pages/AboutPage.qml" line="23"/>
+        <source>AboutPage opened. Initializing side panel and theme.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="69"/>
+        <source>Menu button clicked in AboutPage → panelOpen = true</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../qml/pages/AboutPage.qml" line="76"/>
         <source>About Application</source>
         <translation>About Application</translation>
@@ -14,22 +24,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="116"/>
+        <location filename="../qml/pages/AboutPage.qml" line="115"/>
         <source>This is a simple yet powerful note-taking application designed to help you organize your thoughts, ideas, and tasks efficiently. It provides a clean interface for creating, editing, and managing your notes, complete with tagging capabilities and quick search functionality. Whether for personal reminders or professional project management, this app aims to be your reliable digital notebook.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="122"/>
+        <location filename="../qml/pages/AboutPage.qml" line="121"/>
         <source>Who are the Developers?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="133"/>
+        <location filename="../qml/pages/AboutPage.qml" line="132"/>
         <source>This application was developed with passion and dedication by a team committed to creating intuitive and effective tools for everyday use. We believe in open-source principles and continuously work to improve the app based on user feedback. Special thanks to the Sailfish OS community for their invaluable support and resources.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="150"/>
+        <location filename="../qml/pages/AboutPage.qml" line="152"/>
         <source>Copyright (c) [Year], [Developer Name/Organization]
 All rights reserved.
 
@@ -60,7 +70,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="139"/>
+        <location filename="../qml/pages/AboutPage.qml" line="138"/>
         <source>3-Clause BSD License</source>
         <translation>3-Clause BSD License</translation>
     </message>
@@ -350,103 +360,93 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="152"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="141"/>
+        <source>Вернуться на главную</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="162"/>
         <source>Ошибка: База данных не инициализирована. Перезапустите приложение.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="170"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="180"/>
         <source>Сбор данных для экспорта...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="187"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="197"/>
         <source>Нет заметок для экспорта.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="192"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="202"/>
         <source>Подготовка </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="192"/>
-        <location filename="../qml/pages/ImportExportPage.qml" line="366"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="202"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="374"/>
         <source> заметок...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="207"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="217"/>
         <source>Ошибка экспорта: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="246"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="256"/>
         <source>Сохранение файла...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="296"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="306"/>
         <source>Ошибка сохранения файла (XHR): </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="302"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="312"/>
         <source>Ошибка сохранения файла: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="314"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="324"/>
         <source>Чтение файла: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="320"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="330"/>
         <source>Ошибка: База данных не инициализирована для импорта.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="341"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="350"/>
         <source>Ошибка чтения файла (XHR): </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="360"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="368"/>
         <source>Неподдерживаемый формат файла.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="366"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="374"/>
         <source>Импорт </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="374"/>
-        <source>Ошибка импорта: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="378"/>
-        <source>Импорт завершен! Обработано: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="378"/>
-        <source> заметок.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="385"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="409"/>
         <source>Файл не содержит заметок для импорта.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="390"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="414"/>
         <source>Файл пуст.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="394"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="418"/>
         <source>Ошибка обработки файла: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -1297,83 +1297,87 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="193"/>
+        <location filename="../qml/pages/TrashPage.qml" line="187"/>
         <source>Select</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="207"/>
+        <location filename="../qml/pages/TrashPage.qml" line="201"/>
         <source>Selected note IDs after Select All/Deselect All: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="233"/>
-        <location filename="../qml/pages/TrashPage.qml" line="252"/>
+        <location filename="../qml/pages/TrashPage.qml" line="246"/>
         <source>Restore</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="241"/>
+        <location filename="../qml/pages/TrashPage.qml" line="235"/>
         <source>Are you sure you want to restore %1 selected notes to your main notes?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="248"/>
+        <location filename="../qml/pages/TrashPage.qml" line="227"/>
+        <source>Restore the note</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/TrashPage.qml" line="242"/>
         <source>%1 note(s) restored!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="249"/>
+        <location filename="../qml/pages/TrashPage.qml" line="243"/>
         <source>%1 note(s) restored from trash.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="251"/>
+        <location filename="../qml/pages/TrashPage.qml" line="245"/>
         <source>Confirm Restoration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="255"/>
+        <location filename="../qml/pages/TrashPage.qml" line="249"/>
         <source>Showing restore confirmation dialog for %1 notes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="290"/>
+        <location filename="../qml/pages/TrashPage.qml" line="284"/>
         <source>Are you sure you want to permanently delete %1 selected notes? This action cannot be undone.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="298"/>
+        <location filename="../qml/pages/TrashPage.qml" line="292"/>
         <source>%1 note(s) permanently deleted.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="300"/>
+        <location filename="../qml/pages/TrashPage.qml" line="294"/>
         <source>Confirm Permanent Deletion</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="304"/>
+        <location filename="../qml/pages/TrashPage.qml" line="298"/>
         <source>Showing permanent delete confirmation dialog for %1 notes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="377"/>
+        <location filename="../qml/pages/TrashPage.qml" line="371"/>
         <source>Toggled selection for note ID: %1. Current selected: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="381"/>
+        <location filename="../qml/pages/TrashPage.qml" line="375"/>
         <source>TRASH_PAGE: Opening NotePage for note ID: %1 from Trash.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="412"/>
+        <location filename="../qml/pages/TrashPage.qml" line="406"/>
         <source>Will be permanently deleted on: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="455"/>
+        <location filename="../qml/pages/TrashPage.qml" line="449"/>
         <source>Action cancelled by user.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1386,18 +1390,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     <message>
         <location filename="../qml/pages/TrashPage.qml" line="26"/>
         <location filename="../qml/pages/TrashPage.qml" line="60"/>
-        <location filename="../qml/pages/TrashPage.qml" line="282"/>
-        <location filename="../qml/pages/TrashPage.qml" line="301"/>
+        <location filename="../qml/pages/TrashPage.qml" line="276"/>
+        <location filename="../qml/pages/TrashPage.qml" line="295"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="297"/>
+        <location filename="../qml/pages/TrashPage.qml" line="291"/>
         <source>%1 note(s) permanently deleted!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="461"/>
+        <location filename="../qml/pages/TrashPage.qml" line="455"/>
         <source>Trash is empty.</source>
         <translation type="unfinished"></translation>
     </message>
