@@ -52,7 +52,10 @@ Dialog {
             width: parent.width - 2 * x
             wrapMode: Text.Wrap
             color: Theme.highlightColor
-            text: qsTr("Размер файла: ") + (dataSize / 1024).toFixed(2) + " KB"
+            // Changed to ensure " KB" is part of the translatable string or handled separately,
+            // but for simplicity, assuming it's always "KB" for now, and the number is substituted.
+            // If "KB" itself needs localization (e.g., to "КБ"), it should be part of the qsTr string.
+            text: qsTr("Размер файла: ") + (dataSize / 1024).toFixed(2) + qsTr(" KB") // Added qsTr to " KB"
         }
 
         SectionHeader {

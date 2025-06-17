@@ -9,7 +9,7 @@ Item {
     id: confirmDialog
     // Expose properties for external control
     property bool dialogVisible: false
-    property string dialogTitle: ""
+    property string dialogTitle: qsTr("") // Added qsTr() here for completeness
     property string dialogMessage: ""
     property string confirmButtonText: qsTr("Confirm")
     property color confirmButtonHighlightColor: Theme.highlightColor

@@ -16,7 +16,10 @@ Page {
     showNavigationIndicator: false
     property int noteMargin: 20
 
-    property string pageMode: "archive" // Can be "archive" or "trash"
+    property string pageMode: qsTr("archive") // Can be "archive" or "trash" // Added qsTr
+    // NOTE: 'pageMode' is used internally for logic ("trash" vs "archive"), but if its *value* is ever displayed, it should be translated.
+    // For now, I'll assume the displayed strings "Trash" and "Archive" in the Label below are sufficient.
+    // If 'pageMode' itself needs translation for display elsewhere, it should be changed.
 
     property var notesToDisplay: []
     property var selectedNoteIds: []
@@ -45,10 +48,10 @@ Page {
     }
 
     function refreshNotes() {
-        if (pageMode === "trash") {
+        if (pageMode === qsTr("trash")) { // Added qsTr
             notesToDisplay = DB.getDeletedNotes();
             console.log(qsTr("DB_MGR: getDeletedNotes found %1 deleted notes.").arg(notesToDisplay.length));
-        } else if (pageMode === "archive") {
+        } else if (pageMode === qsTr("archive")) { // Added qsTr
             notesToDisplay = DB.getArchivedNotes();
             console.log(qsTr("DB_MGR: getArchivedNotes found %1 archived notes.").arg(notesToDisplay.length));
         }
@@ -107,17 +110,17 @@ Page {
                     // Logic adjusted for archivePage context
                     if (archivePage.selectedNoteIds.length > 0) {
                         archivePage.selectedNoteIds = []; // Clear selected notes
-                        console.log("Selected notes cleared in archivePage.");
+                        console.log(qsTr("Selected notes cleared in archivePage.")); // Added qsTr
                     } else {
                         archivePage.panelOpen = true // Open the side panel
-                        console.log("Menu button clicked in archivePage → panelOpen = true")
+                        console.log(qsTr("Menu button clicked in archivePage → panelOpen = true")) // Added qsTr
                     }
                 }
             }
         }
 
         Label {
-            text: pageMode === "trash" ? qsTr("Trash") : qsTr("Archive")
+            text: pageMode === qsTr("trash") ? qsTr("Trash") : qsTr("Archive") // Ensured both values are translated
             anchors.centerIn: parent
             font.pixelSize: Theme.fontSizeExtraLarge
             font.bold: true
@@ -205,13 +208,13 @@ Page {
                         anchors.horizontalCenter: parent.horizontalCenter
 
                         Icon {
-                            source: pageMode === "trash" ? "../icons/restore_notes.svg" : "../icons/unarchive.svg"
+                            source: pageMode === qsTr("trash") ? "../icons/restore_notes.svg" : "../icons/unarchive.svg" // Added qsTr
                             anchors.fill: parent // Icon fills its wrapper Item
                             color: Theme.primaryColor
                         }
                     }
                     Label {
-                        text: pageMode === "trash" ? qsTr("Restore") : qsTr("Unarchive")
+                        text: pageMode === qsTr("trash") ? qsTr("Restore") : qsTr("Unarchive") // Added qsTr
                         color: Theme.primaryColor
                         font.pixelSize: Theme.fontSizeSmall
                         horizontalAlignment: Text.AlignHCenter
@@ -225,7 +228,7 @@ Page {
                         var highlight = Theme.highlightColor;
                         var callbackFunction;
 
-                        if (pageMode === "trash") {
+                        if (pageMode === qsTr("trash")) { // Added qsTr
                             message = qsTr("Are you sure you want to restore %1 selected notes to your main notes?").arg(selectedNoteIds.length);
                             confirmTitle = qsTr("Confirm Restoration");
                             confirmButton = qsTr("Restore");
@@ -236,7 +239,7 @@ Page {
                                 toastManager.show(qsTr("%1 note(s) restored!").arg(restoredCount));
                                 console.log(qsTr("%1 note(s) restored from trash.").arg(restoredCount));
                             };
-                        } else if (pageMode === "archive") {
+                        } else if (pageMode === qsTr("archive")) { // Added qsTr
                             message = qsTr("Are you sure you want to unarchive %1 selected notes?").arg(selectedNoteIds.length);
                             confirmTitle = qsTr("Confirm Unarchive");
                             confirmButton = qsTr("Unarchive");
@@ -265,7 +268,7 @@ Page {
             // NEW: Permanently Delete Button (only visible in "trash" mode)
             Button {
                 id: deleteSelectedButton
-                visible: archivePage.pageMode === "trash"
+                visible: archivePage.pageMode === qsTr("trash") // Added qsTr
                 width: parent.calculatedButtonWidth // Use calculated width
                 Layout.preferredHeight: Theme.buttonHeightSmall
                 highlightColor: Theme.errorColor
@@ -395,8 +398,8 @@ Page {
                                     noteCreationDate: creationDate,
                                     noteEditDate: editDate,
                                     noteColor: color,
-                                    isArchived: archivePage.pageMode === "archive",
-                                    isDeleted: archivePage.pageMode === "trash"
+                                    isArchived: archivePage.pageMode === qsTr("archive"), // Added qsTr
+                                    isDeleted: archivePage.pageMode === qsTr("trash") // Added qsTr
                                 });
                             }
                         }
@@ -438,7 +441,7 @@ Page {
     Label {
         id: emptyLabel
         visible: archivePage.showEmptyLabel
-        text: pageMode === "trash" ? qsTr("Trash is empty.") : qsTr("Archive is empty.")
+        text: pageMode === qsTr("trash") ? qsTr("Trash is empty.") : qsTr("Archive is empty.") // Ensured both values are translated
         font.italic: true
         color: Theme.secondaryColor
         anchors.horizontalCenter: parent.horizontalCenter
