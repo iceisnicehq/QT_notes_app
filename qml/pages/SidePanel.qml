@@ -11,6 +11,7 @@ Item {
     visible: opacity > 0
     opacity: open ? 1 : 0
     property string customBackgroundColor:  DB.darkenColor(DB.getThemeColor(), 0.30)
+    property string activeSectionColor: DB.getThemeColor()
     property bool open: false
     property string currentPage: "notes"
     // tags property now holds objects with name and count

@@ -696,5 +696,6 @@ Page {
         onClosed: settingsPage.panelOpen = false
         Component.onCompleted: sidePanelInstance.currentPage = "settings";
         customBackgroundColor:  DB.darkenColor(settingsPage.customBackgroundColor, 0.30)
+        activeSectionColor: settingsPage.customBackgroundColor
     }
 }

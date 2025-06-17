@@ -1,7 +1,8 @@
 // NavigationButton.qml
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-
+import QtQuick.LocalStorage 2.0
+import "DatabaseManager.js" as DB // Assuming this contains actual DB operations like getAllNotes, searchNotes, etc.
 Item {
     id: root
     width: parent.width
@@ -12,13 +13,17 @@ Item {
     property bool selected: false
     // New property for note count
     property int noteCount: -1 // Default to -1 or 0 if no count is provided
-
+    // Changed 'activeColor' to 'selectedColor' to match the property passed from SidePanel.qml
+    property string selectedColor: DB.getThemeColor() // Default to theme color if not explicitly set
     signal clicked()
 
     Rectangle {
         anchors.fill: parent
-        color: selected ? "#2a2b38" : "transparent"
+        // Use 'root.selectedColor' when the button is selected
+        color: selected ? root.selectedColor : "transparent"
         visible: mouseArea.pressed || selected
+        // Adding rounded corners as per general instructions for aesthetics
+        radius: Theme.itemSizeSmall * 0.1 // A small radius for a subtle rounded look
     }
 
     // Icon (left-aligned)
@@ -27,7 +32,8 @@ Item {
         source: root.icon
         width: Theme.iconSizeSmall
         height: Theme.iconSizeSmall
-        color: selected ? "#e2e3e8" : "#a0a1ab"
+        // Use theme colors for selected/unselected states
+        color: selected ? Theme.primaryColor : Theme.secondaryColor // Example: white/light gray for selected, dark gray for unselected
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
         anchors.leftMargin: Theme.paddingLarge
@@ -38,7 +44,8 @@ Item {
         id: countLabel
         visible: root.noteCount !== -1 // Only show if a count is provided
         text: root.noteCount >= 100 ? "99+" : root.noteCount.toString()
-        color: selected ? "#e2e3e8" : "#a0a1ab"
+        // Use theme colors for selected/unselected states
+        color: selected ? Theme.primaryColor : Theme.secondaryColor
         font.pixelSize: Theme.fontSizeSmall * 0.9 // Make it a tiny bit smaller
         font.bold: true // Optional: make count bold for better readability
         horizontalAlignment: Text.AlignRight
@@ -55,7 +62,8 @@ Item {
     Label {
         id: tagNameLabel
         text: root.text
-        color: selected ? "#e2e3e8" : "#a0a1ab"
+        // Use theme colors for selected/unselected states
+        color: selected ? Theme.primaryColor : Theme.secondaryColor
         font.pixelSize: Theme.fontSizeMedium
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: navIcon.right

@@ -93,7 +93,7 @@ function initDatabase(localStorageInstance) {
                 tx.executeSql(
                     'INSERT INTO AppSettings (id, themeColor, language, notesExportedCount, notesImportedCount) ' +
                     'VALUES (?, ?, ?, ?, ?)',
-                    [1, "dark", "en", 0, 0] // Default values: dark theme, English, 0 exported/imported
+                    [1, "#121218", "en", 0, 0] // Default values: dark theme, English, 0 exported/imported
                 );
             }
 
