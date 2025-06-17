@@ -29,24 +29,24 @@ Page {
 
 
     Component.onCompleted: {
-        console.log(qsTr("TRASH_PAGE: TrashPage opened. Initializing DB and calling refreshDeletedNotes.")); // Added qsTr
+        console.log("TRASH_PAGE: TrashPage opened. Initializing DB and calling refreshDeletedNotes.");
         // Initialize the DatabaseManager with the LocalStorage object
-        DB.initDatabase(); // Pass the LocalStorage object here
+        DB.initDatabase(LocalStorage); // Pass the LocalStorage object here
         // Clean up expired notes immediately when entering the trash page
         DB.permanentlyDeleteExpiredDeletedNotes();
         // Then refresh the displayed notes
         refreshDeletedNotes();
         // Add logging to see the actual count of notes loaded
-        console.log(qsTr("TRASH_PAGE: Deleted notes after refresh. Count: %1").arg(deletedNotes.length)); // Added qsTr and %1
+        console.log("TRASH_PAGE: Deleted notes after refresh. Count: " + deletedNotes.length);
         // Set the current page for the side panel instance
-        sidePanelInstance.currentPage = qsTr("trash"); // Corrected this line to explicitly set "trash" and added qsTr
+        sidePanelInstance.currentPage = qsTr("trash");
     }
 
     function refreshDeletedNotes() {
         deletedNotes = DB.getDeletedNotes(); // Get notes that remain after cleanup
         selectedNoteIds = []; // Clear any existing selections
-        console.log(qsTr("DB_MGR: getDeletedNotes found %1 deleted notes.").arg(deletedNotes.length)); // Added qsTr and %1
-        console.log(qsTr("TRASH_PAGE: refreshDeletedNotes completed. Count: %1").arg(deletedNotes.length)); // Added qsTr and %1
+        console.log("DB_MGR: getDeletedNotes found " + deletedNotes.length + " deleted notes.");
+        console.log("TRASH_PAGE: refreshDeletedNotes completed. Count: " + deletedNotes.length);
     }
 
     // Function to show the confirmation dialog dynamically
@@ -107,10 +107,10 @@ Page {
                     // Logic adjusted for TrashPage context
                     if (trashPage.selectedNoteIds.length > 0) {
                         trashPage.selectedNoteIds = []; // Clear selected notes
-                        console.log(qsTr("Selected notes cleared.")); // Added qsTr
+                        console.log("Selected notes cleared.");
                     } else {
                         trashPage.panelOpen = true // Open the side panel
-                        console.log(qsTr("Menu button clicked → panelOpen = true")); // Added qsTr
+                        console.log("Menu button clicked → panelOpen = true");
                     }
                 }
             }
@@ -125,7 +125,7 @@ Page {
         }
         Label {
             id: infoLabel
-            text: qsTr("The notes in the trash get deleted after 30 days")
+            text: qsTr("Notes in trash are deleted after 30 days.")
             font.pixelSize: Theme.fontSizeSmall * 0.9 // Smaller font size
             font.italic: true // Italicized text
             color: Theme.secondaryColor // A subtle color for auxiliary text
@@ -198,7 +198,7 @@ Page {
                         }
                     }
                     trashPage.selectedNoteIds = newSelectedIds;
-                    console.log(qsTr("Selected note IDs after Select All/Deselect All: %1").arg(JSON.stringify(trashPage.selectedNoteIds)));
+                    console.log("Selected note IDs after Select All/Deselect All: " + JSON.stringify(trashPage.selectedNoteIds));
                 }
                 enabled: deletedNotes.length > 0
             }
@@ -224,7 +224,7 @@ Page {
                         }
                     }
                     Label {
-                        text: qsTr("Restore") // Changed from "Restore the note" for consistency with ArchivePage and brevity
+                        text: qsTr("Restore")
                         color: Theme.primaryColor
                         font.pixelSize: Theme.fontSizeSmall
                         horizontalAlignment: Text.AlignHCenter
@@ -240,13 +240,13 @@ Page {
                                 DB.restoreNotes(selectedNoteIds);
                                 refreshDeletedNotes();
                                 toastManager.show(qsTr("%1 note(s) restored!").arg(restoredCount));
-                                console.log(qsTr("%1 note(s) restored from trash.").arg(restoredCount));
+                                console.log(restoredCount + " note(s) restored from trash.");
                             },
                             qsTr("Confirm Restoration"), // Title for restore dialog
                             qsTr("Restore"), // Button text for restore dialog
                             Theme.highlightColor // Highlight color for restore button
                         );
-                        console.log(qsTr("Showing restore confirmation dialog for %1 notes.").arg(selectedNoteIds.length));
+                        console.log("Showing restore confirmation dialog for " + selectedNoteIds.length + " notes.");
                     }
                 }
                 enabled: selectedNoteIds.length > 0
@@ -289,13 +289,13 @@ Page {
                                 DB.permanentlyDeleteNotes(selectedNoteIds);
                                 refreshDeletedNotes();
                                 toastManager.show(qsTr("%1 note(s) permanently deleted!").arg(deletedCount));
-                                console.log(qsTr("%1 note(s) permanently deleted.").arg(deletedCount));
+                                console.log(deletedCount + " note(s) permanently deleted.");
                             },
                             qsTr("Confirm Permanent Deletion"),
                             qsTr("Delete Permanently"), // Changed for clarity, consistent with ArchivePage
                             Theme.errorColor
                         );
-                        console.log(qsTr("Showing permanent delete confirmation dialog for %1 notes.").arg(selectedNoteIds.length));
+                        console.log("Showing permanent delete confirmation dialog for " + selectedNoteIds.length + " notes.");
                     }
                 }
                 enabled: selectedNoteIds.length > 0
@@ -368,11 +368,11 @@ Page {
                                     }
                                 }
                                 selectedNoteIds = selectedNoteIds;
-                                console.log(qsTr("Toggled selection for note ID: %1. Current selected: %2").arg(noteId).arg(JSON.stringify(selectedNoteIds)));
+                                console.log("Toggled selection for note ID: " + noteId + ". Current selected: " + JSON.stringify(selectedNoteIds));
                             }
 
                             onNoteClicked: {
-                                console.log(qsTr("TRASH_PAGE: Opening NotePage for note ID: %1 from Trash.").arg(noteId));
+                                console.log("TRASH_PAGE: Opening NotePage for note ID: " + noteId + " from Trash.");
                                 pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
                                     onNoteSavedOrDeleted: trashPage.refreshDeletedNotes,
                                     noteId: noteId,
@@ -436,6 +436,7 @@ Page {
         dialogMessage: trashPage.confirmDialogMessage
         confirmButtonText: trashPage.confirmButtonText
         confirmButtonHighlightColor: trashPage.confirmButtonHighlightColor
+        dialogBackgroundColor: DB.darkenColor(trashPage.customBackgroundColor, 0.30) // Use DB.darkenColor
 
         // Connect signals from ConfirmDialog back to TrashPage's logic
         onConfirmed: {
@@ -446,7 +447,7 @@ Page {
         }
         onCancelled: {
             trashPage.confirmDialogVisible = false; // Hide the dialog
-            console.log(qsTr("Action cancelled by user.")); // Already has qsTr
+            console.log("Action cancelled by user.");
         }
     }
     Label {
@@ -465,5 +466,8 @@ Page {
         id: sidePanelInstance
         open: trashPage.panelOpen
         onClosed: trashPage.panelOpen = false
+        // Добавлены свойства для цвета боковой панели
+        customBackgroundColor:  DB.darkenColor(trashPage.customBackgroundColor, 0.30)
+        activeSectionColor: trashPage.customBackgroundColor
     }
 }
