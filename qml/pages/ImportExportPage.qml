@@ -40,13 +40,19 @@ Page {
 
             onSelectedContentPropertiesChanged: {
                 if (selectedContentProperties !== null) {
-                    var filePath = "" + selectedContentProperties.filePath;
-                    // Убираем префикс "file://" из пути, если он есть
-                    if (filePath.indexOf("file://") === 0) {
-                        filePath = filePath.substring(7);
+                    // Убедитесь, что эта часть осталась как мы поправили:
+                    // Используем .toString() для явного получения строки из QUrl или аналогичного объекта
+                    var filePathRaw = selectedContentProperties.filePath.toString();
+
+                    // Теперь убираем префикс "file://"
+                    var filePathClean;
+                    if (filePathRaw.indexOf("file://") === 0) {
+                        filePathClean = filePathRaw.substring(7);
+                    } else {
+                        filePathClean = filePathRaw; // Если префикса нет, используем как есть
                     }
-                    // Запускаем импорт с выбранным файлом
-                    importFromFile(filePath);
+                    // Запускаем импорт с очищенным и гарантированно строковым путем
+                    importFromFile(filePathClean); // Передаем уже очищенную строку
                 }
             }
         }
@@ -303,30 +309,34 @@ Page {
     // --- ЛОГИКА ИМПОРТА (без изменений) ---
     function importFromFile(filePath) {
         processInProgress = true;
-        statusText = qsTr("Чтение файла: ") + filePath.split('/').pop();
-        console.log("APP_DEBUG: importFromFile started for path: " + filePath);
+        var absoluteFilePathString = String(filePath); // Оставляем эту строку для надежности
+
+        statusText = qsTr("Чтение файла: ") + absoluteFilePathString.split('/').pop();
+        console.log("APP_DEBUG: importFromFile started for path: " + absoluteFilePathString);
+        console.log("APP_DEBUG: Type of absoluteFilePathString:", typeof absoluteFilePathString); // Оставляем для проверки
 
         if (!DB.db) {
+            console.error("DB_MGR: Database not initialized for importFromFile.");
             statusText = qsTr("Ошибка: База данных не инициализирована для импорта.");
             processInProgress = false;
-            console.error("APP_DEBUG: База данных не инициализирована при попытке импорта.");
             return;
         }
 
         try {
             var fileContent;
+            // ... (код чтения файла, остается без изменений, используйте absoluteFilePathString) ...
             if (typeof FileIO !== 'undefined' && FileIO.read) {
-                fileContent = FileIO.read(filePath);
-                console.log("APP_DEBUG: File read via FileIO: " + filePath);
+                fileContent = FileIO.read(absoluteFilePathString);
+                console.log("APP_DEBUG: File read via FileIO: " + absoluteFilePathString);
             } else {
                 console.warn("APP_DEBUG: FileIO not defined or read method missing, attempting to read via XMLHttpRequest.");
                 var xhr = new XMLHttpRequest();
-                xhr.open("GET", "file://" + filePath, false);
+                xhr.open("GET", "file://" + absoluteFilePathString, false);
                 xhr.send();
 
                 if (xhr.status === 0 || xhr.status === 200) {
                     fileContent = xhr.responseText;
-                    console.log("APP_DEBUG: File read via XMLHttpRequest: " + filePath);
+                    console.log("APP_DEBUG: File read via XMLHttpRequest: " + absoluteFilePathString);
                 } else {
                     statusText = qsTr("Ошибка чтения файла (XHR): ") + xhr.statusText + " (" + xhr.status + ")";
                     console.error("APP_DEBUG: Error reading file via XHR: " + xhr.statusText + " (" + xhr.status + ")");
@@ -335,11 +345,16 @@ Page {
                 }
             }
 
+
             if (fileContent) {
                 var notes;
-                if (filePath.endsWith(".json")) {
+                // --- ИЗМЕНЕНИЕ ЗДЕСЬ: Использование регулярных выражений ---
+                // Проверяем, заканчивается ли строка на ".json"
+                if (/\.json$/.test(absoluteFilePathString)) { // <--- ИЗМЕНЕНО: .json
                     notes = JSON.parse(fileContent);
-                } else if (filePath.endsWith(".csv")) {
+                }
+                // Проверяем, заканчивается ли строка на ".csv"
+                else if (/\.csv$/.test(absoluteFilePathString)) { // <--- ИЗМЕНЕНО: .csv
                     notes = parseCsv(fileContent);
                 } else {
                     statusText = qsTr("Неподдерживаемый формат файла.");
