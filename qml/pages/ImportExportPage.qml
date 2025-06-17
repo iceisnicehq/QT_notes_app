@@ -36,7 +36,7 @@ Page {
 
         FilePickerPage {
             title: qsTr("Выберите файл для импорта")
-            nameFilters: [qsTr("Резервные копии (*.json *.csv)"), qsTr("JSON файлы (*.json)"), qsTr("CSV файлы (*.csv)")]
+            //nameFilters: [qsTr("Резервные копии (*.json *.csv)"), qsTr("JSON файлы (*.json)"), qsTr("CSV файлы (*.csv)")]
 
             onSelectedContentPropertiesChanged: {
                 if (selectedContentProperties !== null) {
@@ -139,7 +139,7 @@ Page {
         // Инициализация базы данных - ТОЛЬКО ЗДЕСЬ!
         // Передаем LocalStorage, который доступен в QML-контексте, в JS-модуль.
         //DB.initDatabase(LocalStorage);
-        DB.initDatabase()
+        DB.initDatabase(LocalStorage)
         // Проверяем, успешно ли инициализировалась база данных
         if (DB.db === null) {
             console.error("APP_DEBUG: DB.db is NULL after initDatabase call! Export/Import will likely fail.");
@@ -206,7 +206,7 @@ Page {
     }
 
     function generateCsv(data) {
-        // ... (ваш код generateCsv без изменений) ...
+
         var headers = ["id", "title", "content", "color", "pinned", "deleted", "archived", "created_at", "updated_at", "tags"];
         var csv = headers.join(",") + "\n";
         var escapeCsvField = function(field) {
