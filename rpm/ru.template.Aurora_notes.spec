@@ -25,7 +25,7 @@ Notes
 %install
 %make_install
 mkdir -p %{buildroot}%{_datadir}/ru.template.Aurora_notes/translations/
-cp %{_builddir}/translations/ru.template.Aurora_notes.qm \
+cp %{_builddir}/translations/ru.template.Aurora_notes-en.qm \
    %{buildroot}%{_datadir}/ru.template.Aurora_notes/translations/
 cp %{_builddir}/translations/ru.template.Aurora_notes-ru.qm \
    %{buildroot}%{_datadir}/ru.template.Aurora_notes/translations/
