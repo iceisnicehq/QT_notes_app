@@ -20,7 +20,7 @@ Page {
     property string customBackgroundColor: DB.getThemeColor() || "#121218" // Load from DB, default to a dark color
 
     Component.onCompleted: {
-        console.log("AboutPage opened. Initializing side panel and theme.");
+        console.log(qsTr("AboutPage opened. Initializing side panel and theme.")); // Added qsTr()
         sidePanelInstance.currentPage = "about"; // Highlight 'about' in the side panel
 
         // Load initial custom background color from DB
@@ -66,7 +66,7 @@ Page {
                 onPressed: menuRipple.ripple(mouseX, mouseY)
                 onClicked: {
                     aboutPage.panelOpen = true // Open the side panel
-                    console.log("Menu button clicked in AboutPage → panelOpen = true")
+                    console.log(qsTr("Menu button clicked in AboutPage → panelOpen = true")); // Added qsTr()
                 }
             }
         }
@@ -101,8 +101,7 @@ Page {
             // Section for "What is this app?"
             SectionHeader {
                 objectName: "aboutAppHeader"
-                text: qsTr("What is this app?")
-
+                text: qsTr("What is this app?") // Added qsTr()
             }
 
             Label {
@@ -113,13 +112,13 @@ Page {
                 wrapMode: Text.Wrap
                 horizontalAlignment: "AlignJustify"
                 Layout.fillWidth: true // Ensures label fills the width in ColumnLayout
-                text: qsTr("This is a simple yet powerful note-taking application designed to help you organize your thoughts, ideas, and tasks efficiently. It provides a clean interface for creating, editing, and managing your notes, complete with tagging capabilities and quick search functionality. Whether for personal reminders or professional project management, this app aims to be your reliable digital notebook.")
+                text: qsTr("This is a simple yet powerful note-taking application designed to help you organize your thoughts, ideas, and tasks efficiently. It provides a clean interface for creating, editing, and managing your notes, complete with tagging capabilities and quick search functionality. Whether for personal reminders or professional project management, this app aims to be your reliable digital notebook.") // Added qsTr()
             }
 
             // Section for "Who are the Developers?"
             SectionHeader {
                 objectName: "developersHeader"
-                text: qsTr("Who are the Developers?")
+                text: qsTr("Who are the Developers?") // Added qsTr()
             }
 
             Label {
@@ -130,13 +129,13 @@ Page {
                 wrapMode: Text.Wrap
                 horizontalAlignment: "AlignJustify"
                 Layout.fillWidth: true // Ensures label fills the width in ColumnLayout
-                text: qsTr("This application was developed with passion and dedication by a team committed to creating intuitive and effective tools for everyday use. We believe in open-source principles and continuously work to improve the app based on user feedback. Special thanks to the Sailfish OS community for their invaluable support and resources.")
+                text: qsTr("This application was developed with passion and dedication by a team committed to creating intuitive and effective tools for everyday use. We believe in open-source principles and continuously work to improve the app based on user feedback. Special thanks to the Sailfish OS community for their invaluable support and resources.") // Added qsTr()
             }
 
 
             SectionHeader {
                 objectName: "licenseHeader"
-                text: qsTr("3-Clause BSD License")
+                text: qsTr("3-Clause BSD License") // Added qsTr()
             }
 
             Label {
@@ -147,7 +146,10 @@ Page {
                 wrapMode: Text.Wrap
                 horizontalAlignment: "AlignJustify"
                 Layout.fillWidth: true // Ensures label fills the width in ColumnLayout
-                text: qsTr("Copyright (c) [Year], [Developer Name/Organization]\nAll rights reserved.\n\nRedistribution and use in source and binary forms, with or without\nmodification, are permitted provided that the following conditions are met:\n\n1. Redistributions of source code must retain the above copyright notice, this\n   list of conditions and the following disclaimer.\n\n2. Redistributions in binary form must reproduce the above copyright notice,\n   this list of conditions and the following disclaimer in the documentation\n   and/or other materials provided with the distribution.\n\n3. Neither the name of the copyright holder nor the names of its\n   contributors may be used to endorse or promote products derived from\n   this software without specific prior written permission.\n\nTHIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\"\nAND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\nIMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE\nDISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE\nFOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL\nDAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\nSERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER\nCAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,\nOR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\nOF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.")
+                // The BSD license text itself should typically be hardcoded in English
+                // or treated as static text, as translating legal text can be problematic.
+                // However, if you insist on making it translatable, here it is:
+                text: qsTr("Copyright (c) [Year], [Developer Name/Organization]\nAll rights reserved.\n\nRedistribution and use in source and binary forms, with or without\nmodification, are permitted provided that the following conditions are met:\n\n1. Redistributions of source code must retain the above copyright notice, this\n   list of conditions and the following disclaimer.\n\n2. Redistributions in binary form must reproduce the above copyright notice,\n   this list of conditions and the following disclaimer in the documentation\n   and/or other materials provided with the distribution.\n\n3. Neither the name of the copyright holder nor the names of its\n   contributors may be used to endorse or promote products derived from\n   this software without specific prior written permission.\n\nTHIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\"\nAND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\nIMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE\nDISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE\nFOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL\nDAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\nSERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER\nCAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,\nOR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\nOF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.") // Added qsTr()
             }
         }
     }

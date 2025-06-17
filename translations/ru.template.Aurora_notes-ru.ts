@@ -4,6 +4,16 @@
 <context>
     <name>AboutPage</name>
     <message>
+        <location filename="../qml/pages/AboutPage.qml" line="23"/>
+        <source>AboutPage opened. Initializing side panel and theme.</source>
+        <translation>Страница &quot;О приложении&quot; открыта. Инициализация боковой панели и темы.</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="69"/>
+        <source>Menu button clicked in AboutPage → panelOpen = true</source>
+        <translation>Нажата кнопка меню на странице &quot;О приложении&quot; → panelOpen = true</translation>
+    </message>
+    <message>
         <location filename="../qml/pages/AboutPage.qml" line="76"/>
         <source>About Application</source>
         <translation>О приложении</translation>
@@ -11,25 +21,25 @@
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="104"/>
         <source>What is this app?</source>
-        <translation type="unfinished"></translation>
+        <translation>Что это за приложение?</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="116"/>
+        <location filename="../qml/pages/AboutPage.qml" line="115"/>
         <source>This is a simple yet powerful note-taking application designed to help you organize your thoughts, ideas, and tasks efficiently. It provides a clean interface for creating, editing, and managing your notes, complete with tagging capabilities and quick search functionality. Whether for personal reminders or professional project management, this app aims to be your reliable digital notebook.</source>
-        <translation type="unfinished"></translation>
+        <translation>Это простое, но мощное приложение для заметок, разработанное, чтобы помочь вам эффективно организовать свои мысли, идеи и задачи. Оно предоставляет чистый интерфейс для создания, редактирования и управления вашими заметками, с возможностями добавления тегов и быстрого поиска. Будь то личные напоминания или профессиональное управление проектами, это приложение призвано стать вашим надежным цифровым блокнотом.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="122"/>
+        <location filename="../qml/pages/AboutPage.qml" line="121"/>
         <source>Who are the Developers?</source>
-        <translation type="unfinished"></translation>
+        <translation>Кто разработчики?</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="133"/>
+        <location filename="../qml/pages/AboutPage.qml" line="132"/>
         <source>This application was developed with passion and dedication by a team committed to creating intuitive and effective tools for everyday use. We believe in open-source principles and continuously work to improve the app based on user feedback. Special thanks to the Sailfish OS community for their invaluable support and resources.</source>
-        <translation type="unfinished"></translation>
+        <translation>Это приложение было разработано с энтузиазмом и самоотверженностью командой, приверженной созданию интуитивно понятных и эффективных инструментов для повседневного использования. Мы верим в принципы открытого исходного кода и постоянно работаем над улучшением приложения на основе отзывов пользователей. Особая благодарность сообществу Sailfish OS за их бесценную поддержку и ресурсы.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="150"/>
+        <location filename="../qml/pages/AboutPage.qml" line="152"/>
         <source>Copyright (c) [Year], [Developer Name/Organization]
 All rights reserved.
 
@@ -57,10 +67,36 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copyright (c) [Год], [Имя Разработчика/Организация]
+Все права защищены.
+
+Распространение и использование в исходной и двоичной формах, с изменениями или без них,
+разрешаются при соблюдении следующих условий:
+
+1. При распространении исходного кода должны сохраняться вышеуказанное уведомление об авторских правах,
+   этот список условий и последующее заявление об отказе от ответственности.
+
+2. При распространении в двоичной форме должны воспроизводиться вышеуказанное уведомление об авторских правах,
+   этот список условий и последующее заявление об отказе от ответственности в документации
+   и/или других материалах, предоставляемых вместе с распространением.
+
+3. Ни название правообладателя, ни имена его
+   участников не могут быть использованы для одобрения или продвижения продуктов, полученных из
+   этого программного обеспечения без специального предварительного письменного разрешения.
+
+ДАННОЕ ПРОГРАММНОЕ ОБЕСПЕЧЕНИЕ ПРЕДОСТАВЛЯЕТСЯ ПРАВООБЛАДАТЕЛЯМИ И УЧАСТНИКАМИ «КАК ЕСТЬ»
+И ЛЮБЫЕ ЯВНЫЕ ИЛИ ПОДРАЗУМЕВАЕМЫЕ ГАРАНТИИ, ВКЛЮЧАЯ, НО НЕ ОГРАНИЧИВАЯСЬ,
+ПОДРАЗУМЕВАЕМЫЕ ГАРАНТИИ ТОВАРНОЙ ПРИГОДНОСТИ И ПРИГОДНОСТИ ДЛЯ ОПРЕДЕЛЕННОЙ ЦЕЛИ,
+ОТКАЗЫВАЮТСЯ. НИ В КОЕМ СЛУЧАЕ ПРАВООБЛАДАТЕЛЬ ИЛИ УЧАСТНИКИ НЕ НЕСУТ ОТВЕТСТВЕННОСТИ
+ЗА ЛЮБЫЕ ПРЯМЫЕ, КОСВЕННЫЕ, СЛУЧАЙНЫЕ, СПЕЦИАЛЬНЫЕ, ПРИМЕРНЫЕ ИЛИ ПОСЛЕДУЮЩИЕ
+УБЫТКИ (ВКЛЮЧАЯ, НО НЕ ОГРАНИЧИВАЯСЬ, ПРИОБРЕТЕНИЕ ЗАМЕНЯЮЩИХ ТОВАРОВ ИЛИ
+УСЛУГ; ПОТЕРЮ ИСПОЛЬЗОВАНИЯ, ДАННЫХ ИЛИ ПРИБЫЛИ; ИЛИ ПРЕРЫВАНИЕ ДЕЯТЕЛЬНОСТИ) НЕЗАВИСИМО ОТ
+ПРИЧИНЫ И НА ЛЮБОЙ ТЕОРИИ ОТВЕТСТВЕННОСТИ, БУДЬ ТО В КОНТРАКТЕ, СТРОГОЙ ОТВЕТСТВЕННОСТИ
+ИЛИ ДЕЛИКТЕ (ВКЛЮЧАЯ НЕБРЕЖНОСТЬ ИЛИ ИНОЕ), ВОЗНИКШИЕ В РЕЗУЛЬТАТЕ ИСПОЛЬЗОВАНИЯ
+ДАННОГО ПРОГРАММНОГО ОБЕСПЕЧЕНИЯ, ДАЖЕ ЕСЛИ БЫЛО СООБЩЕНО О ВОЗМОЖНОСТИ ТАКИХ УБЫТКОВ.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="139"/>
+        <location filename="../qml/pages/AboutPage.qml" line="138"/>
         <source>3-Clause BSD License</source>
         <translation>Лицензия 3-Clause BSD</translation>
     </message>
