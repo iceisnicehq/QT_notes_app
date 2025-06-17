@@ -22,6 +22,12 @@ Item {
     property date noteCreationDate: new Date()
     property date noteEditDate: new Date()
 
+    // NEW: Properties to control the border appearance when selected (now directly used by the Rectangle below)
+    // These properties are still here for compatibility if other parts of your app rely on them,
+    // but the border logic is now primarily handled by states within this component.
+    property color selectedBorderColor: "#00000000" // Default to transparent
+    property int selectedBorderWidth: 0 // Default to no border
+
     // --- Signals ---
     // Signal now implies a request to toggle selection for a given noteId and its *current* state.
     // The parent will then decide the *new* state.
@@ -31,11 +37,41 @@ Item {
 
     // --- UI Components ---
     Rectangle {
+        id: mainCardRectangle // Added ID for clarity when defining states
         anchors.fill: parent
-        color: root.cardColor
+        color: root.cardColor // This keeps the card's original color (not white background)
         radius: 20
+        // Initial default border
         border.color: "#43484e"
         border.width: 1
+
+        // NEW: States for the main card's border based on selection
+        states: [
+            State {
+                name: "selectedCard"
+                when: root.isSelected === true
+                PropertyChanges {
+                    target: mainCardRectangle
+                    border.color: "#FFFFFF" // White border
+                    border.width: 4        // Width 4
+                }
+            },
+            State {
+                name: "deselectedCard"
+                when: root.isSelected === false
+                PropertyChanges {
+                    target: mainCardRectangle
+                    border.color: "#43484e" // Revert to original border color
+                    border.width: 1        // Revert to original border width
+                }
+            }
+        ]
+
+        // Add animations for border changes
+        transitions: Transition {
+            PropertyAnimation { properties: "border.color,border.width"; duration: 150 }
+        }
+
 
         // MouseArea for clicking the entire card (to open NotePage)
         MouseArea {
@@ -68,10 +104,6 @@ Item {
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
-                    // IMPORTANT CHANGE: Do NOT directly set root.isSelected here.
-                    // Instead, emit the signal, and let the parent (TrashPage/UnifiedNotesPage) update its selectedNoteIds list.
-                    // The 'isSelected' property of THIS TrashNoteCard instance will then update automatically
-                    // via its binding in the Repeater, and the visual states will react to that.
                     root.selectionToggled(root.noteId, root.isSelected); // Pass current state to parent
                     console.log("TrashNoteCard (ID:", root.noteId, "): Checkbox click detected. Emitting selectionToggled for ID:", root.noteId, "Current isSelected:", root.isSelected);
                 }
@@ -81,18 +113,14 @@ Item {
             Rectangle {
                 id: visualCheckbox
                 anchors.centerIn: parent
-                //width: Theme.iconSizeSmall
-                //height: width
                 height: 47
                 width: 47
                 radius: 17
 
                 // Default properties for the checkbox (e.g., deselected state visual)
-                // These are the "base" colors that will be overridden by states
-                // Added fallbacks using '?:' operator to prevent 'undefined' errors
                 color: Theme.backgroundColor !== undefined ? Theme.backgroundColor : "#32353a" // Fallback to a dark gray
                 border.color: Theme.secondaryColor !== undefined ? Theme.secondaryColor : "#00bcd4" // Fallback to a teal/cyan
-                border.width: 5
+                border.width: 2 // Reverted to original border width for deselected state
 
                 // Define states for the checkbox based on the isSelected property
                 states: [
@@ -101,8 +129,7 @@ Item {
                         when: root.isSelected === true
                         PropertyChanges {
                             target: visualCheckbox
-                            // Use Theme.secondaryColor if defined, else a default
-                            color: Theme.secondaryColor !== undefined ? Theme.secondaryColor : "#00bcd4" // Fallback to teal/cyan
+                            color: "#FFFFFF" // NEW: Make the checkbox white when selected
                             border.color: "transparent" // No border when selected
                             border.width: 0
                         }
@@ -112,10 +139,8 @@ Item {
                         when: root.isSelected === false
                         PropertyChanges {
                             target: visualCheckbox
-                            // Use Theme.backgroundColor if defined, else a dark gray
-                            color: Theme.backgroundColor !== undefined ? Theme.backgroundColor : "#32353a" // Fallback to dark gray
-                            // Use Theme.secondaryColor if defined, else a default
-                            border.color: Theme.secondaryColor !== undefined ? Theme.secondaryColor : "#00bcd4" // Fallback to teal/cyan
+                            color: Theme.backgroundColor !== undefined ? Theme.backgroundColor : "#32353a"
+                            border.color: Theme.secondaryColor !== undefined ? Theme.secondaryColor : "#00bcd4"
                             border.width: 2
                         }
                     }
@@ -159,7 +184,7 @@ Item {
                 text: (root.content && root.content.trim()) ? root.content : qsTr("Empty")
                 font.italic: !(root.content && root.content.trim())
                 textFormat: Text.PlainText
-                wrapMode: Text.WordWrap
+                wrapMode: Text.Wrap
                 maximumLineCount: 5
                 elide: Text.ElideRight
                 font.pixelSize: Theme.fontSizeSmall

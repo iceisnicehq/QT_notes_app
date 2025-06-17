@@ -823,6 +823,310 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     </message>
 </context>
 <context>
+    <name>ReadOnlyNotePage</name>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="51"/>
+        <source>History auto-saved: &quot;%1&quot; (cursor: %2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="56"/>
+        <source>Initial history state added by timer: &quot;%1&quot; (cursor: %2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="85"/>
+        <source>Added to history: &quot;%1&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="85"/>
+        <source>History size: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="85"/>
+        <source>Current index: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="109"/>
+        <source>NewNotePage opened. ReadOnly mode: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="114"/>
+        <source>NewNotePage opened in EDIT mode for ID: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="115"/>
+        <source>Note color on open: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="121"/>
+        <source>NewNotePage opened in CREATE mode. Default color: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="128"/>
+        <source>Initial history state: Index %1, History: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="134"/>
+        <source>NewNotePage being destroyed. Attempting to save/delete note.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="140"/>
+        <source>Debug: In read-only mode. Skipping save/delete on destruction.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="143"/>
+        <source>Debug: Note already sent to trash/archive. Skipping save/delete on destruction.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="149"/>
+        <source>Debug: Empty existing note permanently deleted with ID: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="152"/>
+        <source>Debug: New empty note not saved.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="161"/>
+        <source>Debug: New note added with ID: %1, Color: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="169"/>
+        <source>Debug: Note updated with ID: %1, Color: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="171"/>
+        <source>Debug: Note with ID: %1 not modified, skipping update.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="226"/>
+        <source>Confirm Deletion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="235"/>
+        <source>Do you want to move this note to the trash?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="248"/>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="353"/>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="252"/>
+        <source>Delete action cancelled by user.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="258"/>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="264"/>
+        <source>Note ID: %1 moved to trash after confirmation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="266"/>
+        <source>Note moved to trash!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="272"/>
+        <source>New unsaved note discarded after confirmation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="331"/>
+        <source>Confirm Archive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="340"/>
+        <source>Do you want to archive this note?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="357"/>
+        <source>Archive action cancelled by user.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="363"/>
+        <source>Archive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="369"/>
+        <source>Note ID: %1 moved to archive after confirmation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="371"/>
+        <source>Note archived!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="377"/>
+        <source>New unsaved note discarded without archiving.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="407"/>
+        <source>New Note</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="407"/>
+        <source>Edit Note</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="416"/>
+        <source>Created: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="422"/>
+        <source>Edited: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="486"/>
+        <source>The note was pinned</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="486"/>
+        <source>The note was unpinned</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="536"/>
+        <source>Change color/theme - toggling panel visibility</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="567"/>
+        <source>Add Tag button clicked. Opening tag selection panel.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="609"/>
+        <source>Undo action triggered!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="617"/>
+        <source>Undo successful!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="644"/>
+        <source>Redo action triggered!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="652"/>
+        <source>Redo successful!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="747"/>
+        <source>Title</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="768"/>
+        <source>Note</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="823"/>
+        <source>Tag clicked for editing: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="843"/>
+        <source>No tags</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="912"/>
+        <source>Select Note Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="1004"/>
+        <source>Tag picker closed by clicking overlay.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="1035"/>
+        <source>Tag selection panel opened. Loading tags and scrolling to top.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="1080"/>
+        <source>TagSelectionPanel: Loaded tags for display in panel. Model items: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="1104"/>
+        <source>Select Tags</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="1169"/>
+        <source>New note&apos;s tags updated directly (new instance assigned): %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="1174"/>
+        <source>Added tag &apos;%1&apos; to note ID %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="1177"/>
+        <source>Removed tag &apos;%1&apos; from note ID %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="1181"/>
+        <source>NewNotePage: main tagsFlow updated after DB change: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="1257"/>
+        <source>Done</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ReadOnlyNotePage.qml" line="1260"/>
+        <source>Tag picker closed by Done button.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>SettingsPage</name>
     <message>
         <location filename="../qml/pages/SettingsPage.qml" line="35"/>
@@ -1088,6 +1392,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     </message>
 </context>
 <context>
+    <name>TrashNoteCard</name>
+    <message>
+        <location filename="../qml/pages/TrashNoteCard.qml" line="173"/>
+        <location filename="../qml/pages/TrashNoteCard.qml" line="184"/>
+        <source>Empty</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>TrashPage</name>
     <message>
         <location filename="../qml/pages/TrashPage.qml" line="121"/>
@@ -1202,6 +1515,94 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     <message>
         <location filename="../qml/pages/TrashPage.qml" line="428"/>
         <source>Trash is empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>trashArchivePage</name>
+    <message>
+        <location filename="../qml/pages/trashArchivePage.qml" line="28"/>
+        <source>UNIFIED_NOTES_PAGE: UnifiedNotesPage opened in %1 mode. Calling refreshNotes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/trashArchivePage.qml" line="35"/>
+        <source>DB_MGR: getDeletedNotes found %1 deleted notes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/trashArchivePage.qml" line="38"/>
+        <source>DB_MGR: getArchivedNotes found %1 archived notes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/trashArchivePage.qml" line="41"/>
+        <source>UNIFIED_NOTES_PAGE: refreshNotes completed for %1. Count: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/trashArchivePage.qml" line="49"/>
+        <source>Trash</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/trashArchivePage.qml" line="49"/>
+        <source>Archive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/trashArchivePage.qml" line="90"/>
+        <source>Selected note IDs after Select All/Deselect All: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/trashArchivePage.qml" line="100"/>
+        <source>Restore</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/trashArchivePage.qml" line="100"/>
+        <source>Unarchive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/trashArchivePage.qml" line="107"/>
+        <source>%1 note(s) restored!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/trashArchivePage.qml" line="108"/>
+        <source>%1 note(s) restored from trash.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/trashArchivePage.qml" line="111"/>
+        <source>%1 note(s) unarchived!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/trashArchivePage.qml" line="112"/>
+        <source>%1 note(s) unarchived.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/trashArchivePage.qml" line="176"/>
+        <source>Toggled selection for note ID: %1. Current selected: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/trashArchivePage.qml" line="180"/>
+        <source>UNIFIED_NOTES_PAGE: Opening NotePage for note ID: %1 from %2.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/trashArchivePage.qml" line="203"/>
+        <source>Trash is empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/trashArchivePage.qml" line="203"/>
+        <source>Archive is empty.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

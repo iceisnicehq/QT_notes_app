@@ -16,6 +16,7 @@ HEADERS += \
 
 DISTFILES += \
     qml/pages/ConfirmationDialog.qml \
+    qml/pages/ExportResultDialog.qml \
     qml/pages/ImportExportPage.qml \
     qml/pages/SettingsPage.qml \
     qml/pages/TrashArchiveNoteCard.qml \

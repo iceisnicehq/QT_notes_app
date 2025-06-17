@@ -1,5 +1,4 @@
 // DatabaseManager.js (UPDATED - LocalStorage passed to initDatabase, with archiveAllNotes, moveAllNotesToTrash, and permanentlyDeleteExpiredDeletedNotes)
-
 var db = null;
 var dbName = "AuroraNotesDB";
 var dbVersion = "1.0";
@@ -796,17 +795,12 @@ function searchNotes(searchText, selectedTagNames) {
             query += 'GROUP BY N.id ';
             havingConditions.push('COUNT(DISTINCT T.id) = ' + selectedTagNames.length);
         }
-
-        // Build HAVING clause
         if (havingConditions.length > 0) {
             query += 'HAVING ' + havingConditions.join(' AND ') + ' ';
         }
-
         query += ' ORDER BY N.updated_at DESC';
-
         console.log("DB_MGR: Executing search query:", query);
         console.log("DB_MGR: With parameters:", params);
-
         var result = tx.executeSql(query, params);
         console.log("DB_MGR: searchNotes found " + result.rows.length + " notes.");
 
@@ -821,11 +815,6 @@ function searchNotes(searchText, selectedTagNames) {
     });
     return notes;
 }
-
-
-// --- NEW BULK FUNCTIONS ---
-
-// Function to bulk move notes to trash
 function bulkMoveToTrash(ids) {
     if (!ids || ids.length === 0) {
         console.warn("DB_MGR: No IDs provided for bulkMoveToTrash.");
@@ -863,18 +852,13 @@ function bulkUnarchiveNotes(ids) {
     if (!db) initDatabase(LocalStorage);
     db.transaction(function(tx) {
         var placeholders = ids.map(function() { return '?'; }).join(',');
-        // Устанавливаем archived = 0 и deleted = 0 для данных ID
         tx.executeSql("UPDATE Notes SET archived = 0, deleted = 0, updated_at = CURRENT_TIMESTAMP WHERE id IN (" + placeholders + ")", ids);
         console.log("DB_MGR: Bulk unarchived notes with IDs:", ids);
     });
 }
-
-// ИСПРАВЛЕНО: Теперь эти функции используют initDatabase() и глобальную переменную db
 function moveNoteFromArchiveToTrash(noteId) {
     if (!db) initDatabase(LocalStorage);
     db.transaction(function(tx) {
-        // Используем correct column names: 'deleted' и 'archived' вместо 'is_deleted'/'is_archived'
-        // и 'updated_at' вместо 'edit_date'
         tx.executeSql(
             'UPDATE Notes SET archived = 0, deleted = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
             [noteId]
@@ -886,12 +870,194 @@ function moveNoteFromArchiveToTrash(noteId) {
 function moveNoteFromTrashToArchive(noteId) {
     if (!db) initDatabase(LocalStorage);
     db.transaction(function(tx) {
-        // Используем correct column names: 'deleted' и 'archived' вместо 'is_deleted'/'is_archived'
-        // и 'updated_at' вместо 'edit_date'
         tx.executeSql(
             'UPDATE Notes SET deleted = 0, archived = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
             [noteId]
         );
         console.log("DB_MGR: Note moved from trash to archive. ID:", noteId);
+    });
+}
+
+
+
+/**
+ * Функция для получения ВСЕХ заметок (включая архивные и удаленные) для полного бэкапа.
+ * Использует промисы для обработки асинхронности.
+ * @returns {Promise<Array>} Промис, который разрешается массивом объектов заметок.
+ */
+function getNotesForExport() {
+    if (!db) {
+        console.error("DB_MGR: База данных не инициализирована для экспорта.");
+        return Promise.reject(new Error("База данных не инициализирована."));
+    }
+
+    // Fixed: Replaced arrow function with traditional 'function'
+    return new Promise(function(resolve, reject) {
+        db.readTransaction(function(tx) {
+            try {
+                var notes = [];
+                // Выбираем все заметки из таблицы
+                var result = tx.executeSql('SELECT * FROM Notes');
+                console.log("DB_MGR: Найдено для экспорта " + result.rows.length + " заметок.");
+
+                for (var i = 0; i < result.rows.length; i++) {
+                    var note = result.rows.item(i);
+                    // Для каждой заметки получаем её теги
+                    note.tags = getTagsForNote(tx, note.id);
+                    notes.push(note);
+                }
+                resolve(notes);
+            } catch (e) {
+                console.error("DB_MGR: Ошибка при получении заметок для экспорта: " + e.message);
+                reject(e);
+            }
+        });
+    });
+}
+
+/**
+ * Функция для добавления импортированной заметки.
+ * Она более сложная, так как должна воссоздать заметку и ее теги.
+ * Она также будет обновлять существующую заметку, если id уже есть в базе.
+ * @param {object} note Объект заметки для импорта.
+ * @param {SQLTransaction} tx Объект транзакции, если функция вызывается внутри существующей транзакции.
+ */
+function addImportedNote(note, tx) {
+    if (!db && !tx) {
+        console.error("DB_MGR: База данных не инициализирована для импорта.");
+        return;
+    }
+
+    // Fixed: Replaced arrow function with traditional 'function'
+    var processNote = function(currentTx) {
+        // Проверяем, существует ли уже заметка с таким ID
+        var existing = currentTx.executeSql('SELECT id FROM Notes WHERE id = ?', [note.id]);
+
+        if (existing.rows.length > 0) {
+            // Если да, то ОБНОВЛЯЕМ её
+            console.log("DB_MGR: Обновление существующей заметки при импорте, ID:", note.id);
+            currentTx.executeSql(
+                'UPDATE Notes SET pinned = ?, title = ?, content = ?, color = ?, created_at = ?, updated_at = ?, deleted = ?, archived = ? WHERE id = ?',
+                [note.pinned, note.title, note.content, note.color, note.created_at, note.updated_at, note.deleted, note.archived, note.id]
+            );
+            // Удаляем старые теги перед добавлением новых
+            currentTx.executeSql('DELETE FROM NoteTags WHERE note_id = ?', [note.id]);
+        } else {
+            // Если нет, то ВСТАВЛЯЕМ новую заметку. Нам нужно временно разрешить вставку ID.
+            console.log("DB_MGR: Вставка новой заметки при импорте, ID:", note.id);
+            currentTx.executeSql(
+                'INSERT INTO Notes (id, pinned, title, content, color, created_at, updated_at, deleted, archived) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                [note.id, note.pinned, note.title, note.content, note.color, note.created_at, note.updated_at, note.deleted, note.archived]
+            );
+        }
+
+        // Добавляем теги для этой заметки (и для новой, и для обновленной)
+        if (note.tags && note.tags.length > 0) {
+            for (var i = 0; i < note.tags.length; i++) {
+                addTagToNoteInternal(currentTx, note.id, note.tags[i]);
+            }
+        }
+    };
+
+    if (tx) {
+        // Если транзакция передана, используем её
+        processNote(tx);
+    } else {
+        // Иначе, выполняем в отдельной транзакции
+        db.transaction(function(newTx) {
+            processNote(newTx);
+        }, function(error) {
+            console.error("DB_MGR: Ошибка при импорте заметки (отдельная транзакция): " + error.message);
+        });
+    }
+}
+
+
+
+
+
+// --- НОВЫЕ ФУНКЦИИ ДЛЯ СТАТИСТИКИ ---
+
+/**
+ * Обновляет дату последнего экспорта в базе данных.
+ */
+function updateLastExportDate() {
+    if (!db) {
+        console.error("DB_MGR: База данных не инициализирована для обновления статистики экспорта.");
+        return;
+    }
+    db.transaction(function(tx) {
+        // Changed: Replaced 'const' with 'var'
+        var now = new Date().toISOString();
+        // Предполагается, что у вас есть таблица для настроек или статистики.
+        // Если нет, нужно будет создать: CREATE TABLE IF NOT EXISTS AppSettings (key TEXT PRIMARY KEY, value TEXT);
+        tx.executeSql(
+            'INSERT OR REPLACE INTO AppSettings (key, value) VALUES (?, ?)',
+            ['lastExportDate', now]
+        );
+        console.log("DB_MGR: Дата последнего экспорта обновлена: " + now);
+    }, function(error) {
+        console.error("DB_MGR: Ошибка при обновлении даты последнего экспорта: " + error.message);
+    });
+}
+
+/**
+ * Обновляет количество экспортированных заметок в базе данных.
+ * @param {number} count Количество заметок, экспортированных за последнюю операцию.
+ */
+function updateNotesExportedCount(count) {
+    if (!db) {
+        console.error("DB_MGR: База данных не инициализирована для обновления статистики экспорта.");
+        return;
+    }
+    db.transaction(function(tx) {
+        tx.executeSql(
+            'INSERT OR REPLACE INTO AppSettings (key, value) VALUES (?, ?)',
+            ['lastExportedNotesCount', count]
+        );
+        console.log("DB_MGR: Количество экспортированных заметок обновлено: " + count);
+    }, function(error) {
+        console.error("DB_MGR: Ошибка при обновлении количества экспортированных заметок: " + error.message);
+    });
+}
+
+/**
+ * Обновляет дату последнего импорта в базе данных.
+ */
+function updateLastImportDate() {
+    if (!db) {
+        console.error("DB_MGR: База данных не инициализирована для обновления статистики импорта.");
+        return;
+    }
+    db.transaction(function(tx) {
+        // Changed: Replaced 'const' with 'var'
+        var now = new Date().toISOString();
+        tx.executeSql(
+            'INSERT OR REPLACE INTO AppSettings (key, value) VALUES (?, ?)',
+            ['lastImportDate', now]
+        );
+        console.log("DB_MGR: Дата последнего импорта обновлена: " + now);
+    }, function(error) {
+        console.error("DB_MGR: Ошибка при обновлении даты последнего импорта: " + error.message);
+    });
+}
+
+/**
+ * Обновляет количество импортированных заметок в базе данных.
+ * @param {number} count Количество заметок, импортированных за последнюю операцию.
+ */
+function updateNotesImportedCount(count) {
+    if (!db) {
+        console.error("DB_MGR: База данных не инициализирована для обновления статистики импорта.");
+        return;
+    }
+    db.transaction(function(tx) {
+        tx.executeSql(
+            'INSERT OR REPLACE INTO AppSettings (key, value) VALUES (?, ?)',
+            ['lastImportedNotesCount', count]
+        );
+        console.log("DB_MGR: Количество импортированных заметок обновлено: " + count);
+    }, function(error) {
+        console.error("DB_MGR: Ошибка при обновлении количества импортированных заметок: " + error.message);
     });
 }
