@@ -255,6 +255,207 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     </message>
 </context>
 <context>
+    <name>ExportResultDialog</name>
+    <message>
+        <location filename="../qml/pages/ExportResultDialog.qml" line="20"/>
+        <source>Экспорт завершен</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ExportResultDialog.qml" line="21"/>
+        <source>Отлично!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ExportResultDialog.qml" line="29"/>
+        <source>Файл: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ExportResultDialog.qml" line="37"/>
+        <source>Путь: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ExportResultDialog.qml" line="47"/>
+        <source>Заметок экспортировано: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ExportResultDialog.qml" line="55"/>
+        <source>Размер файла: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ExportResultDialog.qml" line="59"/>
+        <source>Пример данных:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ImportExportPage</name>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="19"/>
+        <source>Выберите файл для импорта</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="20"/>
+        <source>Резервные копии (*.json *.csv)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="20"/>
+        <source>JSON файлы (*.json)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="20"/>
+        <source>CSV файлы (*.csv)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="50"/>
+        <source>Экспорт заметок</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="54"/>
+        <source>Формат файла</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="58"/>
+        <source>CSV (простая таблица)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="59"/>
+        <source>JSON (рекомендуется)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="66"/>
+        <source>Имя файла</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="67"/>
+        <source>Например, notes_backup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="71"/>
+        <source>Экспортировать все заметки</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="78"/>
+        <source>Импорт заметок</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="84"/>
+        <source>Внимание: импорт перезапишет заметки с одинаковыми ID, если они уже существуют в базе. Теги заметки будут полностью обновлены.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="89"/>
+        <source>Импортировать из файла</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="134"/>
+        <source>Сбор данных для экспорта...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="138"/>
+        <source>Нет заметок для экспорта.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="143"/>
+        <source>Подготовка </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="143"/>
+        <source> заметок...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="157"/>
+        <source>Ошибка экспорта: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="194"/>
+        <source>Сохранение файла...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="217"/>
+        <source>Ошибка сохранения файла: Код </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="227"/>
+        <source>Чтение файла: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="236"/>
+        <source>Анализ данных...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="242"/>
+        <source>Неподдерживаемый формат файла.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="245"/>
+        <source>Найдено </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="245"/>
+        <source> заметок. Запуск импорта...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="251"/>
+        <source>Ошибка транзакции при импорте: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="254"/>
+        <source>Импорт завершен! Обработано: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="254"/>
+        <source> заметок.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="260"/>
+        <source>В файле нет заметок для импорта.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="264"/>
+        <source>Ошибка обработки файла: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="268"/>
+        <source>Ошибка чтения файла: Код </source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MainPage</name>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="60"/>
@@ -1369,7 +1570,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
 <context>
     <name>SidePanel</name>
     <message>
-        <location filename="../qml/pages/SidePanel.qml" line="305"/>
+        <location filename="../qml/pages/SidePanel.qml" line="313"/>
         <source>Navigating to search with tag: %1</source>
         <translation type="unfinished"></translation>
     </message>

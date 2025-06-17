@@ -1,7 +1,8 @@
 // DatabaseManager.js (UPDATED - LocalStorage passed to initDatabase, with archiveAllNotes, moveAllNotesToTrash, and permanentlyDeleteExpiredDeletedNotes)
+
 var db = null;
 var dbName = "AuroraNotesDB";
-var dbVersion = "1.1";
+var dbVersion = "1.0";
 var dbDescription = "Aurora Notes Database";
 var dbSize = 1000000;
 
@@ -795,12 +796,17 @@ function searchNotes(searchText, selectedTagNames) {
             query += 'GROUP BY N.id ';
             havingConditions.push('COUNT(DISTINCT T.id) = ' + selectedTagNames.length);
         }
+
+        // Build HAVING clause
         if (havingConditions.length > 0) {
             query += 'HAVING ' + havingConditions.join(' AND ') + ' ';
         }
+
         query += ' ORDER BY N.updated_at DESC';
+
         console.log("DB_MGR: Executing search query:", query);
         console.log("DB_MGR: With parameters:", params);
+
         var result = tx.executeSql(query, params);
         console.log("DB_MGR: searchNotes found " + result.rows.length + " notes.");
 
@@ -815,6 +821,11 @@ function searchNotes(searchText, selectedTagNames) {
     });
     return notes;
 }
+
+
+// --- NEW BULK FUNCTIONS ---
+
+// Function to bulk move notes to trash
 function bulkMoveToTrash(ids) {
     if (!ids || ids.length === 0) {
         console.warn("DB_MGR: No IDs provided for bulkMoveToTrash.");
@@ -852,13 +863,18 @@ function bulkUnarchiveNotes(ids) {
     if (!db) initDatabase(LocalStorage);
     db.transaction(function(tx) {
         var placeholders = ids.map(function() { return '?'; }).join(',');
+        // Устанавливаем archived = 0 и deleted = 0 для данных ID
         tx.executeSql("UPDATE Notes SET archived = 0, deleted = 0, updated_at = CURRENT_TIMESTAMP WHERE id IN (" + placeholders + ")", ids);
         console.log("DB_MGR: Bulk unarchived notes with IDs:", ids);
     });
 }
+
+// ИСПРАВЛЕНО: Теперь эти функции используют initDatabase() и глобальную переменную db
 function moveNoteFromArchiveToTrash(noteId) {
     if (!db) initDatabase(LocalStorage);
     db.transaction(function(tx) {
+        // Используем correct column names: 'deleted' и 'archived' вместо 'is_deleted'/'is_archived'
+        // и 'updated_at' вместо 'edit_date'
         tx.executeSql(
             'UPDATE Notes SET archived = 0, deleted = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
             [noteId]
@@ -870,6 +886,8 @@ function moveNoteFromArchiveToTrash(noteId) {
 function moveNoteFromTrashToArchive(noteId) {
     if (!db) initDatabase(LocalStorage);
     db.transaction(function(tx) {
+        // Используем correct column names: 'deleted' и 'archived' вместо 'is_deleted'/'is_archived'
+        // и 'updated_at' вместо 'edit_date'
         tx.executeSql(
             'UPDATE Notes SET deleted = 0, archived = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
             [noteId]
@@ -880,38 +898,46 @@ function moveNoteFromTrashToArchive(noteId) {
 
 
 
+
+
 /**
  * Функция для получения ВСЕХ заметок (включая архивные и удаленные) для полного бэкапа.
- * Использует промисы для обработки асинхронности.
- * @returns {Promise<Array>} Промис, который разрешается массивом объектов заметок.
+ * ИСПОЛЬЗУЕТ КОЛБЭКИ для обработки асинхронности, а не промисы.
+ * @param {function(Array)} onSuccess - Колбэк, вызываемый при успехе с массивом заметок.
+ * @param {function(Error)} onError - Колбэк, вызываемый при ошибке.
  */
-function getNotesForExport() {
+function getNotesForExport(onSuccess, onError) {
     if (!db) {
-        console.error("DB_MGR: База данных не инициализирована для экспорта.");
-        return Promise.reject(new Error("База данных не инициализирована."));
+        var error = new Error("База данных не инициализирована.");
+        console.error("DB_MGR: " + error.message + " (для экспорта)");
+        if (onError) {
+            onError(error);
+        }
+        return;
     }
 
-    // Fixed: Replaced arrow function with traditional 'function'
-    return new Promise(function(resolve, reject) {
-        db.readTransaction(function(tx) {
-            try {
-                var notes = [];
-                // Выбираем все заметки из таблицы
-                var result = tx.executeSql('SELECT * FROM Notes');
-                console.log("DB_MGR: Найдено для экспорта " + result.rows.length + " заметок.");
+    db.readTransaction(function(tx) {
+        try {
+            var notes = [];
+            var result = tx.executeSql('SELECT * FROM Notes');
+            console.log("DB_MGR: Найдено для экспорта " + result.rows.length + " заметок.");
 
-                for (var i = 0; i < result.rows.length; i++) {
-                    var note = result.rows.item(i);
-                    // Для каждой заметки получаем её теги
-                    note.tags = getTagsForNote(tx, note.id);
-                    notes.push(note);
-                }
-                resolve(notes);
-            } catch (e) {
-                console.error("DB_MGR: Ошибка при получении заметок для экспорта: " + e.message);
-                reject(e);
+            for (var i = 0; i < result.rows.length; i++) {
+                var note = result.rows.item(i);
+                // Предполагается, что getTagsForNote - синхронная функция внутри транзакции
+                note.tags = getTagsForNote(tx, note.id);
+                notes.push(note);
             }
-        });
+
+            if (onSuccess) {
+                onSuccess(notes);
+            }
+        } catch (e) {
+            console.error("DB_MGR: Ошибка при получении заметок для экспорта: " + e.message);
+            if (onError) {
+                onError(e);
+            }
+        }
     });
 }
 
@@ -971,6 +997,7 @@ function addImportedNote(note, tx) {
         });
     }
 }
+
 
 
 

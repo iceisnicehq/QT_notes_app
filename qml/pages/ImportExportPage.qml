@@ -128,35 +128,39 @@ Page {
         exportFormatCombo.currentIndexChanged.connect(updateFileName);
     }
 
-    // --- ЛОГИКА ЭКСПОРТА (ИЗМЕНЕНА) ---
+    // --- ЛОГИКА ЭКСПОРТА (ПЕРЕПИСАНА ПОД КОЛБЭКИ) ---
     function exportData() {
         processInProgress = true;
         statusText = qsTr("Сбор данных для экспорта...");
 
-        DB.getNotesForExport().then(function(notes) {
-            if (!notes || notes.length === 0) {
-                statusText = qsTr("Нет заметок для экспорта.");
+        // Вызываем функцию с двумя колбэками: для успеха и для ошибки
+        DB.getNotesForExport(
+            // 1. Функция, которая выполнится при успехе
+            function(notes) {
+                if (!notes || notes.length === 0) {
+                    statusText = qsTr("Нет заметок для экспорта.");
+                    processInProgress = false;
+                    return;
+                }
+
+                statusText = qsTr("Подготовка ") + notes.length + qsTr(" заметок...");
+                var generatedData;
+                if (exportFormatCombo.currentIndex === 0) { // CSV
+                    generatedData = generateCsv(notes);
+                } else { // JSON
+                    generatedData = generateJson(notes);
+                }
+
+                var documentsPath = StandardPaths.writableLocation(StandardPaths.DocumentsLocation);
+                var finalPath = documentsPath + "/" + fileNameField.text;
+                writeToFile(finalPath, generatedData);
+            },
+            // 2. Функция, которая выполнится при ошибке
+            function(error) {
+                statusText = qsTr("Ошибка экспорта: ") + error.message;
                 processInProgress = false;
-                return;
             }
-
-            statusText = qsTr("Подготовка ") + notes.length + qsTr(" заметок...");
-            var generatedData;
-            if (exportFormatCombo.currentIndex === 0) { // CSV
-                generatedData = generateCsv(notes);
-            } else { // JSON
-                generatedData = generateJson(notes);
-            }
-
-            // Сохраняем файл напрямую, без диалога выбора пути
-            var documentsPath = StandardPaths.writableLocation(StandardPaths.DocumentsLocation);
-            var finalPath = documentsPath + "/" + fileNameField.text;
-            writeToFile(finalPath, generatedData);
-
-        }).catch(function(error) {
-            statusText = qsTr("Ошибка экспорта: ") + error.message;
-            processInProgress = false;
-        });
+        );
     }
 
     // --- Остальные функции остаются без изменений ---
