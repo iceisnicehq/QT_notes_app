@@ -9,7 +9,10 @@ import "DatabaseManager.js" as DB
 Page {
     id: archivePage
     objectName: "archivePage" // Added objectName for easier pageStack checks in SidePanel
-    backgroundColor: Theme.backgroundColor !== undefined ? Theme.backgroundColor : "#121218"
+    backgroundColor: archivePage.customBackgroundColor !== undefined ? archivePage.customBackgroundColor : "#121218" // Fallback to Theme.backgroundColor if custom is not set
+
+    // Property to hold the currently selected custom background color
+    property string customBackgroundColor: DB.getThemeColor() || "#121218" // Load from DB, default to a dark color if not found    showNavigationIndicator: false
     showNavigationIndicator: false
     property int noteMargin: 20
 

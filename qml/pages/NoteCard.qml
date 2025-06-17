@@ -1,6 +1,9 @@
 // NoteCard.qml
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import QtQuick.LocalStorage 2.0
+import "Database.js" as Data // Assuming this contains DB initialization
+import "DatabaseManager.js" as DB // Assuming this contains actual DB operations like getAllNotes, searchNotes, etc.
 
 Item {
     id: root
@@ -10,8 +13,8 @@ Item {
     property string title: ""
     property string content: ""
     property var tags: [] // This property receives a string like "tag1 tag2" or ""
-    property string cardColor: "#1c1d29" // ADDED: New property for card background color, default to a neutral grey
-
+    property string cardColor: DB.getThemeColor() || "#121218" // ADDED: New property for card background color, default to a neutral grey
+    property string borderColor:  DB.getLighterColor(root.cardColor)
     // --- NEW PROPERTIES FOR SELECTION AND NAVIGATION DATA ---
     property int noteId: -1 // To identify the note for selection
     property bool isSelected: false // Controls the visual selection state
@@ -29,7 +32,6 @@ Item {
     property bool pressActive: false // Tracks if a mouse press is currently active
     property int pressX: 0 // Stores initial press X coordinate
     property int pressY: 0 // Stores initial press Y coordinate
-
     // Timer for detecting a long press
     Timer {
         id: longPressTimer
@@ -68,7 +70,7 @@ Item {
         // MODIFIED: Use cardColor for the background
         color: root.cardColor // Use the new property for background color
         radius: 20
-        border.color: root.isSelected ? "white" : "#43484e" // White border if selected, otherwise original border
+        border.color: root.isSelected ? "white" : root.borderColor // White border if selected, otherwise original border
         // FIXED: Hardcoded border width to ensure visibility and rule out TypeError from Theme.borderWidthLarge
         border.width: root.isSelected ? 4 : 2 // Increased selected width significantly for immediate visibility
         anchors.bottomMargin: 20 // This margin affects the root Item's height

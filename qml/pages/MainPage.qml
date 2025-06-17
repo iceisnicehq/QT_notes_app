@@ -11,7 +11,10 @@ Page {
     id: mainPage
     objectName: "mainPage"
     allowedOrientations: Orientation.All
-    backgroundColor: "#121218" // Main page background color
+    backgroundColor: mainPage.customBackgroundColor !== undefined ? mainPage.customBackgroundColor : "#121218" // Fallback to Theme.backgroundColor if custom is not set
+
+    // Property to hold the currently selected custom background color
+    property string customBackgroundColor: DB.getThemeColor() || "#121218" // Load from DB, default to a dark color if not found
     showNavigationIndicator: false
     property int noteMargin: 20
 
@@ -564,7 +567,7 @@ Page {
         width: Theme.itemSizeLarge
         height: Theme.itemSizeLarge
         radius: width / 2
-        color: Theme.highlightColor
+        color:  DB.getLighterColor(mainPage.customBackgroundColor)
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         anchors.rightMargin: Theme.paddingLarge * 2
@@ -607,11 +610,12 @@ Page {
             height: parent.height * 0.5
         }
 
-        RippleEffect {}
+        RippleEffect { id: plusButtonRipple }
 
         MouseArea {
             anchors.fill: parent
             enabled: fabButton.visible // Enable/disable based on fabButton's visible property
+            onPressed: plusButtonRipple.ripple(mouseX, mouseY)
             onClicked: {
                 pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
                     onNoteSavedOrDeleted: refreshData,
@@ -622,7 +626,8 @@ Page {
                     noteTags: "", // Pass empty string for new note tags
                     noteCreationDate: new Date(),
                     noteEditDate: new Date(),
-                    noteColor: "#121218"
+                    noteColor: DB.getThemeColor() || "#121218" // Load from DB, default to a dark color if not found    showNavigationIndicator: false
+
                 });
                 console.log("Opening NewNotePage in CREATE mode (from FAB).");
                 Qt.inputMethod.hide();

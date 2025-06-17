@@ -16,7 +16,8 @@ Item { // Changed from Rectangle to Item as it's a better base for components th
     property string title: ""
     property string content: ""
     property string tags: ""
-    property string cardColor: "#1c1d29"
+    property string cardColor: DB.getThemeColor() || "#121218" // ADDED: New property for card background color, default to a neutral grey
+    property string borderColor:  DB.getLighterColor(root.cardColor)
     // isSelected property will be driven *only* by the parent (e.g., TrashPage or UnifiedNotesPage)
     property bool isSelected: false
     property int noteId: -1
@@ -49,8 +50,8 @@ Item { // Changed from Rectangle to Item as it's a better base for components th
         color: root.cardColor
         radius: 20
         // Initial default border
-        border.color: "#43484e"
-        border.width: 1
+        border.color: root.borderColor
+        border.width: 2
 
         // States for the main card's border based on selection
         states: [
@@ -68,8 +69,8 @@ Item { // Changed from Rectangle to Item as it's a better base for components th
                 when: root.isSelected === false
                 PropertyChanges {
                     target: mainCardRectangle
-                    border.color: "#43484e" // Revert to original border color
-                    border.width: 1        // Revert to original border width
+                    border.color: root.borderColor // Revert to original border color
+                    border.width: 2        // Revert to original border width
                 }
             }
         ]

@@ -165,6 +165,86 @@ function getThemeColor() {
     if (!db) initDatabase(LocalStorage); // Attempt to initialize if not already, though primary init is in QML
     return getSetting('themeColor');
 }
+function getLighterColor(hex) {
+    if (!hex || typeof hex !== 'string' || hex.length !== 7 || hex[0] !== '#') {
+        console.warn("Invalid color format passed to getBorderColor:", hex);
+        return "#606060"; // Default border color for invalid input
+    }
+
+    // Remove '#'
+    hex = hex.substring(1);
+
+    // Parse R, G, B values
+    var r = parseInt(hex.substring(0, 2), 16);
+    var g = parseInt(hex.substring(2, 4), 16);
+    var b = parseInt(hex.substring(4, 6), 16);
+
+    // Calculate luminance (perceived brightness) to determine if background is dark or light
+    // Formula: L = 0.299*R + 0.587*G + 0.114*B (standard for sRGB)
+    var luminance = (0.299 * r + 0.587 * g + 0.114 * b);
+
+    var newR, newG, newB;
+    var lightenAmount = 70; // Amount to increase RGB components to lighten a color
+    var darkenAmount = 50; // Amount to decrease RGB components to darken a color
+
+    if (luminance < 128) {
+        // Background is dark, make the border a lighter version of it
+        newR = Math.min(255, r + lightenAmount);
+        newG = Math.min(255, g + lightenAmount);
+        newB = Math.min(255, b + lightenAmount);
+    } else {
+        // Background is light. Making it "lighter" won't give contrast.
+        // Instead, provide a darker, contrasting border.
+        newR = Math.max(0, r - darkenAmount);
+        newG = Math.max(0, g - darkenAmount);
+        newB = Math.max(0, b - darkenAmount);
+    }
+
+    // Convert back to hex string and ensure two digits for each component
+    var resultHex = "#" +
+                    ("00" + newR.toString(16)).slice(-2).toUpperCase() +
+                    ("00" + newG.toString(16)).slice(-2).toUpperCase() +
+                    ("00" + newB.toString(16)).slice(-2).toUpperCase();
+
+    return resultHex;
+}
+
+function darkenColor(hex, percentage) {
+    // --- ПРЕДУПРЕЖДЕНИЯ (W) unknown:258, W] unknown:419 могут быть здесь, если hex undefined ---
+    // Убедитесь, что hex инициализирован до вызова darkenColor
+    if (!hex || typeof hex !== 'string' || hex.length !== 7 || hex[0] !== '#') {
+        console.warn("Invalid color format passed to darkenColor:", hex);
+        return "#000000"; // Fallback to black
+    }
+
+    var r = parseInt(hex.substring(1, 3), 16);
+    var g = parseInt(hex.substring(3, 5), 16);
+    var b = parseInt(hex.substring(5, 7), 16);
+
+    if (percentage < 0) {
+        // Lighten the color: move towards white (255)
+        var absPercentage = Math.abs(percentage);
+        r = Math.round(r + (255 - r) * absPercentage);
+        g = Math.round(g + (255 - g) * absPercentage);
+        b = Math.round(b + (255 - b) * absPercentage);
+    } else {
+        // Darken the color: move towards black (0)
+        r = Math.round(r * (1 - percentage));
+        g = Math.round(g * (1 - percentage));
+        b = Math.round(b * (1 - percentage));
+    }
+
+    // Ensure RGB values stay within the valid range [0, 255]
+    r = Math.max(0, Math.min(255, r));
+    g = Math.max(0, Math.min(255, g));
+    b = Math.max(0, Math.min(255, b));
+
+    // Convert back to hex string and ensure two digits for each component
+    var result = "#" +
+                 ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    return result;
+}
+
 
 function setThemeColor(color) {
     if (!db) initDatabase(LocalStorage);

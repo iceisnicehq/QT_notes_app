@@ -173,26 +173,7 @@ Page {
     readonly property var colorPalette: ["#121218", "#1c1d29", "#3a2c2c", "#2c3a2c", "#2c2c3a", "#3a3a2c",
         "#43484e", "#5c4b37", "#3e4a52", "#503232", "#325032", "#323250"]
     // Function to darken a given hex color by a percentage
-    function darkenColor(hex, percentage) {
-        // --- ПРЕДУПРЕЖДЕНИЯ (W) unknown:258, W] unknown:419 могут быть здесь, если hex undefined ---
-        // Убедитесь, что noteColor инициализирован до вызова darkenColor
-        if (!hex || typeof hex !== 'string' || hex.length !== 7 || hex[0] !== '#') {
-            console.warn("Invalid color format passed to darkenColor:", hex);
-            return "#000000"; // Fallback to black
-        }
-        var r = parseInt(hex.substring(1, 3), 16);
-        var g = parseInt(hex.substring(3, 5), 16);
-        var b = parseInt(hex.substring(5, 7), 16);
 
-        r = Math.round(r * (1 - percentage));
-        g = Math.round(g * (1 - percentage));
-        b = Math.max(0, Math.min(255, b));
-
-        // Convert back to hex string and ensure two digits for each component
-        var result = "#" +
-                     ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-        return result;
-    }
 
     // Actions on component completion (when page is loaded)
     Component.onCompleted: {
@@ -1096,7 +1077,7 @@ Page {
         id: tagSelectionPanel
         width: parent.width // Panel width matches parent
         height: parent.height * 0.53 // Fixed height as per the desired layout
-        color: newNotePage.darkenColor(newNotePage.noteColor, 0.15) // Darker version of note color
+        color: DB.darkenColor(newNotePage.noteColor, 0.15) // Darker version of note color
         radius: 15 // Rounded corners
         anchors.horizontalCenter: parent.horizontalCenter // Centers horizontally
         anchors.bottom: bottomToolbar.bottom // Anchors to the bottom of the parent (above keyboard)
@@ -1218,7 +1199,7 @@ Page {
                 width: parent.width
                 height: Theme.itemSizeMedium // Standard header height
                 // Color now dynamically darkened version of note's color
-                color: newNotePage.darkenColor(newNotePage.noteColor, 0.15) // Darker version of note color
+                color: DB.darkenColor(newNotePage.noteColor, 0.15) // Darker version of note color
                 anchors.top: parent.top
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.leftMargin: Theme.paddingLarge // Horizontal padding for content within header
@@ -1312,7 +1293,7 @@ Page {
                         clip: true
                         // Dynamic background color based on checked state
                         // Selected tag uses the note's color, unselected uses a standard darker shade
-                        color: model.isChecked ? newNotePage.noteColor : newNotePage.darkenColor(newNotePage.noteColor, 0.25) // New styling colors
+                        color: model.isChecked ? newNotePage.noteColor : DB.darkenColor(newNotePage.noteColor, 0.25) // New styling colors
 
                         // Ripple effect for visual feedback on touch/click
                         RippleEffect { id: tagPanelDelegateRipple }
@@ -1456,7 +1437,7 @@ Page {
         confirmButtonText: newNotePage.confirmButtonText
         confirmButtonHighlightColor: newNotePage.confirmButtonHighlightColor
         // Pass the dynamically darkened note color for the dialog background
-        dialogBackgroundColor: newNotePage.darkenColor(newNotePage.noteColor, 0.15)
+        dialogBackgroundColor: DB.darkenColor(newNotePage.noteColor, 0.15)
 
         // Connect signals from ConfirmDialog back to newNotePage's logic
         onConfirmed: {

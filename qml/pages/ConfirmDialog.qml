@@ -2,6 +2,8 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.Layouts 1.1
+import QtQuick.LocalStorage 2.0
+import "DatabaseManager.js" as DB
 
 Item {
     id: confirmDialog
@@ -12,7 +14,7 @@ Item {
     property string confirmButtonText: qsTr("Confirm")
     property color confirmButtonHighlightColor: Theme.highlightColor
     // NEW: Customizable background color for the dialog, with a default
-    property color dialogBackgroundColor: "#1c1d29"
+    property color dialogBackgroundColor: DB.darkenColor(DB.getThemeColor(), 0.30)
 
     // Signals to communicate user's action back to the parent
     signal confirmed()
@@ -83,7 +85,7 @@ Item {
                 font.pixelSize: Theme.fontSizeLarge
                 font.bold: true
                 horizontalAlignment: Text.AlignHCenter
-                color: Theme.highlightColor
+                color: "white"
                 wrapMode: Text.WordWrap
             }
 

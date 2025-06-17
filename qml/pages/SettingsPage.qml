@@ -10,7 +10,7 @@ Page {
     id: settingsPage
     // The background color will dynamically adapt based on the active theme
     // It will now primarily be driven by customBackgroundColor or default
-    backgroundColor: settingsPage.customBackgroundColor !== undefined ? settingsPage.customBackgroundColor : Theme.backgroundColor // Fallback to Theme.backgroundColor if custom is not set
+    backgroundColor: settingsPage.customBackgroundColor !== undefined ? settingsPage.customBackgroundColor : "#121218" // Fallback to Theme.backgroundColor if custom is not set
     showNavigationIndicator: false
 
     // Property to control side panel visibility, similar to ArchivePage
@@ -676,7 +676,7 @@ Page {
         dialogMessage: settingsPage.confirmDialogMessage
         confirmButtonText: settingsPage.confirmButtonText
         confirmButtonHighlightColor: settingsPage.confirmButtonHighlightColor
-
+        dialogBackgroundColor: DB.darkenColor(settingsPage.customBackgroundColor, 0.30)
         // Connect signals from ConfirmDialog back to settingsPage's logic
         onConfirmed: {
             if (settingsPage.onConfirmCallback) {
@@ -695,5 +695,6 @@ Page {
         open: settingsPage.panelOpen
         onClosed: settingsPage.panelOpen = false
         Component.onCompleted: sidePanelInstance.currentPage = "settings";
+        customBackgroundColor:  DB.darkenColor(settingsPage.customBackgroundColor, 0.30)
     }
 }

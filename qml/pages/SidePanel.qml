@@ -10,7 +10,7 @@ Item {
     z: 1000 // Ensure it's on top of everything
     visible: opacity > 0
     opacity: open ? 1 : 0
-
+    property string customBackgroundColor:  DB.darkenColor(DB.getThemeColor(), 0.30)
     property bool open: false
     property string currentPage: "notes"
     // tags property now holds objects with name and count
@@ -80,7 +80,7 @@ Item {
         id: panelContent
         width: parent.width * 0.75
         height: parent.height
-        color: "#121218" // старый #1c1d29
+        color: sidePanel.customBackgroundColor // старый #1c1d29
         x: open ? 0 : -width
 
         Behavior on x {
