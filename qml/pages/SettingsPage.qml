@@ -408,6 +408,7 @@ Page {
                             qsTr("Archive All"),
                             Theme.highlightColor
                         );
+
                     }
                 }
 
@@ -500,6 +501,7 @@ Page {
             if (settingsPage.onConfirmCallback) {
                 settingsPage.onConfirmCallback(); // Execute the stored callback
             }
+
             settingsPage.confirmDialogVisible = false; // Hide the dialog after confirmation
         }
         onCancelled: {

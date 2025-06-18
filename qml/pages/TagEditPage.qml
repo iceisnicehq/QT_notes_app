@@ -67,6 +67,18 @@ Page {
             }
         }
     }
+    Label {
+        id: noTagsLabel
+        width: parent.width
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
+        text: qsTr("You have no tags.\nYou can create one!")
+        font.italic: true
+        color: Theme.secondaryColor
+        font.pixelSize: Theme.fontSizeSmall
+        anchors.centerIn: parent
+        visible: allTags.length === 0
+    }
 
     // Header Area - Positioned above the Flickable
     Item {

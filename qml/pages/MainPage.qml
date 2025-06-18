@@ -175,7 +175,18 @@ Page {
         if (pinnedNotes) pinnedNotes.forceLayout();
         if (otherNotes) otherNotes.forceLayout();
     }
-
+    Label {
+        id: noNotesLabel
+        width: parent.width
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
+        text: qsTr("You have no notes.\nClick on the plus button to create one!")
+        font.italic: true
+        color: Theme.secondaryColor
+        font.pixelSize: Theme.fontSizeSmall
+        anchors.centerIn: parent
+        visible: allNotes.length === 0
+    }
 
     // Wrapper for the search bar and selection toolbar
     Column {
@@ -918,6 +929,23 @@ Page {
                     }
                     anchors.bottom: parent.bottom
                     anchors.bottomMargin: Theme.paddingLarge // Space from the bottom of the panel.
+                    visible: allTags.length !== 0
+                }
+                Button {
+                    id: createTagButton
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: qsTr("Create") // Localized text for the button.
+                    onClicked: {
+                        mainPage.tagPickerOpen = false; // Close the tag picker panel.
+                        pageStack.push(Qt.resolvedUrl("TagEditPage.qml"), {
+                                onTagsChanged: mainPage.refreshData, // Pass callback
+                                creatingNewTag: true // Optionally start directly in new tag creation mode
+                                });
+                        console.log(("MAIN_PAGE: Tag creation page opened by button."));
+                    }
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: Theme.paddingLarge // Space from the bottom of the panel.
+                    visible: allTags.length === 0
                 }
             }
             Label {
@@ -931,6 +959,18 @@ Page {
                 font.pixelSize: Theme.fontSizeSmall
                 anchors.centerIn: parent // Center within the flickable
                 visible: availableTagsModel.count === 0 && tagPickerPanel.tagPickerSearchText !== ""
+            }
+            Label {
+                id: noTagsLabel
+                width: parent.width
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                text: qsTr("You have no tags.\nGo to edit tags page to create one!")
+                font.italic: true
+                color: Theme.secondaryColor
+                font.pixelSize: Theme.fontSizeSmall
+                anchors.centerIn: parent
+                visible: allTags.length === 0
             }
         }
     // --- Integrated Generic Confirmation Dialog ---

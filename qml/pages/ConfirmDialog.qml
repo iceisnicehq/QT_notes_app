@@ -13,7 +13,7 @@ Item {
     property string dialogMessage: ""
     property string confirmButtonText: qsTr("Confirm")
     property color confirmButtonHighlightColor: Theme.highlightColor
-    // NEW: Customizable background color for the dialog, with a default
+    // Customizable background color for the dialog, with a default
     property color dialogBackgroundColor: DB.darkenColor(DB.getThemeColor(), 0.30)
 
     // Signals to communicate user's action back to the parent
@@ -28,6 +28,7 @@ Item {
 
     // Background overlay for dimming effect
     Rectangle {
+        id: overlayRect
         anchors.fill: parent // This will now fill the entire 'confirmDialog' Item
         color: "#000000"
         opacity: 0 // Start hidden
@@ -35,6 +36,18 @@ Item {
 
         // Animate opacity when confirmDialog.dialogVisible changes
         onVisibleChanged: opacity = confirmDialog.dialogVisible ? 0.5 : 0
+
+        // MouseArea to handle clicks on the darkened overlay
+        MouseArea {
+            anchors.fill: parent
+            // IMPORTANT: Propagate clicks only if the dialog is not visible
+            // This ensures clicks on the dimmed area close the dialog, but not when it's hidden
+            enabled: confirmDialog.dialogVisible
+            onClicked: {
+                // If the user clicks on the darkened area, we treat it as a cancellation
+                confirmDialog.cancelled()
+            }
+        }
     }
 
     // Actual dialog box (background, rounded corners, centering, scale animation)
@@ -76,7 +89,8 @@ Item {
             width: parent.width - (Theme.paddingLarge * 2) // Fill dialogBody's width minus its own padding
             anchors.horizontalCenter: parent.horizontalCenter // Center content within dialogBody
             spacing: Theme.paddingMedium
-          //  padding: Theme.paddingLarge // Apply padding directly to the ColumnLayout for its children
+            // Padding property removed from ColumnLayout as it's often better controlled
+            // by sizing the ColumnLayout relative to its parent's padding, as done here.
 
             // Labels for title and message
             Label {

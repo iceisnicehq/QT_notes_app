@@ -385,288 +385,293 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
 <context>
     <name>ImportExportPage</name>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="29"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="31"/>
         <source>APP_DEBUG: Documents path is: </source>
         <translation>APP_DEBUG: Путь к документам: </translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="38"/>
-        <source>Выберите файл для импорта</source>
-        <translation>Выберите файл для импорта</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="73"/>
-        <source>Экспорт заметок</source>
-        <translation>Экспорт заметок</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="77"/>
-        <source>Формат файла</source>
-        <translation>Формат файла</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="81"/>
-        <source>CSV (простая таблица)</source>
-        <translation>CSV (простая таблица)</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="82"/>
-        <source>JSON (рекомендуется)</source>
-        <translation>JSON (рекомендуется)</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="89"/>
-        <source>Имя файла</source>
-        <translation>Имя файла</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="90"/>
-        <source>Например, notes_backup</source>
-        <translation>Например, notes_backup</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="94"/>
-        <source>Экспортировать все заметки</source>
-        <translation>Экспортировать все заметки</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="101"/>
-        <source>Импорт заметок</source>
-        <translation>Импорт заметок</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="107"/>
-        <source>Внимание: импорт перезапишет заметки с одинаковыми ID, если они уже существуют в базе. Теги заметки будут полностью обновлены.</source>
-        <translation>Внимание: импорт перезапишет заметки с одинаковыми ID, если они уже существуют в базе. Теги заметки будут полностью обновлены.</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="112"/>
-        <source>Импортировать из файла</source>
-        <translation>Импортировать из файла</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="141"/>
-        <source>Вернуться на главную</source>
-        <translation>Вернуться на главную</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="154"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="233"/>
         <source>APP_DEBUG: Export/Import Page: Component.onCompleted started.</source>
         <translation>APP_DEBUG: Страница экспорта/импорта: Component.onCompleted запущена.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="161"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="240"/>
         <source>APP_DEBUG: DB.db is NULL after initDatabase call! Export/Import will likely fail.</source>
         <translation>APP_DEBUG: DB.db равен NULL после вызова initDatabase! Экспорт/импорт, вероятно, завершится неудачей.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="162"/>
-        <source>Ошибка: База данных не инициализирована. Перезапустите приложение.</source>
-        <translation>Ошибка: База данных не инициализирована. Перезапустите приложение.</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="164"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="243"/>
         <source>APP_DEBUG: DB.db is successfully initialized.</source>
         <translation>APP_DEBUG: DB.db успешно инициализирована.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="169"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="248"/>
         <source>notes_backup_</source>
         <translation>notes_backup_</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="174"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="253"/>
         <source>APP_DEBUG: Export/Import Page: Component.onCompleted finished.</source>
         <translation>APP_DEBUG: Страница экспорта/импорта: Component.onCompleted завершена.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="180"/>
-        <source>Сбор данных для экспорта...</source>
-        <translation>Сбор данных для экспорта...</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="181"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="260"/>
         <source>APP_DEBUG: exportData started.</source>
         <translation>APP_DEBUG: exportData запущена.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="195"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="274"/>
         <source>APP_DEBUG: getNotesForExport SUCCESS. Notes count: </source>
         <translation>APP_DEBUG: getNotesForExport УСПЕХ. Количество заметок: </translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="197"/>
-        <source>Нет заметок для экспорта.</source>
-        <translation>Нет заметок для экспорта.</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="202"/>
-        <source>Подготовка </source>
-        <translation>Подготовка </translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="202"/>
-        <location filename="../qml/pages/ImportExportPage.qml" line="374"/>
-        <source> заметок...</source>
-        <translation> заметок...</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="211"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="290"/>
         <source>APP_DEBUG: Attempting to write file to: </source>
         <translation>APP_DEBUG: Попытка записи файла в: </translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="216"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="295"/>
         <source>APP_DEBUG: getNotesForExport FAILED: </source>
         <translation>APP_DEBUG: getNotesForExport НЕУДАЧА: </translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="217"/>
-        <source>Ошибка экспорта: </source>
-        <translation>Ошибка экспорта: </translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="221"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="300"/>
         <source>APP_DEBUG: exportData finished, waiting for callbacks.</source>
         <translation>APP_DEBUG: exportData завершена, ожидание обратных вызовов.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="256"/>
-        <source>Сохранение файла...</source>
+        <location filename="../qml/pages/ImportExportPage.qml" line="40"/>
+        <source>Select file for import</source>
+        <translation>Выбрать файл для импорта</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="102"/>
+        <source>Import/Export</source>
+        <translation>Импорт/Экспорт</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="127"/>
+        <source>Export Notes</source>
+        <translation>Экспортировать заметки</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="137"/>
+        <source>File Format</source>
+        <translation>Формат файла</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="141"/>
+        <source>CSV (simple table)</source>
+        <translation>CSV (простая таблица)</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="142"/>
+        <source>JSON (recommended)</source>
+        <translation>JSON (рекомендуется)</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="149"/>
+        <source>File Name</source>
+        <translation>Имя файла</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="150"/>
+        <source>e.g., notes_backup</source>
+        <translation>напр., notes_backup</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="154"/>
+        <source>Export All Notes</source>
+        <translation>Экспортировать все заметки</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="168"/>
+        <source>Import Notes</source>
+        <translation>Импортировать заметки</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="180"/>
+        <source>Warning: Importing will overwrite notes with the same IDs if they already exist in the database. Note tags will be fully updated.</source>
+        <translation>Внимание: Импорт перезапишет заметки с теми же ID, если они уже существуют в базе данных. Теги заметок будут полностью обновлены.</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="185"/>
+        <source>Import from File</source>
+        <translation>Импортировать из файла</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="220"/>
+        <source>Return to Main Page</source>
+        <translation>Вернуться на главную страницу</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="241"/>
+        <source>Error: Database not initialized. Please restart the application.</source>
+        <translation>Ошибка: База данных не инициализирована. Пожалуйста, перезапустите приложение.</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="259"/>
+        <source>Gathering data for export...</source>
+        <translation>Сбор данных для экспорта...</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="276"/>
+        <source>No notes to export.</source>
+        <translation>Нет заметок для экспорта.</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="281"/>
+        <source>Preparing </source>
+        <translation>Подготовка </translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="281"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="453"/>
+        <source> notes...</source>
+        <translation> заметок...</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="296"/>
+        <source>Export error: </source>
+        <translation>Ошибка экспорта: </translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="335"/>
+        <source>Saving file...</source>
         <translation>Сохранение файла...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="257"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="336"/>
         <source>APP_DEBUG: writeToFile started for path: </source>
         <translation>APP_DEBUG: writeToFile запущена для пути: </translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="263"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="342"/>
         <source>APP_DEBUG: File saved via FileIO: </source>
         <translation>APP_DEBUG: Файл сохранен через FileIO: </translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="282"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="361"/>
         <source>APP_DEBUG: FileIO not defined or write method missing, attempting to save via XMLHttpRequest.</source>
         <translation>APP_DEBUG: FileIO не определен или отсутствует метод записи, попытка сохранения через XMLHttpRequest.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="289"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="368"/>
         <source>APP_DEBUG: File saved via XMLHttpRequest: </source>
         <translation>APP_DEBUG: Файл сохранен через XMLHttpRequest: </translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="306"/>
-        <source>Ошибка сохранения файла (XHR): </source>
+        <location filename="../qml/pages/ImportExportPage.qml" line="385"/>
+        <source>File save error (XHR): </source>
         <translation>Ошибка сохранения файла (XHR): </translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="307"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="391"/>
+        <source>File save error: </source>
+        <translation>Ошибка сохранения файла: </translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="403"/>
+        <source>Reading file: </source>
+        <translation>Чтение файла: </translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="409"/>
+        <source>Error: Database not initialized for import.</source>
+        <translation>Ошибка: База данных не инициализирована для импорта.</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="429"/>
+        <source>File read error (XHR): </source>
+        <translation>Ошибка чтения файла (XHR): </translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="447"/>
+        <source>Unsupported file format.</source>
+        <translation>Неподдерживаемый формат файла.</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="453"/>
+        <source>Importing </source>
+        <translation>Импорт </translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="488"/>
+        <source>File contains no notes to import.</source>
+        <translation>Файл не содержит заметок для импорта.</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="493"/>
+        <source>File is empty.</source>
+        <translation>Файл пуст.</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="497"/>
+        <source>File processing error: </source>
+        <translation>Ошибка обработки файла: </translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="386"/>
         <source>APP_DEBUG: Error saving file via XHR: </source>
         <translation>APP_DEBUG: Ошибка сохранения файла через XHR: </translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="311"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="390"/>
         <source>APP_DEBUG: EXCEPTION caught during file saving: </source>
         <translation>APP_DEBUG: Перехвачено ИСКЛЮЧЕНИЕ при сохранении файла: </translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="312"/>
-        <source>Ошибка сохранения файла: </source>
-        <translation>Ошибка сохранения файла: </translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="315"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="394"/>
         <source>APP_DEBUG: writeToFile finished.</source>
         <translation>APP_DEBUG: writeToFile завершена.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="324"/>
-        <source>Чтение файла: </source>
-        <translation>Чтение файла: </translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="325"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="404"/>
         <source>APP_DEBUG: importFromFile started for path: </source>
         <translation>APP_DEBUG: importFromFile запущена для пути: </translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="326"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="405"/>
         <source>APP_DEBUG: Type of absoluteFilePathString: </source>
         <translation>APP_DEBUG: Тип absoluteFilePathString: </translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="329"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="408"/>
         <source>DB_MGR: Database not initialized for importFromFile.</source>
         <translation>DB_MGR: База данных не инициализирована для importFromFile.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="330"/>
-        <source>Ошибка: База данных не инициализирована для импорта.</source>
-        <translation>Ошибка: База данных не инициализирована для импорта.</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="339"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="418"/>
         <source>APP_DEBUG: File read via FileIO: </source>
         <translation>APP_DEBUG: Файл прочитан через FileIO: </translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="341"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="420"/>
         <source>APP_DEBUG: FileIO not defined or read method missing, attempting to read via XMLHttpRequest.</source>
         <translation>APP_DEBUG: FileIO не определен или отсутствует метод чтения, попытка чтения через XMLHttpRequest.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="348"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="427"/>
         <source>APP_DEBUG: File read via XMLHttpRequest: </source>
         <translation>APP_DEBUG: Файл прочитан через XMLHttpRequest: </translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="350"/>
-        <source>Ошибка чтения файла (XHR): </source>
-        <translation>Ошибка чтения файла (XHR): </translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="351"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="430"/>
         <source>APP_DEBUG: Error reading file via XHR: </source>
         <translation>APP_DEBUG: Ошибка чтения файла через XHR: </translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="368"/>
-        <source>Неподдерживаемый формат файла.</source>
-        <translation>Неподдерживаемый формат файла.</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="374"/>
-        <source>Импорт </source>
-        <translation>Импорт </translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="384"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="463"/>
         <source>test</source>
         <translation>тест</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="387"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="466"/>
         <source>test2</source>
         <translation>тест2</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="409"/>
-        <source>Файл не содержит заметок для импорта.</source>
-        <translation>Файл не содержит заметок для импорта.</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="414"/>
-        <source>Файл пуст.</source>
-        <translation>Файл пуст.</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="418"/>
-        <source>Ошибка обработки файла: </source>
-        <translation>Ошибка обработки файла: </translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="419"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="498"/>
         <source>APP_DEBUG: EXCEPTION caught during file processing for import: </source>
         <translation>APP_DEBUG: Перехвачено ИСКЛЮЧЕНИЕ при обработке файла для импорта: </translation>
     </message>
@@ -1231,239 +1236,153 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
 <context>
     <name>SettingsPage</name>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="35"/>
-        <location filename="../qml/pages/SettingsPage.qml" line="78"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="39"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="84"/>
         <source>Confirm Action</source>
         <translation>Подтвердите действие</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="37"/>
-        <location filename="../qml/pages/SettingsPage.qml" line="81"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="41"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="87"/>
         <source>Confirm</source>
         <translation>Подтвердить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="67"/>
-        <location filename="../qml/pages/SettingsPage.qml" line="69"/>
-        <location filename="../qml/pages/SettingsPage.qml" line="516"/>
-        <location filename="../qml/pages/SettingsPage.qml" line="518"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="73"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="75"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="468"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="470"/>
         <source>N/A</source>
         <translation>Н/Д</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="128"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="134"/>
         <source>Settings</source>
         <translation>Настройки</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="151"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="158"/>
         <source>Language</source>
         <translation>Язык</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="162"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="180"/>
         <source>Russian</source>
         <translation>Русский</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="174"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="194"/>
         <source>Language changed to Russian</source>
         <translation>Язык изменен на русский</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="182"/>
-        <location filename="../qml/pages/SettingsPage.qml" line="210"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="202"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="241"/>
         <source>Failed to change language.</source>
         <translation>Не удалось изменить язык.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="195"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="218"/>
         <source>English</source>
         <translation>Английский</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="207"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="233"/>
         <source>Language changed to English</source>
         <translation>Язык изменен на английский</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="221"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="255"/>
         <source>Theme Color</source>
         <translation>Цвет темы</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="231"/>
-        <source>Dark Theme</source>
-        <translation>Темная тема</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="244"/>
-        <source>Theme changed to Dark</source>
-        <translation>Тема изменена на темную</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="246"/>
-        <location filename="../qml/pages/SettingsPage.qml" line="273"/>
-        <source>Failed to change theme.</source>
-        <translation>Не удалось изменить тему.</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="258"/>
-        <source>Light Theme</source>
-        <translation>Светлая тема</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="271"/>
-        <source>Theme changed to Light</source>
-        <translation>Тема изменена на светлую</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="295"/>
-        <source>Custom Background Color</source>
-        <translation>Пользовательский цвет фона</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="313"/>
-        <source>Data Management</source>
-        <translation>Управление данными</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="320"/>
-        <source>Last Export:</source>
-        <translation>Последний экспорт:</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="325"/>
-        <source>Notes Exported:</source>
-        <translation>Экспортировано заметок:</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="350"/>
-        <source>Export Notes</source>
-        <translation>Экспортировать заметки</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="363"/>
-        <source>Notes exported successfully!</source>
-        <translation>Заметки успешно экспортированы!</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="365"/>
-        <source>Failed to export notes.</source>
-        <translation>Не удалось экспортировать заметки.</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="374"/>
-        <source>Last Import:</source>
-        <translation>Последний импорт:</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="379"/>
-        <source>Notes Imported:</source>
-        <translation>Импортировано заметок:</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="404"/>
-        <source>Import Notes</source>
-        <translation>Импортировать заметки</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="417"/>
-        <source>Notes imported successfully!</source>
-        <translation>Заметки успешно импортированы!</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="419"/>
-        <source>Failed to import notes.</source>
-        <translation>Не удалось импортировать заметки.</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="430"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="367"/>
         <source>Data Management Actions</source>
         <translation>Действия по управлению данными</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="441"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="393"/>
         <source>Archive All Notes</source>
         <translation>Архивировать все заметки</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="450"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="402"/>
         <source>Are you sure you want to archive all your notes?</source>
         <translation>Вы уверены, что хотите архивировать все свои заметки?</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="453"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="405"/>
         <source>All eligible notes archived.</source>
         <translation>Все подходящие заметки архивированы.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="455"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="407"/>
         <source>Confirm Archive</source>
         <translation>Подтвердить архивацию</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="456"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="408"/>
         <source>Archive All</source>
         <translation>Архивировать все</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="470"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="422"/>
         <source>Move All Notes to Trash</source>
         <translation>Переместить все заметки в корзину</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="479"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="431"/>
         <source>Are you sure you want to move all your notes to trash?</source>
         <translation>Вы уверены, что хотите переместить все свои заметки в корзину?</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="482"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="434"/>
         <source>All eligible notes moved to trash.</source>
         <translation>Все подходящие заметки перемещены в корзину.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="484"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="436"/>
         <source>Confirm Move to Trash</source>
         <translation>Подтвердить перемещение в корзину</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="485"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="437"/>
         <source>Move to Trash</source>
         <translation>Переместить в корзину</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="502"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="454"/>
         <source>Permanently Delete All Notes</source>
         <translation>Безвозвратно удалить все заметки</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="512"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="464"/>
         <source>Are you sure you want to permanently delete ALL your notes and associated tags? This action cannot be undone.</source>
         <translation>Вы уверены, что хотите безвозвратно удалить ВСЕ свои заметки и связанные с ними теги? Это действие невозможно отменить.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="520"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="472"/>
         <source>All notes and associated tags permanently deleted!</source>
         <translation>Все заметки и связанные теги безвозвратно удалены!</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="522"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="474"/>
         <source>Confirm Permanent Deletion</source>
         <translation>Подтвердить безвозвратное удаление</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="523"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="475"/>
         <source>Delete</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="596"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="285"/>
         <source>Select Theme Color</source>
         <translation>Выбрать цвет темы</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="690"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="507"/>
         <source>Action cancelled by user.</source>
         <translation>Действие отменено пользователем.</translation>
     </message>

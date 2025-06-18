@@ -292,7 +292,17 @@ Item {
                             navigateAndManageStack(Qt.resolvedUrl("TagEditPage.qml"), "edit", "tagEditPage");
                         }
                     }
-
+                    Label {
+                        id: noTagsLabel
+                        width: parent.width
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                        text: qsTr("You have no tags.\n Go to edit tags page\nto create one!")
+                        font.italic: true
+                        color: Theme.secondaryColor
+                        font.pixelSize: Theme.fontSizeSmall
+                        visible: tags.length === 0
+                    }
                     Repeater {
                         model: tags // Model now contains {name, count} objects
                         delegate: NavigationButton {
