@@ -10,7 +10,7 @@ Item { // Changed from Rectangle to Item as it's a better base for components th
     id: root
     width: parent ? parent.width : 360 // Use parent.width for better adaptability
     // Adjusted implicitHeight to now only account for the main card rectangle itself
-    implicitHeight: mainCardRectangle.implicitHeight
+    implicitHeight: mainCardRectangle.implicitHeight + 10
     // --- Properties ---
     property string title: ""
     property string content: ""
@@ -258,6 +258,31 @@ Item { // Changed from Rectangle to Item as it's a better base for components th
                         anchors.centerIn: parent
                     }
                 }
+            }
+            // Label for deletion date, now explicitly outside TrashArchiveNoteCard
+            Label {
+                // Only visible if modelData.updated_at exists and is a string
+                visible: modelData.updated_at !== undefined && modelData.updated_at !== null && modelData.updated_at !== "" && modelData.deleted
+                width: parent.width // Match card width
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: {
+                    if (modelData.updated_at) {
+                        var deletedAt = new Date(modelData.updated_at);
+                        var thirtyDaysLater = new Date(deletedAt);
+                        thirtyDaysLater.setDate(deletedAt.getDate() + 30);
+
+                        // Use Qt.formatDateTime for dd.mm.yyyy format
+                        var formattedDate = Qt.formatDateTime(thirtyDaysLater, "dd.MM.yyyy");
+
+                        return qsTr("Will be permanently deleted on: %1").arg(formattedDate);
+                    }
+                    return "";
+                }
+                font.italic: true
+                font.pixelSize: Theme.fontSizeExtraSmall // Smaller font for auxiliary info
+                color: Theme.secondaryColor // Subtle color
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.Wrap
             }
         }
 
