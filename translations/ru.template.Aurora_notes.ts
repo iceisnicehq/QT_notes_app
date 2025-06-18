@@ -357,300 +357,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     </message>
 </context>
 <context>
-    <name>ImportExportPage</name>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="31"/>
-        <source>APP_DEBUG: Documents path is: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="233"/>
-        <source>APP_DEBUG: Export/Import Page: Component.onCompleted started.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="240"/>
-        <source>APP_DEBUG: DB.db is NULL after initDatabase call! Export/Import will likely fail.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="243"/>
-        <source>APP_DEBUG: DB.db is successfully initialized.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="248"/>
-        <source>notes_backup_</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="253"/>
-        <source>APP_DEBUG: Export/Import Page: Component.onCompleted finished.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="260"/>
-        <source>APP_DEBUG: exportData started.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="274"/>
-        <source>APP_DEBUG: getNotesForExport SUCCESS. Notes count: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="290"/>
-        <source>APP_DEBUG: Attempting to write file to: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="295"/>
-        <source>APP_DEBUG: getNotesForExport FAILED: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="300"/>
-        <source>APP_DEBUG: exportData finished, waiting for callbacks.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="40"/>
-        <source>Select file for import</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="102"/>
-        <source>Import/Export</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="127"/>
-        <source>Export Notes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="137"/>
-        <source>File Format</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="141"/>
-        <source>CSV (simple table)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="142"/>
-        <source>JSON (recommended)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="149"/>
-        <source>File Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="150"/>
-        <source>e.g., notes_backup</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="154"/>
-        <source>Export All Notes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="168"/>
-        <source>Import Notes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="180"/>
-        <source>Warning: Importing will overwrite notes with the same IDs if they already exist in the database. Note tags will be fully updated.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="185"/>
-        <source>Import from File</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="220"/>
-        <source>Return to Main Page</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="241"/>
-        <source>Error: Database not initialized. Please restart the application.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="259"/>
-        <source>Gathering data for export...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="276"/>
-        <source>No notes to export.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="281"/>
-        <source>Preparing </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="281"/>
-        <location filename="../qml/pages/ImportExportPage.qml" line="453"/>
-        <source> notes...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="296"/>
-        <source>Export error: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="335"/>
-        <source>Saving file...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="336"/>
-        <source>APP_DEBUG: writeToFile started for path: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="342"/>
-        <source>APP_DEBUG: File saved via FileIO: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="361"/>
-        <source>APP_DEBUG: FileIO not defined or write method missing, attempting to save via XMLHttpRequest.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="368"/>
-        <source>APP_DEBUG: File saved via XMLHttpRequest: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="385"/>
-        <source>File save error (XHR): </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="391"/>
-        <source>File save error: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="403"/>
-        <source>Reading file: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="409"/>
-        <source>Error: Database not initialized for import.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="429"/>
-        <source>File read error (XHR): </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="447"/>
-        <source>Unsupported file format.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="453"/>
-        <source>Importing </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="488"/>
-        <source>File contains no notes to import.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="493"/>
-        <source>File is empty.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="497"/>
-        <source>File processing error: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="386"/>
-        <source>APP_DEBUG: Error saving file via XHR: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="390"/>
-        <source>APP_DEBUG: EXCEPTION caught during file saving: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="394"/>
-        <source>APP_DEBUG: writeToFile finished.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="404"/>
-        <source>APP_DEBUG: importFromFile started for path: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="405"/>
-        <source>APP_DEBUG: Type of absoluteFilePathString: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="408"/>
-        <source>DB_MGR: Database not initialized for importFromFile.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="418"/>
-        <source>APP_DEBUG: File read via FileIO: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="420"/>
-        <source>APP_DEBUG: FileIO not defined or read method missing, attempting to read via XMLHttpRequest.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="427"/>
-        <source>APP_DEBUG: File read via XMLHttpRequest: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="430"/>
-        <source>APP_DEBUG: Error reading file via XHR: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="463"/>
-        <source>test</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="466"/>
-        <source>test2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="498"/>
-        <source>APP_DEBUG: EXCEPTION caught during file processing for import: </source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>MainPage</name>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="183"/>
@@ -664,93 +370,93 @@ Click on the plus button to create one!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="352"/>
+        <location filename="../qml/pages/MainPage.qml" line="354"/>
         <source>Confirm Deletion</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="353"/>
+        <location filename="../qml/pages/MainPage.qml" line="355"/>
         <source>Are you sure you want to move %1 selected note(s) to trash?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="354"/>
+        <location filename="../qml/pages/MainPage.qml" line="356"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="359"/>
+        <location filename="../qml/pages/MainPage.qml" line="361"/>
         <source>%1 note(s) moved to trash!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="366"/>
-        <location filename="../qml/pages/MainPage.qml" line="402"/>
+        <location filename="../qml/pages/MainPage.qml" line="368"/>
+        <location filename="../qml/pages/MainPage.qml" line="404"/>
         <source>No notes selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="388"/>
+        <location filename="../qml/pages/MainPage.qml" line="390"/>
         <source>Confirm Archiving</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="389"/>
+        <location filename="../qml/pages/MainPage.qml" line="391"/>
         <source>Are you sure you want to archive %1 selected note(s)?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="390"/>
+        <location filename="../qml/pages/MainPage.qml" line="392"/>
         <source>Archive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="395"/>
+        <location filename="../qml/pages/MainPage.qml" line="397"/>
         <source>%1 note(s) archived!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="465"/>
+        <location filename="../qml/pages/MainPage.qml" line="467"/>
         <source>No notes found matching your criteria.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="474"/>
+        <location filename="../qml/pages/MainPage.qml" line="476"/>
         <source>Try a different keyword or fewer tags.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="494"/>
+        <location filename="../qml/pages/MainPage.qml" line="496"/>
         <source>Pinned</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="538"/>
+        <location filename="../qml/pages/MainPage.qml" line="540"/>
         <source>Others</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="746"/>
+        <location filename="../qml/pages/MainPage.qml" line="748"/>
         <source>Search tags...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="925"/>
+        <location filename="../qml/pages/MainPage.qml" line="927"/>
         <source>Done</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="937"/>
+        <location filename="../qml/pages/MainPage.qml" line="939"/>
         <source>Create</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="956"/>
+        <location filename="../qml/pages/MainPage.qml" line="958"/>
         <source>No tags found matching your search</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="968"/>
+        <location filename="../qml/pages/MainPage.qml" line="970"/>
         <source>You have no tags.
 Go to edit tags page to create one!</source>
         <translation type="unfinished"></translation>
@@ -1227,138 +933,130 @@ Go to edit tags page to create one!</source>
 <context>
     <name>SettingsPage</name>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="39"/>
-        <location filename="../qml/pages/SettingsPage.qml" line="84"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="30"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="82"/>
         <source>Confirm Action</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="41"/>
-        <location filename="../qml/pages/SettingsPage.qml" line="87"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="32"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="83"/>
         <source>Confirm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="73"/>
-        <location filename="../qml/pages/SettingsPage.qml" line="75"/>
-        <location filename="../qml/pages/SettingsPage.qml" line="479"/>
-        <location filename="../qml/pages/SettingsPage.qml" line="481"/>
-        <source>N/A</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="134"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="137"/>
         <source>Settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="158"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="161"/>
         <source>Language</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="180"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="182"/>
         <source>Russian</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="194"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="195"/>
         <source>Language changed to Russian</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="202"/>
-        <location filename="../qml/pages/SettingsPage.qml" line="241"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="198"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="230"/>
         <source>Failed to change language.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="218"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="213"/>
         <source>English</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="233"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="227"/>
         <source>Language changed to English</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="255"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="244"/>
         <source>Theme Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="367"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="347"/>
         <source>Data Management Actions</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="393"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="376"/>
         <source>Archive All Notes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="402"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="385"/>
         <source>Are you sure you want to archive all your notes?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="412"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="391"/>
         <source>Confirm Archive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="413"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="392"/>
         <source>Archive All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="428"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="410"/>
         <source>Move All Notes to Trash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="437"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="419"/>
         <source>Are you sure you want to move all your notes to trash?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="447"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="425"/>
         <source>Confirm Move to Trash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="448"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="426"/>
         <source>Move to Trash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="465"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="445"/>
         <source>Permanently Delete All Notes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="475"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="455"/>
         <source>Are you sure you want to permanently delete ALL your notes and associated tags? This action cannot be undone.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="490"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="461"/>
         <source>Confirm Permanent Deletion</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="491"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="462"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="285"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="273"/>
         <source>Select Theme Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="524"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="495"/>
         <source>Action cancelled by user.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1366,57 +1064,57 @@ Go to edit tags page to create one!</source>
 <context>
     <name>SidePanel</name>
     <message>
-        <location filename="../qml/pages/SidePanel.qml" line="140"/>
+        <location filename="../qml/pages/SidePanel.qml" line="147"/>
         <source>Aurora Notes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SidePanel.qml" line="187"/>
+        <location filename="../qml/pages/SidePanel.qml" line="196"/>
         <source>Navigation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SidePanel.qml" line="199"/>
+        <location filename="../qml/pages/SidePanel.qml" line="208"/>
         <source>Notes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SidePanel.qml" line="210"/>
+        <location filename="../qml/pages/SidePanel.qml" line="219"/>
         <source>Archive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SidePanel.qml" line="221"/>
+        <location filename="../qml/pages/SidePanel.qml" line="230"/>
         <source>Trash</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SidePanel.qml" line="233"/>
+        <location filename="../qml/pages/SidePanel.qml" line="242"/>
         <source>Import &amp; Export</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SidePanel.qml" line="243"/>
+        <location filename="../qml/pages/SidePanel.qml" line="252"/>
         <source>Settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SidePanel.qml" line="253"/>
+        <location filename="../qml/pages/SidePanel.qml" line="262"/>
         <source>About</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SidePanel.qml" line="276"/>
+        <location filename="../qml/pages/SidePanel.qml" line="285"/>
         <source>Tags</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SidePanel.qml" line="288"/>
+        <location filename="../qml/pages/SidePanel.qml" line="297"/>
         <source>Edit Tags</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SidePanel.qml" line="300"/>
+        <location filename="../qml/pages/SidePanel.qml" line="309"/>
         <source>You have no tags.
  Go to edit tags page
 to create one!</source>

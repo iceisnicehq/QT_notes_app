@@ -22,11 +22,14 @@ Page {
     // Property to control side panel visibility, similar to ArchivePage
     property bool panelOpen: false
 
-    // NEW: Properties to hold export/import statistics
+    // Properties to hold export/import statistics
     property var lastExportDate: null
     property int notesExportedCount: 0
     property var lastImportDate: null
     property int notesImportedCount: 0
+
+    // Property to hold the selected export format (now only json)
+    property string selectedExportFormat: "json" // Default to JSON
 
     // ConfigurationValue for getting the documents path
     ConfigurationValue {
@@ -44,12 +47,10 @@ Page {
 
         FilePickerPage {
             title: qsTr("Select file for import")
-            backgroundColor: DB.getThemeColor()
-            // nameFilters: [qsTr("Резервные копии (*.json *.csv)"), qsTr("JSON файлы (*.json)"), qsTr("CSV файлы (*.csv)")] // These lines were already wrapped, commented out to show they haven't changed.
+            nameFilters: ["*.json"] // Only JSON files now
 
             onSelectedContentPropertiesChanged: {
                 if (selectedContentProperties !== null) {
-                    // Make sure this part remains as we fixed it:
                     // Use .toString() to explicitly get the string from QUrl or similar object
                     var filePathRaw = selectedContentProperties.filePath.toString();
 
@@ -136,19 +137,10 @@ Page {
                 horizontalAlignment: "AlignHCenter"
                 font.pixelSize: Theme.fontSizeMedium
                 font.bold: true
-                color: Theme.highlightColor
+                color: "white" // Changed from Theme.highlightColor to "white"
             }
 
-            ComboBox {
-                id: exportFormatCombo
-                label: qsTr("File Format")
-                width: parent.width
-                currentIndex: 1 // JSON by default
-                menu: ContextMenu {
-                    MenuItem { text: qsTr("CSV (simple table)") }
-                    MenuItem { text: qsTr("JSON (recommended)") }
-                }
-            }
+            // Export Format Buttons - Only JSON button remains
 
             TextField {
                 id: fileNameField
@@ -164,7 +156,7 @@ Page {
                 onClicked: exportData()
             }
 
-            // NEW: Export Statistics Display
+            // Export Statistics Display
             Label {
                 width: parent.width - (2 * Theme.paddingLarge)
                 horizontalAlignment: Text.AlignHCenter
@@ -192,15 +184,7 @@ Page {
                 horizontalAlignment: "AlignHCenter"
                 font.pixelSize: Theme.fontSizeMedium
                 font.bold: true
-                color: Theme.highlightColor
-            }
-            Label {
-                width: parent.width - (2 * Theme.paddingLarge) // Adjusted width for margins
-                wrapMode: Text.Wrap
-                font.pixelSize: Theme.fontSizeSmall
-                color: Theme.secondaryColor
-                text: qsTr("Warning: Importing will overwrite notes with the same IDs if they already exist in the database. Note tags will be fully updated.")
-                anchors.horizontalCenter: parent.horizontalCenter
+                color: "white" // Changed from Theme.highlightColor to "white"
             }
 
             Button {
@@ -213,7 +197,7 @@ Page {
                 }
             }
 
-            // NEW: Import Statistics Display
+            // Import Statistics Display
             Label {
                 width: parent.width - (2 * Theme.paddingLarge)
                 horizontalAlignment: Text.AlignHCenter
@@ -228,7 +212,7 @@ Page {
                 bottomPadding: Theme.paddingSmall
             }
 
-            // --- Spacer before Status/Return Button ---
+            // --- Spacer before Status ---
             Item {
                 Layout.preferredHeight: Theme.paddingLarge * 2 // Consistent spacing
                 Layout.fillWidth: true
@@ -247,22 +231,20 @@ Page {
                 width: parent.width - (2 * Theme.paddingLarge) // Adjusted width for margins
                 anchors.horizontalCenter: parent.horizontalCenter
                 horizontalAlignment: Text.AlignHCenter
-                color: Theme.highlightColor
+                color: "white" // Changed from Theme.highlightColor to "white"
                 wrapMode: Text.Wrap
                 text: statusText
                 visible: statusText !== ""
             }
-
-            Button {
-                text: qsTr("Return to Main Page")
-                anchors.horizontalCenter: parent.horizontalCenter
-                visible: !processInProgress // Visible when process is not active
-                onClicked: {
-                    pageStack.replace(Qt.resolvedUrl("MainPage.qml"));
-                }
-            }
-
         }
+    }
+
+    // Function to update the filename based on the selected export format
+    function updateFileName() {
+        // Now only generates JSON file names
+        var fileExtension = ".json";
+        var baseName = qsTr("notes_backup_") + Qt.formatDateTime(new Date(), "yyyyMMdd_HHmmss");
+        fileNameField.text = baseName + fileExtension;
     }
 
     // --- INITIALIZATION (VERY IMPORTANT PLACE) ---
@@ -278,7 +260,7 @@ Page {
         } else {
             console.log(qsTr("APP_DEBUG: DB.db is successfully initialized."));
 
-            // NEW: Fetch export/import stats from AppSettings
+            // Fetch export/import stats from AppSettings
             lastExportDate = DB.getSetting("lastExportDate");
             notesExportedCount = DB.getSetting("notesExportedCount");
             lastImportDate = DB.getSetting("lastImportDate");
@@ -291,17 +273,11 @@ Page {
             console.log("APP_DEBUG: Loaded export/import stats:",
                         "Export Date:", lastExportDate,
                         "Export Count:", notesExportedCount,
-                        "Import Date:", notesImportedCount,
+                        "Import Date:", lastImportDate,
                         "Import Count:", notesImportedCount);
         }
 
-        var updateFileName = function() {
-            var fileExtension = exportFormatCombo.currentIndex === 0 ? ".csv" : ".json";
-            var baseName = qsTr("notes_backup_") + Qt.formatDateTime(new Date(), "yyyyMMdd_HHmmss");
-            fileNameField.text = baseName + fileExtension;
-        };
-        updateFileName();
-        exportFormatCombo.currentIndexChanged.connect(updateFileName);
+        updateFileName(); // Initial call to set file name based on default selected format
         console.log(qsTr("APP_DEBUG: Export/Import Page: Component.onCompleted finished."));
     }
 
@@ -323,12 +299,7 @@ Page {
                 }
 
                 statusText = qsTr("Preparing ") + notes.length + qsTr(" notes...");
-                var generatedData;
-                if (exportFormatCombo.currentIndex === 0) { // CSV
-                    generatedData = generateCsv(notes);
-                } else { // JSON
-                    generatedData = generateJson(notes);
-                }
+                var generatedData = generateJson(notes); // Always generate JSON now
 
                 var finalPath = documentsPathConfig.value + "/" + fileNameField.text;
                 console.log(qsTr("APP_DEBUG: Attempting to write file to: ") + finalPath);
@@ -342,32 +313,6 @@ Page {
             }
         );
         console.log(qsTr("APP_DEBUG: exportData finished, waiting for callbacks."));
-    }
-
-    function generateCsv(data) {
-
-        var headers = ["id", "title", "content", "color", "pinned", "deleted", "archived", "created_at", "updated_at", "tags"]; // These headers are usually not localized as they are internal CSV/JSON format
-        var csv = headers.join(",") + "\n";
-        var escapeCsvField = function(field) {
-            return "\"" + String(field || '').replace(/"/g, '""') + "\"";
-        };
-        for (var i = 0; i < data.length; i++) {
-            var note = data[i];
-            var row = [
-                note.id,
-                escapeCsvField(note.title),
-                escapeCsvField(note.content),
-                escapeCsvField(note.color),
-                note.pinned ? 1 : 0,
-                note.deleted ? 1 : 0,
-                note.archived ? 1 : 0,
-                escapeCsvField(note.created_at),
-                escapeCsvField(note.updated_at),
-                escapeCsvField(note.tags.join(';'))
-            ];
-            csv += row.join(",") + "\n";
-        }
-        return csv;
     }
 
     function generateJson(data) {
@@ -384,14 +329,12 @@ Page {
                 FileIO.write(filePath, textData);
                 console.log(qsTr("APP_DEBUG: File saved via FileIO: ") + filePath);
                 // Continue updating statistics and showing dialog
-                var notesCount = (exportFormatCombo.currentIndex === 0)
-                                 ? (textData.split('\n').length - 2) // For CSV: minus header and potential empty line
-                                 : JSON.parse(textData).length; // For JSON
+                var notesCount = JSON.parse(textData).length; // Always parse JSON now
 
                 DB.updateLastExportDate();
                 DB.updateNotesExportedCount(notesCount);
 
-                // NEW: Update QML properties after successful export
+                // Update QML properties after successful export
                 lastExportDate = DB.getSetting("lastExportDate");
                 notesExportedCount = DB.getSetting("notesExportedCount");
 
@@ -413,14 +356,12 @@ Page {
 
                 if (xhr.status === 0 || xhr.status === 200) { // status 0 often means success for local files
                     console.log(qsTr("APP_DEBUG: File saved via XMLHttpRequest: ") + filePath);
-                    var notesCount = (exportFormatCombo.currentIndex === 0)
-                                     ? (textData.split('\n').length - 2)
-                                     : JSON.parse(textData).length;
+                    var notesCount = JSON.parse(textData).length; // Always parse JSON now
 
                     DB.updateLastExportDate();
                     DB.updateNotesExportedCount(notesCount);
 
-                    // NEW: Update QML properties after successful export
+                    // Update QML properties after successful export
                     lastExportDate = DB.getSetting("lastExportDate");
                     notesExportedCount = DB.getSetting("notesExportedCount");
 
@@ -459,6 +400,7 @@ Page {
             console.error(qsTr("DB_MGR: Database not initialized for importFromFile."));
             statusText = qsTr("Error: Database not initialized for import.");
             processInProgress = false;
+            console.log("APP_DEBUG: processInProgress set to false due to DB not initialized.");
             return;
         }
 
@@ -480,23 +422,20 @@ Page {
                     statusText = qsTr("File read error (XHR): ") + xhr.statusText + " (" + xhr.status + ")";
                     console.error(qsTr("APP_DEBUG: Error reading file via XHR: ") + xhr.statusText + " (" + xhr.status + ")");
                     processInProgress = false;
+                    console.log("APP_DEBUG: processInProgress set to false due to XHR file read error.");
                     return;
                 }
             }
 
             if (fileContent) {
                 var notes;
-                // --- CHANGE HERE: Using regular expressions ---
-                // Check if the string ends with ".json"
-                if (/\.json$/.test(absoluteFilePathString)) { // <--- CHANGED: .json
+                // Only process JSON files
+                if (/\.json$/.test(absoluteFilePathString)) {
                     notes = JSON.parse(fileContent);
-                }
-                // Check if the string ends with ".csv"
-                else if (/\.csv$/.test(absoluteFilePathString)) { // <--- CHANGED: .csv
-                    notes = parseCsv(fileContent);
-                } else {
-                    statusText = qsTr("Unsupported file format.");
+                } else { // No other formats are supported now
+                    statusText = qsTr("Unsupported file format. Only JSON is supported.");
                     processInProgress = false;
+                    console.log("APP_DEBUG: processInProgress set to false due to unsupported file format.");
                     return;
                 }
 
@@ -504,73 +443,56 @@ Page {
                     statusText = qsTr("Importing ") + notes.length + qsTr(" notes...");
                     var importedCount = 0; // Declare outside transaction for scope
 
+                    console.log("APP_DEBUG: Initiating DB transaction for import.");
                     DB.db.transaction(
                         function(tx) { // Transaction callback
+                            console.log("APP_DEBUG: Inside DB transaction function.");
                             for (var i = 0; i < notes.length; i++) {
-                                DB.addImportedNote(notes[i], tx);
-                                importedCount++;
+                                try {
+                                    // Make sure DB.addImportedNote is robust and handles its own tx.executeSql errors
+                                    DB.addImportedNote(notes[i], tx);
+                                    importedCount++;
+                                    console.log("APP_DEBUG: Added note " + notes[i].id + ", count: " + importedCount);
+                                } catch (noteAddError) {
+                                    console.error("APP_DEBUG: Error within addImportedNote for note " + notes[i].id + ": " + noteAddError.message);
+                                    // Do NOT re-throw here. If the transaction itself isn't reliably closing,
+                                    // re-throwing could contribute to the hang.
+                                }
                             }
-                        },
-                        function(error) { // Error callback
-                            statusText = qsTr("Import error: ") + error.message;
-                            console.error(qsTr("APP_DEBUG: Error during import transaction: ") + error.message);
-                            processInProgress = false;
-                        },
-                        function() { // Success callback
-                            statusText = qsTr("Import completed! Processed: ") + importedCount + qsTr(" notes.");
-                            DB.updateLastImportDate();
-                            DB.updateNotesImportedCount(importedCount);
-
-                            // NEW: Update QML properties after successful import
-                            lastImportDate = DB.getSetting("lastImportDate");
-                            notesImportedCount = DB.getSetting("notesImportedCount");
-
-                            processInProgress = false;
-                            console.log(qsTr("APP_DEBUG: Import finished. Imported: ") + importedCount);
+                            console.log("APP_DEBUG: Finished loop in DB transaction function. Total processed in loop: " + importedCount);
                         }
                     );
+                    console.log("APP_DEBUG: DB transaction call returned. Proceeding with UI updates.");
+
+                    // Manually update UI and reset processInProgress immediately after the transaction call returns
+                    statusText = qsTr("Import completed! Processed: ") + notes.length + qsTr(" notes."); // Use notes.length for consistency
+                    DB.updateLastImportDate();
+                    DB.updateNotesImportedCount(notes.length); // Update with total notes from file
+
+                    // Update QML properties after successful import (using notes.length as the count)
+                    lastImportDate = DB.getSetting("lastImportDate");
+                    notesImportedCount = DB.getSetting("notesImportedCount");
+
+                    processInProgress = false;
+                    console.log("APP_DEBUG: processInProgress set to false after transaction initiation. Imported: " + notes.length);
+
                 } else {
                     statusText = qsTr("File contains no notes to import.");
                     processInProgress = false;
+                    console.log("APP_DEBUG: No notes to import, processInProgress set to false.");
                 }
 
             } else {
                 statusText = qsTr("File is empty.");
                 processInProgress = false;
+                console.log("APP_DEBUG: File empty, processInProgress set to false.");
             }
         } catch (e) {
             statusText = qsTr("File processing error: ") + e.message;
             console.error(qsTr("APP_DEBUG: EXCEPTION caught during file processing for import: ") + e.message);
-            processInProgress = false;
+            processInProgress = false; // Ensure reset on any parsing/file read error
+            console.log("APP_DEBUG: General catch block, processInProgress set to false due to exception.");
         }
-    }
-
-    function parseCsv(content) {
-        var lines = content.split('\n');
-        if (lines.length < 2) return [];
-        var headers = lines[0].trim().split(',');
-        var notes = [];
-        for (var i = 1; i < lines.length; i++) {
-            var line = lines[i].trim();
-            if (line === "") continue;
-            var values = line.split(',');
-            var note = {};
-            for(var j = 0; j < headers.length; j++) {
-                if (values[j] !== undefined) {
-                    note[headers[j].trim()] = values[j].replace(/^"|"$/g, '').replace(/""/g, '"');
-                }
-
-            }
-            note.id = parseInt(note.id, 10);
-            note.pinned = parseInt(note.pinned, 10) === 1;
-            note.deleted = parseInt(note.deleted, 10) === 1;
-            note.archived = parseInt(note.archived, 10) === 1;
-            note.tags = note.tags ? note.tags.split(';') : [];
-            if (!isNaN(note.id)) {
-               notes.push(note);
-            }
-        }
-        return notes;
     }
 
     // --- SidePanel (assuming it's a shared component and not defined here) ---
