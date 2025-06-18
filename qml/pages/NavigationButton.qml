@@ -43,7 +43,7 @@ Item {
     Label {
         id: countLabel
         visible: root.noteCount !== -1 // Only show if a count is provided
-        text: root.noteCount >= 100 ? "99+" : root.noteCount.toString()
+        text: root.noteCount >= 1000 ? "999+" : root.noteCount.toString()
         // Use theme colors for selected/unselected states
         color: selected ? Theme.primaryColor : Theme.secondaryColor
         font.pixelSize: Theme.fontSizeSmall * 0.9 // Make it a tiny bit smaller
