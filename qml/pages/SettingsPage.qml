@@ -402,7 +402,12 @@ Page {
                             qsTr("Are you sure you want to archive all your notes?"),
                             function() {
                                 DB.archiveAllNotes();
-                                toastManager.show(qsTr("All eligible notes archived."));
+                                pageStack.clear();
+                                pageStack.completeAnimation();
+                                pageStack.push(Qt.resolvedUrl("MainPage.qml"));
+                                pageStack.completeAnimation();
+                                pageStack.push(Qt.resolvedUrl("SettingsPage.qml"));
+                                pageStack.completeAnimation();
                             },
                             qsTr("Confirm Archive"),
                             qsTr("Archive All"),
@@ -432,7 +437,12 @@ Page {
                             qsTr("Are you sure you want to move all your notes to trash?"),
                             function() {
                                 DB.moveAllNotesToTrash();
-                                toastManager.show(qsTr("All eligible notes moved to trash."));
+                                pageStack.clear();
+                                pageStack.completeAnimation();
+                                pageStack.push(Qt.resolvedUrl("MainPage.qml"));
+                                pageStack.completeAnimation();
+                                pageStack.push(Qt.resolvedUrl("SettingsPage.qml"));
+                                pageStack.completeAnimation();
                             },
                             qsTr("Confirm Move to Trash"),
                             qsTr("Move to Trash"),
@@ -470,7 +480,12 @@ Page {
                                 settingsPage.notesExportedCount = 0;
                                 settingsPage.lastImportDate = qsTr("N/A");
                                 settingsPage.notesImportedCount = 0;
-                                toastManager.show(qsTr("All notes and associated tags permanently deleted!"));
+                                pageStack.clear();
+                                pageStack.completeAnimation();
+                                pageStack.push(Qt.resolvedUrl("MainPage.qml"));
+                                pageStack.completeAnimation();
+                                pageStack.push(Qt.resolvedUrl("SettingsPage.qml"));
+                                pageStack.completeAnimation();
                             },
                             qsTr("Confirm Permanent Deletion"),
                             qsTr("Delete"),

@@ -326,7 +326,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation>Подтвердить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ConfirmDialog.qml" line="107"/>
+        <location filename="../qml/pages/ConfirmDialog.qml" line="121"/>
         <source>Cancel</source>
         <translation>Отмена</translation>
     </message>
@@ -679,90 +679,109 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
 <context>
     <name>MainPage</name>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="384"/>
+        <location filename="../qml/pages/MainPage.qml" line="395"/>
         <source>%1 note(s) archived!</source>
         <translation>%1 заметка(и) заархивирована(ы)!</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="355"/>
-        <location filename="../qml/pages/MainPage.qml" line="391"/>
+        <location filename="../qml/pages/MainPage.qml" line="366"/>
+        <location filename="../qml/pages/MainPage.qml" line="402"/>
         <source>No notes selected.</source>
         <translation>Заметки не выбраны.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="215"/>
+        <location filename="../qml/pages/MainPage.qml" line="183"/>
+        <source>You have no notes.
+Click on the plus button to create one!</source>
+        <translation>У вас нет заметок.
+Нажмите на плюс, чтобы создать!</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MainPage.qml" line="226"/>
         <source>Search notes...</source>
         <translation>Поиск заметок...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="341"/>
+        <location filename="../qml/pages/MainPage.qml" line="352"/>
         <source>Confirm Deletion</source>
         <translation>Подтвердить удаление</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="342"/>
+        <location filename="../qml/pages/MainPage.qml" line="353"/>
         <source>Are you sure you want to move %1 selected note(s) to trash?</source>
         <translation>Вы уверены, что хотите переместить %1 выбранную(-ые) заметку(-и) в корзину?</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="343"/>
+        <location filename="../qml/pages/MainPage.qml" line="354"/>
         <source>Delete</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="348"/>
+        <location filename="../qml/pages/MainPage.qml" line="359"/>
         <source>%1 note(s) moved to trash!</source>
         <translation>%1 заметка(и) перемещена(ы) в корзину!</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="377"/>
+        <location filename="../qml/pages/MainPage.qml" line="388"/>
         <source>Confirm Archiving</source>
         <translation>Подтвердить архивацию</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="378"/>
+        <location filename="../qml/pages/MainPage.qml" line="389"/>
         <source>Are you sure you want to archive %1 selected note(s)?</source>
         <translation>Вы уверены, что хотите заархивировать %1 выбранную(-ые) заметку(-и)?</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="379"/>
+        <location filename="../qml/pages/MainPage.qml" line="390"/>
         <source>Archive</source>
         <translation>Архивировать</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="454"/>
+        <location filename="../qml/pages/MainPage.qml" line="465"/>
         <source>No notes found matching your criteria.</source>
         <translation>Заметки, соответствующие вашим критериям, не найдены.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="463"/>
+        <location filename="../qml/pages/MainPage.qml" line="474"/>
         <source>Try a different keyword or fewer tags.</source>
         <translation>Попробуйте другое ключевое слово или меньше тегов.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="483"/>
+        <location filename="../qml/pages/MainPage.qml" line="494"/>
         <source>Pinned</source>
         <translation>Закрепленные</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="527"/>
+        <location filename="../qml/pages/MainPage.qml" line="538"/>
         <source>Others</source>
         <translation>Другие</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="735"/>
+        <location filename="../qml/pages/MainPage.qml" line="746"/>
         <source>Search tags...</source>
         <translation>Поиск тегов...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="914"/>
+        <location filename="../qml/pages/MainPage.qml" line="925"/>
         <source>Done</source>
         <translation>Готово</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="928"/>
+        <location filename="../qml/pages/MainPage.qml" line="937"/>
+        <source>Create</source>
+        <translation>Создать</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MainPage.qml" line="956"/>
         <source>No tags found matching your search</source>
         <translation>Нет тегов соответствующих вашему запросу</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MainPage.qml" line="968"/>
+        <source>You have no tags.
+Go to edit tags page to create one!</source>
+        <translation>У вас нет тегов.
+Откройте страницу редактирования для создания!</translation>
     </message>
 </context>
 <context>
@@ -1250,8 +1269,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     <message>
         <location filename="../qml/pages/SettingsPage.qml" line="73"/>
         <location filename="../qml/pages/SettingsPage.qml" line="75"/>
-        <location filename="../qml/pages/SettingsPage.qml" line="468"/>
-        <location filename="../qml/pages/SettingsPage.qml" line="470"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="479"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="481"/>
         <source>N/A</source>
         <translation>Н/Д</translation>
     </message>
@@ -1304,7 +1323,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     <message>
         <location filename="../qml/pages/SettingsPage.qml" line="393"/>
         <source>Archive All Notes</source>
-        <translation>Архивировать все заметки</translation>
+        <translation>Архивировать</translation>
     </message>
     <message>
         <location filename="../qml/pages/SettingsPage.qml" line="402"/>
@@ -1312,67 +1331,52 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation>Вы уверены, что хотите архивировать все свои заметки?</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="405"/>
-        <source>All eligible notes archived.</source>
-        <translation>Все подходящие заметки архивированы.</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="407"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="412"/>
         <source>Confirm Archive</source>
         <translation>Подтвердить архивацию</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="408"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="413"/>
         <source>Archive All</source>
         <translation>Архивировать все</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="422"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="428"/>
         <source>Move All Notes to Trash</source>
-        <translation>Переместить все заметки в корзину</translation>
+        <translation>Переместить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="431"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="437"/>
         <source>Are you sure you want to move all your notes to trash?</source>
         <translation>Вы уверены, что хотите переместить все свои заметки в корзину?</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="434"/>
-        <source>All eligible notes moved to trash.</source>
-        <translation>Все подходящие заметки перемещены в корзину.</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="436"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="447"/>
         <source>Confirm Move to Trash</source>
         <translation>Подтвердить перемещение в корзину</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="437"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="448"/>
         <source>Move to Trash</source>
         <translation>Переместить в корзину</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="454"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="465"/>
         <source>Permanently Delete All Notes</source>
         <translation>Безвозвратно удалить все заметки</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="464"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="475"/>
         <source>Are you sure you want to permanently delete ALL your notes and associated tags? This action cannot be undone.</source>
         <translation>Вы уверены, что хотите безвозвратно удалить ВСЕ свои заметки и связанные с ними теги? Это действие невозможно отменить.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="472"/>
-        <source>All notes and associated tags permanently deleted!</source>
-        <translation>Все заметки и связанные теги безвозвратно удалены!</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="474"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="490"/>
         <source>Confirm Permanent Deletion</source>
         <translation>Подтвердить безвозвратное удаление</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="475"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="491"/>
         <source>Delete</source>
         <translation>Удалить</translation>
     </message>
@@ -1382,7 +1386,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation>Выбрать цвет темы</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="507"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="524"/>
         <source>Action cancelled by user.</source>
         <translation>Действие отменено пользователем.</translation>
     </message>
@@ -1439,61 +1443,77 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <source>Edit Tags</source>
         <translation>Редактировать теги</translation>
     </message>
+    <message>
+        <location filename="../qml/pages/SidePanel.qml" line="300"/>
+        <source>You have no tags.
+ Go to edit tags page
+to create one!</source>
+        <translation>У васнет тегов.
+Перейдите на 
+страницу редактирования,
+для создания!</translation>
+    </message>
 </context>
 <context>
     <name>TagEditPage</name>
     <message>
-        <location filename="../qml/pages/TagEditPage.qml" line="120"/>
+        <location filename="../qml/pages/TagEditPage.qml" line="75"/>
+        <source>You have no tags.
+You can create one!</source>
+        <translation>У вас нет тегов.</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/TagEditPage.qml" line="132"/>
         <source>Edit Tags</source>
         <translation>Редактировать теги</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TagEditPage.qml" line="169"/>
+        <location filename="../qml/pages/TagEditPage.qml" line="181"/>
         <source>Create new tag</source>
         <translation>Создать новый тег</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TagEditPage.qml" line="217"/>
-        <location filename="../qml/pages/TagEditPage.qml" line="256"/>
+        <location filename="../qml/pages/TagEditPage.qml" line="229"/>
+        <location filename="../qml/pages/TagEditPage.qml" line="268"/>
         <source>Tag creation cancelled.</source>
         <translation>Создание тега отменено.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TagEditPage.qml" line="297"/>
-        <location filename="../qml/pages/TagEditPage.qml" line="538"/>
+        <location filename="../qml/pages/TagEditPage.qml" line="309"/>
+        <location filename="../qml/pages/TagEditPage.qml" line="550"/>
         <source>Tag name cannot be empty!</source>
         <translation>Имя тега не может быть пустым!</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TagEditPage.qml" line="306"/>
-        <location filename="../qml/pages/TagEditPage.qml" line="559"/>
+        <location filename="../qml/pages/TagEditPage.qml" line="318"/>
+        <location filename="../qml/pages/TagEditPage.qml" line="571"/>
         <source>Tag &apos;%1&apos; already exists!</source>
         <translation>Тег «%1» уже существует!</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TagEditPage.qml" line="315"/>
+        <location filename="../qml/pages/TagEditPage.qml" line="327"/>
         <source>Tag &apos;%1&apos; created!</source>
         <translation>Тег «%1» создан!</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TagEditPage.qml" line="385"/>
+        <location filename="../qml/pages/TagEditPage.qml" line="397"/>
         <source>Edit tag name</source>
         <translation>Редактировать имя тега</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TagEditPage.qml" line="424"/>
-        <location filename="../qml/pages/TagEditPage.qml" line="523"/>
-        <location filename="../qml/pages/TagEditPage.qml" line="544"/>
+        <location filename="../qml/pages/TagEditPage.qml" line="436"/>
+        <location filename="../qml/pages/TagEditPage.qml" line="535"/>
+        <location filename="../qml/pages/TagEditPage.qml" line="556"/>
         <source>Edit cancelled.</source>
         <translation>Редактирование отменено.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TagEditPage.qml" line="474"/>
+        <location filename="../qml/pages/TagEditPage.qml" line="486"/>
         <source>Deleted tag &apos;%1&apos;</source>
         <translation>Удален тег «%1»</translation>
     </message>
     <message>
-        <location filename="../qml/pages/TagEditPage.qml" line="565"/>
+        <location filename="../qml/pages/TagEditPage.qml" line="577"/>
         <source>Updated tag &apos;%1&apos; to &apos;%2&apos;</source>
         <translation>Тег «%1» обновлен до «%2»</translation>
     </message>

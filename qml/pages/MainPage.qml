@@ -59,7 +59,7 @@ Page {
     Component.onCompleted: {
         console.log(("MainPage created."));
         DB.initDatabase()
-        DB.insertTestData() // Ensure test data is available for demonstration
+        //DB.insertTestData() // Ensure test data is available for demonstration
         DB.permanentlyDeleteExpiredDeletedNotes();
         refreshData()
     }
