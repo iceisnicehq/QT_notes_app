@@ -407,10 +407,11 @@ Page {
                                 }
                                 return "";
                             }
+                            font.italic: true
                             font.pixelSize: Theme.fontSizeSmall // Smaller font for auxiliary info
                             color: Theme.secondaryColor // Subtle color
                             horizontalAlignment: Text.AlignHCenter
-                            wrapMode: Text.WordWrap
+                            wrapMode: Text.Wrap
                         }
                     }
                 }

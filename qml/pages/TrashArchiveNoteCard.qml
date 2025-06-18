@@ -11,7 +11,6 @@ Item { // Changed from Rectangle to Item as it's a better base for components th
     width: parent ? parent.width : 360 // Use parent.width for better adaptability
     // Adjusted implicitHeight to now only account for the main card rectangle itself
     implicitHeight: mainCardRectangle.implicitHeight
-
     // --- Properties ---
     property string title: ""
     property string content: ""
@@ -46,12 +45,14 @@ Item { // Changed from Rectangle to Item as it's a better base for components th
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
+        anchors.bottomMargin: 20
         implicitHeight: cardColumn.implicitHeight + (Theme.paddingLarge * 2) // Height determined by inner content + padding
         color: root.cardColor
         radius: 20
         // Initial default border
         border.color: root.borderColor
         border.width: 2
+
 
         // States for the main card's border based on selection
         states: [
@@ -166,8 +167,12 @@ Item { // Changed from Rectangle to Item as it's a better base for components th
         // Column for card content
         ColumnLayout { // Changed to ColumnLayout for better control over implicitHeight and alignment
             id: cardColumn
-            width: parent.width - (Theme.paddingLarge * 2) // Content width inside the card
-            anchors.centerIn: parent // Center content vertically within mainCardRectangle
+            anchors {
+                left: parent.left; leftMargin: Theme.paddingLarge
+                right: parent.right; rightMargin: Theme.paddingLarge
+                top: parent.top; topMargin: Theme.paddingLarge
+                bottom: parent.bottom; bottomMargin: Theme.paddingLarge
+            }
             spacing: Theme.paddingSmall // Spacing between elements within the card
 
             // Note Title
@@ -180,8 +185,14 @@ Item { // Changed from Rectangle to Item as it's a better base for components th
                 font.pixelSize: Theme.fontSizeLarge
                 font.bold: true
                 wrapMode: Text.Wrap
-            }
 
+            }
+            // Spacer between title and content, matching NoteCard
+            Rectangle {
+                width: parent.width
+                height: 8
+                color: "transparent"
+            }
             // Note Content Snippet
             Label {
                 Layout.fillWidth: true
@@ -195,6 +206,12 @@ Item { // Changed from Rectangle to Item as it's a better base for components th
                 font.pixelSize: Theme.fontSizeSmall
                 color: "#c5c8d0"
             }
+            // Spacer between title and content, matching NoteCard
+            Rectangle {
+                width: parent.width
+                height: 4
+                color: "transparent"
+            }
 
             Flow {
                 id: tagsFlow
@@ -207,7 +224,7 @@ Item { // Changed from Rectangle to Item as it's a better base for components th
                     model: root.tags.split("_||_").filter(function(tag) { return tag.trim() !== "" })
                     delegate: Rectangle {
                         visible: index < 2
-                        color: "#32353a"
+                        color: "#a032353a"
                         radius: 12
                         height: tagText.implicitHeight + Theme.paddingSmall
                         width: Math.min(tagText.implicitWidth + Theme.paddingMedium * 2, parent.width * 0.45)
@@ -228,7 +245,7 @@ Item { // Changed from Rectangle to Item as it's a better base for components th
                 // "+X" bubble for more than 2 tags
                 Rectangle {
                     visible: root.tags.split("_||_").filter(function(tag) { return tag.trim() !== "" }).length > 2
-                    color: "#32353a"
+                    color: "#a032353a"
                     radius: 12
                     height: tagCount.implicitHeight + Theme.paddingSmall
                     width: tagCount.implicitWidth + Theme.paddingMedium
@@ -243,6 +260,7 @@ Item { // Changed from Rectangle to Item as it's a better base for components th
                 }
             }
         }
+
     }
     // Removed deletionDateText Label from here. It will be in TrashPage.qml now.
 }

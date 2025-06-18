@@ -93,6 +93,10 @@ Item {
             // by sizing the ColumnLayout relative to its parent's padding, as done here.
 
             // Labels for title and message
+            Rectangle {
+            height: Theme.paddingLarge * 0.9
+            color: "transparent"
+            }
             Label {
                 Layout.fillWidth: true // Label fills the width of contentColumnLayout
                 text: confirmDialog.dialogTitle
@@ -100,13 +104,13 @@ Item {
                 font.bold: true
                 horizontalAlignment: Text.AlignHCenter
                 color: "white"
-                wrapMode: Text.WordWrap
+                wrapMode: Text.Wrap
             }
 
             Label {
                 Layout.fillWidth: true // Label fills the width of contentColumnLayout
                 text: confirmDialog.dialogMessage
-                wrapMode: Text.WordWrap
+                wrapMode: Text.Wrap
                 horizontalAlignment: Text.AlignHCenter
                 color: Theme.primaryColor
             }

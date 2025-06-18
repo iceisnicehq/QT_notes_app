@@ -370,10 +370,6 @@ Page {
                 enabled: true // Always enabled to allow showing dialog
                 onPressed: pinRipple.ripple(mouseX, mouseY)
                 onClicked: {
-//                    if (newNotePage.noteId === -1) {
-//                         toastManager.show(qsTr("Cannot pin a new note. Save it first."));
-//                         return;
-//                    }
                     if (handleInteractionAttempt()) { // Check read-only state and show dialog if needed
                         noteIsPinned = !noteIsPinned;
                         newNotePage.noteModified = true;
