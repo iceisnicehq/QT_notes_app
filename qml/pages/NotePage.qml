@@ -184,7 +184,7 @@ Page {
             noteContentInput.text = noteContent;
             // Убедимся, что noteTags - это массив, если он пришел как строка
             if (typeof noteTags === 'string') {
-                newNotePage.noteTags = noteTags.split(' ').filter(function(tag) { return tag.length > 0; });
+                newNotePage.noteTags = noteTags.split("_||_").filter(function(tag) { return tag.length > 0; });
             }
             console.log(qsTr("NewNotePage opened in EDIT mode for ID: %1").arg(noteId));
             console.log(qsTr("Note color on open: %1").arg(noteColor));

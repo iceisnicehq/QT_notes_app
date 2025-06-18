@@ -28,9 +28,6 @@ Page {
     property var lastImportDate: null
     property int notesImportedCount: 0
 
-    // Property to hold the selected export format (now only json)
-    property string selectedExportFormat: "json" // Default to JSON
-
     // ConfigurationValue for getting the documents path
     ConfigurationValue {
         id: documentsPathConfig
@@ -47,7 +44,8 @@ Page {
 
         FilePickerPage {
             title: qsTr("Select file for import")
-            nameFilters: ["*.json"] // Only JSON files now
+            nameFilters: ["*.json"]
+            // No nameFilters set, will show all files, user must pick .json
 
             onSelectedContentPropertiesChanged: {
                 if (selectedContentProperties !== null) {
@@ -107,10 +105,22 @@ Page {
         }
 
         Label {
+            id: headerText
             text: qsTr("Import/Export") // Page title for Import/Export, translatable
             anchors.centerIn: parent
             font.pixelSize: Theme.fontSizeExtraLarge
             font.bold: true
+        }
+        // New label for JSON format
+        Label {
+            text: qsTr("In JSON Format")
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: headerText.bottom
+            horizontalAlignment: "AlignHCenter"
+            font.pixelSize: Theme.fontSizeExtraSmall
+            font.italic: true
+            color: Theme.secondaryColor
+            wrapMode: Text.Wrap
         }
     }
 
@@ -132,6 +142,7 @@ Page {
 
             // --- EXPORT SECTION ---
             Label { // Changed from SectionHeader to Label and centered
+                id: exportNotes
                 text: qsTr("Export Notes")
                 anchors.horizontalCenter: parent.horizontalCenter
                 horizontalAlignment: "AlignHCenter"
@@ -140,7 +151,6 @@ Page {
                 color: "white" // Changed from Theme.highlightColor to "white"
             }
 
-            // Export Format Buttons - Only JSON button remains
 
             TextField {
                 id: fileNameField
@@ -149,11 +159,27 @@ Page {
                 placeholderText: qsTr("e.g., notes_backup")
             }
 
+            // New: Optional Tag Field for Exported Notes
+            TextField {
+                id: newTagField
+                width: parent.width
+                label: qsTr("Exported Notes Will Have This Tag")
+                placeholderText: qsTr("Add Tag to Exported Notes (Optional)")
+            }
+
+            Label {
+                text: qsTr("Notes in the trash don't get exported")
+                anchors.horizontalCenter: parent.horizontalCenter
+                horizontalAlignment: "AlignHCenter"
+                font.pixelSize: Theme.fontSizeExtraSmall
+                font.italic: true
+                color: Theme.secondaryColor
+            }
             Button {
                 text: qsTr("Export All Notes")
                 anchors.horizontalCenter: parent.horizontalCenter
                 enabled: !processInProgress && fileNameField.text.length > 0 // Button inactive during process
-                onClicked: exportData()
+                onClicked: exportData(newTagField.text.trim()) // Pass the trimmed value of the new tag field
             }
 
             // Export Statistics Display
@@ -239,13 +265,7 @@ Page {
         }
     }
 
-    // Function to update the filename based on the selected export format
-    function updateFileName() {
-        // Now only generates JSON file names
-        var fileExtension = ".json";
-        var baseName = qsTr("notes_backup_") + Qt.formatDateTime(new Date(), "yyyyMMdd_HHmmss");
-        fileNameField.text = baseName + fileExtension;
-    }
+    // Removed updateFileName function. The filename will be handled directly in exportData.
 
     // --- INITIALIZATION (VERY IMPORTANT PLACE) ---
     Component.onCompleted: {
@@ -277,15 +297,30 @@ Page {
                         "Import Count:", notesImportedCount);
         }
 
-        updateFileName(); // Initial call to set file name based on default selected format
+        // Set initial filename with a default name, without enforcing .json on display
+        var initialBaseName = qsTr("notes_backup_") + Qt.formatDateTime(new Date(), "yyyyMMdd_HHmmss");
+        fileNameField.text = initialBaseName; // No .json added here, user can type freely
+
+        // Disconnect textChanged signal as we don't want to modify input as user types.
+        // fileNameField.textChanged.disconnect(updateFileName); // This line is now effectively removed by removing the function.
+
         console.log(qsTr("APP_DEBUG: Export/Import Page: Component.onCompleted finished."));
     }
 
     // --- EXPORT LOGIC ---
-    function exportData() {
+    function exportData(optionalNewTag) { // Added optionalNewTag parameter
         processInProgress = true; // Show indicator
         statusText = qsTr("Gathering data for export...");
-        console.log(qsTr("APP_DEBUG: exportData started."));
+        console.log(qsTr("APP_DEBUG: exportData started. Optional tag: ") + optionalNewTag);
+
+        // Get the filename as typed by the user
+        var userFileName = fileNameField.text;
+
+        // Add .json extension if it's missing (ES5 compatible check)
+        var finalFileName = userFileName;
+        if (finalFileName.indexOf(".json", finalFileName.length - ".json".length) === -1) {
+            finalFileName += ".json";
+        }
 
         // Call function from DatabaseManager.js
         DB.getNotesForExport(
@@ -299,18 +334,20 @@ Page {
                 }
 
                 statusText = qsTr("Preparing ") + notes.length + qsTr(" notes...");
-                var generatedData = generateJson(notes); // Always generate JSON now
+                // Always generate JSON
+                var generatedData = generateJson(notes);
 
-                var finalPath = documentsPathConfig.value + "/" + fileNameField.text;
+                var finalPath = documentsPathConfig.value + "/" + finalFileName; // Use the corrected filename
                 console.log(qsTr("APP_DEBUG: Attempting to write file to: ") + finalPath);
-                writeToFile(finalPath, generatedData); // Call save function
+                writeToFile(finalPath, generatedData);
             },
             // 2. Error callback function
             function(error) {
                 console.error(qsTr("APP_DEBUG: getNotesForExport FAILED: ") + error.message);
                 statusText = qsTr("Export error: ") + error.message;
                 processInProgress = false;
-            }
+            },
+            optionalNewTag // Pass the new parameter here
         );
         console.log(qsTr("APP_DEBUG: exportData finished, waiting for callbacks."));
     }
@@ -319,6 +356,7 @@ Page {
         return JSON.stringify(data, null, 2);
     }
 
+    // The writeToFile function handles saving and updating UI elements based on the outcome.
     function writeToFile(filePath, textData) {
         statusText = qsTr("Saving file...");
         console.log(qsTr("APP_DEBUG: writeToFile started for path: ") + filePath);
@@ -329,7 +367,7 @@ Page {
                 FileIO.write(filePath, textData);
                 console.log(qsTr("APP_DEBUG: File saved via FileIO: ") + filePath);
                 // Continue updating statistics and showing dialog
-                var notesCount = JSON.parse(textData).length; // Always parse JSON now
+                var notesCount = JSON.parse(textData).length;
 
                 DB.updateLastExportDate();
                 DB.updateNotesExportedCount(notesCount);
@@ -356,7 +394,8 @@ Page {
 
                 if (xhr.status === 0 || xhr.status === 200) { // status 0 often means success for local files
                     console.log(qsTr("APP_DEBUG: File saved via XMLHttpRequest: ") + filePath);
-                    var notesCount = JSON.parse(textData).length; // Always parse JSON now
+                    // For JSON, parse the data to get the count
+                    var notesCount = JSON.parse(textData).length;
 
                     DB.updateLastExportDate();
                     DB.updateNotesExportedCount(notesCount);
@@ -429,10 +468,10 @@ Page {
 
             if (fileContent) {
                 var notes;
-                // Only process JSON files
-                if (/\.json$/.test(absoluteFilePathString)) {
+                // Check if the string ends with ".json" using ES5 compatible method
+                if (absoluteFilePathString.indexOf(".json", absoluteFilePathString.length - ".json".length) !== -1) {
                     notes = JSON.parse(fileContent);
-                } else { // No other formats are supported now
+                } else {
                     statusText = qsTr("Unsupported file format. Only JSON is supported.");
                     processInProgress = false;
                     console.log("APP_DEBUG: processInProgress set to false due to unsupported file format.");

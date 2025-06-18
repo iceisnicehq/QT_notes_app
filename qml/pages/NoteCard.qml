@@ -131,7 +131,7 @@ Item {
                 visible: tags.trim().length > 0
 
                 Repeater {
-                    model: tags.split(" ")
+                    model: tags.split("_||_")
                     delegate: Rectangle {
                         visible: index < 2
                         color: "#a032353a"
@@ -156,7 +156,7 @@ Item {
                 }
 
                 Rectangle {
-                    visible: tags.split(" ").length > 2
+                    visible: tags.split("_||_").length > 2
                     color: "#a032353a"
                     radius: 12
                     height: tagCount.implicitHeight + Theme.paddingSmall
@@ -164,7 +164,7 @@ Item {
 
                     Text {
                         id: tagCount
-                        text: "+" + (tags.split(" ").length - 2)
+                        text: "+" + (tags.split("_||_").length - 2)
                         color: "#c5c8d0"
                         font.pixelSize: Theme.fontSizeExtraSmall
                         anchors.centerIn: parent

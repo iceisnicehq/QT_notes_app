@@ -204,7 +204,7 @@ Item { // Changed from Rectangle to Item as it's a better base for components th
 
                 // Repeater to display each tag
                 Repeater {
-                    model: root.tags.split(" ").filter(function(tag) { return tag.trim() !== "" })
+                    model: root.tags.split("_||_").filter(function(tag) { return tag.trim() !== "" })
                     delegate: Rectangle {
                         visible: index < 2
                         color: "#32353a"
@@ -227,7 +227,7 @@ Item { // Changed from Rectangle to Item as it's a better base for components th
 
                 // "+X" bubble for more than 2 tags
                 Rectangle {
-                    visible: root.tags.split(" ").filter(function(tag) { return tag.trim() !== "" }).length > 2
+                    visible: root.tags.split("_||_").filter(function(tag) { return tag.trim() !== "" }).length > 2
                     color: "#32353a"
                     radius: 12
                     height: tagCount.implicitHeight + Theme.paddingSmall
@@ -235,7 +235,7 @@ Item { // Changed from Rectangle to Item as it's a better base for components th
 
                     Text {
                         id: tagCount
-                        text: "+" + (root.tags.split(" ").filter(function(tag) { return tag.trim() !== "" }).length - 2)
+                        text: "+" + (root.tags.split("_||_").filter(function(tag) { return tag.trim() !== "" }).length - 2)
                         color: "#c5c8d0"
                         font.pixelSize: Theme.fontSizeExtraSmall
                         anchors.centerIn: parent

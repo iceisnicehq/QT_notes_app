@@ -516,7 +516,7 @@ Page {
                         width: parent.width
                         title: modelData.title
                         content: modelData.content
-                        tags: modelData.tags.join(' ') // Passing tags as space-separated string
+                        tags: modelData.tags.join("_||_") // Passing tags as space-separated string
                         cardColor: modelData.color || "#1c1d29"
                         noteId: modelData.id
                         isSelected: mainPage.isNoteSelected(modelData.id)
@@ -561,7 +561,7 @@ Page {
                         width: parent.width
                         title: modelData.title
                         content: modelData.content
-                        tags: modelData.tags.join(' ') // Passing tags as space-separated string
+                        tags: modelData.tags.join("_||_") // Passing tags as space-separated string
                         cardColor: modelData.color || "#1c1d29"
                         noteId: modelData.id
                         isSelected: mainPage.isNoteSelected(modelData.id)

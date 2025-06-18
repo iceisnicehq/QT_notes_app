@@ -348,7 +348,7 @@ Page {
                             noteId: modelData.id
                             title: modelData.title
                             content: modelData.content
-                            tags: modelData.tags ? modelData.tags.join(' ') : ''
+                            tags: modelData.tags ? modelData.tags.join("_||_") : ''
                             cardColor: modelData.color || "#1c1d29"
                             height: implicitHeight // Let the card determine its height based on its content
 

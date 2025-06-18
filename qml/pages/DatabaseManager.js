@@ -862,10 +862,10 @@ function moveNoteFromTrashToArchive(noteId) {
 
 
 
-function getNotesForExport(successCallback, errorCallback) {
+function getNotesForExport(successCallback, errorCallback, newTagToAdd) {
     if (!db) initDatabase(LocalStorage);
     console.log("DB_MGR_DEBUG: getNotesForExport вызвана.");
-    // Критическая проверка: 'db' должен быть уже инициализирован из QML.
+
     if (!db) {
         console.error("DB_MGR_DEBUG: getNotesForExport: База данных НЕ инициализирована (db === null). Невозможно продолжить.");
         if (errorCallback) {
@@ -876,19 +876,19 @@ function getNotesForExport(successCallback, errorCallback) {
     console.log("DB_MGR_DEBUG: База данных 'db' доступна. Начинаем транзакцию для получения заметок.");
 
     db.transaction(function(tx) {
-        var notes = [];
         try {
-            // Выбираем все заметки, которые не помечены как удаленные
+            var notes = [];
+            // Select all notes that are not marked as deleted
             var res = tx.executeSql('SELECT id, pinned, title, content, color, created_at, updated_at, deleted, archived FROM Notes WHERE deleted = 0 ORDER BY updated_at DESC');
             console.log("DB_MGR_DEBUG: Запрос заметок выполнен. Найдено строк: " + res.rows.length);
 
             for (var i = 0; i < res.rows.length; i++) {
                 var note = res.rows.item(i);
-                note.tags = []; // Инициализируем пустой массив для тегов каждой заметки
+                note.tags = []; // Initialize an empty array for tags for each note
                 notes.push(note);
             }
 
-            // Если нет заметок, сразу возвращаем пустой массив
+            // If there are no notes, return an empty array immediately
             if (notes.length === 0) {
                 console.log("DB_MGR_DEBUG: Нет заметок для экспорта. Вызываем successCallback с пустым массивом.");
                 if (successCallback) {
@@ -897,50 +897,57 @@ function getNotesForExport(successCallback, errorCallback) {
                 return;
             }
 
-            // Теперь получаем теги для каждой заметки
-            var tagsProcessedCount = 0;
+            // Now get tags for each note synchronously within the transaction
             console.log("DB_MGR_DEBUG: Начинаем обработку тегов для " + notes.length + " заметок.");
             for (var j = 0; j < notes.length; j++) {
-                (function(currentNote) {
-                    try {
-                        var tagRes = tx.executeSql(
-                            'SELECT T.name FROM Tags T JOIN NoteTags NT ON T.id = NT.tag_id WHERE NT.note_id = ?',
-                            [currentNote.id]
-                        );
-                        for (var k = 0; k < tagRes.rows.length; k++) {
-                            currentNote.tags.push(tagRes.rows.item(k).name);
-                        }
-                    } catch (tagSqlError) {
-                        console.error("DB_MGR_DEBUG: Ошибка SQL при получении тегов для заметки ID " + currentNote.id + ": " + tagSqlError.message);
-                        // Продолжаем, но заметка может быть без тегов
+                var currentNote = notes[j];
+                try {
+                    var tagRes = tx.executeSql(
+                        'SELECT T.name FROM Tags T JOIN NoteTags NT ON T.id = NT.tag_id WHERE NT.note_id = ?',
+                        [currentNote.id]
+                    );
+                    for (var k = 0; k < tagRes.rows.length; k++) {
+                        currentNote.tags.push(tagRes.rows.item(k).name);
                     }
+                } catch (tagSqlError) {
+                    console.error("DB_MGR_DEBUG: Ошибка SQL при получении тегов для заметки ID " + currentNote.id + ": " + tagSqlError.message);
+                    // Continue, but the note might be without tags
+                }
+            }
+            console.log("DB_MGR_DEBUG: Все теги обработаны.");
 
-                    tagsProcessedCount++;
-
-                    // Когда теги для всех заметок обработаны, вызываем successCallback
-                    if (tagsProcessedCount === notes.length) {
-                        console.log("DB_MGR_DEBUG: Все теги обработаны. Вызываем successCallback с " + notes.length + " заметками.");
-                        if (successCallback) {
-                            successCallback(notes);
-                        }
+            // Apply the optional new tag *after* all existing tags are fetched
+            // Ensure newTagToAdd is a non-empty string before attempting to add
+            if (newTagToAdd && typeof newTagToAdd === 'string' && newTagToAdd.length > 0) {
+                console.log("DB_MGR_DEBUG: Adding optional tag: '" + newTagToAdd + "' to exported notes.");
+                notes.forEach(function(note) {
+                    // Check if the tag already exists in the note's tags to avoid duplicates
+                    if (note.tags.indexOf(newTagToAdd) === -1) {
+                        note.tags.push(newTagToAdd);
                     }
-                })(notes[j]);
+                });
+            }
+
+            console.log("DB_MGR_DEBUG: Вызываем successCallback с " + notes.length + " заметками.");
+            if (successCallback) {
+                successCallback(notes);
             }
         } catch (mainSqlError) {
-            // Ошибка на уровне выполнения основного SQL-запроса
+            // Error at the level of executing the main SQL query
             console.error("DB_MGR_DEBUG: Ошибка выполнения основного SQL-запроса для заметок: " + mainSqlError.message);
             if (errorCallback) {
                 errorCallback(mainSqlError);
             }
         }
     }, function(error) {
-        // Обработка ошибок транзакции
+        // Transaction error handling
         console.error("DB_MGR_DEBUG: Ошибка транзакции при получении заметок для экспорта: " + error.message);
         if (errorCallback) {
             errorCallback(error);
         }
     });
 }
+
 
 /**
  * Функция для добавления импортированной заметки.
