@@ -199,7 +199,6 @@ Page {
 
             // --- Spacer before Import Section ---
             Rectangle {
-                anchors.topMargin: 300
                 height: Theme.paddingLarge * 2 // Consistent spacing
                 width: parent.width
                 color: "transparent"

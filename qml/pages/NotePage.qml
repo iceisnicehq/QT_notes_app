@@ -236,9 +236,14 @@ Page {
                 // If it's a new note, add it to DB
                 newNotePage.noteTitle = noteTitleInput.text;
                 newNotePage.noteContent = noteContentInput.text;
-                var newId = DB.addNote(noteIsPinned, newNotePage.noteTitle, newNotePage.noteContent, noteTags, noteColor);
-                console.log(qsTr("Debug: New note added with ID: %1, Color: %2, Tags: %3").arg(newId).arg(noteColor).arg(JSON.stringify(noteTags)));
-            } else {
+                if (newNotePage.noteTitle === "" && newNotePage.noteContent === "") {
+                    console.log(qTr("Debug: New empty note not saved."))
+                }
+                else {
+                    var newId = DB.addNote(noteIsPinned, newNotePage.noteTitle, newNotePage.noteContent, noteTags, noteColor);
+                    console.log(qsTr("Debug: New note added with ID: %1, Color: %2, Tags: %3").arg(newId).arg(noteColor).arg(JSON.stringify(noteTags)));
+                }
+           } else {
                 // If it's an existing note, update if modified
                 if (noteModified) {
                     newNotePage.noteTitle = noteTitleInput.text;
@@ -318,9 +323,7 @@ Page {
                 id: closeButton
                 // Dynamic source based on note status and content, and read-only mode
                 source: {
-                    if (newNotePage.isReadOnly) {
-                        return "../icons/back.svg"; // Always back arrow in read-only
-                    } else if (newNotePage.noteId === -1) { // If it's a new note
+                        if (newNotePage.noteId === -1) { // If it's a new note
                         if (noteTitleInput.text.trim() === "" && noteContentInput.text.trim() === "") {
                             return "../icons/close.svg"; // New and empty: show close
                         } else {
@@ -338,17 +341,10 @@ Page {
                 anchors.fill: parent
                 onPressed: backRipple.ripple(mouseX, mouseY)
                 onClicked: {
-                    // Check if in read-only mode and handle accordingly
-                    if (newNotePage.isReadOnly) {
-                        pageStack.pop(); // Simply pop back if in read-only mode (from Trash/Archive)
-                    } else if (newNotePage.noteId === -1 && noteTitleInput.text.trim() === "" && noteContentInput.text.trim() === "") {
-                        // New, empty note, just pop without saving
-                        pageStack.pop();
-                    } else {
                         // For new note with content or existing modified note, save on pop if not read-only
                         // The onDestruction handler will take care of saving
                         pageStack.pop();
-                    }
+
                 }
             }
         }
@@ -374,10 +370,10 @@ Page {
                 enabled: true // Always enabled to allow showing dialog
                 onPressed: pinRipple.ripple(mouseX, mouseY)
                 onClicked: {
-                    if (newNotePage.noteId === -1) {
-                         toastManager.show(qsTr("Cannot pin a new note. Save it first."));
-                         return;
-                    }
+//                    if (newNotePage.noteId === -1) {
+//                         toastManager.show(qsTr("Cannot pin a new note. Save it first."));
+//                         return;
+//                    }
                     if (handleInteractionAttempt()) { // Check read-only state and show dialog if needed
                         noteIsPinned = !noteIsPinned;
                         newNotePage.noteModified = true;
