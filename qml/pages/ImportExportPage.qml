@@ -22,6 +22,12 @@ Page {
     // Property to control side panel visibility, similar to ArchivePage
     property bool panelOpen: false
 
+    // NEW: Properties to hold export/import statistics
+    property var lastExportDate: null
+    property int notesExportedCount: 0
+    property var lastImportDate: null
+    property int notesImportedCount: 0
+
     // ConfigurationValue for getting the documents path
     ConfigurationValue {
         id: documentsPathConfig
@@ -38,6 +44,7 @@ Page {
 
         FilePickerPage {
             title: qsTr("Select file for import")
+            backgroundColor: DB.getThemeColor()
             // nameFilters: [qsTr("Резервные копии (*.json *.csv)"), qsTr("JSON файлы (*.json)"), qsTr("CSV файлы (*.csv)")] // These lines were already wrapped, commented out to show they haven't changed.
 
             onSelectedContentPropertiesChanged: {
@@ -157,6 +164,21 @@ Page {
                 onClicked: exportData()
             }
 
+            // NEW: Export Statistics Display
+            Label {
+                width: parent.width - (2 * Theme.paddingLarge)
+                horizontalAlignment: Text.AlignHCenter
+                font.pixelSize: Theme.fontSizeSmall
+                color: Theme.secondaryColor
+                wrapMode: Text.Wrap
+                text: (notesExportedCount > 0 && lastExportDate) ?
+                      qsTr("Last export: %1 (%2 notes)").arg(Qt.formatDateTime(new Date(lastExportDate), "yyyy-MM-dd HH:mm")).arg(notesExportedCount) :
+                      qsTr("No export detected.");
+                anchors.horizontalCenter: parent.horizontalCenter
+                topPadding: Theme.paddingSmall
+                bottomPadding: Theme.paddingSmall
+            }
+
             // --- Spacer before Import Section ---
             Item {
                 Layout.preferredHeight: Theme.paddingLarge * 2 // Consistent spacing
@@ -189,6 +211,21 @@ Page {
                     statusText = "";
                     pageStack.push(filePickerComponent);
                 }
+            }
+
+            // NEW: Import Statistics Display
+            Label {
+                width: parent.width - (2 * Theme.paddingLarge)
+                horizontalAlignment: Text.AlignHCenter
+                font.pixelSize: Theme.fontSizeSmall
+                color: Theme.secondaryColor
+                wrapMode: Text.Wrap
+                text: (notesImportedCount > 0 && lastImportDate) ?
+                      qsTr("Last import: %1 (%2 notes)").arg(Qt.formatDateTime(new Date(lastImportDate), "yyyy-MM-dd HH:mm")).arg(notesImportedCount) :
+                      qsTr("No import detected.");
+                anchors.horizontalCenter: parent.horizontalCenter
+                topPadding: Theme.paddingSmall
+                bottomPadding: Theme.paddingSmall
             }
 
             // --- Spacer before Status/Return Button ---
@@ -233,7 +270,6 @@ Page {
         console.log(qsTr("APP_DEBUG: Export/Import Page: Component.onCompleted started."));
         // Database initialization - ONLY HERE!
         // Pass LocalStorage, which is available in QML context, to the JS module.
-        //DB.initDatabase(LocalStorage);
         DB.initDatabase(LocalStorage)
         // Check if the database initialized successfully
         if (DB.db === null) {
@@ -241,6 +277,22 @@ Page {
             statusText = qsTr("Error: Database not initialized. Please restart the application.");
         } else {
             console.log(qsTr("APP_DEBUG: DB.db is successfully initialized."));
+
+            // NEW: Fetch export/import stats from AppSettings
+            lastExportDate = DB.getSetting("lastExportDate");
+            notesExportedCount = DB.getSetting("notesExportedCount");
+            lastImportDate = DB.getSetting("lastImportDate");
+            notesImportedCount = DB.getSetting("notesImportedCount");
+
+            // Ensure counts are 0 if no data (getSetting returns null)
+            if (notesExportedCount === null) notesExportedCount = 0;
+            if (notesImportedCount === null) notesImportedCount = 0;
+
+            console.log("APP_DEBUG: Loaded export/import stats:",
+                        "Export Date:", lastExportDate,
+                        "Export Count:", notesExportedCount,
+                        "Import Date:", notesImportedCount,
+                        "Import Count:", notesImportedCount);
         }
 
         var updateFileName = function() {
@@ -255,17 +307,9 @@ Page {
 
     // --- EXPORT LOGIC ---
     function exportData() {
-        processInProgress = true; // <-- UNCOMMENT THIS! Show indicator
+        processInProgress = true; // Show indicator
         statusText = qsTr("Gathering data for export...");
         console.log(qsTr("APP_DEBUG: exportData started."));
-
-//        // Check if DB is initialized here, before calling getNotesForExport
-//        if (!DB.db) {
-//            statusText = qsTr("Error: Database not initialized for export. (Recheck)");
-//            processInProgress = false;
-//            console.error(qsTr("APP_DEBUG: Database not initialized when attempting export."));
-//            return;
-//        }
 
         // Call function from DatabaseManager.js
         DB.getNotesForExport(
@@ -331,7 +375,6 @@ Page {
     }
 
     function writeToFile(filePath, textData) {
-        // processInProgress = true; // Already set in exportData
         statusText = qsTr("Saving file...");
         console.log(qsTr("APP_DEBUG: writeToFile started for path: ") + filePath);
 
@@ -347,6 +390,10 @@ Page {
 
                 DB.updateLastExportDate();
                 DB.updateNotesExportedCount(notesCount);
+
+                // NEW: Update QML properties after successful export
+                lastExportDate = DB.getSetting("lastExportDate");
+                notesExportedCount = DB.getSetting("notesExportedCount");
 
                 pageStack.push(Qt.resolvedUrl("ExportResultDialog.qml"), {
                     fileName: filePath.split('/').pop(),
@@ -373,6 +420,10 @@ Page {
                     DB.updateLastExportDate();
                     DB.updateNotesExportedCount(notesCount);
 
+                    // NEW: Update QML properties after successful export
+                    lastExportDate = DB.getSetting("lastExportDate");
+                    notesExportedCount = DB.getSetting("notesExportedCount");
+
                     pageStack.push(Qt.resolvedUrl("ExportResultDialog.qml"), {
                         fileName: filePath.split('/').pop(),
                         filePath: filePath,
@@ -395,7 +446,7 @@ Page {
         }
     }
 
-    // --- IMPORT LOGIC (unchanged) ---
+    // --- IMPORT LOGIC ---
     function importFromFile(filePath) {
         processInProgress = true;
         var absoluteFilePathString = String(filePath); // Keep this line for reliability
@@ -451,39 +502,33 @@ Page {
 
                 if (notes && notes.length > 0) {
                     statusText = qsTr("Importing ") + notes.length + qsTr(" notes...");
-                    var importedCount = 0;
-                    DB.db.transaction(function(tx) {
-                        for (var i = 0; i < notes.length; i++) {
-                            DB.addImportedNote(notes[i], tx);
-                            importedCount++;
-                            console.log(importedCount); // This is a debug log, can be left without qsTr if not intended for user.
+                    var importedCount = 0; // Declare outside transaction for scope
+
+                    DB.db.transaction(
+                        function(tx) { // Transaction callback
+                            for (var i = 0; i < notes.length; i++) {
+                                DB.addImportedNote(notes[i], tx);
+                                importedCount++;
+                            }
+                        },
+                        function(error) { // Error callback
+                            statusText = qsTr("Import error: ") + error.message;
+                            console.error(qsTr("APP_DEBUG: Error during import transaction: ") + error.message);
+                            processInProgress = false;
+                        },
+                        function() { // Success callback
+                            statusText = qsTr("Import completed! Processed: ") + importedCount + qsTr(" notes.");
+                            DB.updateLastImportDate();
+                            DB.updateNotesImportedCount(importedCount);
+
+                            // NEW: Update QML properties after successful import
+                            lastImportDate = DB.getSetting("lastImportDate");
+                            notesImportedCount = DB.getSetting("notesImportedCount");
+
+                            processInProgress = false;
+                            console.log(qsTr("APP_DEBUG: Import finished. Imported: ") + importedCount);
                         }
-
-
-                        console.log(qsTr("test"));
-
-                    });
-                    console.log(qsTr("test2"));
-//                    , function(error) {
-//                        console.log(qsTr("test1"));
-//                        statusText = qsTr("Import error: ") + error.message;
-//                        console.error(qsTr("APP_DEBUG: Error during import transaction: ") + error.message);
-//                        processInProgress = false;
-
-
-//                        console.log(qsTr("test1"));
-//                    }, function() {
-//                        console.log(qsTr("test2"));
-//                        statusText = qsTr("Import completed! Processed: ") + importedCount + qsTr(" notes.");
-//                        DB.updateLastImportDate();
-//                        DB.updateNotesImportedCount(importedCount);
-//                        processInProgress = false;
-//                        console.log(qsTr("APP_DEBUG: Import finished. Imported: ") + importedCount);
-
-
-//                        console.log(qsTr("test3"));
-//                    }
-//                    );
+                    );
                 } else {
                     statusText = qsTr("File contains no notes to import.");
                     processInProgress = false;
@@ -498,12 +543,6 @@ Page {
             console.error(qsTr("APP_DEBUG: EXCEPTION caught during file processing for import: ") + e.message);
             processInProgress = false;
         }
-        processInProgress = false;
-        // IMPORTANT: ImportedCount might be undefined here if the transaction callback logic is incomplete or commented out.
-        // Make sure 'importedCount' is reliably set before this point if these updates are critical.
-        DB.updateLastImportDate();
-        DB.updateNotesImportedCount(importedCount); // This will only work if importedCount is set outside the transaction.
-
     }
 
     function parseCsv(content) {
