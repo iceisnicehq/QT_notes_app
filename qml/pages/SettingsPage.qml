@@ -182,7 +182,7 @@ Page {
                             text: qsTr("Russian")
                             font.pixelSize: Theme.fontSizeSmall
                             font.bold: settingsPage.currentLanguageSetting === "ru"
-                            color: (settingsPage.currentLanguageSetting === "ru") ? DB.darkenColor(settingsPage.customBackgroundColor, -0.80) : DB.darkenColor(settingsPage.customBackgroundColor, -0.50)
+                            color: (settingsPage.currentLanguageSetting === "ru") ? DB.darkenColor(settingsPage.customBackgroundColor, -0.95) : DB.darkenColor(settingsPage.customBackgroundColor, -0.50)
                             horizontalAlignment: Text.AlignHCenter
                         }
                     }
@@ -211,7 +211,7 @@ Page {
                         anchors.centerIn: parent
                         Label {
                             text: qsTr("English")
-                            color: (settingsPage.currentLanguageSetting === "en") ? DB.darkenColor(settingsPage.customBackgroundColor, -0.80) : DB.darkenColor(settingsPage.customBackgroundColor, -0.50)
+                            color: (settingsPage.currentLanguageSetting === "en") ? DB.darkenColor(settingsPage.customBackgroundColor, -0.95) : DB.darkenColor(settingsPage.customBackgroundColor, -0.50)
                             font.pixelSize: Theme.fontSizeSmall
                             font.bold: settingsPage.currentLanguageSetting === "en"
                             horizontalAlignment: Text.AlignHCenter

@@ -280,6 +280,7 @@ function addTagToNoteInternal(tx, noteId, tagName) {
     );
 }
 
+
 function addTagToNote(noteId, tagName) {
     if (!db) initDatabase(LocalStorage);
     db.transaction(function(tx) {
@@ -956,14 +957,25 @@ function getNotesForExport(successCallback, errorCallback, newTagToAdd) {
  * @param {object} note Объект заметки для импорта.
  * @param {SQLTransaction} tx Объект транзакции, если функция вызывается внутри существующей транзакции.
  */
-function addImportedNote(note, tx) {
+
+function addImportedNote(note, tx, optionalTagForImport) { // Added optionalTagForImport parameter
     console.log("DB_MGR_DEBUG: Processing note for import: ID " + note.id);
     var noteColor = note.color || defaultNoteColor;
     var noteId = addNoteInternal(tx, note.pinned, note.title, note.content, noteColor, 0, 0); // MODIFIED
+
+    // Add existing tags from the imported note
+    if (note.tags && note.tags.length > 0) {
         for (var j = 0; j < note.tags.length; j++) {
             addTagToNoteInternal(tx, noteId, note.tags[j]);
         }
     }
+
+    // Add the optional new tag if provided and valid
+    if (optionalTagForImport && typeof optionalTagForImport === 'string' && optionalTagForImport.length > 0) {
+        console.log("DB_MGR_DEBUG: Adding optional import tag '" + optionalTagForImport + "' to imported note ID " + noteId);
+        addTagToNoteInternal(tx, noteId, optionalTagForImport);
+    }
+}
 
 
 /**
