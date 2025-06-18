@@ -757,7 +757,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="928"/>
         <source>No tags found matching your search</source>
-        <translation>Нет тэгов соответствующих вашему запросу</translation>
+        <translation>Нет тегов соответствующих вашему запросу</translation>
     </message>
 </context>
 <context>
