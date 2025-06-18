@@ -226,7 +226,7 @@ Page {
                     placeholderText: qsTr("Search notes...")
                     highlighted: false
                     text: currentSearchText // This binds to mainPage.currentSearchText
-
+                    readOnly: allNotes.length === 0
                     onTextChanged: {
                         mainPage.currentSearchText = text; // Update mainPage's property
                         performSearch(text, selectedTags);
@@ -279,6 +279,8 @@ Page {
                         width: Theme.fontSizeExtraLarge * 1.25
                         height: Theme.fontSizeExtraLarge * 1.25
                         clip: false
+                        enabled: allNotes.length !== 0
+                        opacity: allNotes.length !== 0 ? 1 : 0.5
 
                         Icon {
                             id: rightIcon

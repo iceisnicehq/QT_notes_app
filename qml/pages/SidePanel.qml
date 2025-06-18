@@ -20,7 +20,7 @@ Item {
     property int trashNotesCount: 0 // New property for trash notes count
     property int archivedNotesCount: 0 // НОВОЕ СВОЙСТВО: для количества заметок в архиве
 
-    // NEW: Define a signal to notify the parent when the panel requests to be closed
+    // Define a signal to notify the parent when the panel requests to be closed
     signal closed();
 
     Behavior on opacity {
@@ -109,7 +109,7 @@ Item {
         id: panelContent
         width: parent.width * 0.75
         height: parent.height
-        color: sidePanel.customBackgroundColor // старый #1c1d29
+        color: sidePanel.customBackgroundColor
         x: open ? 0 : -width
 
         Behavior on x {
@@ -121,9 +121,9 @@ Item {
 
         // The main scrollable area of the side panel
         SilicaFlickable {
-            id: sidePanelFlickable // <-- Give the Flickable an ID
+            id: sidePanelFlickable
             anchors.fill: parent
-            contentHeight: contentColumn.height // This drives the scrollability
+            contentHeight: contentColumn.height
 
             Column {
                 id: contentColumn
@@ -132,25 +132,34 @@ Item {
 
                 // Header of the SidePanel
                 Item {
-                    id: sidePanelHeader // <-- Give the header an ID for the scrollbar
+                    id: sidePanelHeader
                     width: parent.width
                     height: Theme.itemSizeLarge
 
-                    Label {
-                        text: qsTr("Aurora Notes")
-                        color: "#e2e3e8"
-                        font.pixelSize: Theme.fontSizeExtraLarge
-                        font.bold: true
-                        anchors {
-                            left: parent.left
-                            leftMargin: Theme.paddingLarge
-                            verticalCenter: parent.verticalCenter
+                    // Aurora Notes text, now clickable
+                    MouseArea {
+                        anchors.fill: parent // Make the entire header area clickable
+                        onClicked: {
+                            navigateAndManageStack(Qt.resolvedUrl("MainPage.qml"), "notes", "mainPage");
+                        }
+
+                        Label {
+                            text: qsTr("Aurora Notes")
+                            color: "#e2e3e8"
+                            font.pixelSize: Theme.fontSizeExtraLarge
+                            font.bold: true
+                            anchors {
+                                left: parent.left
+                                leftMargin: Theme.paddingLarge
+                                verticalCenter: parent.verticalCenter
+                            }
                         }
                     }
+
                     Item {
                         width: Theme.fontSizeExtraLarge * 1.1
                         height: Theme.fontSizeExtraLarge * 1.1
-                        clip: false  // Important: do not clip!
+                        clip: false
                         anchors {
                             right: parent.right
                             rightMargin: Theme.paddingLarge
@@ -171,7 +180,7 @@ Item {
                             anchors.fill: parent
                             onPressed: closeRipple.ripple(mouseX, mouseY)
                             onClicked: {
-                                sidePanel.closed(); // Emit the signal instead of directly modifying a global property
+                                sidePanel.closed();
                             }
 
                         }

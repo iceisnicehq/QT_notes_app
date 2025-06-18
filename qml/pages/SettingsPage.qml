@@ -8,88 +8,91 @@ import "DatabaseManager.js" as DB // Import DatabaseManager
 
 Page {
     id: settingsPage
-    // The background color will dynamically adapt based on the active theme
-    // It will now primarily be driven by customBackgroundColor or default
-    backgroundColor: settingsPage.customBackgroundColor !== undefined ? settingsPage.customBackgroundColor : "#121218" // Fallback to Theme.backgroundColor if custom is not set
+    // Dynamically adapt background color based on custom setting or default
+    backgroundColor: settingsPage.customBackgroundColor !== undefined ? settingsPage.customBackgroundColor : "#121218"
     showNavigationIndicator: false
 
-    // Property to control side panel visibility, similar to ArchivePage
+    // Controls side panel visibility
     property bool panelOpen: false
 
-    // --- NEW: Theme Color Palette and Custom Color Property ---
-    // The predefined color palette for the color picker
+    // Predefined color palette for theme selection
     readonly property var colorPalette: ["#121218", "#1c1d29", "#3a2c2c", "#2c3a2c", "#2c2c3a", "#3a3a2c",
         "#43484e", "#5c4b37", "#3e4a52", "#503232", "#325032", "#323250"]
 
-    // Property to hold the currently selected custom background color
-    property string customBackgroundColor: DB.getThemeColor() || "#121218" // Load from DB, default to a dark color if not found
+    // Holds the currently selected custom background color, loaded from DB
+    property string customBackgroundColor: DB.getThemeColor() || "#121218"
 
-    // --- Language Highlighting Property ---
-    // This property will be updated to ensure the language selection highlights reactively.
-    property string currentLanguageSetting: DB.getLanguage() // Initialize from DB
+    // Updates to reflect the current language setting for highlighting
+    property string currentLanguageSetting: DB.getLanguage()
 
-    // --- NEW: Data Management Statistics Properties (kept for data management actions, even if not displayed) ---
-    property string lastExportDate: ""
-    property int notesExportedCount: 0
-    property string lastImportDate: ""
-    property int notesImportedCount: 0
-
-    // --- NEW: Properties for Confirmation Dialog ---
+    // Properties for controlling the confirmation dialog
     property bool confirmDialogVisible: false
-    property string confirmDialogTitle: qsTr("Confirm Action") // Default title
-    property string confirmDialogMessage: "" // Message for the dialog
-    property string confirmButtonText: qsTr("Confirm") // Default button text
-    property var onConfirmCallback: null // Callback function to execute on confirm
-    property color confirmButtonHighlightColor: Theme.primaryColor // Default highlight color for confirm button
+    property string confirmDialogTitle: qsTr("Confirm Action")
+    property string confirmDialogMessage: ""
+    property string confirmButtonText: qsTr("Confirm")
+    property var onConfirmCallback: null
+    property color confirmButtonHighlightColor: Theme.primaryColor
+
+    // Properties for dynamic button enablement based on note counts
+    property bool hasAnyNotes: false
+    property bool hasNonArchivedNonDeletedNotes: false
+    property bool hasNonDeletedNotes: false
 
     Component.onCompleted: {
-        console.log("SettingsPage opened. Initializing settings and statistics.");
+        console.log("SettingsPage opened. Initializing settings.");
         sidePanelInstance.currentPage = "settings"; // Highlight 'settings' in the side panel
 
-        // Load initial custom background color from DB
+        // Load and apply initial custom background color from database
         var storedColor = DB.getThemeColor();
         if (storedColor) {
             settingsPage.customBackgroundColor = storedColor;
-            // When the page loads, ensure the global Theme.backgroundColor is also updated
-            // if AppSettings (C++) manages global theme changes based on DB.getThemeColor()
-            // This part assumes C++ side observes changes in DB or AppSettings property.
-            // For immediate QML effect on this page, it's already bound above.
-            // If other pages are to react to this, they also need to bind their background.
         } else {
-            // If no custom color is set, ensure a default is used and saved
-            DB.setThemeColor("#121218"); // Set initial default
+            // Set and save a default color if none is found
+            DB.setThemeColor("#121218");
             settingsPage.customBackgroundColor = "#121218";
         }
 
-        // Ensure current language setting is updated on page load for highlighting
+        // Update current language setting for UI highlighting
         settingsPage.currentLanguageSetting = DB.getLanguage();
 
-        // Load data management statistics (still called, but no longer displayed)
-        updateDataManagementStats();
+        // Refresh button enablement states
+        updateNoteCounts();
     }
 
-    function updateDataManagementStats() {
-        // Retrieve values from DB and update properties (properties are kept for potential future use or debugging, even if not displayed)
-        settingsPage.lastExportDate = DB.getSetting('lastExportDate') || qsTr("N/A");
-        settingsPage.notesExportedCount = DB.getSetting('notesExportedCount') || 0;
-        settingsPage.lastImportDate = DB.getSetting('lastImportDate') || qsTr("N/A");
-        settingsPage.notesImportedCount = DB.getSetting('notesImportedCount') || 0;
+    // Updates boolean properties that control button enablement based on note counts
+    function updateNoteCounts() {
+        var activeNotes = DB.getAllNotes(); // Notes that are not deleted and not archived
+        var deletedNotes = DB.getDeletedNotes(); // Notes that are deleted
+        var archivedNotes = DB.getArchivedNotes(); // Notes that are archived
+
+        settingsPage.hasAnyNotes = (activeNotes.length > 0 || deletedNotes.length > 0 || archivedNotes.length > 0);
+        settingsPage.hasNonArchivedNonDeletedNotes = (activeNotes.length > 0);
+        settingsPage.hasNonDeletedNotes = (activeNotes.length > 0 || archivedNotes.length > 0);
+
+        console.log("updateNoteCounts called:");
+        console.log("  hasAnyNotes:", settingsPage.hasAnyNotes);
+        console.log("  hasNonArchivedNonDeletedNotes (for Archive All):", settingsPage.hasNonArchivedNonDeletedNotes);
+        console.log("  hasNonDeletedNotes (for Move to Trash):", settingsPage.hasNonDeletedNotes);
     }
 
-    // Function to show the confirmation dialog dynamically
+    // Displays a confirmation dialog with a customizable message and callback
     function showConfirmDialog(message, callback, title, buttonText, highlightColor) {
-        confirmDialogMessage = message; // Set the message for the dialog
-        onConfirmCallback = callback;   // Set the callback function
-        if (title !== undefined) confirmDialogTitle = title; // Override default title if provided
-        else confirmDialogTitle = qsTr("Confirm Action"); // Reset to default if not provided
+        confirmDialogMessage = message;
+        onConfirmCallback = callback;
+        confirmDialogTitle = (title !== undefined) ? title : qsTr("Confirm Action");
+        confirmButtonText = (buttonText !== undefined) ? buttonText : qsTr("Confirm");
+        confirmButtonHighlightColor = (highlightColor !== undefined) ? highlightColor : Theme.primaryColor;
+        confirmDialogVisible = true;
+    }
 
-        if (buttonText !== undefined) confirmButtonText = buttonText; // Override default button text if provided
-        else confirmButtonText = qsTr("Confirm"); // Reset to default if not provided
-
-        if (highlightColor !== undefined) confirmButtonHighlightColor = highlightColor; // Override default highlight color
-        else confirmButtonHighlightColor = Theme.primaryColor; // Reset to default if not provided
-
-        confirmDialogVisible = true; // Make the dialog visible
+    // Clears the page stack and navigates back to MainPage, then SettingsPage
+    function refreshPageStack() {
+        pageStack.clear();
+        pageStack.completeAnimation();
+        pageStack.push(Qt.resolvedUrl("MainPage.qml"));
+        pageStack.completeAnimation();
+        pageStack.push(Qt.resolvedUrl("SettingsPage.qml"));
+        pageStack.completeAnimation();
     }
 
 
@@ -97,7 +100,7 @@ Page {
         id: pageHeader
         height: Theme.itemSizeExtraLarge
 
-        // Menu icon button, copied from ArchivePage for consistent styling
+        // Menu icon button to open the side panel
         Item {
             id: menuButton
             width: Theme.fontSizeExtraLarge * 1.1
@@ -113,72 +116,70 @@ Page {
 
             Icon {
                 id: leftIcon
-                source: "../icons/menu.svg" // Always menu icon for settings page
+                source: "../icons/menu.svg"
                 anchors.centerIn: parent
                 width: parent.width
                 height: parent.height
-                color: Theme.primaryColor // Ensured primary color for consistency
+                color: Theme.primaryColor
             }
 
             MouseArea {
                 anchors.fill: parent
                 onPressed: menuRipple.ripple(mouseX, mouseY)
                 onClicked: {
-                    settingsPage.panelOpen = true // Open the side panel
+                    settingsPage.panelOpen = true
                     console.log("Menu button clicked in SettingsPage → panelOpen = true")
                 }
             }
         }
 
         Label {
-            text: qsTr("Settings") // Page title, translatable
+            text: qsTr("Settings")
             anchors.centerIn: parent
             font.pixelSize: Theme.fontSizeExtraLarge
             font.bold: true
         }
     }
 
-    // Flickable for broader compatibility and scrollability
+    // Allows content to be scrolled if it overflows
     SilicaFlickable {
         anchors.fill: parent
-        anchors.topMargin: pageHeader.height // Only top margin, side margins handled by contentLayout
-        contentHeight: contentLayout.implicitHeight // Ensure Flickable can scroll the full content height
-        flickableDirection: Flickable.VerticalFlick // Only allow vertical scrolling
+        anchors.topMargin: pageHeader.height
+        contentHeight: contentLayout.implicitHeight
+        flickableDirection: Flickable.VerticalFlick
         clip: true
-        // The content of the Flickable, organized in a ColumnLayout
+        // Layout for all page content
         ColumnLayout {
-            id: contentLayout // Added ID to reference its implicitHeight
-            anchors.margins: Theme.paddingLarge // General margins for the content
-            spacing: Theme.paddingMedium // Spacing between sections and elements
-            width: parent.width - (2 * Theme.paddingLarge) // Ensure content fills Flickable width, accounting for margins
-            anchors.horizontalCenter: parent.horizontalCenter // Center the column within the flickable
+            id: contentLayout
+            anchors.margins: Theme.paddingLarge
+            spacing: Theme.paddingMedium
+            width: parent.width - (2 * Theme.paddingLarge)
+            anchors.horizontalCenter: parent.horizontalCenter
 
-            // --- Language Section Header (Now a Label and centered) ---
+            // Language section header
             Label {
-                text: qsTr("Language") // Section header for language selection
-                anchors.horizontalCenter: parent.horizontalCenter // Centered
+                text: qsTr("Language")
+                anchors.horizontalCenter: parent.horizontalCenter
                 horizontalAlignment: "AlignHCenter"
                 font.pixelSize: Theme.fontSizeMedium
-                font.bold: true // Make it bold like a header
-                color: "white" // Consistent header color
+                font.bold: true
+                color: "white"
             }
 
-            RowLayout { // Use RowLayout for horizontal arrangement
+            RowLayout { // Horizontal arrangement for language selection buttons
                 Layout.fillWidth: true
-                spacing: Theme.paddingSmall // Spacing between buttons in the row
-                // Button for Russian language selection, styled consistently
+                spacing: Theme.paddingSmall
+                // Button for Russian language selection
                 Button {
-                    Layout.fillWidth: true // Allow button to fill available width in the row
+                    Layout.fillWidth: true
                     Layout.preferredHeight: Theme.buttonHeightSmall * 0.9
-                    Layout.preferredWidth: parent.width / 2 - (parent.spacing / 2) // Distribute width evenly
-                    // Background color is now static, removing the highlight effect
+                    Layout.preferredWidth: parent.width / 2 - (parent.spacing / 2)
                     backgroundColor: Theme.rgba(Theme.primaryColor, 0.1)
 
                     Column {
                         anchors.centerIn: parent
                         Label {
                             text: qsTr("Russian")
-                            // Text color is now static, removing the highlight effect
                             font.pixelSize: Theme.fontSizeSmall
                             font.bold: settingsPage.currentLanguageSetting === "ru"
                             color: (settingsPage.currentLanguageSetting === "ru") ? DB.darkenColor(settingsPage.customBackgroundColor, -0.80) : DB.darkenColor(settingsPage.customBackgroundColor, -0.50)
@@ -190,33 +191,26 @@ Page {
                         console.log("Selected language: Russian");
                         if (AppSettings.setApplicationLanguage("ru")) {
                             DB.setLanguage("ru");
-                            settingsPage.currentLanguageSetting = "ru"; // Update the QML property to trigger highlighting
+                            settingsPage.currentLanguageSetting = "ru";
                             toastManager.show(qsTr("Language changed to Russian"));
-                            pageStack.clear();
-                            pageStack.completeAnimation();
-                            pageStack.push(Qt.resolvedUrl("MainPage.qml"));
-                            pageStack.completeAnimation();
-                            pageStack.push(Qt.resolvedUrl("SettingsPage.qml"));
-                            pageStack.completeAnimation();
+                            settingsPage.refreshPageStack();
                         } else {
                             toastManager.show(qsTr("Failed to change language."));
                         }
                     }
                 }
 
-                // Button for English language selection, styled consistently
+                // Button for English language selection
                 Button {
-                    Layout.fillWidth: true // Allow button to fill available width in the row
+                    Layout.fillWidth: true
                     Layout.preferredHeight: Theme.buttonHeightSmall * 0.9
-                    Layout.preferredWidth: parent.width / 2 - (parent.spacing / 2) // Distribute width evenly
-                    // Background color is now static, removing the highlight effect
+                    Layout.preferredWidth: parent.width / 2 - (parent.spacing / 2)
                     backgroundColor: Theme.rgba(Theme.primaryColor, 0.1)
 
                     Column {
                         anchors.centerIn: parent
                         Label {
                             text: qsTr("English")
-                            // Text color is now static, removing the highlight effect
                             color: (settingsPage.currentLanguageSetting === "en") ? DB.darkenColor(settingsPage.customBackgroundColor, -0.80) : DB.darkenColor(settingsPage.customBackgroundColor, -0.50)
                             font.pixelSize: Theme.fontSizeSmall
                             font.bold: settingsPage.currentLanguageSetting === "en"
@@ -229,14 +223,9 @@ Page {
                         console.log("Selected language: English");
                         if (AppSettings.setApplicationLanguage("en")) {
                             DB.setLanguage("en");
-                            settingsPage.currentLanguageSetting = "en"; // Update the QML property to trigger highlighting
+                            settingsPage.currentLanguageSetting = "en";
                             toastManager.show(qsTr("Language changed to English"));
-                            pageStack.clear();
-                            pageStack.completeAnimation();
-                            pageStack.push(Qt.resolvedUrl("MainPage.qml"));
-                            pageStack.completeAnimation();
-                            pageStack.push(Qt.resolvedUrl("SettingsPage.qml"));
-                            pageStack.completeAnimation();
+                            settingsPage.refreshPageStack();
                         } else {
                             toastManager.show(qsTr("Failed to change language."));
                         }
@@ -244,34 +233,33 @@ Page {
                 }
             }
 
-            // --- Spacer before Theme Color Section ---
+            // Spacer
             Item {
-                Layout.preferredHeight: Theme.paddingLarge * 2 // Maintain consistent spacing
+                Layout.preferredHeight: Theme.paddingLarge
                 Layout.fillWidth: true
             }
 
-            // --- Theme Color Section Header (Now a Label and centered) ---
+            // Theme Color section header
             Label {
                 text: qsTr("Theme Color")
-                anchors.horizontalCenter: parent.horizontalCenter // Centered
+                anchors.horizontalCenter: parent.horizontalCenter
                 horizontalAlignment: "AlignHCenter"
-                font.pixelSize: Theme.fontSizeMedium // Match other headers
-                font.bold: true // Ensure it looks like a header
-                color: "white" // Consistent header color
+                font.pixelSize: Theme.fontSizeMedium
+                font.bold: true
+                color: "white"
             }
 
-            // --- Integrated Color Selection Area ---
+            // Area for color selection
             Rectangle {
                 id: colorSelectionArea
-                Layout.fillWidth: true // Make it fill the width of the ColumnLayout
-                // Calculate height based on its content dynamically
-                height: colorPanelContentColumn.implicitHeight + Theme.paddingMedium * 2 + (Theme.itemSizeSmall / 2) * 2 // panelRadius equivalent
-                color: settingsPage.customBackgroundColor // Background color of the selection area itself
-                radius: Theme.itemSizeSmall / 2 // Rounded corners for the area itself
+                Layout.fillWidth: true
+                height: colorPanelContentColumn.implicitHeight + Theme.paddingMedium * 2 + (Theme.itemSizeSmall / 2) * 2
+                color: settingsPage.customBackgroundColor
+                radius: Theme.itemSizeSmall / 2
 
                 Column {
                     id: colorPanelContentColumn
-                    width: parent.width // Fill the width of colorSelectionArea
+                    width: parent.width
                     height: implicitHeight
                     anchors.top: parent.top
                     anchors.left: parent.left
@@ -284,19 +272,20 @@ Page {
                         id: colorTitle
                         text: qsTr("Select Theme Color")
                         font.pixelSize: Theme.fontSizeSmall
-                        color: Theme.secondaryColor // This was already Theme.highlightColor
+                        color: Theme.secondaryColor
                         anchors.horizontalCenter: parent.horizontalCenter
                     }
 
                     Flow {
                         id: colorFlow
-                        width: parent.width // Account for internal padding
+                        width: parent.width
                         spacing: Theme.paddingSmall
                         anchors.horizontalCenter: parent.horizontalCenter
                         layoutDirection: Qt.LeftToRight
                         readonly property int columns: 6
                         readonly property real itemWidth: (width - (spacing * (columns - 1))) / columns
 
+                        // Repeater to generate color selection circles
                         Repeater {
                             model: settingsPage.colorPalette
                             delegate: Item {
@@ -317,6 +306,7 @@ Page {
                                     color: modelData
                                     border.color: "transparent"
 
+                                    // Checkmark for the currently selected color
                                     Rectangle {
                                         visible: settingsPage.customBackgroundColor === modelData
                                         anchors.centerIn: parent
@@ -341,13 +331,7 @@ Page {
                                     onClicked: {
                                         settingsPage.customBackgroundColor = modelData;
                                         DB.setThemeColor(modelData);
-                                        // No panel to hide anymore as it's integrated
-                                        pageStack.clear();
-                                        pageStack.completeAnimation();
-                                        pageStack.push(Qt.resolvedUrl("MainPage.qml"));
-                                        pageStack.completeAnimation();
-                                        pageStack.push(Qt.resolvedUrl("SettingsPage.qml"));
-                                        pageStack.completeAnimation();
+                                        settingsPage.refreshPageStack();
                                     }
                                 }
                             }
@@ -356,37 +340,36 @@ Page {
                 }
             }
 
-            // --- Spacer before Data Management Actions Section ---
-            Item {
-                Layout.preferredHeight: Theme.paddingLarge * 2 // Maintain consistent spacing
-                Layout.fillWidth: true
-            }
 
-
+            // Data Management Actions section header
             Label {
+                id: dataManagmentLabel
                 text: qsTr("Data Management Actions")
-                anchors.horizontalCenter: parent.horizontalCenter // Centered
+                anchors.horizontalCenter: parent.horizontalCenter
                 anchors.bottomMargin: 15
-                anchors.bottom: dataButtons.top
+                anchors.topMargin: 30
+                anchors.bottom: colorSelectionArea.bottom
                 horizontalAlignment: "AlignHCenter"
-                font.pixelSize: Theme.fontSizeMedium // Match other headers
-                font.bold: true // Ensure it looks like a header
-                color: "white" // Consistent header color
+                font.pixelSize: Theme.fontSizeMedium
+                font.bold: true
+                color: "white"
             }
-            // --- Column for Data Management Buttons ---
+            // Column for data management buttons
             ColumnLayout {
                 id: dataButtons
                 Layout.fillWidth: true
-                spacing: Theme.paddingSmall // Spacing between buttons within this column
-                anchors.top: colorSelectionArea.bottom
-                anchors.bottomMargin: 20
-                // Button for archiving all notes
-                // --- Data Management Actions Section Header (Now a Label and centered) ---
+                spacing: Theme.paddingSmall
+                anchors.top: dataManagmentLabel.bottom
+                anchors.topMargin: 20
 
+                // Button for archiving all notes
                 Button {
+                    id: archiveAllButton
                     Layout.fillWidth: true
                     Layout.preferredHeight: Theme.buttonHeightSmall * 0.9
-                    highlightColor: Theme.highlightColor // Retain highlight color for press effect
+                    highlightColor: Theme.highlightColor
+                    enabled: settingsPage.hasNonArchivedNonDeletedNotes // Enabled if there are notes to archive
+                    opacity: enabled ? 1 : 0.5 // Dim if disabled
                     Column {
                         anchors.centerIn: parent
                         Label {
@@ -402,12 +385,8 @@ Page {
                             qsTr("Are you sure you want to archive all your notes?"),
                             function() {
                                 DB.archiveAllNotes();
-                                pageStack.clear();
-                                pageStack.completeAnimation();
-                                pageStack.push(Qt.resolvedUrl("MainPage.qml"));
-                                pageStack.completeAnimation();
-                                pageStack.push(Qt.resolvedUrl("SettingsPage.qml"));
-                                pageStack.completeAnimation();
+                                settingsPage.updateNoteCounts(); // Refresh note counts after action
+                                settingsPage.refreshPageStack();
                             },
                             qsTr("Confirm Archive"),
                             qsTr("Archive All"),
@@ -419,9 +398,12 @@ Page {
 
                 // Button for moving all notes to trash
                 Button {
+                    id: moveAllToTrashButton
                     Layout.fillWidth: true
                     Layout.preferredHeight: Theme.buttonHeightSmall * 0.9
-                    highlightColor: Theme.highlightColor // Retain highlight color for press effect
+                    highlightColor: Theme.highlightColor
+                    enabled: settingsPage.hasNonDeletedNotes // Enabled if there are notes not yet in trash
+                    opacity: enabled ? 1 : 0.5 // Dim if disabled
                     Column {
                         anchors.centerIn: parent
                         Label {
@@ -437,12 +419,8 @@ Page {
                             qsTr("Are you sure you want to move all your notes to trash?"),
                             function() {
                                 DB.moveAllNotesToTrash();
-                                pageStack.clear();
-                                pageStack.completeAnimation();
-                                pageStack.push(Qt.resolvedUrl("MainPage.qml"));
-                                pageStack.completeAnimation();
-                                pageStack.push(Qt.resolvedUrl("SettingsPage.qml"));
-                                pageStack.completeAnimation();
+                                settingsPage.updateNoteCounts(); // Refresh note counts after action
+                                settingsPage.refreshPageStack();
                             },
                             qsTr("Confirm Move to Trash"),
                             qsTr("Move to Trash"),
@@ -451,19 +429,21 @@ Page {
                     }
                 }
 
-                // Button for permanently deleting all notes (RED)
+                // Button for permanently deleting all notes
                 Button {
                     id: permanentDeleteButton
                     Layout.fillWidth: true
                     Layout.preferredHeight: Theme.buttonHeightSmall * 0.9
                     backgroundColor: "#A03030" // Red color for destructive action
-                    highlightColor: Theme.errorColor // Use error color for highlight effect on press
+                    highlightColor: Theme.errorColor
+                    enabled: settingsPage.hasAnyNotes // Enabled if any notes exist
+                    opacity: enabled ? 1 : 0.5 // Dim if disabled
 
                     Column {
                         anchors.centerIn: parent
                         Label {
                             text: qsTr("Permanently Delete All Notes")
-                            color: "white" // White text for better contrast on red background
+                            color: "white"
                             font.pixelSize: Theme.fontSizeSmall
                             font.bold: true
                             horizontalAlignment: Text.AlignHCenter
@@ -475,17 +455,8 @@ Page {
                             qsTr("Are you sure you want to permanently delete ALL your notes and associated tags? This action cannot be undone."),
                             function() {
                                 DB.permanentlyDeleteAllNotes();
-                                // After deletion, notes count becomes 0, so update stats.
-                                settingsPage.lastExportDate = qsTr("N/A");
-                                settingsPage.notesExportedCount = 0;
-                                settingsPage.lastImportDate = qsTr("N/A");
-                                settingsPage.notesImportedCount = 0;
-                                pageStack.clear();
-                                pageStack.completeAnimation();
-                                pageStack.push(Qt.resolvedUrl("MainPage.qml"));
-                                pageStack.completeAnimation();
-                                pageStack.push(Qt.resolvedUrl("SettingsPage.qml"));
-                                pageStack.completeAnimation();
+                                settingsPage.updateNoteCounts(); // Refresh note counts after action
+                                settingsPage.refreshPageStack();
                             },
                             qsTr("Confirm Permanent Deletion"),
                             qsTr("Delete"),
@@ -501,7 +472,7 @@ Page {
         id: toastManager
     }
 
-    // --- Integrated Confirmation Dialog Component ---
+    // Integrated Confirmation Dialog Component
     ConfirmDialog {
         id: confirmDialogInstance
         // Bind properties from settingsPage to ConfirmDialog
@@ -524,7 +495,6 @@ Page {
             console.log(qsTr("Action cancelled by user."));
         }
     }
-
 
     SidePanel {
         id: sidePanelInstance
