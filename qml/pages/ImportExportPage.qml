@@ -1,5 +1,3 @@
-// ImportExportPage.qml
-// JSON
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import Sailfish.Pickers 1.0
@@ -16,7 +14,10 @@ Page {
     showNavigationIndicator: false
     property string statusText: ""
     property bool processInProgress: false
+    property string selectedExportFormat: "json"
+
     property bool panelOpen: false
+
     property var lastExportDate: null
     property int notesExportedCount: 0
     property var lastImportDate: null
@@ -27,7 +28,7 @@ Page {
         key: "/desktop/nemo/preferences/documents_path"
         defaultValue: StandardPaths.documents
         onValueChanged: {
-            console.log(qsTr("APP_DEBUG: Documents path is: ") + value);
+            console.log("APP_DEBUG: Documents path is: " + value);
         }
     }
     ToastManager {
@@ -39,11 +40,12 @@ Page {
 
         FilePickerPage {
             title: qsTr("Select file for import")
-            nameFilters: ["*.json"]
+            nameFilters: ["*.json", "*.csv"]
 
             onSelectedContentPropertiesChanged: {
                 if (selectedContentProperties !== null) {
                     var filePathRaw = selectedContentProperties.filePath.toString();
+
                     var filePathClean;
                     if (filePathRaw.indexOf("file://") === 0) {
                         filePathClean = filePathRaw.substring(7);
@@ -81,13 +83,10 @@ Page {
             opacity: 0
             Behavior on opacity { NumberAnimation { duration: 200 } }
             onVisibleChanged: opacity = exportResultDialog.dialogVisible ? 0.5 : 0
-
             MouseArea {
                 anchors.fill: parent
                 enabled: exportResultDialog.dialogVisible
-                onClicked: {
-                    exportResultDialog.dismissed()
-                }
+                onClicked: { exportResultDialog.dismissed() }
             }
         }
 
@@ -99,7 +98,7 @@ Page {
 
             MouseArea {
                 anchors.fill: parent
-                onClicked: { }
+                onClicked: {}
             }
 
             visible: exportResultDialog.dialogVisible
@@ -135,7 +134,7 @@ Page {
                     text: qsTr("Export completed")
                     font.pixelSize: Theme.fontSizeLarge
                     font.bold: true
-                    horizontalAlignment: Text.AlignHCenter
+                    horizontalAlignment: "AlignHCenter"
                     color: "white"
                     wrapMode: Text.Wrap
                 }
@@ -152,7 +151,7 @@ Page {
                     color: Theme.highlightColor
                     text: qsTr("File: ") + "<b>" + exportResultDialog.dialogFileName + "</b>"
                     textFormat: Text.StyledText
-                    horizontalAlignment: Text.AlignHCenter
+                    horizontalAlignment: "AlignHCenter"
                 }
 
                 Label {
@@ -161,7 +160,7 @@ Page {
                     text: qsTr("Path: ") + exportResultDialog.dialogFilePath
                     font.pixelSize: Theme.fontSizeSmall
                     color: Theme.secondaryColor
-                    horizontalAlignment: Text.AlignHCenter
+                    horizontalAlignment: "AlignHCenter"
                 }
 
                 Label {
@@ -169,7 +168,7 @@ Page {
                     wrapMode: Text.Wrap
                     color: Theme.highlightColor
                     text: qsTr("Notes exported: ") + exportResultDialog.dialogOperationsCount
-                    horizontalAlignment: Text.AlignHCenter
+                    horizontalAlignment: "AlignHCenter"
                 }
 
                 Label {
@@ -177,7 +176,7 @@ Page {
                     wrapMode: Text.Wrap
                     color: Theme.highlightColor
                     text: qsTr("File size: ") + (exportResultDialog.dialogDataSize / 1024).toFixed(2) + qsTr(" KB")
-                    horizontalAlignment: Text.AlignHCenter
+                    horizontalAlignment: "AlignHCenter"
                 }
 
                 Button {
@@ -237,7 +236,7 @@ Page {
 
             MouseArea {
                 anchors.fill: parent
-                onClicked: { }
+                onClicked: {}
             }
 
             visible: importResultDialog.dialogVisible
@@ -271,7 +270,7 @@ Page {
                     text: qsTr("Import completed")
                     font.pixelSize: Theme.fontSizeLarge
                     font.bold: true
-                    horizontalAlignment: Text.AlignHCenter
+                    horizontalAlignment: "AlignHCenter"
                     color: "white"
                     wrapMode: Text.Wrap
                 }
@@ -288,7 +287,7 @@ Page {
                     color: Theme.highlightColor
                     text: qsTr("File: ") + "<b>" + importResultDialog.dialogFileName + "</b>"
                     textFormat: Text.StyledText
-                    horizontalAlignment: Text.AlignHCenter
+                    horizontalAlignment: "AlignHCenter"
                 }
 
                 Label {
@@ -297,7 +296,7 @@ Page {
                     text: qsTr("Path: ") + importResultDialog.dialogFilePath
                     font.pixelSize: Theme.fontSizeSmall
                     color: Theme.secondaryColor
-                    horizontalAlignment: Text.AlignHCenter
+                    horizontalAlignment: "AlignHCenter"
                 }
 
                 Label {
@@ -305,7 +304,7 @@ Page {
                     wrapMode: Text.Wrap
                     color: Theme.highlightColor
                     text: qsTr("Notes imported: ") + importResultDialog.dialogNotesImportedCount
-                    horizontalAlignment: Text.AlignHCenter
+                    horizontalAlignment: "AlignHCenter"
                 }
 
                 Label {
@@ -313,7 +312,7 @@ Page {
                     wrapMode: Text.Wrap
                     color: Theme.highlightColor
                     text: qsTr("Tags created: ") + importResultDialog.dialogTagsCreatedCount
-                    horizontalAlignment: Text.AlignHCenter
+                    horizontalAlignment: "AlignHCenter"
                 }
 
                 Button {
@@ -358,6 +357,7 @@ Page {
                 onPressed: menuRipple.ripple(mouseX, mouseY)
                 onClicked: {
                     importExportPage.panelOpen = true
+                    console.log("Menu button clicked in ImportExportPage → panelOpen = true")
                 }
             }
         }
@@ -369,21 +369,11 @@ Page {
             font.pixelSize: Theme.fontSizeExtraLarge
             font.bold: true
         }
-
-        Label {
-            text: qsTr("In JSON Format")
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top: headerText.bottom
-            horizontalAlignment: "AlignHCenter"
-            font.pixelSize: Theme.fontSizeExtraSmall
-            font.italic: true
-            color: Theme.secondaryColor
-            wrapMode: Text.Wrap
-        }
     }
 
     SilicaFlickable {
         anchors.fill: parent
+
         anchors.topMargin: pageHeader.height
         contentHeight: column.implicitHeight
 
@@ -426,16 +416,50 @@ Page {
                 font.italic: true
                 color: Theme.secondaryColor
             }
+
+            Label {
+                text: qsTr("Choose file format")
+                anchors.horizontalCenter: parent.horizontalCenter
+                horizontalAlignment: "AlignHCenter"
+                font.pixelSize: Theme.fontSizeSmall
+                font.bold: true
+                color: "white"
+                topPadding: Theme.paddingMedium
+            }
+
+            RowLayout {
+                anchors.horizontalCenter: parent.horizontalCenter
+                spacing: Theme.paddingMedium
+
+                Button {
+                    text: qsTr("Export as JSON")
+                    opacity: selectedExportFormat === "json" ? 1.0 : 0.6
+                    onClicked: {
+                        selectedExportFormat = "json";
+                        fileNameField.text = fileNameField.text.replace(/\.(json|csv)$/, "") + ".json";
+                    }
+                }
+
+                Button {
+                    text: qsTr("Export as CSV")
+                    opacity: selectedExportFormat === "csv" ? 1.0 : 0.6
+                    onClicked: {
+                        selectedExportFormat = "csv";
+                        fileNameField.text = fileNameField.text.replace(/\.(json|csv)$/, "") + ".csv";
+                    }
+                }
+            }
+
             Button {
                 text: qsTr("Export All Notes")
                 anchors.horizontalCenter: parent.horizontalCenter
                 enabled: !processInProgress && fileNameField.text.length > 0
-                onClicked: exportData(newTagField.text.trim())
+                onClicked: exportData(selectedExportFormat, newTagField.text.trim())
             }
 
             Label {
                 width: parent.width - (2 * Theme.paddingLarge)
-                horizontalAlignment: Text.AlignHCenter
+                horizontalAlignment: "AlignHCenter"
                 font.pixelSize: Theme.fontSizeSmall
                 color: Theme.secondaryColor
                 wrapMode: Text.Wrap
@@ -481,7 +505,7 @@ Page {
 
             Label {
                 width: parent.width - (2 * Theme.paddingLarge)
-                horizontalAlignment: Text.AlignHCenter
+                horizontalAlignment: "AlignHCenter"
                 font.pixelSize: Theme.fontSizeSmall
                 color: Theme.secondaryColor
                 wrapMode: Text.Wrap
@@ -509,7 +533,7 @@ Page {
                 id: statusLabel
                 width: parent.width - (2 * Theme.paddingLarge)
                 anchors.horizontalCenter: parent.horizontalCenter
-                horizontalAlignment: Text.AlignHCenter
+                horizontalAlignment: "AlignHCenter"
                 color: "white"
                 wrapMode: Text.Wrap
                 text: statusText
@@ -519,13 +543,13 @@ Page {
     }
 
     Component.onCompleted: {
-        console.log(qsTr("APP_DEBUG: Export/Import Page: Component.onCompleted started."));
+        console.log("APP_DEBUG: Export/Import Page: Component.onCompleted started.");
         DB.initDatabase(LocalStorage)
         if (DB.db === null) {
             console.error("APP_DEBUG: DB.db is NULL after initDatabase call! Export/Import will likely fail.");
-            statusText = ("Error: Database not initialized. Please restart the application.");
+            statusText = qsTr("Error: Database not initialized. Please restart the application.");
         } else {
-            console.log(qsTr("APP_DEBUG: DB.db is successfully initialized."));
+            console.log("APP_DEBUG: DB.db is successfully initialized.");
 
             lastExportDate = DB.getSetting("lastExportDate");
             notesExportedCount = DB.getSetting("notesExportedCount");
@@ -543,39 +567,104 @@ Page {
         }
 
         var initialBaseName = qsTr("notes_backup_") + Qt.formatDateTime(new Date(), "yyyyMMdd_HHmmss");
-        fileNameField.text = initialBaseName;
+        fileNameField.text = initialBaseName + ".json";
 
-        console.log(qsTr("APP_DEBUG: Export/Import Page: Component.onCompleted finished."));
+        console.log("APP_DEBUG: Export/Import Page: Component.onCompleted finished.");
     }
 
-    function exportData(optionalNewTag) {
+    function generateCsv(data) {
+        var headers = ["id", "title", "content", "color", "pinned", "deleted", "archived", "created_at", "updated_at", "tags"];
+        var csv = headers.join(",") + "\n";
+        var escapeCsvField = function(field) {
+            return "\"" + String(field || '').replace(/"/g, '""') + "\"";
+        };
+        for (var i = 0; i < data.length; i++) {
+            var note = data[i];
+            var row = [
+                note.id,
+                escapeCsvField(note.title),
+                escapeCsvField(note.content),
+                escapeCsvField(note.color),
+                note.pinned ? 1 : 0,
+                note.deleted ? 1 : 0,
+                note.archived ? 1 : 0,
+                escapeCsvField(note.created_at),
+                escapeCsvField(note.updated_at),
+                escapeCsvField(note.tags ? note.tags.join(';') : '')
+            ];
+            csv += row.join(",") + "\n";
+        }
+        return csv;
+    }
+
+    function parseCsv(content) {
+        var lines = content.split('\n');
+        if (lines.length < 2) return [];
+        var headers = lines[0].trim().split(',');
+        var notes = [];
+        for (var i = 1; i < lines.length; i++) {
+            var line = lines[i].trim();
+            if (line === "") continue;
+            var values = line.split(',');
+            var note = {};
+            for(var j = 0; j < headers.length; j++) {
+                if (values[j] !== undefined) {
+                    note[headers[j].trim()] = values[j].replace(/^"|"$/g, '').replace(/""/g, '"');
+                }
+            }
+            note.id = parseInt(note.id, 10);
+            note.pinned = parseInt(note.pinned, 10) === 1;
+            note.deleted = parseInt(note.deleted, 10) === 1;
+            note.archived = parseInt(note.archived, 10) === 1;
+            note.tags = note.tags ? note.tags.split(';') : [];
+            if (!isNaN(note.id)) {
+               notes.push(note);
+            }
+        }
+        return notes;
+    }
+
+    function exportData(format, optionalNewTag) {
         processInProgress = true;
         statusText = qsTr("Gathering data for export...");
-        console.log(qsTr("APP_DEBUG: exportData started. Optional tag: ") + optionalNewTag);
+        console.log("APP_DEBUG: exportData started. Format: " + format + ", Optional tag: " + optionalNewTag);
 
         var userFileName = fileNameField.text;
         var finalFileName = userFileName;
-        if (finalFileName.indexOf(".json", finalFileName.length - ".json".length) === -1) {
-            finalFileName += ".json";
+
+        if (format === "json" && finalFileName.indexOf(".json", finalFileName.length - ".json".length) === -1) {
+            finalFileName = finalFileName.replace(/\.(csv)$/, "") + ".json";
+        } else if (format === "csv" && finalFileName.indexOf(".csv", finalFileName.length - ".csv".length) === -1) {
+            finalFileName = finalFileName.replace(/\.(json)$/, "") + ".csv";
         }
 
         DB.getNotesForExport(
             function(notes) {
-                console.log(qsTr("APP_DEBUG: getNotesForExport SUCCESS. Notes count: ") + (notes ? notes.length : 0));
+                console.log("APP_DEBUG: getNotesForExport SUCCESS. Notes count: " + (notes ? notes.length : 0));
                 if (!notes || notes.length === 0) {
                     toastManager.show(qsTr("No notes to export."));
-
                     statusText = qsTr("");
                     processInProgress = false;
                     return;
                 }
 
                 statusText = qsTr("Preparing ") + notes.length + qsTr(" notes...");
-                var generatedData = JSON.stringify(notes, null, 2);
+                var generatedData;
+
+                if (format === "json") {
+                    generatedData = JSON.stringify(notes, null, 2);
+                } else if (format === "csv") {
+                    generatedData = generateCsv(notes);
+                } else {
+                    console.error("APP_DEBUG: Unsupported export format: " + format);
+                    statusText = qsTr("Error: Unsupported export format.");
+                    processInProgress = false;
+                    return;
+                }
 
                 var finalPath = documentsPathConfig.value + "/" + finalFileName;
-                console.log(qsTr("APP_DEBUG: Attempting to write file to: ") + finalPath);
-                writeToFile(finalPath, generatedData);
+                console.log("APP_DEBUG: Attempting to write file to: " + finalPath);
+                writeToFile(finalPath, generatedData, notes.length);
             },
             function(error) {
                 console.error("APP_DEBUG: getNotesForExport FAILED: " + error.message);
@@ -584,18 +673,17 @@ Page {
             },
             optionalNewTag
         );
-        console.log(qsTr("APP_DEBUG: exportData finished, waiting for callbacks."));
+        console.log("APP_DEBUG: exportData finished, waiting for callbacks.");
     }
 
-    function writeToFile(filePath, textData) {
+    function writeToFile(filePath, textData, notesCount) {
         statusText = qsTr("Saving file...");
-        console.log(qsTr("APP_DEBUG: writeToFile started for path: ") + filePath);
+        console.log("APP_DEBUG: writeToFile started for path: " + filePath);
 
         try {
             if (typeof FileIO !== 'undefined' && FileIO.write) {
                 FileIO.write(filePath, textData);
-                console.log(qsTr("APP_DEBUG: File saved via FileIO: ") + filePath);
-                var notesCount = JSON.parse(textData).length;
+                console.log("APP_DEBUG: File saved via FileIO: " + filePath);
 
                 DB.updateLastExportDate();
                 DB.updateNotesExportedCount(notesCount);
@@ -607,19 +695,17 @@ Page {
                 exportResultDialog.dialogFilePath = filePath;
                 exportResultDialog.dialogOperationsCount = notesCount;
                 exportResultDialog.dialogDataSize = textData.length;
-
                 exportResultDialog.dialogVisible = true;
 
                 statusText = "";
             } else {
-                console.warn(qsTr("APP_DEBUG: FileIO not defined or write method missing, attempting to save via XMLHttpRequest."));
+                console.warn("APP_DEBUG: FileIO not defined or write method missing, attempting to save via XMLHttpRequest.");
                 var xhr = new XMLHttpRequest();
                 xhr.open("PUT", "file://" + filePath, false);
                 xhr.send(textData);
 
                 if (xhr.status === 0 || xhr.status === 200) {
-                    console.log(qsTr("APP_DEBUG: File saved via XMLHttpRequest: ") + filePath);
-                    var notesCount = JSON.parse(textData).length;
+                    console.log("APP_DEBUG: File saved via XMLHttpRequest: " + filePath);
 
                     DB.updateLastExportDate();
                     DB.updateNotesExportedCount(notesCount);
@@ -652,9 +738,9 @@ Page {
         var absoluteFilePathString = String(filePath);
 
         statusText = qsTr("Reading file: ") + absoluteFilePathString.split('/').pop();
-        console.log(qsTr("APP_DEBUG: importFromFile started for path: ") + absoluteFilePathString);
-        console.log(qsTr("APP_DEBUG: Type of absoluteFilePathString: ") + typeof absoluteFilePathString);
-        console.log(qsTr("APP_DEBUG: Optional tag for import: ") + optionalNewTagForImport);
+        console.log("APP_DEBUG: importFromFile started for path: " + absoluteFilePathString);
+        console.log("APP_DEBUG: Type of absoluteFilePathString: " + typeof absoluteFilePathString);
+        console.log("APP_DEBUG: Optional tag for import: " + optionalNewTagForImport);
 
         if (!DB.db) {
             console.error("DB_MGR: Database not initialized for importFromFile.");
@@ -671,16 +757,16 @@ Page {
             var fileContent;
             if (typeof FileIO !== 'undefined' && FileIO.read) {
                 fileContent = FileIO.read(absoluteFilePathString);
-                console.log(qsTr("APP_DEBUG: File read via FileIO: ") + absoluteFilePathString);
+                console.log("APP_DEBUG: File read via FileIO: " + absoluteFilePathString);
             } else {
-                console.warn(qsTr("APP_DEBUG: FileIO not defined or read method missing, attempting to read via XMLHttpRequest."));
+                console.warn("APP_DEBUG: FileIO not defined or read method missing, attempting to read via XMLHttpRequest.");
                 var xhr = new XMLHttpRequest();
                 xhr.open("GET", "file://" + absoluteFilePathString, false);
                 xhr.send();
 
                 if (xhr.status === 0 || xhr.status === 200) {
                     fileContent = xhr.responseText;
-                    console.log(qsTr("APP_DEBUG: File read via XMLHttpRequest: ") + absoluteFilePathString);
+                    console.log("APP_DEBUG: File read via XMLHttpRequest: " + absoluteFilePathString);
                 } else {
                     statusText = qsTr("File read error (XHR): ") + xhr.statusText + " (" + xhr.status + ")";
                     console.error("APP_DEBUG: Error reading file via XHR: " + xhr.statusText + " (" + xhr.status + ")");
@@ -692,10 +778,15 @@ Page {
 
             if (fileContent) {
                 var notes;
-                if (absoluteFilePathString.indexOf(".json", absoluteFilePathString.length - ".json".length) !== -1) {
+                var fileExtension = absoluteFilePathString.split('.').pop().toLowerCase();
+
+                if (fileExtension === "json") {
                     notes = JSON.parse(fileContent);
-                } else {
-                    statusText = qsTr("Unsupported file format. Only JSON is supported.");
+                } else if (fileExtension === "csv") {
+                    notes = parseCsv(fileContent);
+                }
+                else {
+                    statusText = qsTr("Unsupported file format. Only JSON and CSV are supported.");
                     processInProgress = false;
                     console.log("APP_DEBUG: processInProgress set to false due to unsupported file format.");
                     return;
@@ -738,7 +829,6 @@ Page {
                     importResultDialog.dialogFilePath = absoluteFilePathString;
                     importResultDialog.dialogNotesImportedCount = notes.length;
                     importResultDialog.dialogTagsCreatedCount = newlyCreatedTagsCount;
-
                     importResultDialog.dialogVisible = true;
                     statusText = "";
 

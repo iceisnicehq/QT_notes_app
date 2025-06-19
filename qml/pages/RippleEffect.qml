@@ -17,7 +17,7 @@ Item {
     Rectangle {
         id: rippleCircle
         width: 0
-        height: width  // Ensure it's always a perfect circle
+        height: width
         radius: width/2
         color: Qt.rgba(1, 1, 1, 0.2)
         x: origin.x - width/2

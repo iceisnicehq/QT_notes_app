@@ -1,75 +1,67 @@
-// NoteCard.qml
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.LocalStorage 2.0
-import "DatabaseManager.js" as DB 
+import "DatabaseManager.js" as DB
 
 Item {
     id: root
     width: parent ? parent.width : 360
-    height: cardColumn.implicitHeight + Theme.paddingLarge * 2 + 20 
+    height: cardColumn.implicitHeight + Theme.paddingLarge * 2 + 20
 
     property string title: ""
     property string content: ""
-    property var tags: [] // This property receives a string like "tag1 tag2" or ""
-    property string cardColor: DB.getThemeColor() || "#121218" 
+    property var tags: []
+    property string cardColor: DB.getThemeColor() || "#121218"
     property string borderColor:  DB.darkenColor((root.cardColor), -0.3)
-    // --- NEW PROPERTIES FOR SELECTION AND NAVIGATION DATA ---
-    property int noteId: -1 // To identify the note for selection
-    property bool isSelected: false // Controls the visual selection state
-    property var mainPageInstance: null // Reference to mainPage to call its selection functions
-    property bool noteIsPinned: false // Pass the pinned state from modelData
-    property date noteCreationDate: new Date() // Pass creation date from modelData
-    property date noteEditDate: new Date() // Pass edit date from modelData
+    property int noteId: -1
+    property bool isSelected: false
+    property var mainPageInstance: null
+    property bool noteIsPinned: false
+    property date noteCreationDate: new Date()
+    property date noteEditDate: new Date()
 
     onIsSelectedChanged: {
-        console.log(("NoteCard ID:", root.noteId, "isSelected changed to:", root.isSelected, "Border width:", root.isSelected ? 8 : 2));
+        console.log("NoteCard ID:", root.noteId, "isSelected changed to:", root.isSelected, "Border width:", root.isSelected ? 8 : 2);
     }
 
-    // --- NEW PROPERTIES FOR CUSTOM LONG PRESS DETECTION ---
-    property bool pressActive: false // Tracks if a mouse press is currently active
-    property int pressX: 0 // Stores initial press X coordinate
-    property int pressY: 0 // Stores initial press Y coordinate
-    // Timer for detecting a long press
+    property bool pressActive: false
+    property int pressX: 0
+    property int pressY: 0
     Timer {
         id: longPressTimer
-        interval: 500 // 500ms for a long press
+        interval: 500
         running: false
         repeat: false
         onTriggered: {
-            console.log(("Long press detected for note ID:", root.noteId));
-            // If a long press is detected, activate selection mode and toggle this note's selection
+            console.log("Long press detected for note ID:", root.noteId);
             if (root.mainPageInstance) {
                 if (!root.mainPageInstance.selectionMode) {
                     root.mainPageInstance.selectionMode = true;
                 }
                 root.mainPageInstance.toggleNoteSelection(root.noteId);
             }
-            // Crucially, prevent the onReleased event from also triggering onClicked
-            mouseArea.mouse.accepted = false; 
-            root.pressActive = false; // Reset press active state immediately after long press
-            root.scale = 1.0; // Reset scale after long press
+            mouseArea.mouse.accepted = false;
+            root.pressActive = false;
+            root.scale = 1.0;
         }
     }
 
-    // Add scale property to the root Item for animation
-    scale: 1.0 // Initial scale
+    scale: 1.0
 
-    // Behavior for smooth scale animation
     Behavior on scale {
         NumberAnimation {
-            duration: 100 // Quick snap to highlighted state
+            duration: 100
             easing.type: Easing.OutQuad
         }
     }
 
     Rectangle {
         anchors.fill: parent
-        color: root.cardColor // Use the new property for background color
+        color: root.cardColor
         radius: 20
-        border.color: root.isSelected ? "white" : root.borderColor // White border if selected, otherwise original border
-        border.width: root.isSelected ? 4 : 2 // Increased selected width significantly for immediate visibility
-        anchors.bottomMargin: 20 // This margin affects the root Item's height
+        border.color: root.isSelected ? "white" : root.borderColor
+        border.width: root.isSelected ? 4 : 2
+        anchors.bottomMargin: 20
         Column {
             id: cardColumn
             anchors {
@@ -80,7 +72,6 @@ Item {
             }
             spacing: Theme.paddingSmall
 
-            // Title
             Text {
                 id: titleText
                 text: (root.title && root.title.trim()) ? root.title : qsTr("Empty")
@@ -98,7 +89,6 @@ Item {
                 height: 8
                 color: "transparent"
             }
-            // Content (max 5 lines with ellipsis)
             Text {
                 id: contentText
                 text: (root.content && root.content.trim()) ? root.content : qsTr("Empty")
@@ -116,7 +106,6 @@ Item {
                 height: 4
                 color: "transparent"
             }
-            // Tags
             Flow {
                 id: tagsFlow
                 width: parent.width
@@ -169,65 +158,59 @@ Item {
             }
         }
     }
-    // MouseArea for interaction (selection and opening note)
     MouseArea {
         id: mouseArea
         anchors.fill: parent
         onPressed: {
-            longPressTimer.start(); // Start the long press timer
-            root.pressActive = true; // Mark press as active
-            root.pressX = mouse.x; // Record initial press position
+            longPressTimer.start();
+            root.pressActive = true;
+            root.pressX = mouse.x;
             root.pressY = mouse.y;
-            mouse.accepted = true; // Explicitly accept the press event
-            root.scale = 0.97; // Scale down slightly on press
+            mouse.accepted = true;
+            root.scale = 0.97;
         }
         onReleased: {
-            root.scale = 1.0; // Reset scale on release
+            root.scale = 1.0;
             if (longPressTimer.running) {
-                longPressTimer.stop(); // Stop timer if released before long press trigger
-                if (root.pressActive) { // Ensure it wasn't a drag or canceled
-                    // This is a regular click
+                longPressTimer.stop();
+                if (root.pressActive) {
                     if (root.mainPageInstance && root.mainPageInstance.selectionMode) {
-                        // If in selection mode, toggle selection
                         root.mainPageInstance.toggleNoteSelection(root.noteId);
 
                     } else {
-                        // Otherwise, navigate to the NotePage for editing
                         pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
-                            onNoteSavedOrDeleted: root.mainPageInstance ? root.mainPageInstance.refreshData : null, // Pass refreshData callback
+                            onNoteSavedOrDeleted: root.mainPageInstance ? root.mainPageInstance.refreshData : null,
                             noteId: root.noteId,
                             noteTitle: root.title,
-                            noteContent: root.content, 
-                            noteIsPinned: root.noteIsPinned, 
-                            noteTags: root.tags, 
-                            noteCreationDate: root.noteCreationDate, 
-                            noteEditDate: root.noteEditDate, 
+                            noteContent: root.content,
+                            noteIsPinned: root.noteIsPinned,
+                            noteTags: root.tags,
+                            noteCreationDate: root.noteCreationDate,
+                            noteEditDate: root.noteEditDate,
                             noteColor: root.cardColor
 
                         });
-                        console.log(("Opening NotePage in EDIT mode for ID:", root.noteId, "from NoteCard. Color:", root.cardColor));
-                        Qt.inputMethod.hide(); // Hide keyboard
-                        // Added check for existence of searchField on mainPageInstance
+                        console.log("Opening NotePage in EDIT mode for ID:", root.noteId, "from NoteCard. Color:", root.cardColor);
+                        Qt.inputMethod.hide();
                         if (root.mainPageInstance && typeof root.mainPageInstance.searchField !== 'undefined') {
-                           root.mainPageInstance.searchField.focus = false; // Clear search field focus
+                           root.mainPageInstance.searchField.focus = false;
                         }
                     }
                 }
             }
-            root.pressActive = false; // Reset press active state
+            root.pressActive = false;
         }
         onCanceled: {
-            longPressTimer.stop(); // Stop timer if press is canceled (e.g., finger slides off)
+            longPressTimer.stop();
             root.pressActive = false;
-            root.scale = 1.0; // Reset scale on cancel
+            root.scale = 1.0;
         }
         onPositionChanged: {
-            // If the mouse moves significantly, stop the long press timer (treat as a drag, not a press)
-            var threshold = 10; // Pixels
+            var threshold = 10;
             if (root.pressActive && (Math.abs(mouse.x - root.pressX) > threshold || Math.abs(mouse.y - root.pressY) > threshold)) {
                 longPressTimer.stop();
                 root.pressActive = false;
-                root.scale = 1.0; // Reset scale if it's a drag
+                root.scale = 1.0;
             }
         }
     }

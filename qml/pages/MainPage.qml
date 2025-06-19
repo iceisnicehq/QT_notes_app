@@ -1,5 +1,4 @@
-// MainPage.qml (Re-integrated Features from Clean Base)
-
+// MainPage.qml
 import QtQuick.LocalStorage 2.0
 import QtQuick 2.0
 import Sailfish.Silica 1.0
@@ -10,19 +9,15 @@ Page {
     id: mainPage
     objectName: "mainPage"
     allowedOrientations: Orientation.All
-    backgroundColor: mainPage.customBackgroundColor // Fallback to Theme.backgroundColor if custom is not set
-
-    // Property to hold the currently selected custom background color
-    property string customBackgroundColor: DB.getThemeColor() || "#121218" // Load from DB, default to a dark color if not found
+    backgroundColor: mainPage.customBackgroundColor
+    property string customBackgroundColor: DB.getThemeColor() || "#121218"
     showNavigationIndicator: false
     property int noteMargin: 20
-
     property bool headerVisible: true
     property real previousContentY: 0
     property bool panelOpen: false
-    property var allNotes: [] // Stores all notes from the DB
-    property var allTags: [] // Stores all tags from the DB
-
+    property var allNotes: []
+    property var allTags: []
     property var selectedTags: [] // Tags currently selected for filtering
     property var currentSearchText: "" // Current text in the main note search field
     property var searchResults: [] // Notes matching the search criteria

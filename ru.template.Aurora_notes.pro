@@ -29,3 +29,5 @@ CONFIG += auroraapp_i18n
 TRANSLATIONS += \
     translations/ru.template.Aurora_notes-ru.ts \
     translations/ru.template.Aurora_notes-en.ts \
+    translations/ru.template.Aurora_notes-de.ts \
+    translations/ru.template.Aurora_notes-ch.ts \

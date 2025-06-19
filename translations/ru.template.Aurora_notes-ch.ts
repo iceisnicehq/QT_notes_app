@@ -31,10 +31,20 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../qml/pages/AboutPage.qml" line="105"/>
+        <source>Who are the Developers?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../qml/pages/AboutPage.qml" line="116"/>
         <source>This application was developed with passion and dedication by a team committed to creating intuitive and effective tools for everyday use.
                             We believe in open-source principles and continuously work to improve the app based on user feedback. Special thanks to the Sailfish OS community for their
                             invaluable support and resources.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="125"/>
+        <source>3-Clause BSD License</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -76,16 +86,6 @@ CAUSED AND ON ANY THEORY OF LIABILITY,
                     WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/AboutPage.qml" line="105"/>
-        <source>Who are the Developers?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/AboutPage.qml" line="125"/>
-        <source>3-Clause BSD License</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -290,9 +290,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
 <context>
     <name>ConfirmDialog</name>
     <message>
-        <location filename="../qml/pages/ConfirmDialog.qml" line="12"/>
+        <location filename="../qml/pages/ConfirmDialog.qml" line="15"/>
         <source></source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/pages/ConfirmDialog.qml" line="17"/>
@@ -1282,6 +1282,26 @@ Go to edit tags page to create one!</source>
 <context>
     <name>SettingsPage</name>
     <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="21"/>
+        <source>English</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="22"/>
+        <source>Русский</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="23"/>
+        <source>Deutsch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="24"/>
+        <source>中國人</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../qml/pages/SettingsPage.qml" line="32"/>
         <location filename="../qml/pages/SettingsPage.qml" line="74"/>
         <source>Confirm Action</source>
@@ -1304,18 +1324,23 @@ Go to edit tags page to create one!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="229"/>
+        <source>Language changed to %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../qml/pages/SettingsPage.qml" line="232"/>
         <source>Failed to change language.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="21"/>
-        <source>English</source>
+        <location filename="../qml/pages/SettingsPage.qml" line="260"/>
+        <source>Theme Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="260"/>
-        <source>Theme Color</source>
+        <location filename="../qml/pages/SettingsPage.qml" line="288"/>
+        <source>Select Theme Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1381,31 +1406,6 @@ Go to edit tags page to create one!</source>
     <message>
         <location filename="../qml/pages/SettingsPage.qml" line="482"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="288"/>
-        <source>Select Theme Color</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="22"/>
-        <source>Русский</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="23"/>
-        <source>Deutsch</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="24"/>
-        <source>中國人</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="229"/>
-        <source>Language changed to %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1589,6 +1589,12 @@ You can create one!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../qml/pages/TrashPage.qml" line="225"/>
+        <location filename="../qml/pages/TrashPage.qml" line="244"/>
+        <source>Restore</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../qml/pages/TrashPage.qml" line="233"/>
         <source>Are you sure you want to restore %1 selected notes to your main notes?</source>
         <translation type="unfinished"></translation>
@@ -1601,12 +1607,6 @@ You can create one!</source>
     <message>
         <location filename="../qml/pages/TrashPage.qml" line="243"/>
         <source>Confirm Restoration</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/TrashPage.qml" line="225"/>
-        <location filename="../qml/pages/TrashPage.qml" line="244"/>
-        <source>Restore</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
