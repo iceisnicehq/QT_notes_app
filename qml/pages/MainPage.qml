@@ -4,14 +4,14 @@ import QtQuick.LocalStorage 2.0
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.Layouts 1.1
-import "Database.js" as Data // Assuming this contains DB initialization
-import "DatabaseManager.js" as DB // Assuming this contains actual DB operations like getAllNotes, searchNotes, etc.
+import "Database.js" as Data 
+import "DatabaseManager.js" as DB 
 
 Page {
     id: mainPage
     objectName: "mainPage"
     allowedOrientations: Orientation.All
-    backgroundColor: mainPage.customBackgroundColor !== undefined ? mainPage.customBackgroundColor : "#121218" // Fallback to Theme.backgroundColor if custom is not set
+    backgroundColor: mainPage.customBackgroundColor // Fallback to Theme.backgroundColor if custom is not set
 
     // Property to hold the currently selected custom background color
     property string customBackgroundColor: DB.getThemeColor() || "#121218" // Load from DB, default to a dark color if not found
@@ -24,24 +24,20 @@ Page {
     property var allNotes: [] // Stores all notes from the DB
     property var allTags: [] // Stores all tags from the DB
 
-    // New properties for search functionality
     property var selectedTags: [] // Tags currently selected for filtering
     property var currentSearchText: "" // Current text in the main note search field
     property var searchResults: [] // Notes matching the search criteria
     property bool tagPickerOpen: false // Controls visibility of the tag picker overlay
 
-    // --- New properties for selection mode ---
     property bool selectionMode: false
-    // List to store IDs of selected notes
     property var selectedNoteIds: []
-    // New properties for generic confirmation dialog
     property bool confirmDialogVisible: false
     property string confirmDialogTitle: ""
     property string confirmDialogMessage: ""
     property string confirmButtonText: ""
-    property color confirmButtonHighlightColor: Theme.primaryColor // Default, will be overridden
+    property color confirmButtonHighlightColor: Theme.primaryColor 
     property var onConfirmCallback: null // Function to call when user confirms
-    // --- ToastManager definition (Crucial for showing messages) ---
+    // --- ToastManager ---
     ToastManager {
         id: toastManager
     }
@@ -59,7 +55,6 @@ Page {
     Component.onCompleted: {
         console.log(("MainPage created."));
         DB.initDatabase()
-        //DB.insertTestData() // Ensure test data is available for demonstration
         DB.permanentlyDeleteExpiredDeletedNotes();
         refreshData()
     }
@@ -69,8 +64,8 @@ Page {
             refreshData()
             searchField.focus = false;
             sidePanel.currentPage = "notes"
-            Qt.inputMethod.hide(); // Explicitly hide the keyboard
-            resetSelection(); // Reset selection mode when page becomes active
+            Qt.inputMethod.hide(); 
+            resetSelection(); 
             console.log(("MainPage active (status changed to Active), search field focus cleared and keyboard hidden."));
         }
     }
@@ -214,7 +209,7 @@ Page {
                 width: parent.width - (noteMargin * 2)
                 height: parent.height
                 anchors.centerIn: parent
-                color: mainPage.backgroundColor // Changed to match page background
+                color: mainPage.backgroundColor 
                 radius: 80
                 visible: !mainPage.selectionMode
                 opacity: visible ? 1 : 0
@@ -228,7 +223,7 @@ Page {
                     text: currentSearchText // This binds to mainPage.currentSearchText
                     readOnly: allNotes.length === 0
                     onTextChanged: {
-                        mainPage.currentSearchText = text; // Update mainPage's property
+                        mainPage.currentSearchText = text; 
                         performSearch(text, selectedTags);
                     }
 
@@ -259,7 +254,7 @@ Page {
                             onClicked: {
                                 if (searchField.text.length > 0 || selectedTags.length > 0) {
                                     mainPage.currentSearchText = "";
-                                    searchField.text = ""; // Clears the main search field
+                                    searchField.text = ""; 
                                     mainPage.selectedTags = [];
                                     performSearch("", []);
                                     console.log(("Search cleared (text and tags)."));
@@ -304,7 +299,7 @@ Page {
                 }
             }
 
-            // Selection Mode Toolbar (Replaces SearchField visually when active)
+            // Selection Mode Toolbar
             Rectangle {
                 id: selectionToolbarBackground
                 width: parent.width - (noteMargin * 2)
@@ -390,7 +385,7 @@ Page {
                                 mainPage.confirmDialogTitle = qsTr("Confirm Archiving");
                                 mainPage.confirmDialogMessage = qsTr("Are you sure you want to archive %1 selected note(s)?").arg(mainPage.selectedNoteIds.length);
                                 mainPage.confirmButtonText = qsTr("Archive");
-                                mainPage.confirmButtonHighlightColor = Theme.primaryColor; // Or a custom archive color if you have one
+                                mainPage.confirmButtonHighlightColor = Theme.primaryColor; 
                                 mainPage.onConfirmCallback = function() {
                                     var idsToArchive = mainPage.selectedNoteIds;
                                     DB.bulkArchiveNotes(idsToArchive);
@@ -516,7 +511,7 @@ Page {
                         width: parent.width
                         title: modelData.title
                         content: modelData.content
-                        tags: modelData.tags.join("_||_") // Passing tags as space-separated string
+                        tags: modelData.tags.join("_||_")
                         cardColor: modelData.color || "#1c1d29"
                         noteId: modelData.id
                         isSelected: mainPage.isNoteSelected(modelData.id)
@@ -561,7 +556,7 @@ Page {
                         width: parent.width
                         title: modelData.title
                         content: modelData.content
-                        tags: modelData.tags.join("_||_") // Passing tags as space-separated string
+                        tags: modelData.tags.join("_||_") 
                         cardColor: modelData.color || "#1c1d29"
                         noteId: modelData.id
                         isSelected: mainPage.isNoteSelected(modelData.id)
@@ -645,7 +640,7 @@ Page {
                     noteTags: "", // Pass empty string for new note tags
                     noteCreationDate: new Date(),
                     noteEditDate: new Date(),
-                    noteColor: DB.getThemeColor() || "#121218" // Load from DB, default to a dark color if not found    showNavigationIndicator: false
+                    noteColor: DB.getThemeColor() || "#121218" 
 
                 });
                 console.log(("Opening NewNotePage in CREATE mode (from FAB)."));
@@ -699,22 +694,14 @@ Page {
 
             onVisibleChanged: {
                 if (visible) {
-                    // When the panel opens, use its own search text property to filter tags.
-                    // Initialize it from mainPage.currentSearchText, if that's desired,
-                    // but it should probably start fresh for tag filtering.
-                    // For now, let's keep it isolated.
-                    tagPickerPanel.tagPickerSearchText = ""; // Clear on open for a fresh search in picker
+                    tagPickerPanel.tagPickerSearchText = ""; 
                     mainPage.loadTagsForTagPanel(tagPickerPanel.tagPickerSearchText);
-                    tagsPanelFlickable.contentY = 0; // Scroll to the top of the flickable area.
+                    tagsPanelFlickable.contentY = 0; 
                     console.log(("Tag picker panel opened. Loading tags and scrolling to top."));
                 } else {
-                    // When the panel closes, clear its internal search text.
                     tagPickerPanel.tagPickerSearchText = "";
                 }
             }
-
-            // Note: availableTagsModel is defined in mainPage's scope, as per our last conversation.
-            // So, no ListModel definition needed here.
 
             Column {
                 id: tagPanelContentColumn
@@ -751,7 +738,6 @@ Page {
                             color: "#e2e3e8" // Text color for the input.
                             readOnly: false // The search field should always be editable.
 
-                            // *** IMPORTANT CHANGE HERE ***
                             // Bind the text property of the SearchField to tagPickerPanel.tagPickerSearchText.
                             text: tagPickerPanel.tagPickerSearchText
 
@@ -794,7 +780,7 @@ Page {
                                     onClicked: {
                                         // Clear the tag picker's search field and its internal property.
                                         tagPickerPanel.tagPickerSearchText = "";
-                                        tagSearchInput.text = ""; // Update UI
+                                        tagSearchInput.text = "";
                                         // Reload tags to show all tags after clearing search.
                                         mainPage.loadTagsForTagPanel(""); // Use empty filter for all tags
                                         console.log(("Tag picker search field cleared by right icon."));

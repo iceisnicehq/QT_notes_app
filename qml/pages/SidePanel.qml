@@ -7,7 +7,7 @@ import "DatabaseManager.js" as DB
 Item {
     id: sidePanel
     anchors.fill: parent
-    z: 1000 // Ensure it's on top of everything
+    z: 1000 
     visible: opacity > 0
     opacity: open ? 1 : 0
     property string customBackgroundColor:  DB.darkenColor(DB.getThemeColor(), 0.30)
@@ -16,9 +16,9 @@ Item {
     property string currentPage: "notes" // Tracks the currently selected item in the side panel
     // tags property now holds objects with name and count
     property var tags: [] // [{name: "tag1", count: 5}, {name: "tag2", count: 2}]
-    property int totalNotesCount: 0 // New property for total notes count
-    property int trashNotesCount: 0 // New property for trash notes count
-    property int archivedNotesCount: 0 // НОВОЕ СВОЙСТВО: для количества заметок в архиве
+    property int totalNotesCount: 0 
+    property int trashNotesCount: 0 
+    property int archivedNotesCount: 0 
 
     // Define a signal to notify the parent when the panel requests to be closed
     signal closed();
@@ -39,12 +39,12 @@ Item {
 
     // Function to refresh general note counts
     function refreshNoteCounts() {
-        totalNotesCount = DB.getAllNotes().length; // Assuming this function exists
-        trashNotesCount = DB.getDeletedNotes().length; // Assuming this function exists
-        archivedNotesCount = DB.getArchivedNotes().length; // НОВОЕ: Получаем количество заметок в архиве
+        totalNotesCount = DB.getAllNotes().length; 
+        trashNotesCount = DB.getDeletedNotes().length; 
+        archivedNotesCount = DB.getArchivedNotes().length; 
         console.log("SidePanel: Total notes count:", totalNotesCount);
         console.log("SidePanel: Trash notes count:", trashNotesCount);
-        console.log("SidePanel: Archived notes count:", archivedNotesCount); // Логируем
+        console.log("SidePanel: Archived notes count:", archivedNotesCount); 
     }
 
     // Helper function to handle navigation logic for main sections
@@ -136,9 +136,9 @@ Item {
                     width: parent.width
                     height: Theme.itemSizeLarge
 
-                    // Aurora Notes text, now clickable
+                    // Aurora Notes text, clickable
                     MouseArea {
-                        anchors.fill: parent // Make the entire header area clickable
+                        anchors.fill: parent 
                         onClicked: {
                             navigateAndManageStack(Qt.resolvedUrl("MainPage.qml"), "notes", "mainPage");
                         }
@@ -330,10 +330,8 @@ Item {
                                     // This assumes MainPage.qml has properties like 'selectedTags' and 'currentSearchText'
                                     // that it observes and uses to filter its content.
                                     pageStack.currentPage.selectedTags = [modelData.name];
-//                                    pageStack.currentPage.currentSearchText = ""; // Clear search text when a tag is applied
                                     console.log(("Updated existing MainPage with tag filter: %1").arg(modelData.name));
                                     mainPage.performSearch("", [modelData.name])
-                                    // If you want the 'Notes' navigation button to appear 'selected' when a tag is applied
                                     sidePanel.currentPage = "notes";
                                 } else {
                                     // If not MainPage, navigate to a new MainPage instance, applying the filter.

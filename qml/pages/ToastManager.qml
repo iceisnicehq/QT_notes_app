@@ -1,28 +1,15 @@
 import QtQuick 2.0
 
 /**
-  * adapted from StackOverflow:
-  * http://stackoverflow.com/questions/26879266/make-toast-in-android-by-qml
   * @brief Manager that creates Toasts dynamically
   */
 ListView {
     /**
-      * Public
-      */
-
-    /**
       * @brief Shows a Toast
-      *
-      * @param {string} text Text to show
-      * @param {real} duration Duration to show in milliseconds, defaults to 3000
       */
     function show(text, duration) {
         model.insert(0, {text: text, duration: duration});
     }
-
-    /**
-      * Private
-      */
 
     id: root
 

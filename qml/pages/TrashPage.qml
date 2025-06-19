@@ -1,6 +1,6 @@
 // TrashPage.qml
 
-import QtQuick.LocalStorage 2.0 // Explicitly import LocalStorage
+import QtQuick.LocalStorage 2.0 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.Layouts 1.1
@@ -8,7 +8,7 @@ import "DatabaseManager.js" as DB
 
 Page {
     id: trashPage
-    objectName: "trashPage" // Added objectName for easier pageStack checks in SidePanel
+    objectName: "trashPage" 
     backgroundColor: trashPage.customBackgroundColor !== undefined ? trashPage.customBackgroundColor : "#121218" // Fallback to Theme.backgroundColor if custom is not set
     showNavigationIndicator: false
     // Property to hold the currently selected custom background color
@@ -68,20 +68,18 @@ Page {
 
     property bool showEmptyLabel: deletedNotes.length === 0
     property bool selectionControlsVisible: deletedNotes.length > 0
-
-    // Новое вспомогательное свойство для определения, выбраны ли все заметки
     property bool allNotesSelected: (selectedNoteIds.length === deletedNotes.length) && (deletedNotes.length > 0)
 
     PageHeader {
         id: pageHeader
         height: Theme.itemSizeExtraLarge
 
-        // Modified: Menu icon button to match the dynamic style
+        
         Item {
             id: menuButton
-            width: Theme.fontSizeExtraLarge * 1.1 // Copied from your example
-            height: Theme.fontSizeExtraLarge * 0.95 // Copied from your example
-            clip: false // Copied from your example
+            width: Theme.fontSizeExtraLarge * 1.1 
+            height: Theme.fontSizeExtraLarge * 0.95 
+            clip: false 
             anchors {
                 left: parent.left
                 leftMargin: Theme.paddingMedium
@@ -92,7 +90,7 @@ Page {
 
             // Dynamic Icon based on selection state, styled like the menu button's icon
             Icon {
-                id: leftIcon // Renamed for clarity
+                id: leftIcon 
                 source: trashPage.selectedNoteIds.length > 0 ? "../icons/close.svg" : "../icons/menu.svg"
                 anchors.centerIn: parent
                 width: parent.width
@@ -104,7 +102,7 @@ Page {
                 anchors.fill: parent
                 onPressed: menuRipple.ripple(mouseX, mouseY) // Keep ripple effect
                 onClicked: {
-                    // Logic adjusted for TrashPage context
+                    
                     if (trashPage.selectedNoteIds.length > 0) {
                         trashPage.selectedNoteIds = []; // Clear selected notes
                         console.log("Selected notes cleared.");
@@ -168,12 +166,12 @@ Page {
                 width: parent.calculatedButtonWidth // Use calculated width
                 highlightColor: Theme.highlightColor
 
-                // NEW: Inner Column to stack Icon and Label for consistent styling
+                
                 Column {
                     anchors.centerIn: parent
 
-                    Item { // Wrapper Item for the Icon to control its precise size and centering
-                        width: Theme.fontSizeExtraLarge * 0.9 // Adjusted size for icons in buttons
+                    Item { 
+                        width: Theme.fontSizeExtraLarge * 0.9 
                         height: Theme.fontSizeExtraLarge * 0.9
                         anchors.horizontalCenter: parent.horizontalCenter
 
@@ -208,7 +206,7 @@ Page {
                 width: parent.calculatedButtonWidth // Use calculated width
                 highlightColor: Theme.highlightColor
 
-                // NEW: Inner Column to stack Icon and Label for consistent styling
+                
                 Column {
                     anchors.centerIn: parent
 
@@ -257,7 +255,7 @@ Page {
                 width: parent.calculatedButtonWidth // Use calculated width
                 highlightColor: Theme.errorColor
 
-                // NEW: Inner Column to stack Icon and Label for consistent styling
+                
                 Column {
                     anchors.centerIn: parent
 
@@ -292,7 +290,7 @@ Page {
                                 console.log(deletedCount + " note(s) permanently deleted.");
                             },
                             qsTr("Confirm Permanent Deletion"),
-                            qsTr("Delete Permanently"), // Changed for clarity, consistent with ArchivePage
+                            qsTr("Delete"), 
                             Theme.errorColor
                         );
                         console.log("Showing permanent delete confirmation dialog for " + selectedNoteIds.length + " notes.");
@@ -313,7 +311,7 @@ Page {
         SilicaFlickable {
             id: trashFlickable
             Layout.fillWidth: true
-            // --- MODIFIED: Explicit height calculation based on remaining space in ColumnLayout ---
+            
             // The parent.height here refers to the height of mainLayout
             Layout.preferredHeight: parent.height // mainLayout's height
                                   - selectionControls.height
@@ -442,7 +440,7 @@ Page {
         id: sidePanelInstance
         open: trashPage.panelOpen
         onClosed: trashPage.panelOpen = false
-        // Добавлены свойства для цвета боковой панели
+        
         customBackgroundColor:  DB.darkenColor(trashPage.customBackgroundColor, 0.30)
         activeSectionColor: trashPage.customBackgroundColor
     }

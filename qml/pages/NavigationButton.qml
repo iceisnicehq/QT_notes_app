@@ -2,7 +2,7 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.LocalStorage 2.0
-import "DatabaseManager.js" as DB // Assuming this contains actual DB operations like getAllNotes, searchNotes, etc.
+import "DatabaseManager.js" as DB 
 Item {
     id: root
     width: parent.width
@@ -11,10 +11,10 @@ Item {
     property string icon: ""
     property string text: ""
     property bool selected: false
-    // New property for note count
-    property int noteCount: -1 // Default to -1 or 0 if no count is provided
-    // Changed 'activeColor' to 'selectedColor' to match the property passed from SidePanel.qml
-    property string selectedColor: DB.getThemeColor() // Default to theme color if not explicitly set
+    
+    property int noteCount: -1 
+    
+    property string selectedColor: DB.getThemeColor() 
     signal clicked()
 
     Rectangle {
@@ -33,7 +33,7 @@ Item {
         width: Theme.iconSizeSmall
         height: Theme.iconSizeSmall
         // Use theme colors for selected/unselected states
-        color: selected ? Theme.primaryColor : Theme.secondaryColor // Example: white/light gray for selected, dark gray for unselected
+        color: selected ? Theme.primaryColor : Theme.secondaryColor 
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
         anchors.leftMargin: Theme.paddingLarge
@@ -46,11 +46,11 @@ Item {
         text: root.noteCount >= 1000 ? "999+" : root.noteCount.toString()
         // Use theme colors for selected/unselected states
         color: selected ? Theme.primaryColor : Theme.secondaryColor
-        font.pixelSize: Theme.fontSizeSmall * 0.9 // Make it a tiny bit smaller
-        font.bold: true // Optional: make count bold for better readability
+        font.pixelSize: Theme.fontSizeSmall * 0.9
+        font.bold: true 
         horizontalAlignment: Text.AlignRight
         verticalAlignment: Text.AlignVCenter
-        // Fixed width for the count label to ensure consistent spacing for "99+"
+        // Fixed width for the count label to ensure consistent spacing for "999+"
         width: Theme.fontSizeMedium * 1.5
         height: parent.height
         anchors.verticalCenter: parent.verticalCenter

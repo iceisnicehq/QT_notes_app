@@ -2,18 +2,18 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.LocalStorage 2.0
-import "Database.js" as Data // Assuming this contains DB initialization
-import "DatabaseManager.js" as DB // Assuming this contains actual DB operations like getAllNotes, searchNotes, etc.
+import "Database.js" as Data 
+import "DatabaseManager.js" as DB 
 
 Item {
     id: root
     width: parent ? parent.width : 360
-    height: cardColumn.implicitHeight + Theme.paddingLarge * 2 + 20 // Adjusted bottom margin
+    height: cardColumn.implicitHeight + Theme.paddingLarge * 2 + 20 
 
     property string title: ""
     property string content: ""
     property var tags: [] // This property receives a string like "tag1 tag2" or ""
-    property string cardColor: DB.getThemeColor() || "#121218" // ADDED: New property for card background color, default to a neutral grey
+    property string cardColor: DB.getThemeColor() || "#121218" 
     property string borderColor:  DB.darkenColor((root.cardColor), -0.3)
     // --- NEW PROPERTIES FOR SELECTION AND NAVIGATION DATA ---
     property int noteId: -1 // To identify the note for selection
@@ -23,7 +23,6 @@ Item {
     property date noteCreationDate: new Date() // Pass creation date from modelData
     property date noteEditDate: new Date() // Pass edit date from modelData
 
-    // Debugging: Log when isSelected changes
     onIsSelectedChanged: {
         console.log(("NoteCard ID:", root.noteId, "isSelected changed to:", root.isSelected, "Border width:", root.isSelected ? 8 : 2));
     }
@@ -48,7 +47,7 @@ Item {
                 root.mainPageInstance.toggleNoteSelection(root.noteId);
             }
             // Crucially, prevent the onReleased event from also triggering onClicked
-            mouseArea.mouse.accepted = false; // Corrected: Use mouse.accepted
+            mouseArea.mouse.accepted = false; 
             root.pressActive = false; // Reset press active state immediately after long press
             root.scale = 1.0; // Reset scale after long press
         }
@@ -67,11 +66,9 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        // MODIFIED: Use cardColor for the background
         color: root.cardColor // Use the new property for background color
         radius: 20
         border.color: root.isSelected ? "white" : root.borderColor // White border if selected, otherwise original border
-        // FIXED: Hardcoded border width to ensure visibility and rule out TypeError from Theme.borderWidthLarge
         border.width: root.isSelected ? 4 : 2 // Increased selected width significantly for immediate visibility
         anchors.bottomMargin: 20 // This margin affects the root Item's height
         Column {
@@ -95,7 +92,6 @@ Item {
                 font.pixelSize: Theme.fontSizeLarge
                 font.bold: true
                 wrapMode: Text.Wrap
-                // ИЗМЕНЕНО: Учитываем горизонтальные отступы родителя
                 width: parent.width
             }
             Rectangle {
@@ -114,7 +110,6 @@ Item {
                 elide: Text.ElideRight
                 font.pixelSize: Theme.fontSizeSmall
                 color: "#c5c8d0"
-                // ИЗМЕНЕНО: Учитываем горизонтальные отступы родителя
                 width: parent.width
             }
             Rectangle {
@@ -125,7 +120,6 @@ Item {
             // Tags
             Flow {
                 id: tagsFlow
-                // ИЗМЕНЕНО: Учитываем горизонтальные отступы родителя
                 width: parent.width
                 spacing: Theme.paddingSmall
                 visible: tags.trim().length > 0
@@ -204,11 +198,11 @@ Item {
                             onNoteSavedOrDeleted: root.mainPageInstance ? root.mainPageInstance.refreshData : null, // Pass refreshData callback
                             noteId: root.noteId,
                             noteTitle: root.title,
-                            noteContent: root.content, // Corrected: Use root.content
-                            noteIsPinned: root.noteIsPinned, // Corrected: Use root.noteIsPinned
-                            noteTags: root.tags, // Corrected: Use root.tags
-                            noteCreationDate: root.noteCreationDate, // Corrected: Use root.noteCreationDate
-                            noteEditDate: root.noteEditDate, // Corrected: Use root.noteEditDate
+                            noteContent: root.content, 
+                            noteIsPinned: root.noteIsPinned, 
+                            noteTags: root.tags, 
+                            noteCreationDate: root.noteCreationDate, 
+                            noteEditDate: root.noteEditDate, 
                             noteColor: root.cardColor
 
                         });

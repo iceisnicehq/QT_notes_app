@@ -27,10 +27,10 @@ Page {
     property var allTagsWithCounts: [] // Will store [{name: "tag1", count: 5}, {name: "tag2", count: 2}]
     property var editingTagData: null // {name: "oldName", count: 5, id: 123} // When editing an existing tag
 
-    // NEW: Reference to the currently editing delegate instance
+    
     property var currentlyEditingTagDelegate: null
 
-    // NEW: Flag to temporarily ignore focus loss during new tag creation
+    
     property bool ignoreNextFocusLossCancellation: false
 
     Component.onCompleted: {
@@ -92,7 +92,7 @@ Page {
 
         Behavior on y {
             NumberAnimation {
-                duration: 250 // You can adjust this duration for speed
+                duration: 250 
                 easing.type: Easing.OutQuad
             }
         }
@@ -187,7 +187,6 @@ Page {
 
                         focus: creatingNewTag // Keep focus when creating
 
-                        // Modified onClicked handler for the SearchField itself
                         onClicked: {
                             // If another tag is currently being edited, reset its state first.
                             if (tagEditPage.currentlyEditingTagDelegate) {
@@ -213,7 +212,7 @@ Page {
                             }
                         }
 
-                        // Modified onActiveFocusChanged to use the new flag
+                        
                         onActiveFocusChanged: {
                             if (!activeFocus) { // Focus lost
                                 if (creatingNewTag) { // Only check if currently in creation mode
@@ -302,13 +301,13 @@ Page {
                                 height: parent.height
                             }
 
-                            // New function to encapsulate tag creation logic
+                            
                             function performCreationLogic() {
                                 var trimmedTag = newTagNameInput.trim();
                                 if (trimmedTag === "") {
                                     if (toastManager) toastManager.show(qsTr("Tag name cannot be empty!"));
                                 } else {
-                                    // Removed toLowerCase() for case-sensitive check
+                                    
                                     var tagExists = allTagsWithCounts.some(function(t) {
                                         return t.name === trimmedTag;
                                     });
@@ -317,13 +316,13 @@ Page {
                                         console.log("Error: Tag '" + trimmedTag + "' already exists.");
                                         if (toastManager) toastManager.show(qsTr("Tag '%1' already exists!").arg(trimmedTag));
                                     } else {
-                                        // Pass the tag with its original casing to the database manager
+                                        
                                         DB.addTag(trimmedTag);
-                                        refreshTags(); // Refresh list
-                                        newTagNameInput = ""; // Clear input
-                                        creatingNewTag = false; // Exit creation mode
-                                        tagInput.forceActiveFocus(false); // Hide keyboard
-                                        if (onTagsChanged) { onTagsChanged(); } // Notify MainPage
+                                        refreshTags(); 
+                                        newTagNameInput = ""; 
+                                        creatingNewTag = false; 
+                                        tagInput.forceActiveFocus(false); 
+                                        if (onTagsChanged) { onTagsChanged(); } 
                                         if (toastManager) toastManager.show(qsTr("Tag '%1' created!").arg(trimmedTag));
                                     }
                                 }
@@ -362,7 +361,7 @@ Page {
 
                         property string editingTagName: tagName // Temporary property for TextField
                         property bool editingInputError: false // For visual feedback on invalid edit
-                        property bool isTagNameChanged: false // NEW: Track if name has been changed during edit
+                        property bool isTagNameChanged: false 
 
                         // Function to reset state for this specific delegate
                         function resetEditState() {
@@ -425,7 +424,6 @@ Page {
                                             // Case-sensitive comparison for original tag name check
                                             var originalTagNameTrimmed = tagName.trim();
 
-                                            // Removed toLowerCase()
                                             if (trimmedCurrentText === "" || trimmedCurrentText === originalTagNameTrimmed) {
                                                 // No change, just reset state
                                                 tagListItemDelegate.resetEditState();
@@ -571,7 +569,6 @@ Page {
                                         if (toastManager) toastManager.show(qsTr("Tag '%1' already exists!").arg(trimmedEditTag));
                                     } else {
                                         // Pass original tag name and the new, user-provided casing
-                                        // IMPORTANT: Ensure your DB.updateTagName can handle exact case matching for original tag name.
                                         DB.updateTagName(tagName, trimmedEditTag);
                                         tagListItemDelegate.resetEditState(); // Resets delegate and clears global state
                                         if (toastManager) toastManager.show(qsTr("Updated tag '%1' to '%2'").arg(tagName).arg(trimmedEditTag));

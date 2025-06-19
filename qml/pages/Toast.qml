@@ -1,24 +1,12 @@
 import QtQuick 2.0
 
 /**
- * adapted from StackOverflow:
- * http://stackoverflow.com/questions/26879266/make-toast-in-android-by-qml
- */
-
-/**
   * @brief An Android-like timed message text in a box that self-destroys when finished if desired
   */
 Rectangle {
 
     /**
-      * Public
-      */
-
-    /**
       * @brief Shows this Toast
-      *
-      * @param {string} text Text to show
-      * @param {real} duration Duration to show in milliseconds, defaults to 3000
       */
     function show(text, duration) {
         message.text = text;
@@ -32,11 +20,6 @@ Rectangle {
     }
 
     property bool selfDestroying: false  // whether this Toast will self-destroy when it is finished
-
-    /**
-      * Private
-      */
-
     id: root
 
     readonly property real defaultTime: 3000

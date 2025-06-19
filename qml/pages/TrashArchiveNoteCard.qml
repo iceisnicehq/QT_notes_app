@@ -2,20 +2,20 @@
 // This component displays an individual note card within the Trash or Archive pages.
 
 import QtQuick 2.0
-import Sailfish.Silica 1.0 // Ensure this import correctly defines Theme properties
-import QtQuick.Layouts 1.1 // Import for ColumnLayout
-import "DatabaseManager.js" as DB // Keep if other DB functions are used here, otherwise can remove
+import Sailfish.Silica 1.0 
+import QtQuick.Layouts 1.1 
+import "DatabaseManager.js" as DB 
 
-Item { // Changed from Rectangle to Item as it's a better base for components that contain other visuals
+Item { 
     id: root
-    width: parent ? parent.width : 360 // Use parent.width for better adaptability
-    // Adjusted implicitHeight to now only account for the main card rectangle itself
+    width: parent ? parent.width : 360 
+    
     implicitHeight: mainCardRectangle.implicitHeight + 10
     // --- Properties ---
     property string title: ""
     property string content: ""
     property string tags: ""
-    property string cardColor: DB.getThemeColor() || "#121218" // ADDED: New property for card background color, default to a neutral grey
+    property string cardColor: DB.getThemeColor() || "#121218" 
     property string borderColor:  DB.darkenColor((root.cardColor), -0.3)
     // isSelected property will be driven *only* by the parent (e.g., TrashPage or UnifiedNotesPage)
     property bool isSelected: false
@@ -25,8 +25,8 @@ Item { // Changed from Rectangle to Item as it's a better base for components th
     property date noteCreationDate: new Date()
     property date noteEditDate: new Date()
 
-    // Removed: deletionDateTimestamp and inTrashContext properties are no longer here.
-    // The date display will be handled by the parent QML directly below the card.
+    
+    
 
 
     // Properties for selection state (now directly used by the Rectangle below)
@@ -140,7 +140,7 @@ Item { // Changed from Rectangle to Item as it's a better base for components th
                         when: root.isSelected === true
                         PropertyChanges {
                             target: visualCheckbox
-                            color: "#FFFFFF" // NEW: Make the checkbox white when selected
+                            color: "#FFFFFF" 
                             border.color: "transparent" // No border when selected
                             border.width: 0
                         }
@@ -157,7 +157,7 @@ Item { // Changed from Rectangle to Item as it's a better base for components th
                     }
                 ]
 
-                // Optional: Smooth transition between states
+                
                 transitions: Transition {
                     PropertyAnimation { properties: "color,border.color,border.width"; duration: 150 }
                 }
@@ -287,5 +287,4 @@ Item { // Changed from Rectangle to Item as it's a better base for components th
         }
 
     }
-    // Removed deletionDateText Label from here. It will be in TrashPage.qml now.
 }
