@@ -271,7 +271,7 @@ function updateNotesImportedCount(count) {
 }
 
 
-function addNoteInternal(tx, pinned, title, content, color, deleted, archived) {
+function addNoteInternal(tx, pinned, title, content, color, deleted, archived, checksum) {
     if (deleted === undefined || deleted === null) {
         deleted = 0;
     }
@@ -279,8 +279,8 @@ function addNoteInternal(tx, pinned, title, content, color, deleted, archived) {
         archived = 0;
     }
     tx.executeSql(
-        'INSERT INTO Notes (pinned, title, content, color, deleted, archived, checksum) VALUES (?, ?, ?, ?, ?, ?)',
-        [pinned, title, content, color, deleted, archived] 
+        'INSERT INTO Notes (pinned, title, content, color, deleted, archived, checksum) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [pinned, title, content, color, deleted, archived, checksum]
     );
     var row = tx.executeSql('SELECT last_insert_rowid() as id');
     return row.rows.item(0).id;
@@ -1004,6 +1004,96 @@ function addImportedNote(note, tx, optionalTagForImport) { // Added optionalTagF
     console.log("DB_MGR_DEBUG: Successfully added imported note with new DB ID: " + noteId + " and checksum: " + importedNoteChecksum);
     return noteId; // Return the new ID
 }
+
+
+function importNotes(importedNotes, optionalTagForImport, successCallback, errorCallback) {
+    if (!db) {
+        initDatabase(LocalStorage); // Attempt to initialize if not already
+        if (!db) {
+            var errorMsg = "DB_MGR: Database not initialized for importNotes. Cannot proceed.";
+            console.error(errorMsg);
+            if (errorCallback) errorCallback(new Error(errorMsg));
+            return;
+        }
+    }
+
+    var importedCount = 0;
+    var updatedCount = 0; // In this design, "updates" are effectively new imports if content changed
+    var skippedCount = 0;
+
+    db.transaction(function(tx) {
+        // Step 1: Fetch all current active notes' checksums and their IDs for efficient lookup.
+        // We only care about active notes for "skipping if identical content".
+        var existingActiveNotesMap = new Map(); // Map: checksum -> note_id
+        try {
+            // Select only non-deleted and non-archived notes for checksum comparison
+            var result = tx.executeSql('SELECT id, checksum FROM Notes WHERE deleted = 0 AND archived = 0');
+            for (var i = 0; i < result.rows.length; i++) {
+                var existingNote = result.rows.item(i);
+                if (existingNote.checksum) {
+                    existingActiveNotesMap.set(existingNote.checksum, existingNote.id);
+                }
+            }
+
+        } catch (e) {
+            console.error("DB_MGR_IMPORT: Error fetching existing notes for checksum comparison: " + e.message);
+            // Decide how to handle this error. For now, we'll stop the import.
+            throw new Error("Failed to prepare for import due to DB error: " + e.message); // Will trigger transaction errorCallback
+        }
+
+        // Step 2: Iterate through each imported note
+        for (var z = 0; z < importedNotes.length; z++) {
+            var noteToImport = importedNotes[z];
+
+            // Generate checksum for the incoming note based on its content
+            var generatedChecksumForImportedNote = generateNoteChecksum(noteToImport);
+
+            if (!generatedChecksumForImportedNote) {
+                skippedCount++;
+                continue; // Skip this specific note
+            }
+
+            // Check if a note with the exact same content (checksum) already exists in active notes
+            var existingIdByChecksum = existingActiveNotesMap.get(generatedChecksumForImportedNote);
+
+            if (existingIdByChecksum) {
+                skippedCount++;
+            } else {
+                var newNoteDbId = addImportedNote(noteToImport, tx, optionalTagForImport); // Call our updated helper
+
+                if (newNoteDbId !== null) {
+                    importedCount++;
+                } else {
+                    console.error("DB_MGR_IMPORT: Failed to add note, possibly due to an internal error in addImportedNote.");
+                    skippedCount++; // Consider it skipped due to error
+                }
+            }
+        }
+
+        updateNotesImportedCount(importedCount);
+        updateLastImportDate();
+        if (successCallback) {
+            successCallback({ importedCount: importedCount, updatedCount: updatedCount, skippedCount: skippedCount });
+        }
+    }, function(error) {
+        // Transaction error handling
+        console.error("DB_MGR_IMPORT: Transaction failed during import: " + error.message);
+        if (errorCallback) {
+            errorCallback(error);
+        }
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
 
 function updateLastExportDate() {
     initDatabase(LocalStorage)
