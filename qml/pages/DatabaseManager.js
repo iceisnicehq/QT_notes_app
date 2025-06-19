@@ -8,6 +8,7 @@ var dbSize = 1000000;
 var defaultNoteColor = "#1c1d29";
 
 function initDatabase(localStorageInstance) {
+
     // Only proceed if a localStorageInstance is provided and db is null
     if (!localStorageInstance) {
         console.error("DB_MGR: LocalStorage instance not provided to initDatabase.");
@@ -51,6 +52,14 @@ function initDatabase(localStorageInstance) {
                 'FOREIGN KEY(tag_id) REFERENCES Tags(id) ON DELETE CASCADE' +
                 ')'
             );
+
+
+
+            //tx.executeSql("DELETE FROM NoteTags WHERE note_id IN (71, 73, 76, 79);");
+            //tx.executeSql("DELETE FROM Notes WHERE id IN (71, 73, 76, 79);");
+
+
+
 
             // --- Migrations for Notes table (if columns are missing in existing DB) ---
             try {
@@ -747,6 +756,119 @@ function permanentlyDeleteNotes(ids) {
     });
 }
 
+
+//function permanentlyDeleteNotes(ids) {
+//    if (!db) {
+//        console.error("DB_MGR: Database not initialized. Cannot permanently delete notes.");
+//        return;
+//    }
+//    if (ids.length === 0) {
+//        console.warn("DB_MGR: No IDs provided for permanent deletion. Skipping.");
+//        return;
+//    }
+
+//    db.transaction(function(tx) {
+//        var placeholders = ids.map(function() { return '?'; }).join(',');
+
+//        tx.executeSql(
+//            "DELETE FROM NoteTags WHERE note_id IN (" + placeholders + ")",
+//            ids,
+//            function(tx, results) { // <-- results parameter is CRITICAL here
+//                console.log("DB_MGR: NoteTags DELETE successful. Rows affected: " + results.rowsAffected);
+//                if (results.rowsAffected === 0 && ids.length > 0) {
+//                    console.warn("DB_MGR: WARNING: NoteTags DELETE affected 0 rows for IDs:", ids);
+//                }
+
+//                tx.executeSql(
+//                    "DELETE FROM Notes WHERE id IN (" + placeholders + ")",
+//                    ids,
+//                    function(tx, results) { // <-- results parameter is CRITICAL here
+//                        console.log("DB_MGR: Notes DELETE successful. Rows affected: " + results.rowsAffected);
+//                        if (results.rowsAffected === 0 && ids.length > 0) {
+//                            console.warn("DB_MGR: WARNING: Notes DELETE affected 0 rows for IDs:", ids + ". Notes may still exist!");
+//                        }
+//                        console.log("DB_MGR: Successfully permanently deleted Notes with IDs:", ids);
+
+//                        // You can keep checkIfNotesExist(ids); here if you want to verify after all other logs.
+//                        // checkIfNotesExist(ids);
+
+//                    },
+//                    function(tx, error) { // <-- ERROR CALLBACK for Notes DELETE
+//                        console.error("DB_MGR: ERROR: Failed to permanently delete Notes (IDs: " + ids + "): " + error.message);
+//                        // checkIfNotesExist(ids);
+//                    }
+//                );
+//            },
+//            function(tx, error) { // <-- ERROR CALLBACK for NoteTags DELETE
+//                console.error("DB_MGR: ERROR: Failed to delete NoteTags (IDs: " + ids + "): " + error.message);
+//                // checkIfNotesExist(ids);
+//            }
+//        );
+//    }, function(error) { // <-- ERROR CALLBACK for entire transaction
+//        console.error("DB_MGR: ERROR: Transaction failed during permanent deletion: " + error.message);
+//        // checkIfNotesExist(ids);
+//    }, function() {
+//        console.log("DB_MGR: Permanent deletion transaction block initiated. Check individual SQL logs for success/failure.");
+//    });
+//}
+
+
+
+
+
+
+// Функция checkIfNotesExist остается такой же, как в предыдущем ответе.
+
+// Новая функция для проверки наличия заметок
+function checkIfNotesExist(idsToCheck) {
+    if (!db) {
+        console.error("DB_MGR: Database not initialized. Cannot check for note existence.");
+        return;
+    }
+    if (idsToCheck.length === 0) {
+        console.log("DB_MGR: No IDs to check for existence.");
+        return;
+    }
+
+    db.readTransaction(function(tx) {
+        var placeholders = idsToCheck.map(function() { return '?'; }).join(',');
+        var query = "SELECT id, title, deleted FROM Notes WHERE id IN (" + placeholders + ")";
+        tx.executeSql(query, idsToCheck,
+            function(tx, results) {
+                if (results.rows.length > 0) {
+                    console.warn("DB_MGR_CHECK: !!! ATTENTION: Found " + results.rows.length + " notes that should have been deleted:");
+                    for (var i = 0; i < results.rows.length; i++) {
+                        var note = results.rows.item(i);
+                        console.warn("DB_MGR_CHECK: Note ID: " + note.id + ", Title: '" + note.title + "', Deleted Flag: " + note.deleted);
+                    }
+                } else {
+                    console.log("DB_MGR_CHECK: Successfully verified that notes with IDs [" + idsToCheck.join(',') + "] do NOT exist in DB.");
+                }
+            },
+            function(tx, error) {
+                console.error("DB_MGR_CHECK: Error checking for deleted notes: " + error.message);
+            }
+        );
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function searchNotes(searchText, selectedTagNames) {
     if (!db) initDatabase(LocalStorage);
     var notes = [];
@@ -889,25 +1011,21 @@ function generateNoteChecksum(note) {
         console.error("DB_MGR: generateNoteChecksum received null/undefined note.");
         return null;
     }
+    // Temporarily log inputs
+    console.log("DB_MGR_CHECKSUM: Generating checksum for title: '${note.title}', content: '${note.content}', color: '${note.color}'");
 
-    // Prepare a consistent string representation of the note's content.
-    // Ensure properties are always present, even if empty, for consistent hashing.
-    // Tags must be sorted to ensure the hash is the same regardless of their initial order.
-    var titlePart = note.title ? note.title : '';
-    var contentPart = note.content ? note.content : '';
-    var colorPart = note.color ? note.color : defaultNoteColor; // Use default if color is missing
-    var tagsPart = (note.tags && Array.isArray(note.tags)) ? note.tags.slice().sort().join('|') : ''; // Join sorted tags
+    // Your actual checksum logic here. Example (ensure it's robust):
+    // var data = (note.title || "") + (note.content || "") + (note.color || "");
+    // var checksum = Qt.createQmlObject('import QtQuick 2.0; import QtQuick.LocalStorage 2.0; Qt.md5(data)', Qt.application, "checksumGen");
+    // OR if you have a JS-based MD5/SHA library:
+    // var checksum = MD5.hash(data); // Replace with your actual hashing function
+    var data = (note.title || "") + (note.content || "") + (note.color || "");
+    var checksum = data.length.toString(16) + data.charCodeAt(0).toString(16) + data.charCodeAt(data.length - 1).toString(16); // THIS IS A TERRIBLE CHECKSUM, JUST AN EXAMPLE
+    // Use a proper hashing algorithm if you have one.
+    // If you're using Qt.md5 or similar, ensure it's imported and used correctly.
 
-    // Concatenate all parts into a single string. Use a separator that won't appear in content.
-    // A simple pipe '|' or newline '\n' can work, as long as it's consistent.
-    var contentToHash = "${titlePart}\n${contentPart}\n${colorPart}\n${tagsPart}";
-
-    try {
-        return simpleStringHash(contentToHash);
-    } catch (e) {
-        console.error("DB_MGR: Error generating checksum with simpleStringHash:", e);
-        return null;
-    }
+    console.log("DB_MGR_CHECKSUM: Generated checksum: ${checksum}");
+    return checksum;
 }
 
 
@@ -1074,53 +1192,52 @@ function importNotes(importedNotes, optionalTagForImport, successCallback, error
     }
 
     var importedCount = 0;
-    var updatedCount = 0;
+    var updatedCount = 0; // Not currently used for updates, only new imports
     var skippedCount = 0;
 
     db.transaction(function(tx) {
-        // Step 1: Fetch all current active notes' checksums and their IDs for efficient lookup.
-        // Use a plain object as a map for broader compatibility.
-        var existingActiveNotesMap = {}; // <--- CHANGED: Using a plain object
+        var existingActiveNotesMap = {};
         try {
             var result = tx.executeSql('SELECT id, checksum FROM Notes WHERE deleted = 0 AND archived = 0');
             for (var i = 0; i < result.rows.length; i++) {
                 var existingNote = result.rows.item(i);
                 if (existingNote.checksum) {
-                    existingActiveNotesMap[existingNote.checksum] = existingNote.id; // <--- CHANGED: Assigning directly to object property
+                    existingActiveNotesMap[existingNote.checksum] = existingNote.id;
                 }
             }
+            console.log("DB_MGR_IMPORT: Found ${Object.keys(existingActiveNotesMap).length} active notes for checksum comparison.");
 
         } catch (e) {
             console.error("DB_MGR_IMPORT: Error fetching existing notes for checksum comparison: " + e.message);
             throw new Error("Failed to prepare for import due to DB error: " + e.message);
         }
 
-        // Step 2: Iterate through each imported note
         for (var z = 0; z < importedNotes.length; z++) {
             var noteToImport = importedNotes[z];
 
             var generatedChecksumForImportedNote = generateNoteChecksum(noteToImport);
 
             if (!generatedChecksumForImportedNote) {
-
+                console.warn("DB_MGR_IMPORT: Skipping note with no generated checksum (title: ${noteToImport.title}).");
                 skippedCount++;
                 continue;
             }
 
-            // Check if a note with the exact same content (checksum) already exists in active notes
-            var existingIdByChecksum = existingActiveNotesMap[generatedChecksumForImportedNote]; // <--- CHANGED: Accessing object property
+            var existingIdByChecksum = existingActiveNotesMap[generatedChecksumForImportedNote];
 
             if (existingIdByChecksum) {
-                console.log("DB_MGR_IMPORT: Note with title '${noteToImport.title}' (checksum: '${generatedChecksumForImportedNote}') already exists as active note ID ${existingIdByChecksum}. Skipping import.");
+                // *** FIX 1: Use backticks for template literals in console.log ***
+                console.log("DB_MGR_IMPORT: Note with title `${noteToImport.title}` (checksum: `${generatedChecksumForImportedNote}) already exists as active note ID ${existingIdByChecksum}. Skipping import.");
                 skippedCount++;
             } else {
-                console.log("DB_MGR_IMPORT: Adding new/changed note: '${noteToImport.title}' with checksum '${generatedChecksumForImportedNote}'.");
+                // *** FIX 1: Use backticks for template literals in console.log ***
+                console.log("DB_MGR_IMPORT: Adding new/changed note: `${noteToImport.title}` with checksum `${generatedChecksumForImportedNote}`.");
                 var newNoteDbId = addImportedNote(noteToImport, tx, optionalTagForImport);
 
                 if (newNoteDbId !== null) {
                     importedCount++;
                 } else {
-                    console.error("DB_MGR_IMPORT: Failed to add note, possibly due to an internal error in addImportedNote.");
+                    console.error("DB_MGR_IMPORT: Failed to add note, possibly due to an internal error in addImportedNote for title: '${noteToImport.title}'.");
                     skippedCount++;
                 }
             }
@@ -1129,6 +1246,7 @@ function importNotes(importedNotes, optionalTagForImport, successCallback, error
         updateNotesImportedCount(importedCount);
         updateLastImportDate();
 
+        // *** FIX 1: Use backticks for template literals in console.log ***
         console.log("DB_MGR_IMPORT: Import complete. Imported: ${importedCount}, Skipped: ${skippedCount}.");
 
         if (successCallback) {
@@ -1141,7 +1259,6 @@ function importNotes(importedNotes, optionalTagForImport, successCallback, error
         }
     });
 }
-
 
 
 

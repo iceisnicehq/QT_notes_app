@@ -283,6 +283,7 @@ Page {
                         trashPage.showConfirmDialog(
                             message,
                             function() {
+                                console.log("CONFIRMATION: selectedNoteIds contents:", JSON.stringify(selectedNoteIds)); // Add this!
                                 var deletedCount = selectedNoteIds.length;
                                 DB.permanentlyDeleteNotes(selectedNoteIds);
                                 refreshDeletedNotes();
