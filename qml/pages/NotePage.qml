@@ -195,8 +195,6 @@ Page {
             Qt.inputMethod.show(); // Show keyboard
             console.log(qsTr("NewNotePage opened in CREATE mode. Default color: %1").arg(noteColor));
             noteModified = true; // New note is inherently modified
-            // Для новой заметки, убесимся, что noteTags - это пустой массив
-            newNotePage.noteTags = [];
         }
         // Initialize history with the current note content and cursor position after all initial setup
         // Only if not in read-only mode
