@@ -1,6 +1,6 @@
 // DatabaseManager.js
 var db = null;
-var dbName = "AuroraNotesDB";
+var dbName = "1AuroraNotesDB";
 var dbVersion = "1.0";
 var dbDescription = "Aurora Notes Database";
 var dbSize = 1000000;
@@ -13,7 +13,7 @@ function initDatabase(localStorageInstance) {
         console.error("DB_MGR: LocalStorage instance not provided to initDatabase.");
         return;
     }
-    if (db) return; // Prevent re-initialization if already done
+    if (db) return;
     console.log("DB_MGR: Инициализация базы данных...");
     try {
         // Use the passed localStorageInstance
@@ -30,7 +30,7 @@ function initDatabase(localStorageInstance) {
                 'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, ' +
                 'updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, ' +
                 'deleted BOOLEAN NOT NULL DEFAULT 0, ' +
-                'archived BOOLEAN NOT NULL DEFAULT 0' +
+                'archived BOOLEAN NOT NULL DEFAULT 0, ' +
                 'checksum TEXT' +
                 ')'
             );
@@ -120,6 +120,58 @@ function initDatabase(localStorageInstance) {
 
             try { tx.executeSql('SELECT notesImportedCount FROM AppSettings LIMIT 1'); }
             catch (e) { console.log("DB_MGR: Adding 'notesImportedCount' column to AppSettings."); tx.executeSql('ALTER TABLE AppSettings ADD COLUMN notesImportedCount INTEGER DEFAULT 0'); }
+
+            try {
+            // Fetch notes that have NULL checksums
+            var result = tx.executeSql('SELECT id, pinned, title, content, color, deleted, archived FROM Notes WHERE checksum IS NULL OR checksum = ""');
+            if (result.rows.length > 0) {
+                console.log('DB_MGR_MIGRATION: Found ${result.rows.length} notes with missing checksums. Populating now.');
+                for (var i = 0; i < result.rows.length; i++) {
+                    var note = result.rows.item(i);
+                    // Construct a temporary note object that generateNoteChecksum expects
+                    var tempNote = {
+                        id: note.id,
+                        pinned: note.pinned,
+                        title: note.title,
+                        content: note.content,
+                        color: note.color,
+                        deleted: note.deleted,
+                        archived: note.archived,
+                        // Tags are not in the Notes table, so we need to fetch them
+                        // or generate checksum based on what's available.
+                        // For a more accurate checksum, you'd fetch tags here:
+                        // var tagsResult = tx.executeSql('SELECT T.name FROM Tags T JOIN NoteTags NT ON T.id = NT.tag_id WHERE NT.note_id = ?', [note.id]);
+                        // var noteTags = [];
+                        // for (let j = 0; j < tagsResult.rows.length; j++) {
+                        //     noteTags.push(tagsResult.rows.item(j).name);
+                        // }
+                        // tags: noteTags // Add this if generateNoteChecksum needs tags for old notes
+                    };
+
+                    // Generate checksum for the old note
+                    var generatedChecksum = generateNoteChecksum(tempNote);
+
+                    if (generatedChecksum) {
+                        tx.executeSql('UPDATE Notes SET checksum = ? WHERE id = ?', [generatedChecksum, note.id]);
+                        console.log('DB_MGR_MIGRATION: Updated note ID ${note.id} with checksum: ${generatedChecksum}');
+                    } else {
+                        console.warn('DB_MGR_MIGRATION: Failed to generate checksum for note ID ${note.id}. Skipping update.');
+                    }
+                }
+                console.log("DB_MGR_MIGRATION: Checksum migration complete.");
+            } else {
+                console.log("DB_MGR_MIGRATION: No notes found with missing checksums. Migration skipped.");
+            }
+        } catch (e) {
+            // This catch handles errors specifically during the checksum migration
+            console.error("DB_MGR_MIGRATION: Error during checksum migration: " + e.message);
+            // Important: Don't re-throw if it's just a migration error.
+            // The main DB init should still proceed.
+        }
+
+
+
+
 
             console.log("DB_MGR: Checking for notes without checksums..."); // добавление в ините
             var notesWithoutChecksum = tx.executeSql('SELECT id, title, content, color FROM Notes WHERE checksum IS NULL');
