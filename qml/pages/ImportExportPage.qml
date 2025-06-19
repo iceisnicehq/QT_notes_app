@@ -1,12 +1,12 @@
 // ImportExportPage.qml
 
 import QtQuick 2.0
-import Sailfish.Silica 1.0 
+import Sailfish.Silica 1.0
 import Sailfish.Pickers 1.0
 import QtQuick.Layouts 1.1
-import Nemo.Configuration 1.0 
-import "DatabaseManager.js" as DB 
-import QtQuick.LocalStorage 2.0 
+import Nemo.Configuration 1.0
+import "DatabaseManager.js" as DB
+import QtQuick.LocalStorage 2.0
 
 Page {
     id: importExportPage
@@ -17,6 +17,7 @@ Page {
     showNavigationIndicator: false
     property string statusText: ""
     property bool processInProgress: false
+    property string selectedExportFormat: "json" // Default export format
 
     // Property to control side panel visibility, similar to ArchivePage
     property bool panelOpen: false
@@ -46,8 +47,8 @@ Page {
 
         FilePickerPage {
             title: qsTr("Select file for import")
-            nameFilters: ["*.json"]
-            // No nameFilters set, will show all files, user must pick .json
+            nameFilters: ["*.json", "*.csv"] // Now includes CSV
+            // No nameFilters set, will show all files, user must pick .json or .csv
 
             onSelectedContentPropertiesChanged: {
                 if (selectedContentProperties !== null) {
@@ -68,79 +69,57 @@ Page {
         }
     }
 
+    // Dialog for Export Results
     Item {
-        id: exportResultDialog // Direct Item instance, not a Component
-        // Expose properties for external control by the parent page
-        property bool dialogVisible: false // Controls overall visibility of the dialog and overlay
-        property string dialogFileName: "" // File name for display
-        property string dialogFilePath: "" // Full path for display
-        property int dialogDataSize: 0 // File size in bytes
-        property int dialogOperationsCount: 0 // Number of notes exported
+        id: exportResultDialog
+        property bool dialogVisible: false
+        property string dialogFileName: ""
+        property string dialogFilePath: ""
+        property int dialogDataSize: 0
+        property int dialogOperationsCount: 0
 
-        // Signal to communicate dismissal back to the parent page
         signal dismissed()
 
-        // Make the root Item fill its parent to allow the dialog to be centered on the whole page
-        // and the overlay to cover the entire screen.
-        anchors.fill: parent
-        visible: dialogVisible // The entire component's visibility is tied to this property
-        z: 100 // Ensures the dialog appears on top of other content
-
-        // Handle dismissal from the parent (e.g., when the button is clicked or overlay is tapped)
         onDismissed: {
-            dialogVisible = false // Hide the dialog
+            dialogVisible = false
         }
 
-        // Background overlay for dimming effect when the dialog is visible
+        anchors.fill: parent // ADDED: Ensure the dialog container fills the whole page
+        visible: dialogVisible // Make the entire Item visible/hidden
+        z: 100 // Ensure it's on top
+
         Rectangle {
             id: overlayRect
-            anchors.fill: parent // Fills the entire 'exportResultDialog' Item
-            color: "#000000" // Black color for dimming
-            opacity: 0 // Start hidden
-            Behavior on opacity { NumberAnimation { duration: 200 } } // Smooth opacity transition
-
-            // Animate opacity based on dialog visibility
+            anchors.fill: parent
+            color: "#000000"
+            opacity: 0
+            Behavior on opacity { NumberAnimation { duration: 200 } }
             onVisibleChanged: opacity = exportResultDialog.dialogVisible ? 0.5 : 0
-
-            // MouseArea to detect clicks on the dimmed overlay, which dismiss the dialog
             MouseArea {
                 anchors.fill: parent
-                // Enable clicks only when the dialog is visible to prevent unwanted interactions
                 enabled: exportResultDialog.dialogVisible
-                // This MouseArea will ONLY receive clicks that are NOT consumed by children
-                onClicked: {
-                    exportResultDialog.dismissed() // Emit dismissed signal if overlay is clicked
-                }
+                onClicked: { exportResultDialog.dismissed() }
             }
         }
 
-        // The actual dialog box rectangle (main visual container for dialog content)
         Rectangle {
-            id: exportDialogBody // Specific ID for this dialog's body
-            color: DB.darkenColor(importExportPage.customBackgroundColor, 0.30) // Use page's background color
-            radius: Theme.itemSizeSmall / 2 // Rounded corners for the dialog box
-            anchors.centerIn: parent // Centers the dialog box within the screen
+            id: exportDialogBody
+            color: DB.darkenColor(importExportPage.customBackgroundColor, 0.30)
+            radius: Theme.itemSizeSmall / 2
+            anchors.centerIn: parent
 
-            // MouseArea to consume clicks on the dialog body itself,
-            // preventing them from propagating to the overlayRect's MouseArea.
-            // An onClicked handler must be present (even empty) to consume the event.
             MouseArea {
                 anchors.fill: parent
                 onClicked: { /* Do nothing, just consume the click */ }
             }
 
-            // Bind visibility directly to the exposed property
-            visible: exportResultDialog.dialogVisible
-
-            // Set initial opacity and scale for entry/exit animations
+            visible: exportResultDialog.dialogVisible // Control visibility of the body
             opacity: 0
             scale: 0.9
 
-            // Animations for opacity and scale
             Behavior on opacity { NumberAnimation { duration: 200 } }
             Behavior on scale { PropertyAnimation { property: "scale"; duration: 200; easing.type: Easing.OutBack } }
 
-            // Logic to trigger animations based on visibility changes
             onVisibleChanged: {
                 if (visible) {
                     exportDialogBody.opacity = 1;
@@ -151,21 +130,17 @@ Page {
                 }
             }
 
-            // Set width and height of dialogBody dynamically based on content and constraints
-            // height calculated based on contentColumn implicit height
-            width: Math.min(exportResultDialog.width * 0.8, Theme.itemSizeExtraLarge * 8) // Max width for responsiveness
-            height: exportContentColumn.implicitHeight + (Theme.paddingLarge * 2) // Height determined by content plus padding
+            width: Math.min(exportResultDialog.width * 0.8, Theme.itemSizeExtraLarge * 8)
+            height: exportContentColumn.implicitHeight + (Theme.paddingLarge * 2)
 
-            // ColumnLayout for organizing the dialog content (title, message, buttons)
             Column {
-                id: exportContentColumn // Specific ID for this dialog's content column
-                width: parent.width - (Theme.paddingLarge * 2) // Fills dialogBody's width minus its internal padding
-                anchors.horizontalCenter: parent.horizontalCenter // Centers content horizontally
-                spacing: Theme.paddingMedium // Spacing between elements in the column
+                id: exportContentColumn
+                width: parent.width - (Theme.paddingLarge * 2)
+                anchors.horizontalCenter: parent.horizontalCenter
+                spacing: Theme.paddingMedium
                 anchors.top: parent.top
-                anchors.topMargin: Theme.paddingLarge // Top padding for visual balance
+                anchors.topMargin: Theme.paddingLarge
 
-                // Title Label - "Export completed"
                 Label {
                     width: parent.width
                     text: qsTr("Export completed")
@@ -176,71 +151,68 @@ Page {
                     wrapMode: Text.Wrap
                 }
 
-                // Spacer for visual separation between title and content
                 Rectangle {
                     width: parent.width
                     height: Theme.paddingMedium
                     color: "transparent"
                 }
 
-                // Centered Labels for key parts
                 Label {
                     width: parent.width
-                    wrapMode: Text.Wrap 
+                    wrapMode: Text.Wrap
                     color: Theme.highlightColor
-                    text: qsTr("File: ") + "<b>" + exportResultDialog.dialogFileName + "</b>" 
+                    text: qsTr("File: ") + "<b>" + exportResultDialog.dialogFileName + "</b>"
                     textFormat: Text.StyledText
-                    horizontalAlignment: Text.AlignHCenter 
+                    horizontalAlignment: Text.AlignHCenter
                 }
 
                 Label {
                     width: parent.width
-                    wrapMode: Text.Wrap 
-                    text: qsTr("Path: ") + exportResultDialog.dialogFilePath 
+                    wrapMode: Text.Wrap
+                    text: qsTr("Path: ") + exportResultDialog.dialogFilePath
                     font.pixelSize: Theme.fontSizeSmall
                     color: Theme.secondaryColor
-                    horizontalAlignment: Text.AlignHCenter 
+                    horizontalAlignment: Text.AlignHCenter
                 }
 
                 Label {
                     width: parent.width
-                    wrapMode: Text.Wrap 
+                    wrapMode: Text.Wrap
                     color: Theme.highlightColor
-                    text: qsTr("Notes exported: ") + exportResultDialog.dialogOperationsCount 
-                    horizontalAlignment: Text.AlignHCenter 
+                    text: qsTr("Notes exported: ") + exportResultDialog.dialogOperationsCount
+                    horizontalAlignment: Text.AlignHCenter
                 }
 
                 Label {
                     width: parent.width
-                    wrapMode: Text.Wrap 
+                    wrapMode: Text.Wrap
                     color: Theme.highlightColor
-                    text: qsTr("File size: ") + (exportResultDialog.dialogDataSize / 1024).toFixed(2) + qsTr(" KB") 
-                    horizontalAlignment: Text.AlignHCenter 
+                    text: qsTr("File size: ") + (exportResultDialog.dialogDataSize / 1024).toFixed(2) + qsTr(" KB")
+                    horizontalAlignment: Text.AlignHCenter
                 }
 
-                // "Great!" button to dismiss the dialog
                 Button {
                     text: qsTr("Great!")
-                    anchors.horizontalCenter: parent.horizontalCenter 
+                    anchors.horizontalCenter: parent.horizontalCenter
                     onClicked: {
-                        exportResultDialog.dismissed() // Emit dismissed signal
+                        exportResultDialog.dismissed()
                     }
                 }
             }
         }
     }
 
+    // Dialog for Import Results
     Item {
-        id: importResultDialog // Direct Item instance
-        property bool dialogVisible: false // Controls overall visibility
+        id: importResultDialog
+        property bool dialogVisible: false
         property string dialogFileName: ""
         property string dialogFilePath: ""
         property int dialogNotesImportedCount: 0
-        property int dialogTagsCreatedCount: 0 // Placeholder for tags created
+        property int dialogTagsCreatedCount: 0
 
         signal dismissed()
 
-        // Handle dismissal for the import dialog
         onDismissed: {
             dialogVisible = false
             pageStack.clear();
@@ -256,7 +228,7 @@ Page {
         z: 100
 
         Rectangle {
-            id: importOverlayRect 
+            id: importOverlayRect
             anchors.fill: parent
             color: "#000000"
             opacity: 0
@@ -265,12 +237,12 @@ Page {
             MouseArea {
                 anchors.fill: parent
                 enabled: importResultDialog.dialogVisible
-                onClicked: { importResultDialog.dismissed() } 
+                onClicked: { importResultDialog.dismissed() }
             }
         }
 
         Rectangle {
-            id: importDialogBody 
+            id: importDialogBody
             color: DB.darkenColor(importExportPage.customBackgroundColor, 0.30)
             radius: Theme.itemSizeSmall / 2
             anchors.centerIn: parent
@@ -299,7 +271,7 @@ Page {
             height: importContentColumn.implicitHeight + (Theme.paddingLarge * 2)
 
             Column {
-                id: importContentColumn 
+                id: importContentColumn
                 width: parent.width - (Theme.paddingLarge * 2)
                 anchors.horizontalCenter: parent.horizontalCenter
                 spacing: Theme.paddingMedium
@@ -360,7 +332,7 @@ Page {
                     text: qsTr("Great!")
                     anchors.horizontalCenter: parent.horizontalCenter
                     onClicked: {
-                        importResultDialog.dismissed() 
+                        importResultDialog.dismissed()
                     }
                 }
             }
@@ -387,11 +359,11 @@ Page {
 
             Icon {
                 id: leftIcon
-                source: "../icons/menu.svg" 
+                source: "../icons/menu.svg"
                 anchors.centerIn: parent
                 width: parent.width
                 height: parent.height
-                color: Theme.primaryColor 
+                color: Theme.primaryColor
             }
 
             MouseArea {
@@ -411,43 +383,33 @@ Page {
             font.pixelSize: Theme.fontSizeExtraLarge
             font.bold: true
         }
-        
-        Label {
-            text: qsTr("In JSON Format")
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top: headerText.bottom
-            horizontalAlignment: "AlignHCenter"
-            font.pixelSize: Theme.fontSizeExtraSmall
-            font.italic: true
-            color: Theme.secondaryColor
-            wrapMode: Text.Wrap
-        }
+
+        // Removed "In JSON Format" label
     }
 
 
-    
     SilicaFlickable {
         anchors.fill: parent
-        
+
         anchors.topMargin: pageHeader.height
-        contentHeight: column.implicitHeight 
+        contentHeight: column.implicitHeight
 
         Column {
             id: column
             width: parent.width
             spacing: Theme.paddingLarge
-            anchors.horizontalCenter: parent.horizontalCenter 
+            anchors.horizontalCenter: parent.horizontalCenter
             anchors.margins: Theme.paddingLarge // General margins for the content
 
             // --- EXPORT SECTION ---
-            Label { 
+            Label {
                 id: exportNotes
                 text: qsTr("Export Notes")
                 anchors.horizontalCenter: parent.horizontalCenter
                 horizontalAlignment: "AlignHCenter"
                 font.pixelSize: Theme.fontSizeMedium
                 font.bold: true
-                color: "white" 
+                color: "white"
             }
 
             TextField {
@@ -456,12 +418,12 @@ Page {
                 label: qsTr("File Name")
                 placeholderText: qsTr("e.g., notes_backup")
             }
- 
+
             TextField {
                 id: newTagField
                 width: parent.width
-                label: qsTr("This Tag Will Be Added To Exported Notes") 
-                placeholderText: qsTr("Add Tag to Exported Notes (Optional)") 
+                label: qsTr("This Tag Will Be Added To Exported Notes")
+                placeholderText: qsTr("Add Tag to Exported Notes (Optional)")
             }
 
             Label {
@@ -472,11 +434,47 @@ Page {
                 font.italic: true
                 color: Theme.secondaryColor
             }
+
+            // New: Choose file format label
+            Label {
+                text: qsTr("Choose file format")
+                anchors.horizontalCenter: parent.horizontalCenter
+                horizontalAlignment: "AlignHCenter"
+                font.pixelSize: Theme.fontSizeSmall
+                font.bold: true
+                color: "white"
+                topPadding: Theme.paddingMedium
+            }
+
+            // New: Format selection buttons
+            RowLayout {
+                anchors.horizontalCenter: parent.horizontalCenter
+                spacing: Theme.paddingMedium
+
+                Button {
+                    text: qsTr("Export as JSON")
+                    opacity: selectedExportFormat === "json" ? 1.0 : 0.6 // Control opacity based on selection
+                    onClicked: {
+                        selectedExportFormat = "json";
+                        fileNameField.text = fileNameField.text.replace(/\.(json|csv)$/, "") + ".json"; // Update filename extension
+                    }
+                }
+
+                Button {
+                    text: qsTr("Export as CSV")
+                    opacity: selectedExportFormat === "csv" ? 1.0 : 0.6 // Control opacity based on selection
+                    onClicked: {
+                        selectedExportFormat = "csv";
+                        fileNameField.text = fileNameField.text.replace(/\.(json|csv)$/, "") + ".csv"; // Update filename extension
+                    }
+                }
+            }
+
             Button {
                 text: qsTr("Export All Notes")
                 anchors.horizontalCenter: parent.horizontalCenter
                 enabled: !processInProgress && fileNameField.text.length > 0 // Button inactive during process
-                onClicked: exportData(newTagField.text.trim()) // Pass the trimmed value of the new tag field
+                onClicked: exportData(selectedExportFormat, newTagField.text.trim()) // Pass format and optional tag
             }
 
             // Export Statistics Display
@@ -502,20 +500,20 @@ Page {
             }
 
             // --- IMPORT SECTION ---
-            Label { 
+            Label {
                 text: qsTr("Import Notes")
                 anchors.horizontalCenter: parent.horizontalCenter
                 horizontalAlignment: "AlignHCenter"
                 font.pixelSize: Theme.fontSizeMedium
                 font.bold: true
-                color: "white" 
+                color: "white"
             }
 
             TextField {
                 id: newTagForImportField
                 width: parent.width
-                label: qsTr("This Tag Will Get Added To Imported Notes") 
-                placeholderText: qsTr("Add Tag to Imported Notes (Optional)") 
+                label: qsTr("This Tag Will Get Added To Imported Notes")
+                placeholderText: qsTr("Add Tag to Imported Notes (Optional)")
             }
 
             Button {
@@ -545,11 +543,11 @@ Page {
 
             // --- Spacer before Status ---
             Item {
-                Layout.preferredHeight: Theme.paddingLarge * 2 
+                Layout.preferredHeight: Theme.paddingLarge * 2
                 width: parent.width
             }
 
-            
+
             BusyIndicator {
                 anchors.horizontalCenter: parent.horizontalCenter
                 visible: processInProgress
@@ -559,10 +557,10 @@ Page {
 
             Label {
                 id: statusLabel
-                width: parent.width - (2 * Theme.paddingLarge) 
+                width: parent.width - (2 * Theme.paddingLarge)
                 anchors.horizontalCenter: parent.horizontalCenter
                 horizontalAlignment: Text.AlignHCenter
-                color: "white" 
+                color: "white"
                 wrapMode: Text.Wrap
                 text: statusText
                 visible: statusText !== ""
@@ -598,26 +596,82 @@ Page {
                         "Import Count:", notesImportedCount);
         }
 
-        // Set initial filename with a default name, without enforcing .json on display
+        // Set initial filename with a default name, respecting the default JSON format
         var initialBaseName = qsTr("notes_backup_") + Qt.formatDateTime(new Date(), "yyyyMMdd_HHmmss");
-        fileNameField.text = initialBaseName; 
+        fileNameField.text = initialBaseName + ".json"; // Default to .json initially
 
         console.log(qsTr("APP_DEBUG: Export/Import Page: Component.onCompleted finished."));
     }
 
+    // --- CSV Helper Functions ---
+    function generateCsv(data) {
+        var headers = ["id", "title", "content", "color", "pinned", "deleted", "archived", "created_at", "updated_at", "tags"]; // These headers are usually not localized as they are internal CSV/JSON format
+        var csv = headers.join(",") + "\n";
+        var escapeCsvField = function(field) {
+            return "\"" + String(field || '').replace(/"/g, '""') + "\"";
+        };
+        for (var i = 0; i < data.length; i++) {
+            var note = data[i];
+            var row = [
+                note.id,
+                escapeCsvField(note.title),
+                escapeCsvField(note.content),
+                escapeCsvField(note.color),
+                note.pinned ? 1 : 0,
+                note.deleted ? 1 : 0,
+                note.archived ? 1 : 0,
+                escapeCsvField(note.created_at),
+                escapeCsvField(note.updated_at),
+                escapeCsvField(note.tags ? note.tags.join(';') : '') // Ensure tags array exists
+            ];
+            csv += row.join(",") + "\n";
+        }
+        return csv;
+    }
+
+    function parseCsv(content) {
+        var lines = content.split('\n');
+        if (lines.length < 2) return [];
+        var headers = lines[0].trim().split(',');
+        var notes = [];
+        for (var i = 1; i < lines.length; i++) {
+            var line = lines[i].trim();
+            if (line === "") continue;
+            var values = line.split(',');
+            var note = {};
+            for(var j = 0; j < headers.length; j++) {
+                if (values[j] !== undefined) {
+                    note[headers[j].trim()] = values[j].replace(/^"|"$/g, '').replace(/""/g, '"');
+                }
+
+            }
+            note.id = parseInt(note.id, 10);
+            note.pinned = parseInt(note.pinned, 10) === 1;
+            note.deleted = parseInt(note.deleted, 10) === 1;
+            note.archived = parseInt(note.archived, 10) === 1;
+            note.tags = note.tags ? note.tags.split(';') : [];
+            if (!isNaN(note.id)) {
+               notes.push(note);
+            }
+        }
+        return notes;
+    }
+
+
     // --- EXPORT LOGIC ---
-    function exportData(optionalNewTag) { 
-        processInProgress = true; 
+    function exportData(format, optionalNewTag) {
+        processInProgress = true;
         statusText = qsTr("Gathering data for export...");
-        console.log(qsTr("APP_DEBUG: exportData started. Optional tag: ") + optionalNewTag);
+        console.log(qsTr("APP_DEBUG: exportData started. Format: ") + format + qsTr(", Optional tag: ") + optionalNewTag);
 
-        // Get the filename as typed by the user
         var userFileName = fileNameField.text;
-
-        // Add .json extension if it's missing
         var finalFileName = userFileName;
-        if (finalFileName.indexOf(".json", finalFileName.length - ".json".length) === -1) {
-            finalFileName += ".json";
+
+        // Ensure correct file extension
+        if (format === "json" && finalFileName.indexOf(".json", finalFileName.length - ".json".length) === -1) {
+            finalFileName = finalFileName.replace(/\.(csv)$/, "") + ".json";
+        } else if (format === "csv" && finalFileName.indexOf(".csv", finalFileName.length - ".csv".length) === -1) {
+            finalFileName = finalFileName.replace(/\.(json)$/, "") + ".csv";
         }
 
         // Call function from DatabaseManager.js
@@ -627,18 +681,28 @@ Page {
                 console.log(qsTr("APP_DEBUG: getNotesForExport SUCCESS. Notes count: ") + (notes ? notes.length : 0));
                 if (!notes || notes.length === 0) {
                     toastManager.show(qsTr("No notes to export."));
-
                     statusText = qsTr("");
                     processInProgress = false;
                     return;
                 }
 
                 statusText = qsTr("Preparing ") + notes.length + qsTr(" notes...");
-                var generatedData = JSON.stringify(notes, null, 2);
+                var generatedData;
 
-                var finalPath = documentsPathConfig.value + "/" + finalFileName; 
+                if (format === "json") {
+                    generatedData = JSON.stringify(notes, null, 2);
+                } else if (format === "csv") {
+                    generatedData = generateCsv(notes); // Use the new CSV generation function
+                } else {
+                    console.error(qsTr("APP_DEBUG: Unsupported export format: ") + format);
+                    statusText = qsTr("Error: Unsupported export format.");
+                    processInProgress = false;
+                    return;
+                }
+
+                var finalPath = documentsPathConfig.value + "/" + finalFileName;
                 console.log(qsTr("APP_DEBUG: Attempting to write file to: ") + finalPath);
-                writeToFile(finalPath, generatedData);
+                writeToFile(finalPath, generatedData, notes.length); // Pass notes.length for dialog
             },
             // 2. Error callback function
             function(error) {
@@ -646,12 +710,12 @@ Page {
                 statusText = qsTr("Export error: ") + error.message;
                 processInProgress = false;
             },
-            optionalNewTag 
+            optionalNewTag
         );
         console.log(qsTr("APP_DEBUG: exportData finished, waiting for callbacks."));
     }
 
-    function writeToFile(filePath, textData) {
+    function writeToFile(filePath, textData, notesCount) {
         statusText = qsTr("Saving file...");
         console.log(qsTr("APP_DEBUG: writeToFile started for path: ") + filePath);
 
@@ -659,7 +723,6 @@ Page {
             if (typeof FileIO !== 'undefined' && FileIO.write) {
                 FileIO.write(filePath, textData);
                 console.log(qsTr("APP_DEBUG: File saved via FileIO: ") + filePath);
-                var notesCount = JSON.parse(textData).length;
 
                 DB.updateLastExportDate();
                 DB.updateNotesExportedCount(notesCount);
@@ -667,12 +730,12 @@ Page {
                 lastExportDate = DB.getSetting("lastExportDate");
                 notesExportedCount = DB.getSetting("notesExportedCount");
 
+                // Directly update properties of the inline dialog and make it visible
                 exportResultDialog.dialogFileName = filePath.split('/').pop();
                 exportResultDialog.dialogFilePath = filePath;
                 exportResultDialog.dialogOperationsCount = notesCount;
                 exportResultDialog.dialogDataSize = textData.length;
-
-                exportResultDialog.dialogVisible = true; 
+                exportResultDialog.dialogVisible = true;
 
                 statusText = ""; // Clear status after dialog appears
             } else {
@@ -685,8 +748,6 @@ Page {
 
                 if (xhr.status === 0 || xhr.status === 200) { // status 0 often means success for local files
                     console.log(qsTr("APP_DEBUG: File saved via XMLHttpRequest: ") + filePath);
-                    // For JSON, parse the data to get the count
-                    var notesCount = JSON.parse(textData).length;
 
                     DB.updateLastExportDate();
                     DB.updateNotesExportedCount(notesCount);
@@ -695,7 +756,7 @@ Page {
                     lastExportDate = DB.getSetting("lastExportDate");
                     notesExportedCount = DB.getSetting("notesExportedCount");
 
-                    // SHOW the dialog and pass properties directly
+                    // Directly update properties of the inline dialog and make it visible
                     exportResultDialog.dialogFileName = filePath.split('/').pop();
                     exportResultDialog.dialogFilePath = filePath;
                     exportResultDialog.dialogOperationsCount = notesCount;
@@ -717,9 +778,9 @@ Page {
     }
 
     // --- IMPORT LOGIC ---
-    function importFromFile(filePath, optionalNewTagForImport) { 
+    function importFromFile(filePath, optionalNewTagForImport) { // Added optionalNewTagForImport parameter here
         processInProgress = true;
-        var absoluteFilePathString = String(filePath); 
+        var absoluteFilePathString = String(filePath);
 
         statusText = qsTr("Reading file: ") + absoluteFilePathString.split('/').pop();
         console.log(qsTr("APP_DEBUG: importFromFile started for path: ") + absoluteFilePathString);
@@ -763,11 +824,16 @@ Page {
             }
 
             if (fileContent) {
-                var notes;   
-                if (absoluteFilePathString.indexOf(".json", absoluteFilePathString.length - ".json".length) !== -1) {
+                var notes;
+                var fileExtension = absoluteFilePathString.split('.').pop().toLowerCase();
+
+                if (fileExtension === "json") {
                     notes = JSON.parse(fileContent);
-                } else {
-                    statusText = qsTr("Unsupported file format. Only JSON is supported.");
+                } else if (fileExtension === "csv") {
+                    notes = parseCsv(fileContent); // Use the new CSV parsing function
+                }
+                else {
+                    statusText = qsTr("Unsupported file format. Only JSON and CSV are supported.");
                     processInProgress = false;
                     console.log("APP_DEBUG: processInProgress set to false due to unsupported file format.");
                     return;
@@ -775,15 +841,15 @@ Page {
 
                 if (notes && notes.length > 0) {
                     statusText = qsTr("Importing ") + notes.length + qsTr(" notes...");
-                    var importedCount = 0; 
+                    var importedCount = 0;
 
                     console.log("APP_DEBUG: Initiating DB transaction for import.");
                     DB.db.transaction(
-                        function(tx) { 
+                        function(tx) {
                             console.log("APP_DEBUG: Inside DB transaction function.");
                             for (var i = 0; i < notes.length; i++) {
                                 try {
-                                    DB.addImportedNote(notes[i], tx, optionalNewTagForImport);
+                                    DB.addImportedNote(notes[i], tx, optionalNewTagForImport); // Passed optionalNewTagForImport
                                     importedCount++;
                                     console.log("APP_DEBUG: Added note " + notes[i].id + ", count: " + importedCount);
                                 } catch (noteAddError) {
@@ -807,13 +873,13 @@ Page {
                     lastImportDate = DB.getSetting("lastImportDate");
                     notesImportedCount = DB.getSetting("notesImportedCount");
 
+                    // Directly update properties of the inline dialog and make it visible
                     importResultDialog.dialogFileName = absoluteFilePathString.split('/').pop();
                     importResultDialog.dialogFilePath = absoluteFilePathString;
                     importResultDialog.dialogNotesImportedCount = notes.length;
-                    importResultDialog.dialogTagsCreatedCount = newlyCreatedTagsCount; 
-
-                    importResultDialog.dialogVisible = true; 
-                    statusText = ""; 
+                    importResultDialog.dialogTagsCreatedCount = newlyCreatedTagsCount;
+                    importResultDialog.dialogVisible = true;
+                    statusText = "";
 
                     processInProgress = false;
                     console.log("APP_DEBUG: processInProgress set to false after transaction initiation. Imported: " + notes.length);
@@ -832,7 +898,7 @@ Page {
         } catch (e) {
             statusText = qsTr("File processing error: ") + e.message;
             console.error(qsTr("APP_DEBUG: EXCEPTION caught during file processing for import: ") + e.message);
-            processInProgress = false; 
+            processInProgress = false;
             console.log("APP_DEBUG: General catch block, processInProgress set to false due to exception.");
         }
     }
