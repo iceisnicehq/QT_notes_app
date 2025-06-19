@@ -465,12 +465,12 @@ function addNote(pinned, title, content, tags, color) {
         return -1;
     }
     db.transaction(function(tx) {
-        returnedNoteId = addNoteInternal(tx, pinned, title, content, color, 0, 0); 
+        returnedNoteId = addNoteInternal(tx, pinned, title, content, color, 0, 0, noteChecksum);
         for (var i = 0; i < tags.length; i++) {
             addTagToNoteInternal(tx, returnedNoteId, tags[i]);
         }
     });
-    console.log("DB_MGR: New note added with ID:", returnedNoteId);
+    console.log("DB_MGR: New note added with ID:", returnedNoteId, "and checksum:", noteChecksum);
     return returnedNoteId;
 }
 
@@ -1006,9 +1006,13 @@ function addImportedNote(note, tx, optionalTagForImport) { // Added optionalTagF
 }
 
 
+
+
+
+
 function importNotes(importedNotes, optionalTagForImport, successCallback, errorCallback) {
     if (!db) {
-        initDatabase(LocalStorage); // Attempt to initialize if not already
+        initDatabase(LocalStorage);
         if (!db) {
             var errorMsg = "DB_MGR: Database not initialized for importNotes. Cannot proceed.";
             console.error(errorMsg);
@@ -1018,76 +1022,73 @@ function importNotes(importedNotes, optionalTagForImport, successCallback, error
     }
 
     var importedCount = 0;
-    var updatedCount = 0; // In this design, "updates" are effectively new imports if content changed
+    var updatedCount = 0;
     var skippedCount = 0;
 
     db.transaction(function(tx) {
         // Step 1: Fetch all current active notes' checksums and their IDs for efficient lookup.
-        // We only care about active notes for "skipping if identical content".
-        var existingActiveNotesMap = new Map(); // Map: checksum -> note_id
+        // Use a plain object as a map for broader compatibility.
+        var existingActiveNotesMap = {}; // <--- CHANGED: Using a plain object
         try {
-            // Select only non-deleted and non-archived notes for checksum comparison
             var result = tx.executeSql('SELECT id, checksum FROM Notes WHERE deleted = 0 AND archived = 0');
             for (var i = 0; i < result.rows.length; i++) {
                 var existingNote = result.rows.item(i);
                 if (existingNote.checksum) {
-                    existingActiveNotesMap.set(existingNote.checksum, existingNote.id);
+                    existingActiveNotesMap[existingNote.checksum] = existingNote.id; // <--- CHANGED: Assigning directly to object property
                 }
             }
 
         } catch (e) {
             console.error("DB_MGR_IMPORT: Error fetching existing notes for checksum comparison: " + e.message);
-            // Decide how to handle this error. For now, we'll stop the import.
-            throw new Error("Failed to prepare for import due to DB error: " + e.message); // Will trigger transaction errorCallback
+            throw new Error("Failed to prepare for import due to DB error: " + e.message);
         }
 
         // Step 2: Iterate through each imported note
         for (var z = 0; z < importedNotes.length; z++) {
             var noteToImport = importedNotes[z];
 
-            // Generate checksum for the incoming note based on its content
             var generatedChecksumForImportedNote = generateNoteChecksum(noteToImport);
 
             if (!generatedChecksumForImportedNote) {
+
                 skippedCount++;
-                continue; // Skip this specific note
+                continue;
             }
 
             // Check if a note with the exact same content (checksum) already exists in active notes
-            var existingIdByChecksum = existingActiveNotesMap.get(generatedChecksumForImportedNote);
+            var existingIdByChecksum = existingActiveNotesMap[generatedChecksumForImportedNote]; // <--- CHANGED: Accessing object property
 
             if (existingIdByChecksum) {
+                console.log("DB_MGR_IMPORT: Note with title '${noteToImport.title}' (checksum: '${generatedChecksumForImportedNote}') already exists as active note ID ${existingIdByChecksum}. Skipping import.");
                 skippedCount++;
             } else {
-                var newNoteDbId = addImportedNote(noteToImport, tx, optionalTagForImport); // Call our updated helper
+                console.log("DB_MGR_IMPORT: Adding new/changed note: '${noteToImport.title}' with checksum '${generatedChecksumForImportedNote}'.");
+                var newNoteDbId = addImportedNote(noteToImport, tx, optionalTagForImport);
 
                 if (newNoteDbId !== null) {
                     importedCount++;
                 } else {
                     console.error("DB_MGR_IMPORT: Failed to add note, possibly due to an internal error in addImportedNote.");
-                    skippedCount++; // Consider it skipped due to error
+                    skippedCount++;
                 }
             }
         }
 
         updateNotesImportedCount(importedCount);
         updateLastImportDate();
+
+        console.log("DB_MGR_IMPORT: Import complete. Imported: ${importedCount}, Skipped: ${skippedCount}.");
+
         if (successCallback) {
             successCallback({ importedCount: importedCount, updatedCount: updatedCount, skippedCount: skippedCount });
         }
     }, function(error) {
-        // Transaction error handling
         console.error("DB_MGR_IMPORT: Transaction failed during import: " + error.message);
         if (errorCallback) {
             errorCallback(error);
         }
     });
 }
-
-
-
-
-
 
 
 
