@@ -1,7 +1,7 @@
 // ImportExportPage.qml
 
 import QtQuick 2.0
-import Sailfish.Silica 1.0
+import Sailfish.Silica 1.0 // Ensure latest Silica, e.g., 10.0 for Sailfish OS 4.x/5.x
 import Sailfish.Pickers 1.0
 import QtQuick.Layouts 1.1
 import Nemo.Configuration 1.0 // For getting the documents path
@@ -37,6 +37,9 @@ Page {
             console.log(qsTr("APP_DEBUG: Documents path is: ") + value); // Log the path
         }
     }
+    ToastManager {
+        id: toastManager
+    }
 
     // COMPONENT FOR FILE SELECTION (FOR IMPORT)
     Component {
@@ -65,6 +68,308 @@ Page {
             }
         }
     }
+
+    // NEW: Export Result Dialog (adapted directly from ConfirmDialog.qml)
+    Item {
+        id: exportResultDialog // Direct Item instance, not a Component
+        // Expose properties for external control by the parent page
+        property bool dialogVisible: false // Controls overall visibility of the dialog and overlay
+        property string dialogFileName: "" // File name for display
+        property string dialogFilePath: "" // Full path for display
+        property int dialogDataSize: 0 // File size in bytes
+        property int dialogOperationsCount: 0 // Number of notes exported
+
+        // Signal to communicate dismissal back to the parent page
+        signal dismissed()
+
+        // Make the root Item fill its parent to allow the dialog to be centered on the whole page
+        // and the overlay to cover the entire screen.
+        anchors.fill: parent
+        visible: dialogVisible // The entire component's visibility is tied to this property
+        z: 100 // Ensures the dialog appears on top of other content
+
+        // Handle dismissal from the parent (e.g., when the button is clicked or overlay is tapped)
+        onDismissed: {
+            dialogVisible = false // Hide the dialog
+        }
+
+        // Background overlay for dimming effect when the dialog is visible
+        Rectangle {
+            id: overlayRect
+            anchors.fill: parent // Fills the entire 'exportResultDialog' Item
+            color: "#000000" // Black color for dimming
+            opacity: 0 // Start hidden
+            Behavior on opacity { NumberAnimation { duration: 200 } } // Smooth opacity transition
+
+            // Animate opacity based on dialog visibility
+            onVisibleChanged: opacity = exportResultDialog.dialogVisible ? 0.5 : 0
+
+            // MouseArea to detect clicks on the dimmed overlay, which dismiss the dialog
+            MouseArea {
+                anchors.fill: parent
+                // Enable clicks only when the dialog is visible to prevent unwanted interactions
+                enabled: exportResultDialog.dialogVisible
+                // This MouseArea will ONLY receive clicks that are NOT consumed by children
+                onClicked: {
+                    exportResultDialog.dismissed() // Emit dismissed signal if overlay is clicked
+                }
+            }
+        }
+
+        // The actual dialog box rectangle (main visual container for dialog content)
+        Rectangle {
+            id: exportDialogBody // Specific ID for this dialog's body
+            color: DB.darkenColor(importExportPage.customBackgroundColor, 0.30) // Use page's background color
+            radius: Theme.itemSizeSmall / 2 // Rounded corners for the dialog box
+            anchors.centerIn: parent // Centers the dialog box within the screen
+
+            // MouseArea to consume clicks on the dialog body itself,
+            // preventing them from propagating to the overlayRect's MouseArea.
+            // An onClicked handler must be present (even empty) to consume the event.
+            MouseArea {
+                anchors.fill: parent
+                onClicked: { /* Do nothing, just consume the click */ }
+            }
+
+            // Bind visibility directly to the exposed property
+            visible: exportResultDialog.dialogVisible
+
+            // Set initial opacity and scale for entry/exit animations
+            opacity: 0
+            scale: 0.9
+
+            // Animations for opacity and scale
+            Behavior on opacity { NumberAnimation { duration: 200 } }
+            Behavior on scale { PropertyAnimation { property: "scale"; duration: 200; easing.type: Easing.OutBack } }
+
+            // Logic to trigger animations based on visibility changes
+            onVisibleChanged: {
+                if (visible) {
+                    exportDialogBody.opacity = 1;
+                    exportDialogBody.scale = 1.0;
+                } else {
+                    exportDialogBody.opacity = 0;
+                    exportDialogBody.scale = 0.9;
+                }
+            }
+
+            // Set width and height of dialogBody dynamically based on content and constraints
+            // height calculated based on contentColumn implicit height
+            width: Math.min(exportResultDialog.width * 0.8, Theme.itemSizeExtraLarge * 8) // Max width for responsiveness
+            height: exportContentColumn.implicitHeight + (Theme.paddingLarge * 2) // Height determined by content plus padding
+
+            // ColumnLayout for organizing the dialog content (title, message, buttons)
+            Column {
+                id: exportContentColumn // Specific ID for this dialog's content column
+                width: parent.width - (Theme.paddingLarge * 2) // Fills dialogBody's width minus its internal padding
+                anchors.horizontalCenter: parent.horizontalCenter // Centers content horizontally
+                spacing: Theme.paddingMedium // Spacing between elements in the column
+                anchors.top: parent.top
+                anchors.topMargin: Theme.paddingLarge // Top padding for visual balance
+
+                // Title Label - "Export completed" (should be centered)
+                Label {
+                    width: parent.width
+                    text: qsTr("Export completed")
+                    font.pixelSize: Theme.fontSizeLarge
+                    font.bold: true
+                    horizontalAlignment: Text.AlignHCenter // Centered
+                    color: "white"
+                    wrapMode: Text.Wrap
+                }
+
+                // Spacer for visual separation between title and content
+                Rectangle {
+                    width: parent.width
+                    height: Theme.paddingMedium
+                    color: "transparent"
+                }
+
+                // Centered Labels for key parts
+                Label {
+                    width: parent.width
+                    wrapMode: Text.Wrap // Ensured wrapMode is Text.Wrap
+                    color: Theme.highlightColor
+                    text: qsTr("File: ") + "<b>" + exportResultDialog.dialogFileName + "</b>" // Bind to exportResultDialog's properties
+                    textFormat: Text.StyledText
+                    horizontalAlignment: Text.AlignHCenter // Centered
+                }
+
+                Label {
+                    width: parent.width
+                    wrapMode: Text.Wrap // Ensured wrapMode is Text.Wrap
+                    text: qsTr("Path: ") + exportResultDialog.dialogFilePath // Bind to exportResultDialog's properties
+                    font.pixelSize: Theme.fontSizeSmall
+                    color: Theme.secondaryColor
+                    horizontalAlignment: Text.AlignHCenter // Centered
+                }
+
+                Label {
+                    width: parent.width
+                    wrapMode: Text.Wrap // Ensured wrapMode is Text.Wrap
+                    color: Theme.highlightColor
+                    text: qsTr("Notes exported: ") + exportResultDialog.dialogOperationsCount // Bind to exportResultDialog's properties
+                    horizontalAlignment: Text.AlignHCenter // Centered
+                }
+
+                Label {
+                    width: parent.width
+                    wrapMode: Text.Wrap // Ensured wrapMode is Text.Wrap
+                    color: Theme.highlightColor
+                    text: qsTr("File size: ") + (exportResultDialog.dialogDataSize / 1024).toFixed(2) + qsTr(" KB") // Bind to exportResultDialog's properties
+                    horizontalAlignment: Text.AlignHCenter // Centered
+                }
+
+                // "Great!" button to dismiss the dialog
+                Button {
+                    text: qsTr("Great!")
+                    anchors.horizontalCenter: parent.horizontalCenter // Centered horizontally
+                    onClicked: {
+                        exportResultDialog.dismissed() // Emit dismissed signal
+                    }
+                }
+            }
+        }
+    }
+
+    // NEW: Import Result Dialog (copied and adapted from Export Result Dialog)
+    Item {
+        id: importResultDialog // Direct Item instance
+        property bool dialogVisible: false // Controls overall visibility
+        property string dialogFileName: ""
+        property string dialogFilePath: ""
+        property int dialogNotesImportedCount: 0
+        property int dialogTagsCreatedCount: 0 // Placeholder for tags created
+
+        signal dismissed()
+
+        // Handle dismissal for the import dialog
+        onDismissed: {
+            dialogVisible = false
+            pageStack.clear();
+            pageStack.completeAnimation();
+            pageStack.push(Qt.resolvedUrl("MainPage.qml"));
+            pageStack.completeAnimation();
+            pageStack.push(Qt.resolvedUrl("ImportExportPage.qml"));
+            pageStack.completeAnimation();
+        }
+
+        anchors.fill: parent
+        visible: dialogVisible
+        z: 100
+
+        Rectangle {
+            id: importOverlayRect // Specific ID
+            anchors.fill: parent
+            color: "#000000"
+            opacity: 0
+            Behavior on opacity { NumberAnimation { duration: 200 } }
+            onVisibleChanged: opacity = importResultDialog.dialogVisible ? 0.5 : 0
+            MouseArea {
+                anchors.fill: parent
+                enabled: importResultDialog.dialogVisible
+                onClicked: { importResultDialog.dismissed() } // Call dismissed signal
+            }
+        }
+
+        Rectangle {
+            id: importDialogBody // Specific ID
+            color: DB.darkenColor(importExportPage.customBackgroundColor, 0.30)
+            radius: Theme.itemSizeSmall / 2
+            anchors.centerIn: parent
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: { /* Consume click */ }
+            }
+
+            visible: importResultDialog.dialogVisible
+            opacity: 0
+            scale: 0.9
+            Behavior on opacity { NumberAnimation { duration: 200 } }
+            Behavior on scale { PropertyAnimation { property: "scale"; duration: 200; easing.type: Easing.OutBack } }
+            onVisibleChanged: {
+                if (visible) {
+                    importDialogBody.opacity = 1;
+                    importDialogBody.scale = 1.0;
+                } else {
+                    importDialogBody.opacity = 0;
+                    importDialogBody.scale = 0.9;
+                }
+            }
+
+            width: Math.min(importResultDialog.width * 0.8, Theme.itemSizeExtraLarge * 8)
+            height: importContentColumn.implicitHeight + (Theme.paddingLarge * 2)
+
+            Column {
+                id: importContentColumn // Specific ID
+                width: parent.width - (Theme.paddingLarge * 2)
+                anchors.horizontalCenter: parent.horizontalCenter
+                spacing: Theme.paddingMedium
+                anchors.top: parent.top
+                anchors.topMargin: Theme.paddingLarge
+
+                Label {
+                    width: parent.width
+                    text: qsTr("Import completed")
+                    font.pixelSize: Theme.fontSizeLarge
+                    font.bold: true
+                    horizontalAlignment: Text.AlignHCenter
+                    color: "white"
+                    wrapMode: Text.Wrap
+                }
+
+                Rectangle {
+                    width: parent.width
+                    height: Theme.paddingMedium
+                    color: "transparent"
+                }
+
+                Label {
+                    width: parent.width
+                    wrapMode: Text.Wrap
+                    color: Theme.highlightColor
+                    text: qsTr("File: ") + "<b>" + importResultDialog.dialogFileName + "</b>"
+                    textFormat: Text.StyledText
+                    horizontalAlignment: Text.AlignHCenter
+                }
+
+                Label {
+                    width: parent.width
+                    wrapMode: Text.Wrap
+                    text: qsTr("Path: ") + importResultDialog.dialogFilePath
+                    font.pixelSize: Theme.fontSizeSmall
+                    color: Theme.secondaryColor
+                    horizontalAlignment: Text.AlignHCenter
+                }
+
+                Label {
+                    width: parent.width
+                    wrapMode: Text.Wrap
+                    color: Theme.highlightColor
+                    text: qsTr("Notes imported: ") + importResultDialog.dialogNotesImportedCount
+                    horizontalAlignment: Text.AlignHCenter
+                }
+
+                Label {
+                    width: parent.width
+                    wrapMode: Text.Wrap
+                    color: Theme.highlightColor
+                    text: qsTr("Tags created: ") + importResultDialog.dialogTagsCreatedCount
+                    horizontalAlignment: Text.AlignHCenter
+                }
+
+                Button {
+                    text: qsTr("Great!")
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    onClicked: {
+                        importResultDialog.dismissed() // Call dismissed signal
+                    }
+                }
+            }
+        }
+    }
+
 
     // --- Page Header (Copied from SettingsPage) ---
     PageHeader {
@@ -130,7 +435,7 @@ Page {
         anchors.fill: parent
         // Adjust top margin to account for the new PageHeader
         anchors.topMargin: pageHeader.height
-        contentHeight: column.height
+        contentHeight: column.implicitHeight // Use implicitHeight here
 
         Column {
             id: column
@@ -251,7 +556,7 @@ Page {
             // --- Spacer before Status ---
             Item {
                 Layout.preferredHeight: Theme.paddingLarge * 2 // Consistent spacing
-                Layout.fillWidth: true
+                width: parent.width
             }
 
             // --- GENERAL STATUS ---
@@ -274,8 +579,6 @@ Page {
             }
         }
     }
-
-    // Removed updateFileName function. The filename will be handled directly in exportData.
 
     // --- INITIALIZATION (VERY IMPORTANT PLACE) ---
     Component.onCompleted: {
@@ -311,9 +614,6 @@ Page {
         var initialBaseName = qsTr("notes_backup_") + Qt.formatDateTime(new Date(), "yyyyMMdd_HHmmss");
         fileNameField.text = initialBaseName; // No .json added here, user can type freely
 
-        // Disconnect textChanged signal as we don't want to modify input as user types.
-        // fileNameField.textChanged.disconnect(updateFileName); // This line is now effectively removed by removing the function.
-
         console.log(qsTr("APP_DEBUG: Export/Import Page: Component.onCompleted finished."));
     }
 
@@ -338,14 +638,16 @@ Page {
             function(notes) {
                 console.log(qsTr("APP_DEBUG: getNotesForExport SUCCESS. Notes count: ") + (notes ? notes.length : 0));
                 if (!notes || notes.length === 0) {
-                    statusText = qsTr("No notes to export.");
+                    toastManager.show(qsTr("No notes to export."));
+
+                    statusText = qsTr("");
                     processInProgress = false;
                     return;
                 }
 
                 statusText = qsTr("Preparing ") + notes.length + qsTr(" notes...");
-                // Always generate JSON
-                var generatedData = generateJson(notes);
+                // Inlined JSON.stringify directly, removed generateJson function
+                var generatedData = JSON.stringify(notes, null, 2);
 
                 var finalPath = documentsPathConfig.value + "/" + finalFileName; // Use the corrected filename
                 console.log(qsTr("APP_DEBUG: Attempting to write file to: ") + finalPath);
@@ -362,9 +664,6 @@ Page {
         console.log(qsTr("APP_DEBUG: exportData finished, waiting for callbacks."));
     }
 
-    function generateJson(data) {
-        return JSON.stringify(data, null, 2);
-    }
 
     // The writeToFile function handles saving and updating UI elements based on the outcome.
     function writeToFile(filePath, textData) {
@@ -386,14 +685,15 @@ Page {
                 lastExportDate = DB.getSetting("lastExportDate");
                 notesExportedCount = DB.getSetting("notesExportedCount");
 
-                pageStack.push(Qt.resolvedUrl("ExportResultDialog.qml"), {
-                    fileName: filePath.split('/').pop(),
-                    filePath: filePath,
-                    operationsCount: notesCount,
-                    dataSize: textData.length,
-                    sampleData: textData.substring(0, 250) + (textData.length > 250 ? "..." : "")
-                });
-                statusText = ""; // Clear status after dialog completes
+                // SHOW the dialog and pass properties directly
+                exportResultDialog.dialogFileName = filePath.split('/').pop();
+                exportResultDialog.dialogFilePath = filePath;
+                exportResultDialog.dialogOperationsCount = notesCount;
+                exportResultDialog.dialogDataSize = textData.length;
+
+                exportResultDialog.dialogVisible = true; // Make the dialog visible
+
+                statusText = ""; // Clear status after dialog appears
             } else {
                 // FALLBACK: Use XMLHttpRequest to save file if FileIO is not available
                 console.warn(qsTr("APP_DEBUG: FileIO not defined or write method missing, attempting to save via XMLHttpRequest."));
@@ -414,13 +714,12 @@ Page {
                     lastExportDate = DB.getSetting("lastExportDate");
                     notesExportedCount = DB.getSetting("notesExportedCount");
 
-                    pageStack.push(Qt.resolvedUrl("ExportResultDialog.qml"), {
-                        fileName: filePath.split('/').pop(),
-                        filePath: filePath,
-                        operationsCount: notesCount,
-                        dataSize: textData.length,
-                        sampleData: textData.substring(0, 250) + (textData.length > 250 ? "..." : "")
-                    });
+                    // SHOW the dialog and pass properties directly
+                    exportResultDialog.dialogFileName = filePath.split('/').pop();
+                    exportResultDialog.dialogFilePath = filePath;
+                    exportResultDialog.dialogOperationsCount = notesCount;
+                    exportResultDialog.dialogDataSize = textData.length;
+                    exportResultDialog.dialogVisible = true; // Make the dialog visible
                     statusText = "";
                 } else {
                     statusText = qsTr("File save error (XHR): ") + xhr.statusText + " (" + xhr.status + ")";
@@ -454,6 +753,10 @@ Page {
             console.log("APP_DEBUG: processInProgress set to false due to DB not initialized.");
             return;
         }
+
+        // --- Step 1: Get tag count BEFORE import ---
+        var tagsBeforeImport = DB.getAllTags().length;
+        console.log("APP_DEBUG: Tags before import: " + tagsBeforeImport);
 
         try {
             var fileContent;
@@ -492,7 +795,7 @@ Page {
 
                 if (notes && notes.length > 0) {
                     statusText = qsTr("Importing ") + notes.length + qsTr(" notes...");
-                    var importedCount = 0; // Declare outside transaction for scope
+                    var importedCount = 0; // This tracks notes inserted during the loop
 
                     console.log("APP_DEBUG: Initiating DB transaction for import.");
                     DB.db.transaction(
@@ -500,14 +803,11 @@ Page {
                             console.log("APP_DEBUG: Inside DB transaction function.");
                             for (var i = 0; i < notes.length; i++) {
                                 try {
-                                    // Pass the optionalNewTagForImport to addImportedNote
                                     DB.addImportedNote(notes[i], tx, optionalNewTagForImport);
                                     importedCount++;
                                     console.log("APP_DEBUG: Added note " + notes[i].id + ", count: " + importedCount);
                                 } catch (noteAddError) {
                                     console.error("APP_DEBUG: Error within addImportedNote for note " + notes[i].id + ": " + noteAddError.message);
-                                    // Do NOT re-throw here. If the transaction itself isn't reliably closing,
-                                    // re-throwing could contribute to the hang.
                                 }
                             }
                             console.log("APP_DEBUG: Finished loop in DB transaction function. Total processed in loop: " + importedCount);
@@ -515,14 +815,30 @@ Page {
                     );
                     console.log("APP_DEBUG: DB transaction call returned. Proceeding with UI updates.");
 
-                    // Manually update UI and reset processInProgress immediately after the transaction call returns
-                    statusText = qsTr("Import completed! Processed: ") + notes.length + qsTr(" notes."); // Use notes.length for consistency
-                    DB.updateLastImportDate();
-                    DB.updateNotesImportedCount(notes.length); // Update with total notes from file
+                    // --- Step 2: Get tag count AFTER import ---
+                    var tagsAfterImport = DB.getAllTags().length;
+                    var newlyCreatedTagsCount = tagsAfterImport - tagsBeforeImport;
+                    console.log("APP_DEBUG: Tags after import: " + tagsAfterImport);
+                    console.log("APP_DEBUG: Newly created tags: " + newlyCreatedTagsCount);
 
-                    // Update QML properties after successful import (using notes.length as the count)
+
+                    // Manually update UI and reset processInProgress immediately after the transaction call returns
+                    // Use notes.length as the count for consistency with export and actual notes processed.
+                    DB.updateLastImportDate();
+                    DB.updateNotesImportedCount(notes.length);
+
+                    // Update QML properties after successful import
                     lastImportDate = DB.getSetting("lastImportDate");
                     notesImportedCount = DB.getSetting("notesImportedCount");
+
+                    // SHOW the IMPORT dialog and pass properties
+                    importResultDialog.dialogFileName = absoluteFilePathString.split('/').pop();
+                    importResultDialog.dialogFilePath = absoluteFilePathString;
+                    importResultDialog.dialogNotesImportedCount = notes.length;
+                    importResultDialog.dialogTagsCreatedCount = newlyCreatedTagsCount; // Assign the calculated count
+
+                    importResultDialog.dialogVisible = true; // Make the import dialog visible
+                    statusText = ""; // Clear status after dialog appears
 
                     processInProgress = false;
                     console.log("APP_DEBUG: processInProgress set to false after transaction initiation. Imported: " + notes.length);

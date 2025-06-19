@@ -122,7 +122,7 @@ Page {
 
             SectionHeader {
                 objectName: "licenseHeader"
-                text: qsTr("3-Clause BSD License") // Added qsTr()
+                text: qsTr("3-Clause BSD License")
             }
 
             Label {

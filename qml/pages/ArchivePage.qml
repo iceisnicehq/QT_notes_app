@@ -1,75 +1,77 @@
 // ArchivePage.qml
+// This page displays either archived motes,
+// It provides functionality
+// for selecting notes, restoring/unarchiving them, and permanently deleting them.
 
 import QtQuick.LocalStorage 2.0
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.Layouts 1.1
-import "DatabaseManager.js" as DB
+import "DatabaseManager.js" as DB // Import JavaScript for database operations
 
 Page {
     id: archivePage
-    objectName: "archivePage" // Added objectName for easier pageStack checks in SidePanel
-    backgroundColor: archivePage.customBackgroundColor !== undefined ? archivePage.customBackgroundColor : "#121218" // Fallback to Theme.backgroundColor if custom is not set
+    objectName: "archivePage" // Used for easier pageStack checks in SidePanel
+    backgroundColor: archivePage.customBackgroundColor !== undefined ? archivePage.customBackgroundColor : "#121218"
 
-    // Property to hold the currently selected custom background color
-    property string customBackgroundColor: DB.getThemeColor() || "#121218" // Load from DB, default to a dark color if not found    showNavigationIndicator: false
-    showNavigationIndicator: false
-    property int noteMargin: 20
+    // Property to hold the currently selected custom background color, loaded from DB
+    property string customBackgroundColor: DB.getThemeColor() || "#121218"
+    showNavigationIndicator: false // Hides the default navigation indicator
+    property int noteMargin: 20 // Margin for individual note cards
 
-    property string pageMode: qsTr("archive") // Can be "archive" or "trash" // Added qsTr
-    // NOTE: 'pageMode' is used internally for logic ("trash" vs "archive"), but if its *value* is ever displayed, it should be translated.
-    // For now, I'll assume the displayed strings "Trash" and "Archive" in the Label below are sufficient.
-    // If 'pageMode' itself needs translation for display elsewhere, it should be changed.
+    // Determines if the page displays "archive" or "trash" content. Translated for consistency.
+    property string pageMode: qsTr("archive")
+    property var notesToDisplay: [] // List of notes fetched from the database
+    property var selectedNoteIds: [] // IDs of currently selected notes for bulk actions
+    property bool panelOpen: false // Controls the visibility of the SidePanel
 
-    property var notesToDisplay: []
-    property var selectedNoteIds: []
-    property bool panelOpen: false // Property to control side panel visibility
-
-    // Properties to control the dialog from the page's logic (These will now be passed to the component)
+    // Properties to control the confirmation dialog, passed to the ConfirmDialog component
     property bool confirmDialogVisible: false
-    property string confirmDialogTitle: qsTr("Confirm Deletion") // Default title
-    property string confirmDialogMessage: "" // Message for the dialog
-    property string confirmButtonText: qsTr("Delete") // Default button text
-    property var onConfirmCallback: null // Callback function to execute on confirm
-    property color confirmButtonHighlightColor: Theme.errorColor // Default highlight color for confirm button
+    property string confirmDialogTitle: qsTr("Confirm Deletion") // Default title for confirmation dialog
+    property string confirmDialogMessage: "" // Message displayed in the confirmation dialog
+    property string confirmButtonText: qsTr("Delete") // Text for the confirm button
+    property var onConfirmCallback: null // Function to execute when the dialog is confirmed
+    property color confirmButtonHighlightColor: Theme.errorColor // Highlight color for the confirm button
 
-    property bool showEmptyLabel: notesToDisplay.length === 0
-    property bool selectionControlsVisible: notesToDisplay.length > 0
+    // Helper properties for UI visibility based on data state
+    property bool showEmptyLabel: notesToDisplay.length === 0 // Controls visibility of "Empty" message
+    property bool selectionControlsVisible: notesToDisplay.length > 0 // Controls visibility of bulk action buttons
 
-    // Helper property to determine if all notes are selected
+    // Helper property to determine if all notes are selected, for "Select All" button state
     property bool allNotesSelected: (selectedNoteIds.length === notesToDisplay.length) && (notesToDisplay.length > 0)
 
 
     Component.onCompleted: {
+        // Called when the page is fully loaded and ready
         console.log(qsTr("UNIFIED_NOTES_PAGE: archivePage opened in %1 mode. Calling refreshNotes.").arg(pageMode));
-        refreshNotes();
-        // Set the current page for the side panel instance
-        sidePanelInstance.currentPage = pageMode; // Use pageMode to set current page
+        refreshNotes(); // Initial data load
+        sidePanelInstance.currentPage = pageMode; // Inform the SidePanel about the current page mode
     }
 
+    // Function to refresh the list of notes based on the current page mode
     function refreshNotes() {
-        if (pageMode === qsTr("trash")) { // Added qsTr
+        if (pageMode === qsTr("trash")) {
             notesToDisplay = DB.getDeletedNotes();
             console.log(qsTr("DB_MGR: getDeletedNotes found %1 deleted notes.").arg(notesToDisplay.length));
-        } else if (pageMode === qsTr("archive")) { // Added qsTr
+        } else if (pageMode === qsTr("archive")) {
             notesToDisplay = DB.getArchivedNotes();
             console.log(qsTr("DB_MGR: getArchivedNotes found %1 archived notes.").arg(notesToDisplay.length));
         }
-        selectedNoteIds = [];
+        selectedNoteIds = []; // Clear selected notes whenever notes are refreshed
         console.log(qsTr("UNIFIED_NOTES_PAGE: refreshNotes completed for %1. Count: %2").arg(pageMode).arg(notesToDisplay.length));
     }
 
-    // Function to show the confirmation dialog dynamically
+    // Function to display the confirmation dialog with dynamic content and callback
     function showConfirmDialog(message, callback, title, buttonText, highlightColor) {
-        confirmDialogMessage = message; // Set the message for the dialog
-        onConfirmCallback = callback;   // Set the callback function
-        if (title !== undefined) confirmDialogTitle = title; // Override default title if provided
+        confirmDialogMessage = message;
+        onConfirmCallback = callback;
+        if (title !== undefined) confirmDialogTitle = title;
         else confirmDialogTitle = qsTr("Confirm Deletion"); // Reset to default if not provided
 
-        if (buttonText !== undefined) confirmButtonText = buttonText; // Override default button text if provided
+        if (buttonText !== undefined) confirmButtonText = buttonText;
         else confirmButtonText = qsTr("Delete"); // Reset to default if not provided
 
-        if (highlightColor !== undefined) confirmButtonHighlightColor = highlightColor; // Override default highlight color
+        if (highlightColor !== undefined) confirmButtonHighlightColor = highlightColor;
         else confirmButtonHighlightColor = Theme.errorColor; // Reset to default if not provided
 
         confirmDialogVisible = true; // Make the dialog visible
@@ -77,9 +79,9 @@ Page {
 
     PageHeader {
         id: pageHeader
-        height: Theme.itemSizeExtraLarge
+        height: Theme.itemSizeExtraLarge // Standard header height
 
-        // Modified: Menu icon button to match the dynamic style from TrashPage
+        // Menu/Close button on the left of the header
         Item {
             id: menuButton
             width: Theme.fontSizeExtraLarge * 1.1
@@ -91,36 +93,37 @@ Page {
                 verticalCenter: parent.verticalCenter
             }
 
-            RippleEffect { id: menuRipple }
+            RippleEffect { id: menuRipple } // Visual feedback on button press
 
-            // Dynamic Icon based on selection state, styled like the menu button's icon
+            // Dynamic Icon: "close" when notes are selected, "menu" otherwise
             Icon {
-                id: leftIcon // Renamed for clarity
+                id: leftIcon
                 source: archivePage.selectedNoteIds.length > 0 ? "../icons/close.svg" : "../icons/menu.svg"
                 anchors.centerIn: parent
                 width: parent.width
                 height: parent.height
-                color: Theme.primaryColor // Ensured primary color for consistency
+                color: Theme.primaryColor // Consistent primary color for the icon
             }
 
             MouseArea {
                 anchors.fill: parent
-                onPressed: menuRipple.ripple(mouseX, mouseY) // Keep ripple effect
+                onPressed: menuRipple.ripple(mouseX, mouseY)
                 onClicked: {
-                    // Logic adjusted for archivePage context
+                    // If notes are selected, clicking clears selection; otherwise, it opens the side panel.
                     if (archivePage.selectedNoteIds.length > 0) {
                         archivePage.selectedNoteIds = []; // Clear selected notes
-                        console.log(qsTr("Selected notes cleared in archivePage.")); // Added qsTr
+                        console.log(qsTr("Selected notes cleared in archivePage."));
                     } else {
                         archivePage.panelOpen = true // Open the side panel
-                        console.log(qsTr("Menu button clicked in archivePage → panelOpen = true")) // Added qsTr
+                        console.log(qsTr("Menu button clicked in archivePage → panelOpen = true"))
                     }
                 }
             }
         }
 
+        // Page title in the center of the header
         Label {
-            text: pageMode === qsTr("trash") ? qsTr("Trash") : qsTr("Archive") // Ensured both values are translated
+            text: pageMode === qsTr("trash") ? qsTr("Trash") : qsTr("Archive") // Translated title based on pageMode
             anchors.centerIn: parent
             font.pixelSize: Theme.fontSizeExtraLarge
             font.bold: true
@@ -130,93 +133,100 @@ Page {
     ColumnLayout {
         id: mainLayout
         anchors.fill: parent
-        anchors.topMargin: pageHeader.height // This anchors mainLayout below the header
+        anchors.topMargin: pageHeader.height // Positions mainLayout below the header
         spacing: 0
 
+        // Row containing the selection control buttons (Select All, Restore/Unarchive, Delete)
         Row {
             id: selectionControls
             Layout.fillWidth: true
+            // Adjust height based on visibility, providing a smooth transition
             height: selectionControlsVisible ? Theme.buttonHeightSmall + Theme.paddingSmall : 0
-            visible: selectionControlsVisible
-            spacing: Theme.paddingSmall // This spacing applies between buttons
+            visible: selectionControlsVisible // Only visible when there are notes to select
+            spacing: Theme.paddingSmall // Spacing between buttons
 
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.leftMargin: archivePage.noteMargin
             anchors.rightMargin: archivePage.noteMargin
 
-            // Changed: Calculate button width to consistently fit three buttons, matching TrashPage
+            // Calculate button width to consistently fit buttons
             property real calculatedButtonWidth: (archivePage.width) / 2.13
 
             // "Select All / Deselect All" Button
             Button {
                 id: selectAllButton
-                width: parent.calculatedButtonWidth // Use calculated width
-                highlightColor: Theme.highlightColor
+                width: parent.calculatedButtonWidth // Use calculated width for responsiveness
+                highlightColor: Theme.highlightColor // Standard highlight color
 
-                // NEW: Inner Column to stack Icon and Label for consistent styling
+                // Column to stack Icon and Label for consistent button styling
                 Column {
                     anchors.centerIn: parent
 
-                    Item { // Wrapper Item for the Icon to control its precise size and centering
+                    Item { // Wrapper for the Icon to control size and centering
                         width: Theme.fontSizeExtraLarge * 0.9 // Adjusted size for icons in buttons
                         height: Theme.fontSizeExtraLarge * 0.9
                         anchors.horizontalCenter: parent.horizontalCenter
 
+                        // Icon changes based on whether all notes are selected
                         Icon {
                             source: archivePage.allNotesSelected ? "../icons/deselect_all.svg" : "../icons/select_all.svg"
-                            anchors.fill: parent // Icon fills its wrapper Item
+                            anchors.fill: parent
                             color: Theme.primaryColor // Match menu icon color style
                         }
                     }
                     Label {
-                        text: qsTr("Select")
-                        color: Theme.primaryColor
-                        font.pixelSize: Theme.fontSizeSmall
-                        horizontalAlignment: Text.AlignHCenter // Center text
-                    }
-                }
-                onClicked: {
-                    var newSelectedIds = [];
-                    if (!archivePage.allNotesSelected) {
-                        for (var i = 0; i < archivePage.notesToDisplay.length; i++) {
-                            newSelectedIds.push(archivePage.notesToDisplay[i].id);
-                        }
-                    }
-                    archivePage.selectedNoteIds = newSelectedIds;
-                    console.log(qsTr("Selected note IDs after Select All/Deselect All: %1").arg(JSON.stringify(archivePage.selectedNoteIds)));
-                }
-                enabled: notesToDisplay.length > 0
-            }
-
-            Button {
-                id: primaryActionButton
-                width: parent.calculatedButtonWidth // Use calculated width
-                highlightColor: Theme.highlightColor
-
-                // NEW: Inner Column to stack Icon and Label for consistent styling
-                Column {
-                    anchors.centerIn: parent
-
-                    Item { // Wrapper Item for the Icon to control its precise size and centering
-                        width: Theme.fontSizeExtraLarge * 0.9 // Adjusted size for icons in buttons
-                        height: Theme.fontSizeExtraLarge * 0.9
-                        anchors.horizontalCenter: parent.horizontalCenter
-
-                        Icon {
-                            source: pageMode === qsTr("trash") ? "../icons/restore_notes.svg" : "../icons/unarchive.svg" // Added qsTr
-                            anchors.fill: parent // Icon fills its wrapper Item
-                            color: Theme.primaryColor
-                        }
-                    }
-                    Label {
-                        text: pageMode === qsTr("trash") ? qsTr("Restore") : qsTr("Unarchive") // Added qsTr
+                        text: qsTr("Select") // Always "Select" as it toggles
                         color: Theme.primaryColor
                         font.pixelSize: Theme.fontSizeSmall
                         horizontalAlignment: Text.AlignHCenter
                     }
                 }
                 onClicked: {
+                    var newSelectedIds = [];
+                    // If not all notes are selected, select all; otherwise, deselect all.
+                    if (!archivePage.allNotesSelected) {
+                        for (var i = 0; i < archivePage.notesToDisplay.length; i++) {
+                            newSelectedIds.push(archivePage.notesToDisplay[i].id);
+                        }
+                    }
+                    archivePage.selectedNoteIds = newSelectedIds; // Update the list of selected IDs
+                    console.log(qsTr("Selected note IDs after Select All/Deselect All: %1").arg(JSON.stringify(archivePage.selectedNoteIds)));
+                }
+                enabled: notesToDisplay.length > 0 // Button enabled only if there are notes to select
+            }
+
+            // Primary Action Button (Restore for Trash, Unarchive for Archive)
+            Button {
+                id: primaryActionButton
+                width: parent.calculatedButtonWidth
+                highlightColor: Theme.highlightColor
+
+                Column {
+                    anchors.centerIn: parent
+
+                    Item {
+                        width: Theme.fontSizeExtraLarge * 0.9
+                        height: Theme.fontSizeExtraLarge * 0.9
+                        anchors.horizontalCenter: parent.horizontalCenter
+
+                        // Icon changes based on page mode (Restore or Unarchive)
+                        Icon {
+                            source: pageMode === qsTr("trash") ? "../icons/restore_notes.svg" : "../icons/unarchive.svg"
+                            anchors.fill: parent
+                            color: Theme.primaryColor
+                        }
+                    }
+                    Label {
+                        // Text changes based on page mode (Restore or Unarchive)
+                        text: pageMode === qsTr("trash") ? qsTr("Restore") : qsTr("Unarchive")
+                        color: Theme.primaryColor
+                        font.pixelSize: Theme.fontSizeSmall
+                        horizontalAlignment: Text.AlignHCenter
+                    }
+                }
+                onClicked: {
+                    // Only proceed if notes are selected
                     if (selectedNoteIds.length > 0) {
                         var message = "";
                         var confirmTitle = "";
@@ -224,30 +234,32 @@ Page {
                         var highlight = Theme.highlightColor;
                         var callbackFunction;
 
-                        if (pageMode === qsTr("trash")) { // Added qsTr
+                        // Set dialog content and callback based on page mode
+                        if (pageMode === qsTr("trash")) {
                             message = qsTr("Are you sure you want to restore %1 selected notes to your main notes?").arg(selectedNoteIds.length);
                             confirmTitle = qsTr("Confirm Restoration");
                             confirmButton = qsTr("Restore");
                             callbackFunction = function() {
                                 var restoredCount = selectedNoteIds.length;
-                                DB.restoreNotes(selectedNoteIds);
-                                refreshNotes();
-                                toastManager.show(qsTr("%1 note(s) restored!").arg(restoredCount));
+                                DB.restoreNotes(selectedNoteIds); // Database call to restore notes
+                                refreshNotes(); // Refresh the list after action
+                                toastManager.show(qsTr("%1 note(s) restored!").arg(restoredCount)); // Show toast notification
                                 console.log(qsTr("%1 note(s) restored from trash.").arg(restoredCount));
                             };
-                        } else if (pageMode === qsTr("archive")) { // Added qsTr
+                        } else if (pageMode === qsTr("archive")) {
                             message = qsTr("Are you sure you want to unarchive %1 selected notes?").arg(selectedNoteIds.length);
                             confirmTitle = qsTr("Confirm Unarchive");
                             confirmButton = qsTr("Unarchive");
                             callbackFunction = function() {
                                 var unarchivedCount = selectedNoteIds.length;
-                                DB.bulkUnarchiveNotes(selectedNoteIds);
+                                DB.bulkUnarchiveNotes(selectedNoteIds); // Database call to unarchive notes
                                 refreshNotes();
                                 toastManager.show(qsTr("%1 note(s) unarchived!").arg(unarchivedCount));
                                 console.log(qsTr("%1 note(s) unarchived.").arg(unarchivedCount));
                             };
                         }
 
+                        // Show the generic confirmation dialog with specific content
                         archivePage.showConfirmDialog(
                             message,
                             callbackFunction,
@@ -258,33 +270,32 @@ Page {
                         console.log(qsTr("Showing confirmation dialog for %1 notes in %2 mode.").arg(selectedNoteIds.length).arg(pageMode));
                     }
                 }
-                enabled: selectedNoteIds.length > 0
+                enabled: selectedNoteIds.length > 0 // Button enabled only if notes are selected
             }
 
-            // NEW: Permanently Delete Button (only visible in "trash" mode)
+            // Permanently Delete Button (only visible in "trash" mode)
             Button {
                 id: deleteSelectedButton
-                visible: archivePage.pageMode === qsTr("trash") // Added qsTr
-                width: parent.calculatedButtonWidth // Use calculated width
-                highlightColor: Theme.errorColor
+                visible: archivePage.pageMode === qsTr("trash") // Only shown in trash mode
+                width: parent.calculatedButtonWidth
+                highlightColor: Theme.errorColor // Error color for destructive action
 
-                // NEW: Inner Column to stack Icon and Label for consistent styling
                 Column {
                     anchors.centerIn: parent
 
-                    Item { // Wrapper Item for the Icon to control its precise size and centering
-                        width: Theme.fontSizeExtraLarge * 0.9 // Adjusted size for icons in buttons
+                    Item {
+                        width: Theme.fontSizeExtraLarge * 0.9
                         height: Theme.fontSizeExtraLarge * 0.9
                         anchors.horizontalCenter: parent.horizontalCenter
 
                         Icon {
                             source: "../icons/delete.svg"
-                            anchors.fill: parent // Icon fills its wrapper Item
+                            anchors.fill: parent
                             color: Theme.primaryColor
                         }
                     }
                     Label {
-                        text: qsTr("Delete")
+                        text: qsTr("Delete") // Text for permanent deletion
                         color: Theme.primaryColor
                         font.pixelSize: Theme.fontSizeSmall
                         horizontalAlignment: Text.AlignHCenter
@@ -293,60 +304,63 @@ Page {
                 onClicked: {
                     if (selectedNoteIds.length > 0) {
                         var message = qsTr("Are you sure you want to permanently delete %1 selected notes? This action cannot be undone.").arg(selectedNoteIds.length);
+                        // Show confirmation dialog for permanent deletion
                         archivePage.showConfirmDialog(
                             message,
                             function() {
                                 var deletedCount = selectedNoteIds.length;
-                                DB.permanentlyDeleteNotes(selectedNoteIds);
-                                refreshNotes(); // Call refreshNotes specific to this page
+                                DB.permanentlyDeleteNotes(selectedNoteIds); // Database call to permanently delete
+                                refreshNotes(); // Refresh the list
                                 toastManager.show(qsTr("%1 note(s) permanently deleted!").arg(deletedCount));
                                 console.log(qsTr("%1 note(s) permanently deleted.").arg(deletedCount));
                             },
-                            qsTr("Confirm Permanent Deletion"),
-                            qsTr("Delete Permanently"),
-                            Theme.errorColor
+                            qsTr("Confirm Permanent Deletion"), // Specific title for permanent delete
+                            qsTr("Delete Permanently"), // Specific button text
+                            Theme.errorColor // Red highlight for warning
                         );
                         console.log(qsTr("Showing permanent delete confirmation dialog for %1 notes.").arg(selectedNoteIds.length));
                     }
                 }
-                enabled: selectedNoteIds.length > 0
+                enabled: selectedNoteIds.length > 0 // Enabled only if notes are selected
             }
         }
 
-        // Added ID to the spacer Item for accurate height calculation
+        // Spacer to provide vertical separation when selection controls are visible
         Item {
-            id: selectionSpacer // NEW ID
+            id: selectionSpacer
             Layout.fillWidth: true
             Layout.preferredHeight: selectionControlsVisible ? Theme.paddingMedium : 0
             visible: selectionControlsVisible
         }
 
+        // Flickable area to display the list of notes
         SilicaFlickable {
             id: notesFlickable
             Layout.fillWidth: true
-            // --- MODIFIED: Explicit height calculation based on remaining space in ColumnLayout ---
-            // The parent.height here refers to the height of mainLayout
+            // Calculates height to fill remaining space after header and selection controls
             Layout.preferredHeight: parent.height
                                   - selectionControls.height
                                   - selectionSpacer.height
-            contentHeight: notesColumn.implicitHeight
-            clip: true // Explicitly ensure content is clipped to the flickable's bounds
+            contentHeight: notesColumn.implicitHeight // Adapts content height to actual notes column height
+            clip: true // Ensures content doesn't overflow flickable bounds
 
+            // Column to arrange individual note cards
             Column {
                 id: notesColumn
                 width: parent.width
-                spacing: Theme.paddingMedium
-                visible: !archivePage.showEmptyLabel
+                spacing: Theme.paddingMedium // Spacing between note cards
+                visible: !archivePage.showEmptyLabel // Hides if there are no notes
                 anchors.top: parent.top
                 anchors.topMargin: Theme.paddingMedium
 
+                // Repeater to create a TrashArchiveNoteCard for each note in notesToDisplay
                 Repeater {
                     model: notesToDisplay
-                    delegate: Column {
+                    delegate: Column { // Each delegate is wrapped in a Column for consistent spacing
                         width: parent.width
                         spacing: Theme.paddingLarge
 
-                        TrashArchiveNoteCard { // Using TrashNoteCard as it's designed for displaying deleted/archived notes
+                        TrashArchiveNoteCard {
                             id: noteCardInstance
                             anchors {
                                 left: parent.left
@@ -354,36 +368,43 @@ Page {
                                 leftMargin: archivePage.noteMargin
                                 rightMargin: archivePage.noteMargin
                             }
-                            width: parent.width - (Theme.paddingMedium * 2)
+                            width: parent.width - (Theme.paddingMedium * 2) // Adjust width for margins
                             noteId: modelData.id
                             title: modelData.title
                             content: modelData.content
+                            // Tags are joined for passing as a single string, then parsed back in the card
                             tags: modelData.tags ? modelData.tags.join("_||_") : ''
-                            cardColor: modelData.color || "#1c1d29"
-                            height: implicitHeight
+                            cardColor: modelData.color || "#1c1d29" // Default card color if not specified
+                            height: implicitHeight // Allows card to determine its own height based on content
+                            // Checks if the current note ID is in the selectedNoteIds array
                             isSelected: archivePage.selectedNoteIds.indexOf(modelData.id) !== -1
-                            selectedBorderColor: noteCardInstance.isSelected ? "#FFFFFF" : "#00000000"
-                            selectedBorderWidth: noteCardInstance.isSelected ? Theme.borderWidthSmall : 0
+                            selectedBorderColor: noteCardInstance.isSelected ? "#FFFFFF" : "#00000000" // White border when selected
+                            selectedBorderWidth: noteCardInstance.isSelected ? Theme.borderWidthSmall : 0 // Border width when selected
 
+                            // Callback for when a note's selection state is toggled
                             onSelectionToggled: {
                                 if (isCurrentlySelected) {
+                                    // Remove note from selection if it was selected
                                     var index = archivePage.selectedNoteIds.indexOf(noteId);
                                     if (index !== -1) {
                                         archivePage.selectedNoteIds.splice(index, 1);
                                     }
                                 } else {
+                                    // Add note to selection if it was not selected
                                     if (archivePage.selectedNoteIds.indexOf(noteId) === -1) {
                                         archivePage.selectedNoteIds.push(noteId);
                                     }
                                 }
+                                // Reassign to trigger property change and UI update
                                 archivePage.selectedNoteIds = archivePage.selectedNoteIds;
                                 console.log(qsTr("Toggled selection for note ID: %1. Current selected: %2").arg(noteId).arg(JSON.stringify(archivePage.selectedNoteIds)));
                             }
 
+                            // Callback for when a note card is clicked (to open NotePage)
                             onNoteClicked: {
                                 console.log(qsTr("UNIFIED_NOTES_PAGE: Opening NotePage for note ID: %1 from %2.").arg(noteId).arg(archivePage.pageMode));
                                 pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
-                                    onNoteSavedOrDeleted: archivePage.refreshNotes,
+                                    onNoteSavedOrDeleted: archivePage.refreshNotes, // Callback to refresh notes after editing/deleting
                                     noteId: noteId,
                                     noteTitle: title,
                                     noteContent: content,
@@ -392,8 +413,8 @@ Page {
                                     noteCreationDate: creationDate,
                                     noteEditDate: editDate,
                                     noteColor: color,
-                                    isArchived: archivePage.pageMode === qsTr("archive"), // Added qsTr
-                                    isDeleted: archivePage.pageMode === qsTr("trash") // Added qsTr
+                                    isArchived: archivePage.pageMode === qsTr("archive"), // Pass current archive state
+                                    isDeleted: archivePage.pageMode === qsTr("trash") // Pass current deleted state
                                 });
                             }
                         }
@@ -401,41 +422,44 @@ Page {
                 }
             }
         }
+        // Scroll bar for the flickable area
         ScrollBar {
             flickableSource: notesFlickable
         }
     }
 
+    // ToastManager for displaying transient messages
     ToastManager {
         id: toastManager
     }
 
-    // --- Integrated Confirmation Dialog Component ---
+    // Confirmation Dialog component
     ConfirmDialog {
         id: confirmDialogInstance
-        // Bind properties from archivePage to ConfirmDialog
+        // Bind properties from archivePage to ConfirmDialog to control its behavior
         dialogVisible: archivePage.confirmDialogVisible
         dialogTitle: archivePage.confirmDialogTitle
         dialogMessage: archivePage.confirmDialogMessage
         confirmButtonText: archivePage.confirmButtonText
         confirmButtonHighlightColor: archivePage.confirmButtonHighlightColor
 
-        // Connect signals from ConfirmDialog back to archivePage's logic
+        // Handle signals from ConfirmDialog back to archivePage's logic
         onConfirmed: {
             if (archivePage.onConfirmCallback) {
-                archivePage.onConfirmCallback(); // Execute the stored callback
+                archivePage.onConfirmCallback(); // Execute the stored callback function
             }
             archivePage.confirmDialogVisible = false; // Hide the dialog after confirmation
         }
         onCancelled: {
-            archivePage.confirmDialogVisible = false; // Hide the dialog
+            archivePage.confirmDialogVisible = false; // Hide the dialog if cancelled
             console.log(qsTr("Action cancelled by user."));
         }
     }
+    // Label displayed when the notes list is empty
     Label {
         id: emptyLabel
         visible: archivePage.showEmptyLabel
-        text: pageMode === qsTr("trash") ? qsTr("Trash is empty.") : qsTr("Archive is empty.") // Ensured both values are translated
+        text: pageMode === qsTr("trash") ? qsTr("Trash is empty.") : qsTr("Archive is empty.") // Translated empty message
         font.italic: true
         color: Theme.secondaryColor
         anchors.horizontalCenter: parent.horizontalCenter
@@ -443,9 +467,10 @@ Page {
         width: parent.width * 0.8
         horizontalAlignment: Text.AlignHCenter
     }
+    // Side panel component
     SidePanel {
         id: sidePanelInstance
-        open: archivePage.panelOpen
-        onClosed: archivePage.panelOpen = false
+        open: archivePage.panelOpen // Controls if the panel is open
+        onClosed: archivePage.panelOpen = false // Update page property when panel is closed
     }
 }
