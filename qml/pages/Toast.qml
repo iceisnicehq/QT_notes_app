@@ -10,7 +10,7 @@ Rectangle {
       */
     function show(text, duration) {
         message.text = text;
-        if (typeof duration !== "undefined") { // checks if parameter was passed
+        if (typeof duration !== "undefined") {
             time = Math.max(duration, 2 * fadeTime);
         }
         else {
@@ -19,7 +19,7 @@ Rectangle {
         animation.start();
     }
 
-    property bool selfDestroying: false  // whether this Toast will self-destroy when it is finished
+    property bool selfDestroying: false
     id: root
 
     readonly property real defaultTime: 3000

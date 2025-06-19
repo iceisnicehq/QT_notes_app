@@ -1,14 +1,11 @@
-// qml/pages/SettingsPage.qml
-
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import QtQuick.Layouts 1.1 // Still needed for ColumnLayout within sections
+import QtQuick.Layouts 1.1
 import QtQuick.LocalStorage 2.0
 import "DatabaseManager.js" as DB
 
 Page {
     id: settingsPage
-    // Dynamically adapt background color based on custom setting or default
     backgroundColor: settingsPage.customBackgroundColor !== undefined ? settingsPage.customBackgroundColor : "#121218"
     showNavigationIndicator: false
 
@@ -86,7 +83,6 @@ Page {
         pageStack.completeAnimation();
     }
 
-
     PageHeader {
         id: pageHeader
         height: Theme.itemSizeExtraLarge
@@ -134,8 +130,7 @@ Page {
     SilicaFlickable {
         anchors.fill: parent
         anchors.topMargin: pageHeader.height
-        // Flickable теперь будет следить за высотой contentContainer
-        contentHeight: contentContainer.implicitHeight + Theme.paddingLarge * 2 // Добавим немного буфера снизу
+        contentHeight: contentContainer.implicitHeight + Theme.paddingLarge * 2
         flickableDirection: Flickable.VerticalFlick
         clip: true
 
@@ -145,21 +140,18 @@ Page {
             onClicked: settingsPage.languageListVisible = false
         }
 
-        // Основной контейнер, который теперь является простым Item
         Item {
             id: contentContainer
             width: parent.width - (2 * Theme.paddingLarge)
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.margins: Theme.paddingLarge
-            // Высота будет рассчитываться по содержимому
 
-            // --- СЕКЦИЯ ВЫБОРА ЯЗЫКА ---
-            Column { // Используем Column, а не ColumnLayout здесь, так как это Item
+            Column {
                 id: languageSection
                 width: parent.width
-                anchors.top: parent.top // Привязываем к верху Flickable
+                anchors.top: parent.top
                 anchors.horizontalCenter: parent.horizontalCenter
-                spacing: Theme.paddingMedium // Отступ между элементами внутри этой секции
+                spacing: Theme.paddingMedium
 
                 Label {
                     text: qsTr("Language")
@@ -216,7 +208,6 @@ Page {
                                     Label {
                                         anchors.centerIn: parent
                                         text: modelData.name
-                                        // ИЗМЕНЕНО ЗДЕСЬ: Цвет текста для выбранного/невыбранного языка
                                         color: highlighted ? DB.darkenColor(Theme.primaryColor, 0.5) : Theme.secondaryColor
                                     }
 
@@ -238,22 +229,20 @@ Page {
                         }
                     }
                 }
-            } // End of languageSection
+            }
 
-            // Spacer
             Item {
                 id: spacer1
                 width: parent.width
-                height: Theme.paddingLarge // Отступ между секциями
+                height: Theme.paddingLarge
                 anchors.top: languageSection.bottom
             }
 
-            // --- СЕКЦИЯ ВЫБОРА ЦВЕТА ТЕМЫ ---
-            Column { // Используем Column, а не ColumnLayout
+            Column {
                 id: themeColorSection
                 width: parent.width
                 anchors.horizontalCenter: parent.horizontalCenter
-                anchors.top: spacer1.bottom // Привязываем к низу первого спейсера
+                anchors.top: spacer1.bottom
                 spacing: Theme.paddingMedium
 
                 Label {
@@ -267,7 +256,7 @@ Page {
 
                 Rectangle {
                     id: colorSelectionArea
-                    width: parent.width // Используем width родительского Column, не Layout.fillWidth
+                    width: parent.width
                     height: colorPanelContentColumn.implicitHeight + Theme.paddingMedium * 2 + (Theme.itemSizeSmall / 2) * 2
                     color: settingsPage.customBackgroundColor
                     radius: Theme.itemSizeSmall / 2
@@ -352,22 +341,20 @@ Page {
                         }
                     }
                 }
-            } // End of themeColorSection
+            }
 
-            // Spacer
             Item {
                 id: spacer2
                 width: parent.width
-                height: Theme.paddingLarge // ИЗМЕНЕНО: теперь такой же, как spacer1
+                height: Theme.paddingLarge
                 anchors.top: themeColorSection.bottom
             }
 
-            // --- СЕКЦИЯ УПРАВЛЕНИЯ ДАННЫМИ ---
-            Column { // Используем Column, а не ColumnLayout
+            Column {
                 id: dataManagementSection
                 width: parent.width
                 anchors.horizontalCenter: parent.horizontalCenter
-                anchors.top: spacer2.bottom // Привязываем к низу второго спейсера
+                anchors.top: spacer2.bottom
                 spacing: Theme.paddingMedium
 
                 Label {
@@ -380,10 +367,9 @@ Page {
                     color: "white"
                 }
 
-                // Column for data management buttons
-                ColumnLayout { // Здесь все еще используем ColumnLayout для кнопок, так как это удобно
+                ColumnLayout {
                     id: dataButtons
-                    width: parent.width // Привязываем к ширине родительского Column
+                    width: parent.width
                     spacing: Theme.paddingSmall
 
                     Button {
@@ -399,7 +385,7 @@ Page {
                                 text: qsTr("Archive All Notes")
                                 color: Theme.primaryColor
                                 font.pixelSize: Theme.fontSizeSmall
-                                horizontalAlignment: Text.AlignHCenter
+                                horizontalAlignment: "AlignHCenter"
                             }
                         }
                         onClicked: {
@@ -431,7 +417,7 @@ Page {
                                 text: qsTr("Move All Notes to Trash")
                                 color: Theme.primaryColor
                                 font.pixelSize: Theme.fontSizeSmall
-                                horizontalAlignment: Text.AlignHCenter
+                                horizontalAlignment: "AlignHCenter"
                             }
                         }
                         onClicked: {
@@ -466,7 +452,7 @@ Page {
                                 color: "white"
                                 font.pixelSize: Theme.fontSizeSmall
                                 font.bold: true
-                                horizontalAlignment: Text.AlignHCenter
+                                horizontalAlignment: "AlignHCenter"
                             }
                         }
                         onClicked: {
@@ -484,11 +470,11 @@ Page {
                             );
                         }
                     }
-                } // End of dataButtons ColumnLayout
-            } // End of dataManagementSection
+                }
+            }
 
-        } // End of contentContainer Item
-    } // End of SilicaFlickable
+        }
+    }
 
     ToastManager {
         id: toastManager
@@ -510,7 +496,7 @@ Page {
         }
         onCancelled: {
             settingsPage.confirmDialogVisible = false;
-            console.log(qsTr("Action cancelled by user."));
+            console.log("Action cancelled by user.");
         }
     }
 

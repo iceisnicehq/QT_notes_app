@@ -1,4 +1,3 @@
-// SidePanel.qml
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.LocalStorage 2.0
@@ -7,50 +6,43 @@ import "DatabaseManager.js" as DB
 Item {
     id: sidePanel
     anchors.fill: parent
-    z: 1000 
+    z: 1000
     visible: opacity > 0
     opacity: open ? 1 : 0
     property string customBackgroundColor:  DB.darkenColor(DB.getThemeColor(), 0.30)
     property string activeSectionColor: DB.getThemeColor()
     property bool open: false
-    property string currentPage: "notes" // Tracks the currently selected item in the side panel
-    // tags property now holds objects with name and count
-    property var tags: [] // [{name: "tag1", count: 5}, {name: "tag2", count: 2}]
-    property int totalNotesCount: 0 
-    property int trashNotesCount: 0 
-    property int archivedNotesCount: 0 
+    property string currentPage: "notes"
+    property var tags: []
+    property int totalNotesCount: 0
+    property int trashNotesCount: 0
+    property int archivedNotesCount: 0
 
-    // Define a signal to notify the parent when the panel requests to be closed
     signal closed();
 
     Behavior on opacity {
         NumberAnimation { duration: 300; easing.type: Easing.OutQuad }
     }
 
-    // Function to refresh the tags and their counts from the database
     function refreshTagsInSidePanel() {
         tags = DB.getAllTagsWithCounts();
-        // Sort tags by count in descending order for consistency if desired
         tags.sort(function(a, b) {
             return b.count - a.count;
         });
-        console.log(("SidePanel: Tags refreshed with counts.", JSON.stringify(tags)));
+        console.log("SidePanel: Tags refreshed with counts.", JSON.stringify(tags));
     }
 
-    // Function to refresh general note counts
     function refreshNoteCounts() {
-        totalNotesCount = DB.getAllNotes().length; 
-        trashNotesCount = DB.getDeletedNotes().length; 
-        archivedNotesCount = DB.getArchivedNotes().length; 
+        totalNotesCount = DB.getAllNotes().length;
+        trashNotesCount = DB.getDeletedNotes().length;
+        archivedNotesCount = DB.getArchivedNotes().length;
         console.log("SidePanel: Total notes count:", totalNotesCount);
         console.log("SidePanel: Trash notes count:", trashNotesCount);
-        console.log("SidePanel: Archived notes count:", archivedNotesCount); 
+        console.log("SidePanel: Archived notes count:", archivedNotesCount);
     }
 
-    // Helper function to handle navigation logic for main sections
     function navigateAndManageStack(targetPageUrl, newCurrentPageProperty, targetPageObjectName) {
         if (sidePanel.currentPage === newCurrentPageProperty) {
-            // If already on this page type (based on side panel's selected state), just close the side panel
             sidePanel.closed();
             return;
         }
@@ -59,36 +51,31 @@ Item {
         var currentStackPageObjectName = pageStack.currentPage ? pageStack.currentPage.objectName : "";
 
         if (currentStackPageObjectName === "mainPage") {
-            // If the current page on the stack is MainPage, push the new page onto the stack.
-            // This allows swiping back to MainPage.
             pageStack.push(targetPageUrl);
         } else {
             if (targetPageUrl === Qt.resolvedUrl("MainPage.qml")) {
                pageStack.pop();
             }
             else {
-            // If we are on any other page (not MainPage), replace it with the new page.
-            // This ensures the stack never gets deeper than [MainPage, SidePanelNavigatedPage]
                 pageStack.replace(targetPageUrl);
             }
         }
-        sidePanel.closed(); // Close the side panel after navigation
+        sidePanel.closed();
     }
 
     Component.onCompleted: {
         DB.permanentlyDeleteExpiredDeletedNotes();
-        refreshTagsInSidePanel(); // Load tags when the panel component is ready
-        refreshNoteCounts(); // Load note counts when the panel component is ready
+        refreshTagsInSidePanel();
+        refreshNoteCounts();
     }
 
     onOpenChanged: {
         if (open) {
-            refreshTagsInSidePanel(); // Refresh tags whenever the panel opens
-            refreshNoteCounts(); // Refresh note counts whenever the panel opens
+            refreshTagsInSidePanel();
+            refreshNoteCounts();
         }
     }
 
-    // Semi-transparent overlay for the rest of the screen
     Rectangle {
         id: overlay
         anchors.fill: parent
@@ -100,11 +87,10 @@ Item {
         anchors.fill: parent
         enabled: open
         onClicked: {
-            sidePanel.closed(); // Emit the signal instead of directly modifying a global property
+            sidePanel.closed();
         }
     }
 
-    // The actual panel content
     Rectangle {
         id: panelContent
         width: parent.width * 0.75
@@ -119,7 +105,6 @@ Item {
             }
         }
 
-        // The main scrollable area of the side panel
         SilicaFlickable {
             id: sidePanelFlickable
             anchors.fill: parent
@@ -130,15 +115,13 @@ Item {
                 width: parent.width
                 spacing: Theme.paddingMedium
 
-                // Header of the SidePanel
                 Item {
                     id: sidePanelHeader
                     width: parent.width
                     height: Theme.itemSizeLarge
 
-                    // Aurora Notes text, clickable
                     MouseArea {
-                        anchors.fill: parent 
+                        anchors.fill: parent
                         onClicked: {
                             navigateAndManageStack(Qt.resolvedUrl("MainPage.qml"), "notes", "mainPage");
                         }
@@ -187,7 +170,6 @@ Item {
                     }
                 }
 
-                // Navigation Section
                 Column {
                     width: parent.width
                     spacing: Theme.paddingSmall
@@ -198,11 +180,9 @@ Item {
                         color: "#a0a1ab"
                         anchors.left: parent.left
                         anchors.leftMargin: Theme.paddingLarge
-                        horizontalAlignment: Text.AlignLeft
+                        horizontalAlignment: "AlignLeft"
                     }
 
-
-                    // Notes Button
                     NavigationButton {
                         icon: "../icons/notes.svg"
                         text: qsTr("Notes")
@@ -236,7 +216,6 @@ Item {
                         }
                     }
 
-                    // Import & Export Button
                     NavigationButton {
                         icon: "../icons/import_export.svg"
                         text: qsTr("Import & Export")
@@ -268,7 +247,6 @@ Item {
                     }
                 }
 
-                // Delimiter
                 Rectangle {
                     width: parent.width - Theme.paddingLarge * 2
                     height: 1
@@ -276,7 +254,6 @@ Item {
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
 
-                // Tags Section
                 Column {
                     width: parent.width
                     spacing: Theme.paddingSmall
@@ -287,10 +264,9 @@ Item {
                         color: "#a0a1ab"
                         anchors.left: parent.left
                         anchors.leftMargin: Theme.paddingLarge
-                        horizontalAlignment: Text.AlignLeft
+                        horizontalAlignment: "AlignLeft"
                     }
 
-                    // Edit Tags Button
                     NavigationButton {
                         width: parent.width
                         icon: "../icons/edit.svg"
@@ -304,8 +280,8 @@ Item {
                     Label {
                         id: noTagsLabel
                         width: parent.width
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: "AlignHCenter"
+                        verticalAlignment: "AlignVCenter"
                         text: qsTr("You have no tags.\n Go to edit tags page\nto create one!")
                         font.italic: true
                         color: Theme.secondaryColor
@@ -313,40 +289,32 @@ Item {
                         visible: tags.length === 0
                     }
                     Repeater {
-                        model: tags // Model now contains {name, count} objects
+                        model: tags
                         delegate: NavigationButton {
                             icon: "../icons/tag.svg"
-                            text: modelData.name // Pass the tag name
-                            noteCount: modelData.count // Pass the note count
+                            text: modelData.name
+                            noteCount: modelData.count
                             selectedColor: sidePanel.activeSectionColor
                             onClicked: {
-                                console.log(("Tag selected:", modelData.name));
+                                console.log("Tag selected:", modelData.name);
 
-                                // Check if the current page object in the stack is MainPage
                                 var isMainPageActive = pageStack.currentPage && pageStack.currentPage.objectName === "mainPage";
 
                                 if (isMainPageActive) {
-                                    // If MainPage is currently active, update its properties directly
-                                    // This assumes MainPage.qml has properties like 'selectedTags' and 'currentSearchText'
-                                    // that it observes and uses to filter its content.
                                     pageStack.currentPage.selectedTags = [modelData.name];
-                                    console.log(("Updated existing MainPage with tag filter: %1").arg(modelData.name));
+                                    console.log("Updated existing MainPage with tag filter: %1".arg(modelData.name));
                                     mainPage.performSearch("", [modelData.name])
                                     sidePanel.currentPage = "notes";
                                 } else {
-                                    // If not MainPage, navigate to a new MainPage instance, applying the filter.
-                                    // This uses 'replace' so that if you're on, say, 'ArchivePage', it goes directly
-                                    // to the filtered 'MainPage' and clears 'ArchivePage' from the stack.
                                     pageStack.pop();
                                     pageStack.completeAnimation();
                                     pageStack.replace(Qt.resolvedUrl("MainPage.qml"), { selectedTags: [modelData.name], currentSearchText: "" });
-                                    console.log(("Navigating to new MainPage with tag filter: %1").arg(modelData.name));
+                                    console.log("Navigating to new MainPage with tag filter: %1".arg(modelData.name));
 
-                                    // Update the side panel's internal state to reflect "notes" section is active
                                     sidePanel.currentPage = "notes";
                                 }
 
-                                sidePanel.closed(); // Always close the side panel after tag selection
+                                sidePanel.closed();
                             }
                         }
                     }
