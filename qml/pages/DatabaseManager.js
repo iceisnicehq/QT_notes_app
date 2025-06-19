@@ -1,5 +1,4 @@
 // DatabaseManager.js
-
 var db = null;
 var dbName = "AuroraNotesDB";
 var dbVersion = "1.0";
@@ -32,6 +31,7 @@ function initDatabase(localStorageInstance) {
                 'updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, ' +
                 'deleted BOOLEAN NOT NULL DEFAULT 0, ' +
                 'archived BOOLEAN NOT NULL DEFAULT 0' +
+                'checksum TEXT' +
                 ')'
             );
             // Create Tags table
@@ -58,6 +58,12 @@ function initDatabase(localStorageInstance) {
             } catch (e) {
                 console.log("DB_MGR: Adding 'color' column to Notes table.");
                 tx.executeSql('ALTER TABLE Notes ADD COLUMN color TEXT DEFAULT "' + defaultNoteColor + '"');
+            }
+            try {
+                tx.executeSql('SELECT checksum FROM Notes LIMIT 1');
+            } catch (e) {
+                console.log("DB_MGR: Adding 'checksum' column to Notes table.");
+                tx.executeSql('ALTER TABLE Notes ADD COLUMN checksum TEXT'); // Добавляем столбец checksum
             }
             try {
                 tx.executeSql('SELECT deleted FROM Notes LIMIT 1');
@@ -114,6 +120,37 @@ function initDatabase(localStorageInstance) {
 
             try { tx.executeSql('SELECT notesImportedCount FROM AppSettings LIMIT 1'); }
             catch (e) { console.log("DB_MGR: Adding 'notesImportedCount' column to AppSettings."); tx.executeSql('ALTER TABLE AppSettings ADD COLUMN notesImportedCount INTEGER DEFAULT 0'); }
+
+            console.log("DB_MGR: Checking for notes without checksums..."); // добавление в ините
+            var notesWithoutChecksum = tx.executeSql('SELECT id, title, content, color FROM Notes WHERE checksum IS NULL');
+            if (notesWithoutChecksum.rows.length > 0) {
+                console.log("DB_MGR: Found " + notesWithoutChecksum.rows.length + " notes without checksums. Generating them...");
+                for (var i = 0; i < notesWithoutChecksum.rows.length; i++) {
+                    var note = notesWithoutChecksum.rows.item(i);
+                    // Fetch tags separately since generateNoteChecksum needs them
+                    // This is less efficient than fetching all notes with tags initially,
+                    // but practical for a one-time migration.
+                    var noteTags = getTagsForNote(tx, note.id); // Re-use getTagsForNote, ensuring it works with tx
+                    var tempNoteForChecksum = {
+                        title: note.title,
+                        content: note.content,
+                        color: note.color,
+                        tags: noteTags
+                    };
+                    var generatedChecksum = generateNoteChecksum(tempNoteForChecksum);
+
+                    if (generatedChecksum) {
+                        tx.executeSql('UPDATE Notes SET checksum = ? WHERE id = ?', [generatedChecksum, note.id]);
+                        console.log("DB_MGR: Generated checksum for note ID " + note.id);
+                    } else {
+                        console.warn("DB_MGR: Failed to generate checksum for old note ID " + note.id);
+                    }
+                }
+                console.log("DB_MGR: Finished generating checksums for old notes.");
+            } else {
+                console.log("DB_MGR: All notes already have checksums.");
+            }
+
 
         });
         console.log("DB_MGR: Database initialized successfully.");
@@ -242,7 +279,7 @@ function addNoteInternal(tx, pinned, title, content, color, deleted, archived) {
         archived = 0;
     }
     tx.executeSql(
-        'INSERT INTO Notes (pinned, title, content, color, deleted, archived) VALUES (?, ?, ?, ?, ?, ?)', 
+        'INSERT INTO Notes (pinned, title, content, color, deleted, archived, checksum) VALUES (?, ?, ?, ?, ?, ?)',
         [pinned, title, content, color, deleted, archived] 
     );
     var row = tx.executeSql('SELECT last_insert_rowid() as id');
@@ -420,6 +457,13 @@ function addNote(pinned, title, content, tags, color) {
     if (color === undefined || color === null || color === "") {
         color = defaultNoteColor;
     }
+
+    var tempNoteForChecksum = { pinned: pinned, title: title, content: content, color: color, tags: tags };
+    var noteChecksum = generateNoteChecksum(tempNoteForChecksum);
+    if (!noteChecksum) {
+        console.error("DB_MGR: Failed to generate checksum for new note. Aborting addNote.");
+        return -1;
+    }
     db.transaction(function(tx) {
         returnedNoteId = addNoteInternal(tx, pinned, title, content, color, 0, 0); 
         for (var i = 0; i < tags.length; i++) {
@@ -435,6 +479,15 @@ function updateNote(id, pinned, title, content, tags, color) {
     if (color === undefined || color === null || color === "") {
         color = defaultNoteColor;
     }
+
+    var tempNoteForChecksum = { id: id, pinned: pinned, title: title, content: content, color: color, tags: tags };
+    var newChecksum = generateNoteChecksum(tempNoteForChecksum);
+    if (!newChecksum) {
+        console.error("DB_MGR: Failed to generate checksum for updated note. Aborting updateNote.");
+        return;
+    }
+
+
     db.transaction(function(tx) {
         tx.executeSql(
             'UPDATE Notes SET pinned = ?, title = ?, content = ?, color = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
@@ -766,6 +819,61 @@ function moveNoteFromTrashToArchive(noteId) {
 
 
 
+function simpleStringHash(str) {
+    var hash = 0;
+    for (var i = 0; i < str.length; i++) {
+        var char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash |= 0;
+    }
+    return (hash >>> 0).toString(16);
+}
+
+
+
+
+function generateNoteChecksum(note) {
+    if (!note) {
+        console.error("DB_MGR: generateNoteChecksum received null/undefined note.");
+        return null;
+    }
+
+    // Prepare a consistent string representation of the note's content.
+    // Ensure properties are always present, even if empty, for consistent hashing.
+    // Tags must be sorted to ensure the hash is the same regardless of their initial order.
+    var titlePart = note.title ? note.title : '';
+    var contentPart = note.content ? note.content : '';
+    var colorPart = note.color ? note.color : defaultNoteColor; // Use default if color is missing
+    var tagsPart = (note.tags && Array.isArray(note.tags)) ? note.tags.slice().sort().join('|') : ''; // Join sorted tags
+
+    // Concatenate all parts into a single string. Use a separator that won't appear in content.
+    // A simple pipe '|' or newline '\n' can work, as long as it's consistent.
+    var contentToHash = "${titlePart}\n${contentPart}\n${colorPart}\n${tagsPart}";
+
+    try {
+        return simpleStringHash(contentToHash);
+    } catch (e) {
+        console.error("DB_MGR: Error generating checksum with simpleStringHash:", e);
+        return null;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 function getNotesForExport(successCallback, errorCallback, newTagToAdd) {
@@ -785,7 +893,7 @@ function getNotesForExport(successCallback, errorCallback, newTagToAdd) {
         try {
             var notes = [];
             // Select all notes that are not marked as deleted
-            var res = tx.executeSql('SELECT id, pinned, title, content, color, created_at, updated_at, deleted, archived FROM Notes WHERE deleted = 0 ORDER BY updated_at DESC');
+            var res = tx.executeSql('SELECT id, pinned, title, content, color, created_at, updated_at, deleted, archived, checksum FROM Notes WHERE deleted = 0 ORDER BY updated_at DESC');
             console.log("DB_MGR_DEBUG: Запрос заметок выполнен. Найдено строк: " + res.rows.length);
 
             for (var i = 0; i < res.rows.length; i++) {
@@ -855,9 +963,32 @@ function getNotesForExport(successCallback, errorCallback, newTagToAdd) {
 }
 
 function addImportedNote(note, tx, optionalTagForImport) { // Added optionalTagForImport parameter
-    console.log("DB_MGR_DEBUG: Processing note for import: ID " + note.id);
+    console.log("DB_MGR_DEBUG: Processing note for import: ID " + (note.id || 'new')); // Use note.id for logging if present
     var noteColor = note.color || defaultNoteColor;
-    var noteId = addNoteInternal(tx, note.pinned, note.title, note.content, noteColor, 0, 0); // MODIFIED
+
+    // Generate checksum for the incoming note's content
+    var importedNoteChecksum = generateNoteChecksum(note);
+    if (!importedNoteChecksum) {
+        console.error("DB_MGR_DEBUG: Failed to generate checksum for imported note (title: " + note.title + "). Skipping.");
+        return null; // Indicate failure to add
+    }
+
+    // Call addNoteInternal with the generated checksum
+    var noteId = addNoteInternal(
+        tx,
+        note.pinned,
+        note.title,
+        note.content,
+        noteColor,
+        note.deleted || 0, // Ensure deleted/archived status is handled if coming from export
+        note.archived || 0,
+        importedNoteChecksum // Pass the generated checksum
+    );
+
+    if (noteId === null) { // Check if addNoteInternal failed (though it currently returns ID or throws)
+        console.error("DB_MGR_DEBUG: addNoteInternal failed for note with title: " + note.title);
+        return null;
+    }
 
     // Add existing tags from the imported note
     if (note.tags && note.tags.length > 0) {
@@ -865,12 +996,13 @@ function addImportedNote(note, tx, optionalTagForImport) { // Added optionalTagF
             addTagToNoteInternal(tx, noteId, note.tags[j]);
         }
     }
-
-    // Add the optional new tag if provided and valid
     if (optionalTagForImport && typeof optionalTagForImport === 'string' && optionalTagForImport.length > 0) {
         console.log("DB_MGR_DEBUG: Adding optional import tag '" + optionalTagForImport + "' to imported note ID " + noteId);
         addTagToNoteInternal(tx, noteId, optionalTagForImport);
     }
+
+    console.log("DB_MGR_DEBUG: Successfully added imported note with new DB ID: " + noteId + " and checksum: " + importedNoteChecksum);
+    return noteId; // Return the new ID
 }
 
 function updateLastExportDate() {
