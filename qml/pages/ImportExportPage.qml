@@ -197,6 +197,8 @@ Page {
         property string dialogFilePath: ""
         property int dialogNotesImportedCount: 0
         property int dialogTagsCreatedCount: 0
+        property int dialogNotesSkippedCount: 0
+        property int tagsBeforeImportCount: 0
 
         signal dismissed()
 
@@ -750,7 +752,7 @@ Page {
             return;
         }
         var tagsBeforeImportCount = DB.getAllTags().length;
-        console.log("APP_DEBUG: Tags before import: " + tagsBeforeImport);
+        //console.log("APP_DEBUG: Tags before import: " + tagsBeforeImport);
 
         try {
             var fileContent;
@@ -863,9 +865,9 @@ Page {
                     console.log("APP_DEBUG: DB transaction call returned. Proceeding with UI updates.");
 
                     var tagsAfterImport = DB.getAllTags().length;
-                    var newlyCreatedTagsCount = tagsAfterImport - tagsBeforeImport;
+                    //var newlyCreatedTagsCount = tagsAfterImport - tagsBeforeImport;
                     console.log("APP_DEBUG: Tags after import: " + tagsAfterImport);
-                    console.log("APP_DEBUG: Newly created tags: " + newlyCreatedTagsCount);
+                    //console.log("APP_DEBUG: Newly created tags: " + newlyCreatedTagsCount);
 
                     DB.updateLastImportDate();
                     DB.updateNotesImportedCount(notes.length);
@@ -886,7 +888,7 @@ Page {
                 } else {
                     statusText = qsTr("File contains no notes to import.");
                     processInProgress = false;
-                    console.log("APP_DEBUG: No notes to import, processInProgress set to false.");
+                    //console.log("APP_DEBUG: No notes to import, processInProgress set to false.");
                 }
 
             } else {
@@ -895,10 +897,10 @@ Page {
                 console.log("APP_DEBUG: File empty, processInProgress set to false.");
             }
         } catch (e) {
-            statusText = qsTr("File processing error: ") + e.message;
-            console.error("APP_DEBUG: EXCEPTION caught during file processing for import: " + e.message);
+            //statusText = qsTr("File processing error: ") + e.message;
+            //console.error("APP_DEBUG: EXCEPTION caught during file processing for import: " + e.message);
             processInProgress = false;
-            console.log("APP_DEBUG: General catch block, processInProgress set to false due to exception.");
+            //console.log("APP_DEBUG: General catch block, processInProgress set to false due to exception.");
         }
     }
 
