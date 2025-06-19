@@ -1429,7 +1429,7 @@ Go to edit tags page to create one!</source>
         <source>You have no tags.
  Go to edit tags page
 to create one!</source>
-        <translation>У васнет тегов.
+        <translation>У вас нет тегов.
 Перейдите на 
 страницу редактирования,
 для создания!</translation>
