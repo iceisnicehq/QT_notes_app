@@ -749,8 +749,7 @@ Page {
             console.log("APP_DEBUG: processInProgress set to false due to DB not initialized.");
             return;
         }
-
-        var tagsBeforeImport = DB.getAllTags().length;
+        var tagsBeforeImportCount = DB.getAllTags().length;
         console.log("APP_DEBUG: Tags before import: " + tagsBeforeImport);
 
         try {
