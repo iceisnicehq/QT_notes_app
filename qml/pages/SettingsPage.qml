@@ -189,7 +189,7 @@ Page {
                         anchors.top: languageButton.bottom
                         visible: settingsPage.languageListVisible
                         z: 10
-                        color: Theme.secondaryHighlightColor
+                        color: DB.darkenColor(settingsPage.customBackgroundColor, 0.15)
                         radius: Theme.paddingSmall
 
                         Behavior on opacity { NumberAnimation { duration: 100 } }
