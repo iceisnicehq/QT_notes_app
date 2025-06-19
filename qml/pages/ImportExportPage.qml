@@ -777,13 +777,32 @@ Page {
             }
 
             if (fileContent) {
-                var notes;
+                var notesToImport;
                 var fileExtension = absoluteFilePathString.split('.').pop().toLowerCase();
 
+                console.log("APP_DEBUG: File extension detected: " + fileExtension); // ADD THIS
+                console.log("APP_DEBUG: First 200 chars of fileContent: " + fileContent.substring(0, 200)); // ADD THIS (careful with very large files)
+
                 if (fileExtension === "json") {
-                    notes = JSON.parse(fileContent);
+                    try {
+                        notesToImport = JSON.parse(fileContent);
+                        console.log("APP_DEBUG: Successfully parsed JSON. Number of notes: " + (notesToImport ? notesToImport.length : 'null/undefined')); // ADD THIS
+                    } catch (jsonError) {
+                        console.error("APP_DEBUG: JSON parsing failed: " + jsonError.message); // ADD THIS
+                        statusText = qsTr("Error parsing JSON file: ") + jsonError.message;
+                        processInProgress = false;
+                        return; // Exit if JSON is invalid
+                    }
                 } else if (fileExtension === "csv") {
-                    notes = parseCsv(fileContent);
+                    try {
+                        notesToImport = parseCsv(fileContent);
+                        console.log("APP_DEBUG: Successfully parsed CSV. Number of notes: " + (notesToImport ? notesToImport.length : 'null/undefined')); // ADD THIS
+                    } catch (csvError) {
+                        console.error("APP_DEBUG: CSV parsing failed: " + csvError.message); // ADD THIS
+                        statusText = qsTr("Error parsing CSV file: ") + csvError.message;
+                        processInProgress = false;
+                        return; // Exit if CSV is invalid
+                    }
                 }
                 else {
                     statusText = qsTr("Unsupported file format. Only JSON and CSV are supported.");
@@ -792,26 +811,56 @@ Page {
                     return;
                 }
 
-                if (notes && notes.length > 0) {
-                    statusText = qsTr("Importing ") + notes.length + qsTr(" notes...");
-                    var importedCount = 0;
+                console.log("APP_DEBUG: notesToImport variable after parsing attempt:"); // ADD THIS
+                console.log(JSON.stringify(notesToImport, null, 2)); // ADD THIS (will show 'undefined' if it failed)
 
-                    console.log("APP_DEBUG: Initiating DB transaction for import.");
-                    DB.db.transaction(
-                        function(tx) {
-                            console.log("APP_DEBUG: Inside DB transaction function.");
-                            for (var i = 0; i < notes.length; i++) {
-                                try {
-                                    DB.addImportedNote(notes[i], tx, optionalNewTagForImport);
-                                    importedCount++;
-                                    console.log("APP_DEBUG: Added note " + notes[i].id + ", count: " + importedCount);
-                                } catch (noteAddError) {
-                                    console.error("APP_DEBUG: Error within addImportedNote for note " + notes[i].id + ": " + noteAddError.message);
-                                }
-                            }
-                            console.log("APP_DEBUG: Finished loop in DB transaction function. Total processed in loop: " + importedCount);
+
+                if (notesToImport && notesToImport.length > 0) {
+                    statusText = qsTr("Importing ") + notesToImport.length + qsTr(" notes...");
+
+                    console.log("APP_DEBUG: Calling DB.importNotes...");
+                    DB.importNotes(
+                        notesToImport,
+                        optionalNewTagForImport,
+                        function(results) { // successCallback for DB.importNotes
+                            console.log("APP_DEBUG: DB.importNotes SUCCESS. Imported: " + results.importedCount + ", Skipped: " + results.skippedCount);
+
+                            // Update UI properties with actual counts from DB.importNotes
+                            notesImportedCount = results.importedCount;
+                            lastImportDate = DB.getSetting("lastImportDate"); // Fetch updated date
+
+                            var tagsAfterImportCount = DB.getAllTags().length;
+                            var newlyCreatedTagsCount = tagsAfterImportCount - tagsBeforeImportCount;
+                            if (newlyCreatedTagsCount < 0) newlyCreatedTagsCount = 0;
+
+                            importResultDialog.dialogFileName = absoluteFilePathString.split('/').pop();
+                            importResultDialog.dialogFilePath = absoluteFilePathString;
+                            importResultDialog.dialogNotesImportedCount = results.importedCount;
+                            importResultDialog.dialogNotesSkippedCount = results.skippedCount; // THIS IS NEW
+                            importResultDialog.dialogTagsCreatedCount = newlyCreatedTagsCount;
+                            importResultDialog.dialogVisible = true;
+
+                            statusText = ""; // Clear status text on success
+                            processInProgress = false;
+                            console.log("APP_DEBUG: Import process finished successfully.");
+                        },
+                        function(error) { // errorCallback for DB.importNotes
+                            console.error("APP_DEBUG: DB.importNotes FAILED: " + error.message);
+                            statusText = qsTr("Import error: ") + error.message;
+                            processInProgress = false;
                         }
                     );
+//                } else {
+//                    toastManager.show(qsTr("No valid notes found in file."));
+//                    statusText = "";
+//                    processInProgress = false;
+//                }
+
+
+
+
+
+
                     console.log("APP_DEBUG: DB transaction call returned. Proceeding with UI updates.");
 
                     var tagsAfterImport = DB.getAllTags().length;
