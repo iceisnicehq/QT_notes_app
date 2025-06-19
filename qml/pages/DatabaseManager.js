@@ -1198,7 +1198,7 @@ function importNotes(importedNotes, optionalTagForImport, successCallback, error
     db.transaction(function(tx) {
         var existingActiveNotesMap = {};
         try {
-            var result = tx.executeSql('SELECT id, checksum FROM Notes WHERE deleted = 0 AND archived = 0');
+            var result = tx.executeSql('SELECT id, checksum FROM Notes'); //deleted = 0 AND archived = 0
             for (var i = 0; i < result.rows.length; i++) {
                 var existingNote = result.rows.item(i);
                 if (existingNote.checksum) {
