@@ -565,35 +565,83 @@ function updateNote(id, pinned, title, content, tags, color) {
 function deleteNote(id) {
     if (!db) initDatabase(LocalStorage);
     db.transaction(function(tx) {
-        tx.executeSql('UPDATE Notes SET deleted = 1, archived = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
-        console.log("DB_MGR: Note ID " + id + " moved to trash.");
+        var res = tx.executeSql('SELECT * FROM Notes WHERE id = ?', [id]);
+        if (res.rows.length > 0) {
+            var noteData = res.rows.item(0);
+            noteData.deleted = 1; // Устанавливаем новое состояние
+            noteData.archived = 0;
+            noteData.tags = getTagsForNote(tx, id);
+
+            var newChecksum = generateNoteChecksum(noteData);
+
+            tx.executeSql(
+                'UPDATE Notes SET deleted = 1, archived = 0, checksum = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+                [newChecksum, id]
+            );
+            console.log("DB_MGR: Note ID " + id + " moved to trash with new checksum.");
+        }
     });
 }
 
 function restoreNote(id) {
     if (!db) initDatabase(LocalStorage);
     db.transaction(function(tx) {
-        tx.executeSql('UPDATE Notes SET deleted = 0, archived = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
-        console.log("DB_MGR: Note ID " + id + " restored from trash.");
+        var res = tx.executeSql('SELECT * FROM Notes WHERE id = ?', [id]);
+        if (res.rows.length > 0) {
+            var noteData = res.rows.item(0);
+            noteData.deleted = 0; // Восстанавливаем состояние
+            noteData.archived = 0;
+            noteData.tags = getTagsForNote(tx, id);
+
+            var newChecksum = generateNoteChecksum(noteData);
+
+            tx.executeSql(
+                'UPDATE Notes SET deleted = 0, archived = 0, checksum = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+                [newChecksum, id]
+            );
+            console.log("DB_MGR: Note ID " + id + " restored from trash with new checksum.");
+        }
     });
 }
-
 function archiveNote(id) {
     if (!db) initDatabase(LocalStorage);
     db.transaction(function(tx) {
-        tx.executeSql('UPDATE Notes SET archived = 1, deleted = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
-        console.log("DB_MGR: Note ID " + id + " moved to archive.");
+        var res = tx.executeSql('SELECT * FROM Notes WHERE id = ?', [id]);
+        if (res.rows.length > 0) {
+            var noteData = res.rows.item(0);
+            noteData.archived = 1;
+            noteData.deleted = 0;
+            noteData.tags = getTagsForNote(tx, id);
+            var newChecksum = generateNoteChecksum(noteData);
+
+            tx.executeSql(
+                'UPDATE Notes SET archived = 1, deleted = 0, checksum = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+                [newChecksum, id]
+            );
+            console.log("DB_MGR: Note ID " + id + " moved to archive with new checksum.");
+        }
     });
 }
 
 function unarchiveNote(id) {
     if (!db) initDatabase(LocalStorage);
     db.transaction(function(tx) {
-        tx.executeSql('UPDATE Notes SET archived = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
-        console.log("DB_MGR: Note ID " + id + " unarchived.");
+        var res = tx.executeSql('SELECT * FROM Notes WHERE id = ?', [id]);
+        if (res.rows.length > 0) {
+            var noteData = res.rows.item(0);
+            noteData.archived = 0; // Восстанавливаем состояние
+            noteData.tags = getTagsForNote(tx, id);
+
+            var newChecksum = generateNoteChecksum(noteData);
+
+            tx.executeSql(
+                'UPDATE Notes SET archived = 0, checksum = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+                [newChecksum, id]
+            );
+            console.log("DB_MGR: Note ID " + id + " unarchived with new checksum.");
+        }
     });
 }
-
 
 function permanentlyDeleteNote(id) {
     if (!db) initDatabase(LocalStorage);
@@ -1004,30 +1052,23 @@ function simpleStringHash(str) {
 }
 
 
-
-
 function generateNoteChecksum(note) {
     if (!note) {
         console.error("DB_MGR: generateNoteChecksum received null/undefined note.");
         return null;
     }
-    // Temporarily log inputs
-    console.log("DB_MGR_CHECKSUM: Generating checksum for title: '${note.title}', content: '${note.content}', color: '${note.color}'");
 
-    // Your actual checksum logic here. Example (ensure it's robust):
-    // var data = (note.title || "") + (note.content || "") + (note.color || "");
-    // var checksum = Qt.createQmlObject('import QtQuick 2.0; import QtQuick.LocalStorage 2.0; Qt.md5(data)', Qt.application, "checksumGen");
-    // OR if you have a JS-based MD5/SHA library:
-    // var checksum = MD5.hash(data); // Replace with your actual hashing function
-    var data = (note.title || "") + (note.content || "") + (note.color || "");
-    var checksum = data.length.toString(16) + data.charCodeAt(0).toString(16) + data.charCodeAt(data.length - 1).toString(16); // THIS IS A TERRIBLE CHECKSUM, JUST AN EXAMPLE
-    // Use a proper hashing algorithm if you have one.
-    // If you're using Qt.md5 or similar, ensure it's imported and used correctly.
+    var data = (note.title || "") +
+               (note.content || "") +
+               (note.color || "") +
+               "|pinned:" + (note.pinned ? "1" : "0") +
+               "|archived:" + (note.archived ? "1" : "0") +
+               "|deleted:" + (note.deleted ? "1" : "0");
 
-    console.log("DB_MGR_CHECKSUM: Generated checksum: ${checksum}");
+    var checksum = simpleStringHash(data);
+
     return checksum;
 }
-
 
 
 
