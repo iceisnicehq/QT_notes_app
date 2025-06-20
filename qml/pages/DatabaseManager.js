@@ -1180,6 +1180,101 @@ function addImportedNote(note, tx, optionalTagForImport) { // Added optionalTagF
 
 
 
+//function importNotes(importedNotes, optionalTagForImport, successCallback, errorCallback) {
+//    if (!db) {
+//        initDatabase(LocalStorage);
+//        if (!db) {
+//            var errorMsg = "DB_MGR: Database not initialized for importNotes. Cannot proceed.";
+//            console.error(errorMsg);
+//            if (errorCallback) errorCallback(new Error(errorMsg));
+//            return;
+//        }
+//    }
+
+//    var importedCount = 0;
+//    var updatedCount = 0; // Not currently used for updates, only new imports
+//    var skippedCount = 0;
+
+//    db.transaction(function(tx) {
+//        var existingActiveNotesMap = {};
+//        try {
+//            var result = tx.executeSql('SELECT id, checksum FROM Notes'); //deleted = 0 AND archived = 0
+//            for (var i = 0; i < result.rows.length; i++) {
+//                var existingNote = result.rows.item(i);
+//                //if (existingNote.checksum) {
+//                 existingActiveNotesMap[existingNote.checksum] = existingNote.id;
+//                //}
+//            }
+//            console.log("DB_MGR_IMPORT: Found ${Object.keys(existingActiveNotesMap).length} active notes for checksum comparison.");
+
+//        } catch (e) {
+//            console.error("DB_MGR_IMPORT: Error fetching existing notes for checksum comparison: " + e.message);
+//            throw new Error("Failed to prepare for import due to DB error: " + e.message);
+//        }
+
+//        for (var z = 0; z < importedNotes.length; z++) {
+//            var noteToImport = importedNotes[z];
+
+//            var generatedChecksumForImportedNote = generateNoteChecksum(noteToImport);
+
+//            if (!generatedChecksumForImportedNote) {
+//                console.warn("DB_MGR_IMPORT: Skipping note with no generated checksum (title: ${noteToImport.title}).");
+//                skippedCount++;
+//                continue;
+//            }
+
+//            var existingIdByChecksum = existingActiveNotesMap[generatedChecksumForImportedNote];
+
+//            if (existingIdByChecksum) {
+//                // *** FIX 1: Use backticks for template literals in console.log ***
+//                console.log("DB_MGR_IMPORT: Note with title `${noteToImport.title}` (checksum: `${generatedChecksumForImportedNote}) already exists as active note ID ${existingIdByChecksum}. Skipping import.");
+//                skippedCount++;
+//            } else {
+//                // *** FIX 1: Use backticks for template literals in console.log ***
+//                console.log("DB_MGR_IMPORT: Adding new/changed note: `${noteToImport.title}` with checksum `${generatedChecksumForImportedNote}`.");
+//                var newNoteDbId = addImportedNote(noteToImport, tx, optionalTagForImport);
+
+//                if (newNoteDbId !== null) {
+//                    importedCount++;
+//                } else {
+//                    console.error("DB_MGR_IMPORT: Failed to add note, possibly due to an internal error in addImportedNote for title: '${noteToImport.title}'.");
+//                    skippedCount++;
+//                }
+//            }
+//        }
+
+//        updateNotesImportedCount(importedCount);
+//        updateLastImportDate();
+
+//        // *** FIX 1: Use backticks for template literals in console.log ***
+//        console.log("DB_MGR_IMPORT: Import complete. Imported: ${importedCount}, Skipped: ${skippedCount}.");
+
+//        if (successCallback) {
+//            successCallback({ importedCount: importedCount, updatedCount: updatedCount, skippedCount: skippedCount });
+//        }
+//    }, function(error) {
+//        console.error("DB_MGR_IMPORT: Transaction failed during import: " + error.message);
+//        if (errorCallback) {
+//            errorCallback(error);
+//        }
+//    });
+//}
+
+/**
+ * [ПОЛНАЯ ЗАМЕНА]
+ * Импортирует заметки из массива, разрешая конфликты по дате последнего обновления.
+ *
+ * Логика:
+ * 1. Загружает ID, хэши и даты всех локальных заметок.
+ * 2. Для каждой импортируемой заметки:
+ * - Если ID не существует локально -> Добавляет как новую.
+ * - Если ID существует:
+ * - Если хэши совпадают -> Пропускает (заметки идентичны).
+ * - Если хэши не совпадают (конфликт):
+ * - Сравнивает дату `updated_at` импортируемой и локальной заметки.
+ * - Если импортируемая новее -> Обновляет локальную.
+ * - Если локальная новее или той же даты -> Пропускает импортируемую, сохраняя локальную.
+ */
 function importNotes(importedNotes, optionalTagForImport, successCallback, errorCallback) {
     if (!db) {
         initDatabase(LocalStorage);
@@ -1191,76 +1286,108 @@ function importNotes(importedNotes, optionalTagForImport, successCallback, error
         }
     }
 
+    // Инициализация счетчиков
     var importedCount = 0;
-    var updatedCount = 0; // Not currently used for updates, only new imports
+    var updatedCount = 0;
     var skippedCount = 0;
 
+    // Запуск транзакции для обеспечения целостности данных
     db.transaction(function(tx) {
-        var existingActiveNotesMap = {};
+        // --- ШАГ 1: Подготовка. Создаем карту существующих локальных заметок для быстрой проверки ---
+        var existingNotesById = {};
         try {
-            var result = tx.executeSql('SELECT id, checksum FROM Notes'); //deleted = 0 AND archived = 0
+            // Получаем ключевые поля из ВСЕХ заметок в базе данных
+            var result = tx.executeSql('SELECT id, checksum, updated_at FROM Notes');
             for (var i = 0; i < result.rows.length; i++) {
                 var existingNote = result.rows.item(i);
-                if (existingNote.checksum) {
-                    existingActiveNotesMap[existingNote.checksum] = existingNote.id;
-                }
+                // В карте храним объект с хэшем и датой
+                existingNotesById[existingNote.id] = {
+                    checksum: existingNote.checksum,
+                    updated_at: new Date(existingNote.updated_at) // Сразу преобразуем в объект Date
+                };
             }
-            console.log("DB_MGR_IMPORT: Found ${Object.keys(existingActiveNotesMap).length} active notes for checksum comparison.");
+            console.log("DB_MGR_IMPORT: [INIT] Found ${Object.keys(existingNotesById).length} local notes for comparison.");
 
         } catch (e) {
-            console.error("DB_MGR_IMPORT: Error fetching existing notes for checksum comparison: " + e.message);
-            throw new Error("Failed to prepare for import due to DB error: " + e.message);
+            console.error("DB_MGR_IMPORT: [FATAL] Error fetching local notes: " + e.message);
+            if (errorCallback) errorCallback(new Error("Failed to prepare for import due to DB error: " + e.message));
+            return; // Прерываем транзакцию
         }
 
+        // --- ШАГ 2: Основной цикл. Обрабатываем каждую импортируемую заметку ---
         for (var z = 0; z < importedNotes.length; z++) {
             var noteToImport = importedNotes[z];
 
-            var generatedChecksumForImportedNote = generateNoteChecksum(noteToImport);
-
-            if (!generatedChecksumForImportedNote) {
-                console.warn("DB_MGR_IMPORT: Skipping note with no generated checksum (title: ${noteToImport.title}).");
+            // Валидация импортируемой заметки
+            if (!noteToImport.id || !noteToImport.updated_at) {
+                console.warn("DB_MGR_IMPORT: [SKIPPED] Note has no ID or updated_at (title: ${noteToImport.title}).");
+                skippedCount++;
+                continue;
+            }
+            var generatedChecksum = generateNoteChecksum(noteToImport);
+            if (!generatedChecksum) {
+                console.warn("DB_MGR_IMPORT: [SKIPPED] Failed to generate checksum (title: ${noteToImport.title}).");
                 skippedCount++;
                 continue;
             }
 
-            var existingIdByChecksum = existingActiveNotesMap[generatedChecksumForImportedNote];
+            var existingNoteData = existingNotesById[noteToImport.id];
 
-            if (existingIdByChecksum) {
-                // *** FIX 1: Use backticks for template literals in console.log ***
-                console.log("DB_MGR_IMPORT: Note with title `${noteToImport.title}` (checksum: `${generatedChecksumForImportedNote}) already exists as active note ID ${existingIdByChecksum}. Skipping import.");
-                skippedCount++;
+            if (existingNoteData) {
+                // СЛУЧАЙ А: Заметка с таким ID уже существует локально.
+                if (existingNoteData.checksum === generatedChecksum) {
+                    // Хэши идентичны, значит и заметки тоже. Ничего не делаем.
+                    console.log("DB_MGR_IMPORT: [SKIPPED] Note '${noteToImport.title}' (ID: ${noteToImport.id}) is identical.");
+                    skippedCount++;
+                } else {
+                    // КОНФЛИКТ: ID совпадает, но хэши разные. Разрешаем по дате.
+                    var importDate = new Date(noteToImport.updated_at);
+                    var localDate = existingNoteData.updated_at;
+
+                    if (importDate > localDate) {
+                        // Версия из файла импорта НОВЕЕ. Обновляем локальную.
+                        console.log("DB_MGR_IMPORT: [UPDATING] Note '${noteToImport.title}' (ID: ${noteToImport.id}) is newer in import file.");
+                        if (updateImportedNote(noteToImport, generatedChecksum, tx, optionalTagForImport)) {
+                            updatedCount++;
+                        } else {
+                            skippedCount++;
+                        }
+                    } else {
+                        // Локальная версия НОВЕЕ или той же даты. Сохраняем её, импортную пропускаем.
+                        console.log("DB_MGR_IMPORT: [SKIPPED] Local note '${noteToImport.title}' (ID: ${noteToImport.id}) is newer or same.");
+                        skippedCount++;
+                    }
+                }
             } else {
-                // *** FIX 1: Use backticks for template literals in console.log ***
-                console.log("DB_MGR_IMPORT: Adding new/changed note: `${noteToImport.title}` with checksum `${generatedChecksumForImportedNote}`.");
+                // СЛУЧАЙ Б: Заметки с таким ID нет локально. Это новая заметка.
+                console.log("DB_MGR_IMPORT: [ADDING] New note found: '${noteToImport.title}'.");
+                // Используем вашу функцию addImportedNote, она идеально подходит.
                 var newNoteDbId = addImportedNote(noteToImport, tx, optionalTagForImport);
-
                 if (newNoteDbId !== null) {
                     importedCount++;
                 } else {
-                    console.error("DB_MGR_IMPORT: Failed to add note, possibly due to an internal error in addImportedNote for title: '${noteToImport.title}'.");
                     skippedCount++;
                 }
             }
         }
 
-        updateNotesImportedCount(importedCount);
+        // --- ШАГ 3: Завершение. Обновляем статистику и вызываем callback ---
+        updateNotesImportedCount(importedCount + updatedCount);
         updateLastImportDate();
 
-        // *** FIX 1: Use backticks for template literals in console.log ***
-        console.log("DB_MGR_IMPORT: Import complete. Imported: ${importedCount}, Skipped: ${skippedCount}.");
+        console.log("DB_MGR_IMPORT: [COMPLETE] Added: ${importedCount}, Updated: ${updatedCount}, Skipped: ${skippedCount}.");
 
         if (successCallback) {
             successCallback({ importedCount: importedCount, updatedCount: updatedCount, skippedCount: skippedCount });
         }
     }, function(error) {
-        console.error("DB_MGR_IMPORT: Transaction failed during import: " + error.message);
+        // Обработка ошибок на уровне всей транзакции
+        console.error("DB_MGR_IMPORT: [FATAL] Transaction failed: " + error.message);
         if (errorCallback) {
             errorCallback(error);
         }
     });
 }
-
-
 
 
 
