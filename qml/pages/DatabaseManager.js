@@ -919,7 +919,7 @@ function checkIfNotesExist(idsToCheck) {
 // DatabaseManager.js
 
 function searchNotes(searchText, selectedTagNames, sortBy, sortOrder, customColorOrder) {
-    if (!db) initDatabase(LocalStorage);
+    if (!db) return [];
     var notes = [];
     db.readTransaction(function(tx) {
         var query = 'SELECT N.* FROM Notes N ';
@@ -975,24 +975,21 @@ function searchNotes(searchText, selectedTagNames, sortBy, sortOrder, customColo
 
         var result = tx.executeSql(query, params);
 
-        for (var i = 0; i < result.rows.length; i++) {
-            var note = result.rows.item(i);
-            if (!note.color) {
-                note.color = defaultNoteColor;
-            }
+        var tempNotes = [];
+        for (var j = 0; j < result.rows.length; j++) {
+            var note = result.rows.item(j);
+            if (!note.color) { note.color = defaultNoteColor; }
             note.tags = getTagsForNote(tx, note.id);
-            notes.push(note);
+            tempNotes.push(note);
         }
+        notes = tempNotes;
     });
     return notes;
 }
 
-// --- НЕДОСТАЮЩАЯ ФУНКЦИЯ ---
+
 function getUniqueNoteColors() {
-    if (!db) {
-        console.error("DB not initialized for getUniqueNoteColors");
-        return [];
-    }
+    if (!db) return [];
     var colors = [];
     db.readTransaction(function(tx) {
         var result = tx.executeSql('SELECT DISTINCT color FROM Notes WHERE color IS NOT NULL AND deleted = 0 AND archived = 0');
@@ -1000,7 +997,8 @@ function getUniqueNoteColors() {
             colors.push(result.rows.item(i).color);
         }
     });
-    console.log("Found " + colors.length + " unique colors: " + JSON.stringify(colors));
+    // ДОБАВЬТЕ ЭТУ СТРОКУ
+    console.log("DB_MGR: getUniqueNoteColors() found colors:", JSON.stringify(colors));
     return colors;
 }
 
@@ -1435,7 +1433,6 @@ function importNotes(importedNotes, optionalTagForImport, successCallback, error
 
 
 function updateLastExportDate() {
-    initDatabase(LocalStorage)
     if (!db) {
         console.error("DB_MGR: База данных не инициализирована для обновления статистики экспорта.");
         return;

@@ -15,6 +15,7 @@ HEADERS += \
     src/appsettings.h
 
 DISTFILES += \
+    qml/pages/AdaptiveButton.qml \
     qml/pages/ColorSortDialog.qml \
     qml/pages/ConfirmationDialog.qml \
     qml/pages/ExportResultDialog.qml \
