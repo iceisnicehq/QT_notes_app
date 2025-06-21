@@ -22,7 +22,7 @@ Page {
     property var currentSearchText: "" // Current text in the main note search field
     property var searchResults: [] // Notes matching the search criteria
     property bool tagPickerOpen: false // Controls visibility of the tag picker overlay
-
+    property bool allVisibleNotesSelected: (selectedNoteIds.length === searchResults.length) && (searchResults.length > 0)
     property bool selectionMode: false
     property var selectedNoteIds: []
     property bool confirmDialogVisible: false
@@ -321,6 +321,40 @@ Page {
                         anchors.fill: parent
                         onClicked: mainPage.resetSelection()
                         onPressed: closeRipple.ripple(mouseX, mouseY)
+                    }
+                }
+
+                Item {
+                    id: selectAllButton
+                    width: Theme.fontSizeExtraLarge * 1.1
+                    height: Theme.fontSizeExtraLarge * 0.95
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.right: archiveButton.left
+                    anchors.rightMargin: Theme.paddingMedium
+
+                    Icon {
+                        source: mainPage.allVisibleNotesSelected ? "../icons/deselect_all.svg" : "../icons/select_all.svg"
+                        color: Theme.primaryColor
+                        anchors.centerIn: parent
+                        width: parent.width
+                        height: parent.height
+                    }
+                    RippleEffect { id: selectAllRipple }
+                    MouseArea {
+                        anchors.fill: parent
+                        onPressed: selectAllRipple.ripple(mouseX, mouseY)
+                        onClicked: {
+                            var newSelectedIds = [];
+                            if (!mainPage.allVisibleNotesSelected) {
+                                for (var i = 0; i < mainPage.searchResults.length; i++) {
+                                    newSelectedIds.push(mainPage.searchResults[i].id);
+                                }
+                                console.log("Selected " + newSelectedIds.length + " visible notes.");
+                            } else {
+                                console.log("Deselect");
+                            }
+                            mainPage.selectedNoteIds = newSelectedIds;
+                        }
                     }
                 }
 
