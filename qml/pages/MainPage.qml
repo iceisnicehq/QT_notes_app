@@ -55,12 +55,12 @@ Page {
         console.log(("MainPage created."));
         DB.initDatabase()
         DB.permanentlyDeleteExpiredDeletedNotes();
-        var savedSettings = DB.loadSortSettings();
-        if (savedSettings) {
-            mainPage.currentSortBy = savedSettings.sortBy;
-            mainPage.currentSortOrder = savedSettings.sortOrder;
-            mainPage.customColorSortOrder = savedSettings.colorOrder;
-        }
+//        var savedSettings = DB.loadSortSettings();
+//        if (savedSettings) {
+//            mainPage.currentSortBy = savedSettings.sortBy;
+//            mainPage.currentSortOrder = savedSettings.sortOrder;
+//            mainPage.customColorSortOrder = savedSettings.colorOrder;
+//        }
         refreshData()
     }
 
@@ -1103,13 +1103,13 @@ Page {
             mainPage.currentSortBy = sortBy;
             mainPage.currentSortOrder = sortOrder;
 
-            if (sortBy !== 'color') {
-                mainPage.customColorSortOrder = [];
-            }
+//            if (sortBy !== 'color') {
+//                mainPage.customColorSortOrder = [];
+//            }
 
             mainPage.performSearch();
             toastManager.show(qsTr("Notes sorted!"));
-            DB.saveSortSettings(mainPage.currentSortBy, mainPage.currentSortOrder, mainPage.customColorSortOrder);
+            //DB.saveSortSettings(mainPage.currentSortBy, mainPage.currentSortOrder, mainPage.customColorSortOrder);
         }
 
         onColorSortRequested: {
@@ -1162,7 +1162,7 @@ Page {
             mainPage.currentSortBy = 'color';
             mainPage.performSearch();
             toastManager.show(qsTr("Notes sorted by color!"));
-            DB.saveSortSettings(mainPage.currentSortBy, mainPage.currentSortOrder, mainPage.customColorSortOrder);
+            //DB.saveSortSettings(mainPage.currentSortBy, mainPage.currentSortOrder, mainPage.customColorSortOrder);
         }
         onCancelled: mainPage.colorSortDialogVisible = false
 
