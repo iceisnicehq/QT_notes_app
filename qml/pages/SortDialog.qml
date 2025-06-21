@@ -48,6 +48,7 @@ Item {
         anchors.centerIn: parent
         opacity: root.dialogVisible ? 1 : 0
         scale: root.dialogVisible ? 1.0 : 0.9
+        clip: true
         Behavior on opacity { NumberAnimation { duration: 200 } }
         Behavior on scale { PropertyAnimation { property: "scale"; duration: 200; easing.type: Easing.OutBack } }
 
