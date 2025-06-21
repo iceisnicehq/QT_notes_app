@@ -1,6 +1,6 @@
 // DatabaseManager.js
 var db = null;
-var dbName = "1AuroraNotesDB";
+var dbName = "AuroraNotesDB";
 var dbVersion = "1.0";
 var dbDescription = "Aurora Notes Database";
 var dbSize = 1000000;
@@ -143,6 +143,8 @@ function initDatabase(localStorageInstance) {
             try { tx.executeSql('SELECT color_sort_order FROM AppSettings LIMIT 1'); }
             catch (e) { console.log("DB_MGR: Adding 'color_sort_order' column to AppSettings."); tx.executeSql('ALTER TABLE AppSettings ADD COLUMN color_sort_order TEXT'); }
 
+            try { tx.executeSql('SELECT exportDirectoryPath FROM AppSettings LIMIT 1'); }
+            catch (e) { console.log("DB_MGR: Adding 'color_sort_order' column to AppSettings."); tx.executeSql('ALTER TABLE AppSettings ADD COLUMN exportDirectoryPath TEXT'); }
 
             try {
             // Fetch notes that have NULL checksums
@@ -1185,7 +1187,7 @@ function generateNoteChecksum(note) {
 
 
 
-function getNotesForExport(successCallback, errorCallback, newTagToAdd) {
+function getNotesForExport(successCallback, errorCallback) {
     if (!db) initDatabase(LocalStorage);
     console.log("DB_MGR_DEBUG: getNotesForExport вызвана.");
 
@@ -1239,17 +1241,6 @@ function getNotesForExport(successCallback, errorCallback, newTagToAdd) {
             }
             console.log("DB_MGR_DEBUG: Все теги обработаны.");
 
-            // Apply the optional new tag *after* all existing tags are fetched
-            // Ensure newTagToAdd is a non-empty string before attempting to add
-            if (newTagToAdd && typeof newTagToAdd === 'string' && newTagToAdd.length > 0) {
-                console.log("DB_MGR_DEBUG: Adding optional tag: '" + newTagToAdd + "' to exported notes.");
-                notes.forEach(function(note) {
-                    // Check if the tag already exists in the note's tags to avoid duplicates
-                    if (note.tags.indexOf(newTagToAdd) === -1) {
-                        note.tags.push(newTagToAdd);
-                    }
-                });
-            }
 
             console.log("DB_MGR_DEBUG: Вызываем successCallback с " + notes.length + " заметками.");
             if (successCallback) {
@@ -1308,7 +1299,6 @@ function addImportedNote(note, tx, optionalTagForImport) {
     console.log("DB_MGR_DEBUG: Successfully added imported note with new DB ID: " + noteId + " and checksum: " + importedNoteChecksum);
     return noteId;
 }
-
 
 
 
@@ -1499,6 +1489,7 @@ function importNotes(importedNotes, optionalTagForImport, successCallback, error
         }
     });
 }
+
 
 
 
