@@ -239,6 +239,24 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     </message>
 </context>
 <context>
+    <name>ColorSortDialog</name>
+    <message>
+        <location filename="../qml/pages/ColorSortDialog.qml" line="82"/>
+        <source>Set Color Order</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ColorSortDialog.qml" line="88"/>
+        <source>Drag colors to change their priority</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ColorSortDialog.qml" line="139"/>
+        <source>Apply Color Sort</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ConfirmDialog</name>
     <message>
         <location filename="../qml/pages/ConfirmDialog.qml" line="12"/>
@@ -612,7 +630,7 @@ Click on the plus button to create one!</source>
         <translation>Другие</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="1089"/>
+        <location filename="../qml/pages/MainPage.qml" line="1090"/>
         <source>Notes sorted!</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1303,52 +1321,52 @@ to create one!</source>
 <context>
     <name>SortDialog</name>
     <message>
-        <location filename="../qml/pages/SortDialog.qml" line="24"/>
+        <location filename="../qml/pages/SortDialog.qml" line="22"/>
         <source>By Update Date</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SortDialog.qml" line="25"/>
+        <location filename="../qml/pages/SortDialog.qml" line="23"/>
         <source>By Creation Date</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SortDialog.qml" line="26"/>
+        <location filename="../qml/pages/SortDialog.qml" line="24"/>
         <source>By Title (A-Z)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SortDialog.qml" line="27"/>
+        <location filename="../qml/pages/SortDialog.qml" line="25"/>
         <source>By Title Length</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SortDialog.qml" line="28"/>
+        <location filename="../qml/pages/SortDialog.qml" line="26"/>
         <source>By Content Length</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SortDialog.qml" line="29"/>
+        <location filename="../qml/pages/SortDialog.qml" line="27"/>
         <source>By Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SortDialog.qml" line="68"/>
+        <location filename="../qml/pages/SortDialog.qml" line="67"/>
         <source>Sort Notes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SortDialog.qml" line="101"/>
+        <location filename="../qml/pages/SortDialog.qml" line="104"/>
         <source>Ascending</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SortDialog.qml" line="106"/>
+        <location filename="../qml/pages/SortDialog.qml" line="111"/>
         <source>Descending</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SortDialog.qml" line="116"/>
+        <location filename="../qml/pages/SortDialog.qml" line="122"/>
         <source>Apply</source>
         <translation type="unfinished"></translation>
     </message>

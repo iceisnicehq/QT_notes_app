@@ -3,7 +3,7 @@ import QtQuick.LocalStorage 2.0
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.Layouts 1.1
-import "DatabaseManager.js" as DB 
+import "DatabaseManager.js" as DB
 
 Page {
     id: mainPage
@@ -29,11 +29,12 @@ Page {
     property string confirmDialogTitle: ""
     property string confirmDialogMessage: ""
     property string confirmButtonText: ""
-    property color confirmButtonHighlightColor: Theme.primaryColor 
+    property color confirmButtonHighlightColor: Theme.primaryColor
     property var onConfirmCallback: null
     property string currentSortBy: "updated_at"
     property string currentSortOrder: "desc"
     property bool sortDialogVisible: false
+    property bool colorSortDialogVisible: false
     // --- ToastManager ---
     ToastManager {
         id: toastManager
@@ -61,8 +62,8 @@ Page {
             refreshData()
             searchField.focus = false;
             sidePanel.currentPage = "notes"
-            Qt.inputMethod.hide(); 
-            resetSelection(); 
+            Qt.inputMethod.hide();
+            resetSelection();
             console.log(("MainPage active (status changed to Active), search field focus cleared and keyboard hidden."));
         }
     }
@@ -76,9 +77,10 @@ Page {
     }
 
     // Main search function that calls the DatabaseManager and updates searchResults
-    function performSearch(text, tags) {
-        searchResults = DB.searchNotes(text, tags, mainPage.currentSortBy, mainPage.currentSortOrder);
-        console.log("MAIN_PAGE: Search performed. SortBy: " + mainPage.currentSortBy + ", SortOrder: " + mainPage.currentSortOrder);
+    function performSearch(text, tags, customColorOrder) {
+        var colorOrder = customColorOrder || [];
+        searchResults = DB.searchNotes(text, tags, mainPage.currentSortBy, mainPage.currentSortOrder, colorOrder);
+        console.log("MAIN_PAGE: Search performed. SortBy: " + mainPage.currentSortBy);
     }
 
     // Function to handle adding/removing tags from selectedTags
@@ -205,7 +207,7 @@ Page {
                 width: parent.width - (noteMargin * 2)
                 height: parent.height
                 anchors.centerIn: parent
-                color: mainPage.backgroundColor 
+                color: mainPage.backgroundColor
                 radius: 80
                 visible: !mainPage.selectionMode
                 opacity: visible ? 1 : 0
@@ -219,7 +221,7 @@ Page {
                     text: currentSearchText // This binds to mainPage.currentSearchText
                     readOnly: allNotes.length === 0
                     onTextChanged: {
-                        mainPage.currentSearchText = text; 
+                        mainPage.currentSearchText = text;
                         performSearch(text, selectedTags);
                     }
 
@@ -250,7 +252,7 @@ Page {
                             onClicked: {
                                 if (searchField.text.length > 0 || selectedTags.length > 0) {
                                     mainPage.currentSearchText = "";
-                                    searchField.text = ""; 
+                                    searchField.text = "";
                                     mainPage.selectedTags = [];
                                     performSearch("", []);
                                     console.log(("Search cleared (text and tags)."));
@@ -415,7 +417,7 @@ Page {
                                 mainPage.confirmDialogTitle = qsTr("Confirm Archiving");
                                 mainPage.confirmDialogMessage = qsTr("Are you sure you want to archive %1 selected note(s)?").arg(mainPage.selectedNoteIds.length);
                                 mainPage.confirmButtonText = qsTr("Archive");
-                                mainPage.confirmButtonHighlightColor = Theme.primaryColor; 
+                                mainPage.confirmButtonHighlightColor = Theme.primaryColor;
                                 mainPage.onConfirmCallback = function() {
                                     var idsToArchive = mainPage.selectedNoteIds;
                                     DB.bulkArchiveNotes(idsToArchive);
@@ -586,7 +588,7 @@ Page {
                         width: parent.width
                         title: modelData.title
                         content: modelData.content
-                        tags: modelData.tags.join("_||_") 
+                        tags: modelData.tags.join("_||_")
                         cardColor: modelData.color || "#1c1d29"
                         noteId: modelData.id
                         isSelected: mainPage.isNoteSelected(modelData.id)
@@ -731,7 +733,7 @@ Page {
                     noteTags: "", // Pass empty string for new note tags
                     noteCreationDate: new Date(),
                     noteEditDate: new Date(),
-                    noteColor: DB.getThemeColor() || "#121218" 
+                    noteColor: DB.getThemeColor() || "#121218"
 
                 });
                 console.log(("Opening NewNotePage in CREATE mode (from FAB)."));
@@ -785,9 +787,9 @@ Page {
 
             onVisibleChanged: {
                 if (visible) {
-                    tagPickerPanel.tagPickerSearchText = ""; 
+                    tagPickerPanel.tagPickerSearchText = "";
                     mainPage.loadTagsForTagPanel(tagPickerPanel.tagPickerSearchText);
-                    tagsPanelFlickable.contentY = 0; 
+                    tagsPanelFlickable.contentY = 0;
                     console.log(("Tag picker panel opened. Loading tags and scrolling to top."));
                 } else {
                     tagPickerPanel.tagPickerSearchText = "";
@@ -1076,23 +1078,47 @@ Page {
     }
 
     SortDialog {
-        id: sortDialog
-        dialogVisible: mainPage.sortDialogVisible
-        currentSortBy: mainPage.currentSortBy
-        currentSortOrder: mainPage.currentSortOrder
-        dialogBackgroundColor: mainPage.customBackgroundColor
+            id: sortDialog
+            dialogVisible: mainPage.sortDialogVisible
+            currentSortBy: mainPage.currentSortBy
+            currentSortOrder: mainPage.currentSortOrder
+            dialogBackgroundColor: DB.darkenColor(mainPage.customBackgroundColor, 0.15)
 
-        onSortApplied: {
-            mainPage.currentSortBy = sortBy;
-            mainPage.currentSortOrder = sortOrder;
-            mainPage.sortDialogVisible = false;
-            mainPage.performSearch(mainPage.currentSearchText, mainPage.selectedTags); // Повторный поиск с новой сортировкой
-            toastManager.show(qsTr("Notes sorted!"));
+            onSortApplied: function(sortBy, sortOrder) {
+                console.log("[DEBUG] MainPage: 'onSortApplied' signal received with sortBy: '" + sortBy + "'");
+
+                mainPage.sortDialogVisible = false;
+                mainPage.currentSortBy = sortBy;
+                mainPage.currentSortOrder = sortOrder;
+
+                if (sortBy === 'color') {
+                    console.log("[DEBUG] MainPage: SortBy is 'color'. Preparing to open ColorSortDialog.");
+                    var uniqueColors = DB.getUniqueNoteColors();
+                    console.log("[DEBUG] MainPage: Found " + uniqueColors.length + " unique colors to sort.");
+
+                    colorSortDialog.colorsToOrder = uniqueColors;
+                    mainPage.colorSortDialogVisible = true;
+                    console.log("[DEBUG] MainPage: Set colorSortDialogVisible to true.");
+
+                } else {
+                    console.log("[DEBUG] MainPage: SortBy is NOT 'color'. Performing search immediately.");
+                    mainPage.performSearch(mainPage.currentSearchText, mainPage.selectedTags, []);
+                    toastManager.show(qsTr("Notes sorted!"));
+                }
+            }
+            onCancelled: mainPage.sortDialogVisible = false
         }
 
-        onCancelled: {
-            mainPage.sortDialogVisible = false;
-        }
-    }
+        ColorSortDialog {
+            id: colorSortDialog
+            dialogVisible: mainPage.colorSortDialogVisible
 
+            onColorOrderApplied: function(orderedColors) {
+                console.log("[DEBUG] MainPage: 'onColorOrderApplied' signal received.");
+                mainPage.colorSortDialogVisible = false;
+                mainPage.performSearch(mainPage.currentSearchText, mainPage.selectedTags, orderedColors);
+                toastManager.show(qsTr("Notes sorted by color!"));
+            }
+            onCancelled: mainPage.colorSortDialogVisible = false
+        }
 }
