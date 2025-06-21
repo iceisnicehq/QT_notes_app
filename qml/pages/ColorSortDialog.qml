@@ -73,30 +73,36 @@ Item {
 
     Rectangle {
         id: dialogBody
+        // Width of the dialog body, with padding from parent edges
         width: parent.width - (Theme.paddingLarge * 2)
+        // Height is now based on the implicit height of the contentColumn,
+        // clamped by a maximum height to prevent it from going off-screen.
         height: Math.min(
-            parent.height - (Theme.paddingLarge * 4),
-            contentColumn.implicitHeight + (Theme.paddingLarge * 2)
+            parent.height - (Theme.paddingLarge * 4), // Maximum height constraint
+            contentColumn.implicitHeight + (contentColumn.padding * 2) // Dynamic height based on content
         )
         color: root.dialogBackgroundColor
         radius: Theme.itemSizeSmall / 2
         anchors.centerIn: parent
         clip: true
 
-        MouseArea {
-            anchors.fill: parent
-            enabled: root.dialogVisible
-            onClicked: { /* поглощаем клик */ }
-        }
+        // REMOVE THIS MOUSEAREA: It was consuming clicks regardless of button enabled state.
+        // MouseArea {
+        //     anchors.fill: parent
+        //     enabled: root.dialogVisible
+        //     onClicked: { /* Consume click to prevent background interaction */ }
+        // }
 
         Column {
             id: contentColumn
-            width: parent.width
-            height: parent.height
+            width: parent.width // Fills the dialogBody width
+            // Removed fixed height: allows implicitHeight to be calculated from children
             spacing: Theme.paddingMedium
+          //  padding: Theme.paddingLarge // Added padding to the column content
 
             Label {
                 id: subHeader
+                // Width adjusted to respect contentColumn's padding
                 width: parent.width - (parent.padding * 2)
                 text: qsTr("Click to select a color, then use arrows to move it.")
                 font.pixelSize: Theme.fontSizeSmall; color: Theme.secondaryColor
@@ -105,21 +111,26 @@ Item {
 
             Row {
                 id: listAndArrowsContainer
+                // Width adjusted to respect contentColumn's padding
                 width: parent.width - (parent.padding * 2)
-                height: parent.height - subHeader.implicitHeight - bottomButton.implicitHeight - (contentColumn.spacing * 2) - (contentColumn.padding * 2)
+                // Removed fixed height: allows its implicitHeight to be calculated from children
                 spacing: Theme.paddingMedium
 
                 SilicaFlickable {
                     id: flickableList
-                    width: parent.width - arrowButtons.width - listAndArrowsContainer.spacing
-                    height: parent.height
+
+                    // Width calculation for the flickable list
+                    width: parent.width - arrowButtons.width
+                    // Dynamic height: grows with content but is capped at 60% of the root item's height
+                    height: Math.min(listView.contentHeight, root.height * 0.6)
                     contentHeight: listView.contentHeight
                     flickableDirection: Flickable.VerticalFlick
-                    interactive: false
+                    interactive: true // Allow user to flick the list
 
                     ListView {
                         id: listView
-                        anchors.fill: parent
+                        width: parent.width + arrowButtons.width// List view fills the flickable's width
+                        height: contentHeight // List view height adapts to its content
                         model: colorSortOrderModel
                         spacing: Theme.paddingTiny
                         highlightFollowsCurrentItem: false
@@ -145,8 +156,8 @@ Item {
                             }
 
                             Row {
-                                anchors.left: parent.left
-                                anchors.leftMargin: 252
+                                // Centered horizontally within the delegate item
+                                anchors.horizontalCenter: parent.horizontalCenter
                                 width: childrenRect.width
                                 anchors.verticalCenter: parent.verticalCenter
                                 spacing: Theme.paddingMedium
@@ -157,7 +168,8 @@ Item {
                                     radius: 5
                                     color: model.colorValue
                                     border.color: (root.selectedIndex === index) ? Theme.primaryColor : Theme.secondaryColor
-                                    border.width: (root.selectedIndex === index) ? 6 : 3
+                                    border.width: (root.selectedIndex === index) ? 5 : 2
+
                                 }
                             }
                         }
@@ -173,7 +185,8 @@ Item {
                     Button {
                         icon.source: "image://theme/icon-m-up"
                         // Disable button if an item is not selected, or if another click is pending
-                        enabled: root.selectedIndex > 0 && root.allowArrowClick
+                        opacity: root.selectedIndex > 0 && root.allowArrowClick ? 1 : 0.5
+//                        enabled: root.selectedIndex > 0 && root.allowArrowClick
                         onClicked: {
                             root.moveItem('up')
                             // Disable clicks temporarily
@@ -185,7 +198,7 @@ Item {
                     Button {
                         icon.source: "image://theme/icon-m-down"
                         // Disable button if an item is not selected, or if another click is pending
-                        enabled: root.selectedIndex !== -1 && root.selectedIndex < (colorSortOrderModel.count - 1) && root.allowArrowClick
+                        opacity: root.selectedIndex > 0 && root.allowArrowClick ? 1 : 0.5
                         onClicked: {
                             root.moveItem('down')
                             // Disable clicks temporarily
@@ -204,12 +217,11 @@ Item {
                     }
                 }
             }
-
             Button {
                 id: bottomButton
                 text: qsTr("Apply color sort")
                 anchors.horizontalCenter: parent.horizontalCenter
-                implicitHeight: Theme.itemSizeMedium
+//                implicitHeight: Theme.itemSizeMedium
 
                 onClicked: {
                     var finalColorOrder = [];

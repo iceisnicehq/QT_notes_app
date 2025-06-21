@@ -25,7 +25,7 @@ Page {
 
     // Property to store the selected export directory
     // This will now be initialized from saved settings
-    property string selectedExportDirectory: documentsPathConfig.value // Default fallback
+    property string selectedExportDirectory: ""  // Initialize as empty, will be set in Component.onCompleted
 
     ConfigurationValue {
         id: documentsPathConfig
@@ -33,11 +33,10 @@ Page {
         defaultValue: StandardPaths.documents
         onValueChanged: {
             console.log("APP_DEBUG: Documents path is: " + value);
-            // If selectedExportDirectory hasn't been explicitly set by user, update it
-            // Otherwise, user's choice takes precedence over system default changes
-            if (selectedExportDirectory === StandardPaths.documents || selectedExportDirectory === "") {
-                 selectedExportDirectory = value;
-            }
+            // This ConfigurationValue is mainly used to provide a fallback default path.
+            // selectedExportDirectory is set in Component.onCompleted based on saved settings.
+            // We specifically avoid setting selectedExportDirectory here to prevent conflicts with DB loading.
+            // The fallback is handled in Component.onCompleted.
         }
     }
     ToastManager {
@@ -70,45 +69,25 @@ Page {
 
     // FolderPickerComponent for export
     Component {
+        id: folderPickerComponent
 
-    id: folderPickerComponent
+        FolderPickerPage { // Using FolderPickerPage
+            id: folderSelectPage
+            title: qsTr("Select Export Directory")
 
+            onSelectedPathChanged: {
+                console.log("APP_DEBUG: FolderPickerPage: selectedPath triggered.");
+                console.log("APP_DEBUG: selectedPath (raw):", selectedPath);
 
+                if (selectedPath !== null && selectedPath.filePath !== null) {
+                    var folderPathRaw = selectedPath.toString();
+                    var folderPathClean;
 
-    FolderPickerPage { // Using FolderPickerPage
-
-    id: folderSelectPage
-
-    title: qsTr("Select Export Directory")
-
-
-
-    onSelectedPathChanged: {
-
-    console.log("APP_DEBUG: FolderPickerPage: selectedPath triggered.");
-
-    console.log("APP_DEBUG: selectedPath (raw):", selectedPath);
-
-
-
-    if (selectedPath !== null && selectedPath.filePath !== null) {
-
-    var folderPathRaw = selectedPath.toString();
-
-    var folderPathClean;
-
-
-
-    if (folderPathRaw.indexOf("file://") === 0) {
-
-    folderPathClean = folderPathRaw.substring(7);
-
-    } else {
-
-    folderPathClean = folderPathRaw;
-
-    }
-
+                    if (folderPathRaw.indexOf("file://") === 0) {
+                        folderPathClean = folderPathRaw.substring(7);
+                    } else {
+                        folderPathClean = folderPathRaw;
+                    }
                     importExportPage.selectedExportDirectory = folderPathClean;
                     console.log("APP_DEBUG: Export directory selected via FolderPickerPage: " + importExportPage.selectedExportDirectory);
 
@@ -462,7 +441,7 @@ Page {
 
             Label {
                 id: exportNotes
-                text: qsTr("Export Notes")
+                text: qsTr("Export notes")
                 anchors.horizontalCenter: parent.horizontalCenter
                 horizontalAlignment: "AlignHCenter"
                 font.pixelSize: Theme.fontSizeMedium
@@ -472,22 +451,22 @@ Page {
 
             // --- Export Directory Section, now with FolderPickerPage ---
             RowLayout {
-                id: exportDirectoryRow
-                width: parent.width
-                spacing: Theme.paddingMedium
-                anchors.horizontalCenter: parent.horizontalCenter
+                id: exportActionsRow
+                anchors.horizontalCenter: parent.horizontalCenter // Center this row
+                width: parent.width - (2 * Theme.paddingLarge) // Give it some horizontal padding
+                spacing: Theme.paddingMedium // Spacing between elements in this row
 
                 Button {
                     id: exportDirectoryButton
-                    text: qsTr("Select Export Directory") // Back to dynamic selection
-                    Layout.fillWidth: false
+                    text: qsTr("Select export directory")
                     onClicked: {
-                        // Push the FolderPickerPage onto the page stack
-                        pageStack.push(folderPickerComponent); // Use the new folderPickerComponent
+                        pageStack.push(folderPickerComponent);
                     }
                 }
 
+
                 Label {
+                    Layout.alignment: Qt.AlignHCenter // Center the label itself
                     id: exportPathLabel
                     text: importExportPage.selectedExportDirectory // Bound to selectedExportDirectory
                     Layout.fillWidth: true
@@ -549,7 +528,7 @@ Page {
             }
 
             Button {
-                text: qsTr("Export All Notes")
+                text: qsTr("Export all notes")
                 anchors.horizontalCenter: parent.horizontalCenter
                 enabled: !processInProgress && fileNameField.text.length > 0
                 onClicked: exportData(selectedExportFormat)
@@ -576,7 +555,7 @@ Page {
             }
 
             Label {
-                text: qsTr("Import Notes")
+                text: qsTr("Import notes")
                 anchors.horizontalCenter: parent.horizontalCenter
                 horizontalAlignment: "AlignHCenter"
                 font.pixelSize: Theme.fontSizeMedium
@@ -587,12 +566,12 @@ Page {
             TextField {
                 id: newTagForImportField
                 width: parent.width
-                label: qsTr("This Tag Will Get Added To Imported Notes")
-                placeholderText: qsTr("Add Tag to Imported Notes (Optional)")
+                label: qsTr("This tag will get added to imported notes")
+                placeholderText: qsTr("Add tag to imported notes (optional)")
             }
 
             Button {
-                text: qsTr("Import from File")
+                text: qsTr("Import from file")
                 anchors.horizontalCenter: parent.horizontalCenter
                 enabled: !processInProgress
                 onClicked: {
@@ -671,11 +650,11 @@ Page {
         var savedExportPath = DB.getSetting("exportDirectoryPath");
         if (savedExportPath && savedExportPath.length > 0) {
             selectedExportDirectory = savedExportPath;
-            console.log("APP_DEBUG: Loaded saved export directory: " + selectedExportDirectory);
+            console.log("APP_DEBUG: Loaded saved export directory from DB: " + selectedExportDirectory);
         } else {
             // If no saved path, use the default documents path
             selectedExportDirectory = documentsPathConfig.value;
-            console.log("APP_DEBUG: Using default documents path for export: " + selectedExportDirectory);
+            console.log("APP_DEBUG: No saved export directory in DB. Using default documents path: " + selectedExportDirectory);
         }
         // --- END LOAD ---
 
