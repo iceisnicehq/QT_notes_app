@@ -1,10 +1,8 @@
-// SortDialog.qml
-
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.Layouts 1.1
 import QtQuick.LocalStorage 2.0
-import "DatabaseManager.js" as DB // DB все еще нужен для логики цвета в Label
+import "DatabaseManager.js" as DB
 
 Item {
     id: root
@@ -12,9 +10,7 @@ Item {
     z: 100
     visible: root.dialogVisible
 
-    // --- ИЗМЕНЕНИЕ 1: Добавляем свойство для цвета фона ---
-    property color dialogBackgroundColor: "#121218" // Безопасный цвет по умолчанию
-
+    property color dialogBackgroundColor: "#121218"
     property bool dialogVisible: false
     property string currentSortBy: "updated_at"
     property string currentSortOrder: "desc"
@@ -47,10 +43,7 @@ Item {
         id: dialogBody
         width: Math.min(parent.width * 0.9, Theme.itemSizeExtraLarge * 9)
         height: contentColumn.implicitHeight + Theme.paddingLarge * 2
-
-        // --- ИЗМЕНЕНИЕ 2: Используем свойство, переданное извне ---
         color: root.dialogBackgroundColor
-
         radius: Theme.itemSizeSmall / 2
         anchors.centerIn: parent
         opacity: root.dialogVisible ? 1 : 0
@@ -77,17 +70,39 @@ Item {
 
             Repeater {
                 model: root.sortOptions
-                delegate: BackgroundItem {
+                delegate: Rectangle {
+                    id: delegateRoot
                     Layout.fillWidth: true
                     height: Theme.itemSizeMedium
-                    highlighted: root.currentSortBy === modelData.key
-                    onClicked: {
-                        root.currentSortBy = modelData.key
+                    radius: Theme.paddingSmall
+                    property bool isHighlighted: root.currentSortBy === modelData.key
+
+                    // Адаптивный цвет выделения
+                    color: {
+                        if (isHighlighted) {
+                            // ИСПРАВЛЕНИЕ: Преобразуем цвет в строку перед передачей в JS
+                            return DB.darkenColor(root.dialogBackgroundColor.toString(), 0.15)
+                        } else if (mouseArea.pressed) {
+                            // ИСПРАВЛЕНИЕ: Преобразуем цвет в строку перед передачей в JS
+                            return DB.darkenColor(root.dialogBackgroundColor.toString(), 0.08)
+                        } else {
+                            return "transparent"
+                        }
                     }
+                    Behavior on color { ColorAnimation { duration: 150 } }
+
                     Label {
                         text: modelData.text
                         anchors.centerIn: parent
-                        color: parent.highlighted ? DB.darkenColor(Theme.primaryColor, 0.5) : Theme.secondaryColor
+                        color: delegateRoot.isHighlighted ? "white" : Theme.secondaryColor
+                    }
+
+                    MouseArea {
+                        id: mouseArea
+                        anchors.fill: parent
+                        onClicked: {
+                            root.currentSortBy = modelData.key
+                        }
                     }
                 }
             }
@@ -100,11 +115,15 @@ Item {
                 Button {
                     text: qsTr("Ascending")
                     highlighted: root.currentSortOrder === 'asc'
+                    opacity: highlighted ? 1.0 : 0.5
+                    Behavior on opacity { NumberAnimation { duration: 150 } }
                     onClicked: root.currentSortOrder = 'asc'
                 }
                 Button {
                     text: qsTr("Descending")
                     highlighted: root.currentSortOrder === 'desc'
+                    opacity: highlighted ? 1.0 : 0.5
+                    Behavior on opacity { NumberAnimation { duration: 150 } }
                     onClicked: root.currentSortOrder = 'desc'
                 }
             }
