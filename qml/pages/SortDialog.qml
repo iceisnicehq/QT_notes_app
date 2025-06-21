@@ -11,12 +11,35 @@ Item {
     visible: root.dialogVisible
 
     property color dialogBackgroundColor: "#121218"
+    property var availableColors: []
+
     property bool dialogVisible: false
     property string currentSortBy: "updated_at"
     property string currentSortOrder: "desc"
 
     signal sortApplied(string sortBy, string sortOrder)
     signal cancelled()
+
+
+    ListModel {
+        id: colorSortOrderModel
+    }
+
+    function reorderColors(draggedIndex, dropIndex) {
+        if (draggedIndex === dropIndex) return;
+        colorSortOrderModel.move(draggedIndex, dropIndex, 1);
+    }
+    onDialogVisibleChanged: {
+        if (dialogVisible) {
+            availableColors = DB.colorPalette;
+            if (colorSortOrderModel.count === 0) {
+                for (var i = 0; i < availableColors.length; i++) {
+                    colorSortOrderModel.append({ "color": availableColors[i] });
+                }
+            }
+        }
+    }
+
 
     readonly property var sortOptions: [
         { key: "updated_at", text: qsTr("By Update Date") },
@@ -107,6 +130,52 @@ Item {
                     }
                 }
             }
+
+            Item {
+                Layout.fillWidth: true
+                // Динамически меняем высоту
+                Layout.preferredHeight: root.currentSortBy === 'color' ? colorSortGrid.contentHeight + Theme.paddingMedium : 0
+                visible: root.currentSortBy === 'color'
+                Behavior on Layout.preferredHeight { NumberAnimation { duration: 200 } }
+
+                GridView {
+                    id: colorSortGrid
+                    anchors.fill: parent
+                    cellWidth: (width - (Theme.paddingMedium * 3)) / 4 // 4 цвета в ряд
+                    cellHeight: cellWidth
+                    model: colorSortOrderModel
+
+                    // Делегат для каждого кружка с цветом
+                    delegate: Rectangle {
+                        width: colorSortGrid.cellWidth * 0.8
+                        height: colorSortGrid.cellHeight * 0.8
+                        anchors.centerIn: parent
+                        radius: width / 2
+                        color: model.color
+
+                        // --- Логика Drag and Drop ---
+                        DropArea {
+                            anchors.fill: parent
+                            onDropped: {
+                                // Когда другой элемент бросают на этот, меняем их порядок
+                                if (drag.source.hasOwnProperty('dragIndex')) {
+                                    root.reorderColors(drag.source.dragIndex, index);
+                                }
+                            }
+                        }
+
+                        MouseArea {
+                            id: mouseArea
+                            anchors.fill: parent
+                            drag.target: parent // Указываем, что перетаскивать будем родительский Rectangle
+
+                            // Передаем индекс элемента, который тащим
+                            onPressed: drag.source.dragIndex = index
+                        }
+                    }
+                }
+            }
+
 
             Item { Layout.preferredHeight: Theme.paddingMedium }
 
