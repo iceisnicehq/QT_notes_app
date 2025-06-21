@@ -99,7 +99,8 @@ function initDatabase(localStorageInstance) {
                 'notesImportedCount INTEGER,' +
                 'sort_by TEXT,' +
                 'sort_order TEXT,' +
-                'color_sort_order TEXT' +
+                'color_sort_order TEXT,' +
+                'exportDirectoryPath TEXT' +
                 ')'
             );
 
@@ -108,9 +109,9 @@ function initDatabase(localStorageInstance) {
             if (settingsCount.rows.item(0).count === 0) {
                 console.log("DB_MGR: AppSettings table is empty, inserting default values.");
                 tx.executeSql(
-                    'INSERT INTO AppSettings (id, themeColor, language, notesExportedCount, notesImportedCount) ' +
-                    'VALUES (?, ?, ?, ?, ?)',
-                    [1, "#121218", "en", 0, 0] // Default values: dark theme, English, 0 exported/imported
+                    'INSERT INTO AppSettings (id, themeColor, language, notesExportedCount, notesImportedCount, exportDirectoryPath) ' +
+                    'VALUES (?, ?, ?, ?, ?, ?)',
+                    [1, "#121218", "en", 0, 0, ""] // Default values: dark theme, English, 0 exported/imported
                 );
             }
 
