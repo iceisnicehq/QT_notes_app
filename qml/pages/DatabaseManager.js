@@ -660,7 +660,7 @@ function permanentlyDeleteAllNotes() {
     db.transaction(function(tx) {
         tx.executeSql('DELETE FROM NoteTags'); // Delete all note-tag associations
         tx.executeSql('DELETE FROM Notes');    // Delete all notes
-        tx.executeSql('DELETE FROM Tags');     // Delete all tags 
+        tx.executeSql('DELETE FROM Tags');     // Delete all tags
         console.log("DB_MGR: All notes and associated tags permanently deleted.");
     });
 }
@@ -692,7 +692,7 @@ function moveAllNotesToTrash() {
 function permanentlyDeleteExpiredDeletedNotes() {
     if (!db) {
         console.error("DB_MGR: Database not initialized. Cannot clean up expired deleted notes.");
-        return 0; 
+        return 0;
     }
 
     var deletedCount = 0;
@@ -918,7 +918,7 @@ function checkIfNotesExist(idsToCheck) {
 
 // DatabaseManager.js
 
-function searchNotes(searchText, selectedTagNames, sortBy, sortOrder) {
+function searchNotes(searchText, selectedTagNames, sortBy, sortOrder, customColorOrder) {
     if (!db) initDatabase(LocalStorage);
     var notes = [];
     db.readTransaction(function(tx) {
@@ -949,33 +949,31 @@ function searchNotes(searchText, selectedTagNames, sortBy, sortOrder) {
             }
         }
 
-        // --- НОВАЯ ЛОГИКА СОРТИРОВКИ ---
         var orderByClause = "";
-        var sortMap = {
-            "updated_at": "N.updated_at",
-            "created_at": "N.created_at",
-            "title_alpha": "N.title",
-            "title_length": "LENGTH(N.title)",
-            "content_length": "LENGTH(N.content)",
-            "color": "N.color"
-        };
-
         var sortDirection = (sortOrder && sortOrder.toLowerCase() === 'asc') ? "ASC" : "DESC";
 
-        if (sortBy && sortMap[sortBy]) {
-            orderByClause = "ORDER BY " + sortMap[sortBy] + " " + sortDirection;
+        if (sortBy === 'color' && customColorOrder && customColorOrder.length > 0) {
+            orderByClause = "CASE N.color ";
+            for (var i = 0; i < customColorOrder.length; i++) {
+                orderByClause += "WHEN ? THEN " + i + " ";
+                params.push(customColorOrder[i]);
+            }
+            orderByClause += "ELSE 999 END";
         } else {
-            // Сортировка по умолчанию
-            orderByClause = "ORDER BY N.updated_at DESC";
+            var sortMap = {
+                "updated_at": "N.updated_at",
+                "created_at": "N.created_at",
+                "title_alpha": "N.title",
+                "title_length": "LENGTH(N.title)",
+                "content_length": "LENGTH(N.content)",
+                "color": "N.color"
+            };
+            orderByClause = (sortMap[sortBy] || "N.updated_at") + " " + sortDirection;
         }
-        query += orderByClause;
-        // --- КОНЕЦ НОВОЙ ЛОГИКИ ---
 
-        console.log("DB_MGR: Executing search query:", query);
-        console.log("DB_MGR: With parameters:", JSON.stringify(params));
+        query += " ORDER BY N.pinned DESC, " + orderByClause;
 
         var result = tx.executeSql(query, params);
-        console.log("DB_MGR: searchNotes found " + result.rows.length + " notes.");
 
         for (var i = 0; i < result.rows.length; i++) {
             var note = result.rows.item(i);
@@ -989,6 +987,22 @@ function searchNotes(searchText, selectedTagNames, sortBy, sortOrder) {
     return notes;
 }
 
+// --- НЕДОСТАЮЩАЯ ФУНКЦИЯ ---
+function getUniqueNoteColors() {
+    if (!db) {
+        console.error("DB not initialized for getUniqueNoteColors");
+        return [];
+    }
+    var colors = [];
+    db.readTransaction(function(tx) {
+        var result = tx.executeSql('SELECT DISTINCT color FROM Notes WHERE color IS NOT NULL AND deleted = 0 AND archived = 0');
+        for (var i = 0; i < result.rows.length; i++) {
+            colors.push(result.rows.item(i).color);
+        }
+    });
+    console.log("Found " + colors.length + " unique colors: " + JSON.stringify(colors));
+    return colors;
+}
 
 function bulkMoveToTrash(ids) {
     if (!ids || ids.length === 0) {
@@ -1519,7 +1533,7 @@ function getSetting(columnName) {
     return value;
 }
 
-function setSetting(columnName, value) { 
+function setSetting(columnName, value) {
     if (!db) {
         console.error("DB_MGR: Database not initialized when trying to set setting:", columnName);
         return;

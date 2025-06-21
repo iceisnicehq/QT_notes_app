@@ -1,7 +1,5 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import QtQuick.Layouts 1.1
-import QtQuick.LocalStorage 2.0
 import "DatabaseManager.js" as DB
 
 Item {
@@ -11,35 +9,12 @@ Item {
     visible: root.dialogVisible
 
     property color dialogBackgroundColor: "#121218"
-    property var availableColors: []
-
     property bool dialogVisible: false
     property string currentSortBy: "updated_at"
     property string currentSortOrder: "desc"
 
     signal sortApplied(string sortBy, string sortOrder)
     signal cancelled()
-
-
-    ListModel {
-        id: colorSortOrderModel
-    }
-
-    function reorderColors(draggedIndex, dropIndex) {
-        if (draggedIndex === dropIndex) return;
-        colorSortOrderModel.move(draggedIndex, dropIndex, 1);
-    }
-    onDialogVisibleChanged: {
-        if (dialogVisible) {
-            availableColors = DB.colorPalette;
-            if (colorSortOrderModel.count === 0) {
-                for (var i = 0; i < availableColors.length; i++) {
-                    colorSortOrderModel.append({ "color": availableColors[i] });
-                }
-            }
-        }
-    }
-
 
     readonly property var sortOptions: [
         { key: "updated_at", text: qsTr("By Update Date") },
@@ -55,156 +30,72 @@ Item {
         color: "#000000"
         opacity: root.dialogVisible ? 0.6 : 0
         Behavior on opacity { NumberAnimation { duration: 200 } }
-        MouseArea {
-            anchors.fill: parent
-            enabled: root.dialogVisible
-            onClicked: root.cancelled()
-        }
+        MouseArea { anchors.fill: parent; enabled: root.dialogVisible; onClicked: root.cancelled() }
     }
 
     Rectangle {
         id: dialogBody
         width: Math.min(parent.width * 0.9, Theme.itemSizeExtraLarge * 9)
-        height: contentColumn.implicitHeight + Theme.paddingLarge * 2
+        height: contentColumn.implicitHeight + (Theme.paddingLarge * 2)
         color: root.dialogBackgroundColor
         radius: Theme.itemSizeSmall / 2
         anchors.centerIn: parent
+        clip: true
         opacity: root.dialogVisible ? 1 : 0
         scale: root.dialogVisible ? 1.0 : 0.9
-        clip: true
         Behavior on opacity { NumberAnimation { duration: 200 } }
         Behavior on scale { PropertyAnimation { property: "scale"; duration: 200; easing.type: Easing.OutBack } }
 
-        ColumnLayout {
+        Column {
             id: contentColumn
-            width: parent.width
-            anchors.horizontalCenter: parent.horizontalCenter
-            spacing: Theme.paddingMedium
-            anchors.top: parent.top
-            anchors.topMargin: Theme.paddingLarge
-            anchors.bottomMargin: Theme.paddingLarge
+            width: parent.width - (Theme.paddingLarge * 2)
+            anchors.centerIn: parent
+            spacing: Theme.paddingSmall
 
             Label {
+                width: parent.width
                 text: qsTr("Sort Notes")
-                font.pixelSize: Theme.fontSizeLarge
-                font.bold: true
-                color: "white"
-                Layout.alignment: Qt.AlignHCenter
+                font.pixelSize: Theme.fontSizeLarge; font.bold: true; color: "white"
+                horizontalAlignment: Text.AlignHCenter
+                bottomPadding: Theme.paddingSmall
             }
 
             Repeater {
                 model: root.sortOptions
-                delegate: Rectangle {
-                    id: delegateRoot
-                    Layout.fillWidth: true
+                delegate: BackgroundItem {
+                    width: parent.width
                     height: Theme.itemSizeMedium
-                    radius: Theme.paddingSmall
-                    property bool isHighlighted: root.currentSortBy === modelData.key
-
-                    // Адаптивный цвет выделения
-                    color: {
-                        if (isHighlighted) {
-                            // ИСПРАВЛЕНИЕ: Преобразуем цвет в строку перед передачей в JS
-                            return DB.darkenColor(root.dialogBackgroundColor.toString(), 0.15)
-                        } else if (mouseArea.pressed) {
-                            // ИСПРАВЛЕНИЕ: Преобразуем цвет в строку перед передачей в JS
-                            return DB.darkenColor(root.dialogBackgroundColor.toString(), 0.08)
-                        } else {
-                            return "transparent"
-                        }
-                    }
-                    Behavior on color { ColorAnimation { duration: 150 } }
-
-                    Label {
-                        text: modelData.text
-                        anchors.centerIn: parent
-                        color: delegateRoot.isHighlighted ? "white" : Theme.secondaryColor
-                    }
-
-                    MouseArea {
-                        id: mouseArea
-                        anchors.fill: parent
-                        onClicked: {
-                            root.currentSortBy = modelData.key
-                        }
-                    }
+                    highlighted: root.currentSortBy === modelData.key
+                    onClicked: root.currentSortBy = modelData.key
+                    Label { text: modelData.text; anchors.centerIn: parent; color: parent.highlighted ? Theme.highlightColor : Theme.primaryColor }
                 }
             }
 
-            Item {
-                Layout.fillWidth: true
-                // Динамически меняем высоту
-                Layout.preferredHeight: root.currentSortBy === 'color' ? colorSortGrid.contentHeight + Theme.paddingMedium : 0
-                visible: root.currentSortBy === 'color'
-                Behavior on Layout.preferredHeight { NumberAnimation { duration: 200 } }
+            Item { width: 1; height: Theme.paddingMedium }
 
-                GridView {
-                    id: colorSortGrid
-                    anchors.fill: parent
-                    cellWidth: (width - (Theme.paddingMedium * 3)) / 4 // 4 цвета в ряд
-                    cellHeight: cellWidth
-                    model: colorSortOrderModel
-
-                    // Делегат для каждого кружка с цветом
-                    delegate: Rectangle {
-                        width: colorSortGrid.cellWidth * 0.8
-                        height: colorSortGrid.cellHeight * 0.8
-                        anchors.centerIn: parent
-                        radius: width / 2
-                        color: model.color
-
-                        // --- Логика Drag and Drop ---
-                        DropArea {
-                            anchors.fill: parent
-                            onDropped: {
-                                // Когда другой элемент бросают на этот, меняем их порядок
-                                if (drag.source.hasOwnProperty('dragIndex')) {
-                                    root.reorderColors(drag.source.dragIndex, index);
-                                }
-                            }
-                        }
-
-                        MouseArea {
-                            id: mouseArea
-                            anchors.fill: parent
-                            drag.target: parent // Указываем, что перетаскивать будем родительский Rectangle
-
-                            // Передаем индекс элемента, который тащим
-                            onPressed: drag.source.dragIndex = index
-                        }
-                    }
-                }
-            }
-
-
-            Item { Layout.preferredHeight: Theme.paddingMedium }
-
-            RowLayout {
-                Layout.alignment: Qt.AlignHCenter
+            Row {
+                anchors.horizontalCenter: parent.horizontalCenter
                 spacing: Theme.paddingMedium
                 Button {
-                    text: qsTr("Ascending")
-                    highlighted: root.currentSortOrder === 'asc'
-                    opacity: highlighted ? 1.0 : 0.5
-                    Behavior on opacity { NumberAnimation { duration: 150 } }
-                    onClicked: root.currentSortOrder = 'asc'
+                    text: qsTr("Ascending"); highlighted: root.currentSortOrder === 'asc'
+                    opacity: highlighted ? 1.0 : 0.5; onClicked: root.currentSortOrder = 'asc'
                 }
                 Button {
-                    text: qsTr("Descending")
-                    highlighted: root.currentSortOrder === 'desc'
-                    opacity: highlighted ? 1.0 : 0.5
-                    Behavior on opacity { NumberAnimation { duration: 150 } }
-                    onClicked: root.currentSortOrder = 'desc'
+                    text: qsTr("Descending"); highlighted: root.currentSortOrder === 'desc'
+                    opacity: highlighted ? 1.0 : 0.5; onClicked: root.currentSortOrder = 'desc'
                 }
             }
 
-            Item { Layout.preferredHeight: Theme.paddingLarge }
+            Item { width: 1; height: Theme.paddingLarge }
 
             Button {
                 text: qsTr("Apply")
-                Layout.alignment: Qt.AlignHCenter
+                anchors.horizontalCenter: parent.horizontalCenter
                 highlightColor: Theme.highlightColor
-                onClicked: root.sortApplied(root.currentSortBy, root.currentSortOrder)
+                onClicked: {
+                    console.log("[DEBUG] SortDialog: Apply clicked. Emitting signal with sortBy: '" + root.currentSortBy + "', sortOrder: '" + root.currentSortOrder + "'");
+                    root.sortApplied(root.currentSortBy, root.currentSortOrder);
+                }
             }
         }
     }
