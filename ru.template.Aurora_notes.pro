@@ -19,6 +19,7 @@ DISTFILES += \
     qml/pages/ExportResultDialog.qml \
     qml/pages/ImportExportPage.qml \
     qml/pages/SettingsPage.qml \
+    qml/pages/SortDialog.qml \
     qml/pages/TrashArchiveNoteCard.qml \
     rpm/ru.template.Aurora_notes.spec \
 

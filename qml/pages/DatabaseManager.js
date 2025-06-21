@@ -916,48 +916,63 @@ function checkIfNotesExist(idsToCheck) {
 
 
 
+// DatabaseManager.js
 
-function searchNotes(searchText, selectedTagNames) {
+function searchNotes(searchText, selectedTagNames, sortBy, sortOrder) {
     if (!db) initDatabase(LocalStorage);
     var notes = [];
     db.readTransaction(function(tx) {
         var query = 'SELECT N.* FROM Notes N ';
         var params = [];
         var whereConditions = ['N.deleted = 0', 'N.archived = 0'];
-        var havingConditions = []; 
+
         if (selectedTagNames && selectedTagNames.length > 0) {
             query += 'JOIN NoteTags NT ON N.id = NT.note_id JOIN Tags T ON NT.tag_id = T.id ';
             var tagPlaceholders = selectedTagNames.map(function() { return '?'; }).join(',');
             whereConditions.push('T.name IN (' + tagPlaceholders + ')');
             params = params.concat(selectedTagNames);
-        }
-
-        if (searchText) {
-            var searchTerm = '%' + searchText + '%';
-            whereConditions.push('(N.title LIKE ? OR N.content LIKE ?)');
-            params.push(searchTerm, searchTerm);
-        }
-
-        
-        if (whereConditions.length > 0) {
             query += 'WHERE ' + whereConditions.join(' AND ') + ' ';
+            query += 'GROUP BY N.id HAVING COUNT(DISTINCT T.id) = ' + selectedTagNames.length + ' ';
+            if (searchText) {
+                var searchTerm = '%' + searchText + '%';
+                query += 'AND (N.title LIKE ? OR N.content LIKE ?)';
+                params.push(searchTerm, searchTerm);
+            }
+        } else {
+            if (searchText) {
+                var searchTerm = '%' + searchText + '%';
+                whereConditions.push('(N.title LIKE ? OR N.content LIKE ?)');
+                params.push(searchTerm, searchTerm);
+            }
+            if (whereConditions.length > 0) {
+                query += 'WHERE ' + whereConditions.join(' AND ') + ' ';
+            }
         }
 
-        
-        if (selectedTagNames && selectedTagNames.length > 0) {
-            query += 'GROUP BY N.id ';
-            havingConditions.push('COUNT(DISTINCT T.id) = ' + selectedTagNames.length);
-        }
+        // --- НОВАЯ ЛОГИКА СОРТИРОВКИ ---
+        var orderByClause = "";
+        var sortMap = {
+            "updated_at": "N.updated_at",
+            "created_at": "N.created_at",
+            "title_alpha": "N.title",
+            "title_length": "LENGTH(N.title)",
+            "content_length": "LENGTH(N.content)",
+            "color": "N.color"
+        };
 
-        
-        if (havingConditions.length > 0) {
-            query += 'HAVING ' + havingConditions.join(' AND ') + ' ';
-        }
+        var sortDirection = (sortOrder && sortOrder.toLowerCase() === 'asc') ? "ASC" : "DESC";
 
-        query += ' ORDER BY N.updated_at DESC';
+        if (sortBy && sortMap[sortBy]) {
+            orderByClause = "ORDER BY " + sortMap[sortBy] + " " + sortDirection;
+        } else {
+            // Сортировка по умолчанию
+            orderByClause = "ORDER BY N.updated_at DESC";
+        }
+        query += orderByClause;
+        // --- КОНЕЦ НОВОЙ ЛОГИКИ ---
 
         console.log("DB_MGR: Executing search query:", query);
-        console.log("DB_MGR: With parameters:", params);
+        console.log("DB_MGR: With parameters:", JSON.stringify(params));
 
         var result = tx.executeSql(query, params);
         console.log("DB_MGR: searchNotes found " + result.rows.length + " notes.");
@@ -967,12 +982,13 @@ function searchNotes(searchText, selectedTagNames) {
             if (!note.color) {
                 note.color = defaultNoteColor;
             }
-            note.tags = getTagsForNote(tx, note.id); // Get tags for each found note
+            note.tags = getTagsForNote(tx, note.id);
             notes.push(note);
         }
     });
     return notes;
 }
+
 
 function bulkMoveToTrash(ids) {
     if (!ids || ids.length === 0) {

@@ -1,0 +1,8 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white">
+  <!-- Arrow Up -->
+  <path d="M6 17V7H4l4-4 4 4H10v10H6z"/>
+
+  <!-- Arrow Down -->
+  <path d="M18 7v10h2l-4 4-4-4h2V7h4z"/>
+</svg>
