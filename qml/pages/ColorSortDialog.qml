@@ -1,6 +1,5 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import QtQuick.Layouts 1.1
 import "DatabaseManager.js" as DB
 
 Item {
@@ -9,52 +8,59 @@ Item {
     z: 101
     visible: root.dialogVisible
 
-    // Свойства
     property bool dialogVisible: false
     property var colorsToOrder: []
     property color dialogBackgroundColor: DB.darkenColor(DB.getThemeColor() || "#121218", 0.15)
+    property int selectedIndex: -1
 
-    // Сигналы
     signal colorOrderApplied(var orderedColors)
     signal cancelled()
 
+    ListModel { id: colorSortOrderModel }
 
-    onDialogVisibleChanged: {
-        // Этот лог покажет, получает ли компонент команду стать видимым
-        console.log("[DEBUG] ColorSortDialog: property 'dialogVisible' changed to: " + root.dialogVisible);
+    // ЗАМЕНИТЕ СТАРУЮ ФУНКЦИЮ SWAPITEMS НА ЭТУ:
+    function swapItems(indexA, indexB) {
+        // Проверка, чтобы индексы были разными и корректными
+        if (indexA === indexB || indexA < 0 || indexB < 0) return;
+
+        console.log("Swapping index " + indexA + " and " + indexB);
+
+        // Чтобы избежать ошибок с индексами, всегда двигаем элемент
+        // с большим индексом первым.
+        if (indexA < indexB) {
+            // Сначала двигаем B на место A
+            colorSortOrderModel.move(indexB, indexA, 1);
+            // Бывший A теперь находится на месте A+1, двигаем его на место B
+            colorSortOrderModel.move(indexA + 1, indexB, 1);
+        } else { // indexA > indexB
+            // Сначала двигаем A на место B
+            colorSortOrderModel.move(indexA, indexB, 1);
+            // Бывший B теперь находится на месте B+1, двигаем его на место A
+            colorSortOrderModel.move(indexB + 1, indexA, 1);
+        }
     }
 
-    // Модель и функции
-    ListModel {
-        id: colorSortOrderModel
-    }
-
-    function reorderColors(draggedIndex, dropIndex) {
-        if (draggedIndex === dropIndex) return;
-        colorSortOrderModel.move(draggedIndex, dropIndex, 1);
-    }
-
+    // --- ИСПРАВЛЕННЫЙ БЛОК ---
     onColorsToOrderChanged: {
         colorSortOrderModel.clear();
-        if (root.dialogVisible) {
-            console.log("ColorSortDialog: Populating model with " + colorsToOrder.length + " colors.");
+        root.selectedIndex = -1; // Сбрасываем выбор при открытии
+
+        // УСЛОВИЕ 'root.visible' УБРАНО. ЭТО ИСПРАВЛЕНИЕ.
+        if (colorsToOrder && colorsToOrder.length > 0) {
             for (var i = 0; i < colorsToOrder.length; i++) {
                 colorSortOrderModel.append({ "colorValue": colorsToOrder[i] });
             }
         }
     }
+    // --- КОНЕЦ ИСПРАВЛЕННОГО БЛОКА ---
 
-    // UI
-    Rectangle {
+
+    Rectangle { // Фон
         anchors.fill: parent
         color: "#000000"
         opacity: root.dialogVisible ? 0.6 : 0
         Behavior on opacity { NumberAnimation { duration: 200 } }
-        MouseArea {
-            anchors.fill: parent
-            enabled: root.dialogVisible
-            onClicked: root.cancelled()
-        }
+        MouseArea { anchors.fill: parent; enabled: root.dialogVisible; onClicked: root.cancelled() }
     }
 
     Rectangle {
@@ -70,6 +76,8 @@ Item {
         Behavior on opacity { NumberAnimation { duration: 200 } }
         Behavior on scale { PropertyAnimation { property: "scale"; duration: 200; easing.type: Easing.OutBack } }
 
+        MouseArea { anchors.fill: parent; hoverEnabled: true; }
+
         SilicaFlickable {
             id: flickable
             anchors.fill: parent
@@ -77,12 +85,10 @@ Item {
 
             Column {
                 id: contentColumn
-                // Создаем отступы, управляя шириной и якорями
                 width: parent.width - (Theme.paddingLarge * 2)
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.top: parent.top
                 anchors.topMargin: Theme.paddingLarge
-                anchors.bottom: parent.bottom
                 anchors.bottomMargin: Theme.paddingLarge
                 spacing: Theme.paddingMedium
 
@@ -94,55 +100,67 @@ Item {
                 }
                 Label {
                     width: parent.width
-                    text: qsTr("Drag colors to change their priority")
+                    text: qsTr("Click one color, then another to swap them. Click a selected color again to deselect.")
                     font.pixelSize: Theme.fontSizeSmall; color: Theme.secondaryColor
-                    horizontalAlignment: Text.AlignHCenter
-                    wrapMode: Text.WordWrap
+                    horizontalAlignment: Text.AlignHCenter; wrapMode: Text.WordWrap
                 }
 
                 GridView {
                     id: colorSortGrid
                     width: parent.width
-
-                    readonly property int columnCount: 4
-                    readonly property int rowCount: Math.ceil(model.count / columnCount)
-                    // Явное вычисление высоты
-                    height: rowCount * cellHeight + (rowCount > 0 ? Theme.paddingMedium * (rowCount - 1) : 0)
-
-                    cellWidth: width / columnCount
+                    implicitHeight: contentHeight
+                    cellWidth: width / 4
                     cellHeight: cellWidth
                     model: colorSortOrderModel
                     clip: true
 
-                    // Отступы между ячейками
-                    flow: GridView.FlowLeftToRight
-                    layoutDirection: Qt.LeftToRight
-
                     delegate: Item {
-                        width: colorSortGrid.cellWidth; height: colorSortGrid.cellHeight
+                        width: colorSortGrid.cellWidth
+                        height: colorSortGrid.cellHeight
 
                         Rectangle {
-                            id: dragItem
+                            id: colorCircle
                             width: parent.width * 0.8; height: parent.height * 0.8
                             anchors.centerIn: parent
-                            radius: width / 2; color: model.colorValue; border.color: "white"; border.width: 1
+                            radius: width / 2; color: model.colorValue
+                            border.color: "white"
 
-                            Drag.active: dragMouseArea.drag.active
-                            Drag.hotSpot.x: width / 2; Drag.hotSpot.y: height / 2
-
-                            states: [ State { when: dragItem.Drag.active; PropertyChanges { target: dragItem; scale: 1.2; opacity: 0.7 } } ]
-                            transitions: Transition { NumberAnimation { properties: "scale,opacity"; duration: 150 } }
-
-                            MouseArea {
-                                id: dragMouseArea; anchors.fill: parent; drag.target: parent
-                                onPressed: drag.source.dragIndex = index
-                            }
+                            states: [
+                                State {
+                                    name: "selected"
+                                    when: root.selectedIndex === index
+                                    PropertyChanges { target: colorCircle; scale: 1.2; border.width: 3 }
+                                },
+                                State {
+                                    name: "normal"
+                                    when: root.selectedIndex !== index
+                                    PropertyChanges { target: colorCircle; scale: 1.0; border.width: 1 }
+                                }
+                            ]
+                            transitions: [
+                                Transition {
+                                    from: "normal"; to: "selected"
+                                    NumberAnimation { properties: "scale,border.width"; duration: 150; easing.type: Easing.OutQuad }
+                                },
+                                Transition {
+                                    from: "selected"; to: "normal"
+                                    NumberAnimation { properties: "scale,border.width"; duration: 150; easing.type: Easing.OutQuad }
+                                }
+                            ]
                         }
-                        DropArea {
+
+                        MouseArea {
                             anchors.fill: parent
-                            onDropped: function(drag) {
-                                if (drag.source.hasOwnProperty('dragIndex')) {
-                                    root.reorderColors(drag.source.dragIndex, index);
+                            onClicked: {
+                                if (root.selectedIndex === -1) {
+                                    root.selectedIndex = index;
+                                } else {
+                                    if (root.selectedIndex === index) {
+                                        root.selectedIndex = -1;
+                                    } else {
+                                        root.swapItems(root.selectedIndex, index);
+                                        root.selectedIndex = -1;
+                                    }
                                 }
                             }
                         }
@@ -163,6 +181,7 @@ Item {
                         root.colorOrderApplied(finalColorOrder);
                     }
                 }
+                 Item { width: 1; height: Theme.paddingLarge }
             }
             VerticalScrollDecorator { flickable: flickable }
         }

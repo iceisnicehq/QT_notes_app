@@ -35,6 +35,7 @@ Page {
     property string currentSortOrder: "desc"
     property bool sortDialogVisible: false
     property bool colorSortDialogVisible: false
+    property var customColorSortOrder: []
     // --- ToastManager ---
     ToastManager {
         id: toastManager
@@ -1078,47 +1079,54 @@ Page {
     }
 
     SortDialog {
-            id: sortDialog
-            dialogVisible: mainPage.sortDialogVisible
-            currentSortBy: mainPage.currentSortBy
-            currentSortOrder: mainPage.currentSortOrder
-            dialogBackgroundColor: DB.darkenColor(mainPage.customBackgroundColor, 0.15)
+        id: sortDialog
+        dialogVisible: mainPage.sortDialogVisible
+        currentSortBy: mainPage.currentSortBy
+        currentSortOrder: mainPage.currentSortOrder
+        dialogBackgroundColor: DB.darkenColor(mainPage.customBackgroundColor, 0.15)
 
-            onSortApplied: function(sortBy, sortOrder) {
-                console.log("[DEBUG] MainPage: 'onSortApplied' signal received with sortBy: '" + sortBy + "'");
+        onSortApplied: function(sortBy, sortOrder) {
+            mainPage.sortDialogVisible = false;
+            mainPage.currentSortBy = sortBy;
+            mainPage.currentSortOrder = sortOrder;
 
-                mainPage.sortDialogVisible = false;
-                mainPage.currentSortBy = sortBy;
-                mainPage.currentSortOrder = sortOrder;
-
-                if (sortBy === 'color') {
-                    console.log("[DEBUG] MainPage: SortBy is 'color'. Preparing to open ColorSortDialog.");
-                    var uniqueColors = DB.getUniqueNoteColors();
-                    console.log("[DEBUG] MainPage: Found " + uniqueColors.length + " unique colors to sort.");
-
-                    colorSortDialog.colorsToOrder = uniqueColors;
-                    mainPage.colorSortDialogVisible = true;
-                    console.log("[DEBUG] MainPage: Set colorSortDialogVisible to true.");
-
-                } else {
-                    console.log("[DEBUG] MainPage: SortBy is NOT 'color'. Performing search immediately.");
-                    mainPage.performSearch(mainPage.currentSearchText, mainPage.selectedTags, []);
-                    toastManager.show(qsTr("Notes sorted!"));
-                }
+            if (sortBy !== 'color') {
+                mainPage.customColorSortOrder = [];
             }
-            onCancelled: mainPage.sortDialogVisible = false
+
+            mainPage.performSearch(mainPage.currentSearchText, mainPage.selectedTags);
+            toastManager.show(qsTr("Notes sorted!"));
         }
 
-        ColorSortDialog {
-            id: colorSortDialog
-            dialogVisible: mainPage.colorSortDialogVisible
+        onColorSortRequested: {
+            // ДОБАВЬТЕ ЭТИ СТРОКИ
+            var uniqueColors = DB.getUniqueNoteColors();
+            console.log("MAIN_PAGE: Color sort requested. Unique colors fetched:", JSON.stringify(uniqueColors));
 
-            onColorOrderApplied: function(orderedColors) {
-                console.log("[DEBUG] MainPage: 'onColorOrderApplied' signal received.");
-                mainPage.colorSortDialogVisible = false;
-                mainPage.performSearch(mainPage.currentSearchText, mainPage.selectedTags, orderedColors);
-                toastManager.show(qsTr("Notes sorted by color!"));
+            // Убедимся, что диалог существует
+            if (colorSortDialog) {
+                colorSortDialog.colorsToOrder = uniqueColors;
+                mainPage.colorSortDialogVisible = true;
+                console.log("MAIN_PAGE: Passing colors to ColorSortDialog and making it visible.");
+            } else {
+                console.error("MAIN_PAGE: Error! colorSortDialog instance is not available.");
             }
-            onCancelled: mainPage.colorSortDialogVisible = false
         }
+
+        onCancelled: mainPage.sortDialogVisible = false
+    }
+
+    ColorSortDialog {
+        id: colorSortDialog
+        dialogVisible: mainPage.colorSortDialogVisible
+
+        onColorOrderApplied: function(orderedColors) {
+            mainPage.colorSortDialogVisible = false;
+            mainPage.customColorSortOrder = orderedColors;
+            // Сразу же применяем сортировку
+            mainPage.performSearch(mainPage.currentSearchText, mainPage.selectedTags);
+            toastManager.show(qsTr("Notes sorted by color!"));
+        }
+        onCancelled: mainPage.colorSortDialogVisible = false
+    }
 }

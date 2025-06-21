@@ -15,6 +15,7 @@ Item {
 
     signal sortApplied(string sortBy, string sortOrder)
     signal cancelled()
+    signal colorSortRequested()
 
     readonly property var sortOptions: [
         { key: "updated_at", text: qsTr("By Update Date") },
@@ -46,6 +47,11 @@ Item {
         Behavior on opacity { NumberAnimation { duration: 200 } }
         Behavior on scale { PropertyAnimation { property: "scale"; duration: 200; easing.type: Easing.OutBack } }
 
+        MouseArea {
+            anchors.fill: parent
+            hoverEnabled: true
+        }
+
         Column {
             id: contentColumn
             width: parent.width - (Theme.paddingLarge * 2)
@@ -55,19 +61,25 @@ Item {
             Label {
                 width: parent.width
                 text: qsTr("Sort Notes")
-                font.pixelSize: Theme.fontSizeLarge; font.bold: true; color: "white"
+                font.pixelSize: Theme.fontSizeLarge
+                font.bold: true
+                color: "white"
                 horizontalAlignment: Text.AlignHCenter
                 bottomPadding: Theme.paddingSmall
             }
 
             Repeater {
                 model: root.sortOptions
-                delegate: BackgroundItem {
-                    width: parent.width
-                    height: Theme.itemSizeMedium
+                delegate: AdaptiveButton { // <-- Наш компонент!
+                    text: modelData.text
+                    baseColor: root.dialogBackgroundColor
                     highlighted: root.currentSortBy === modelData.key
-                    onClicked: root.currentSortBy = modelData.key
-                    Label { text: modelData.text; anchors.centerIn: parent; color: parent.highlighted ? Theme.highlightColor : Theme.primaryColor }
+                    onClicked: {
+                        root.currentSortBy = modelData.key;
+                        if (modelData.key === 'color') {
+                            root.colorSortRequested();
+                        }
+                    }
                 }
             }
 
@@ -77,12 +89,22 @@ Item {
                 anchors.horizontalCenter: parent.horizontalCenter
                 spacing: Theme.paddingMedium
                 Button {
-                    text: qsTr("Ascending"); highlighted: root.currentSortOrder === 'asc'
-                    opacity: highlighted ? 1.0 : 0.5; onClicked: root.currentSortOrder = 'asc'
+                    text: qsTr("Ascending")
+                    highlighted: root.currentSortOrder === 'asc'
+                    onClicked: root.currentSortOrder = 'asc'
+
+                    // Эти привязки мы добавили в прошлый раз, они остаются
+                    enabled: root.currentSortBy !== 'color'
+                    opacity: root.currentSortBy === 'color' ? 0.3 : (highlighted ? 1.0 : 0.5)
                 }
                 Button {
-                    text: qsTr("Descending"); highlighted: root.currentSortOrder === 'desc'
-                    opacity: highlighted ? 1.0 : 0.5; onClicked: root.currentSortOrder = 'desc'
+                    text: qsTr("Descending")
+                    highlighted: root.currentSortOrder === 'desc'
+                    onClicked: root.currentSortOrder = 'desc'
+
+                    // И эти тоже
+                    enabled: root.currentSortBy !== 'color'
+                    opacity: root.currentSortBy === 'color' ? 0.3 : (highlighted ? 1.0 : 0.5)
                 }
             }
 
@@ -93,8 +115,7 @@ Item {
                 anchors.horizontalCenter: parent.horizontalCenter
                 highlightColor: Theme.highlightColor
                 onClicked: {
-                    console.log("[DEBUG] SortDialog: Apply clicked. Emitting signal with sortBy: '" + root.currentSortBy + "', sortOrder: '" + root.currentSortOrder + "'");
-                    root.sortApplied(root.currentSortBy, root.currentSortOrder);
+                    root.sortApplied(root.currentSortBy, root.currentSortOrder)
                 }
             }
         }
