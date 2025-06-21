@@ -1080,6 +1080,7 @@ Page {
         dialogVisible: mainPage.sortDialogVisible
         currentSortBy: mainPage.currentSortBy
         currentSortOrder: mainPage.currentSortOrder
+        dialogBackgroundColor: mainPage.customBackgroundColor
 
         onSortApplied: {
             mainPage.currentSortBy = sortBy;
