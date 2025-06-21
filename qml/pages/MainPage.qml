@@ -30,7 +30,10 @@ Page {
     property string confirmDialogMessage: ""
     property string confirmButtonText: ""
     property color confirmButtonHighlightColor: Theme.primaryColor 
-    property var onConfirmCallback: null // Function to call when user confirms
+    property var onConfirmCallback: null
+    property string currentSortBy: "updated_at"
+    property string currentSortOrder: "desc"
+    property bool sortDialogVisible: false
     // --- ToastManager ---
     ToastManager {
         id: toastManager
@@ -66,17 +69,16 @@ Page {
 
     // Refreshes all notes and tags from the database
     function refreshData() {
-        allNotes = DB.getAllNotes(); // This now only gets non-deleted notes
-        allTags = DB.getAllTags(); // This now only gets tags linked to non-deleted notes
-        // After refreshing all data, perform a search with current criteria
+        allNotes = DB.getAllNotes();
+        allTags = DB.getAllTags();
         performSearch(currentSearchText, selectedTags);
-        loadTagsForDrawer(); // Ensure tags in drawer are updated
+        loadTagsForDrawer();
     }
 
     // Main search function that calls the DatabaseManager and updates searchResults
     function performSearch(text, tags) {
-        searchResults = DB.searchNotes(text, tags);
-        console.log("MAIN_PAGE: Search performed. Keyword:", text, "Tags:", JSON.stringify(tags), "Results count:", searchResults.length);
+        searchResults = DB.searchNotes(text, tags, mainPage.currentSortBy, mainPage.currentSortOrder);
+        console.log("MAIN_PAGE: Search performed. SortBy: " + mainPage.currentSortBy + ", SortOrder: " + mainPage.currentSortOrder);
     }
 
     // Function to handle adding/removing tags from selectedTags
@@ -603,7 +605,68 @@ Page {
         topAnchorItem: searchAreaWrapper
     }
 
-    // --- Floating Plus Button for Add New Note ---
+    Rectangle {
+        id: sortFabButton
+        width: Theme.itemSizeLarge
+        height: Theme.itemSizeLarge
+        radius: width / 2
+        // Используем тот же цвет, что и у основной кнопки
+        color:  DB.darkenColor((mainPage.customBackgroundColor), -0.3)
+        // Анкеры для размещения СЛЕВА снизу
+        anchors.left: parent.left
+        anchors.bottom: parent.bottom
+        anchors.leftMargin: Theme.paddingLarge * 2
+        anchors.bottomMargin: Theme.paddingLarge * 2
+        z: 5
+        antialiasing: true
+        // Кнопка видна только когда мы не в режиме выделения
+        visible: !mainPage.selectionMode && !mainPage.tagPickerOpen
+
+        // Логика затухания при прокрутке, как у основной кнопки
+        property real baseOpacity: 0.8
+        property real minOpacity: 0.1
+        property real fadeDistance: Theme.itemSizeExtraLarge * 1.5
+
+        opacity: {
+            if (flickable.contentHeight <= flickable.height || flickable.contentHeight - flickable.height <= 0) {
+                return baseOpacity;
+            }
+            var maxScrollY = flickable.contentHeight - flickable.height;
+            var fadeStartScrollY = maxScrollY - fadeDistance;
+            if (flickable.contentY < fadeStartScrollY) {
+                return baseOpacity;
+            } else {
+                var progress = (flickable.contentY - fadeStartScrollY) / fadeDistance;
+                progress = Math.max(0, Math.min(1, progress));
+                return baseOpacity - (progress * (baseOpacity - minOpacity));
+            }
+        }
+        Behavior on opacity {
+            NumberAnimation { duration: 150; easing.type: Easing.OutQuad }
+        }
+
+        Icon {
+            // Убедитесь, что у вас есть иконка sort.svg в папке icons
+            source: "../icons/sort.svg"
+            color: Theme.primaryColor
+            anchors.centerIn: parent
+            width: parent.width * 0.5
+            height: parent.height * 0.5
+        }
+
+        RippleEffect { id: sortButtonRipple }
+
+        MouseArea {
+            anchors.fill: parent
+            enabled: sortFabButton.visible
+            onPressed: sortButtonRipple.ripple(mouseX, mouseY)
+            onClicked: {
+                console.log("Кнопка сортировки нажата. Открываем диалог.");
+                mainPage.sortDialogVisible = true;
+            }
+        }
+    }
+
     Rectangle {
         id: fabButton
         width: Theme.itemSizeLarge
@@ -1011,4 +1074,24 @@ Page {
             console.log(("Action cancelled by user."));
         }
     }
+
+    SortDialog {
+        id: sortDialog
+        dialogVisible: mainPage.sortDialogVisible
+        currentSortBy: mainPage.currentSortBy
+        currentSortOrder: mainPage.currentSortOrder
+
+        onSortApplied: {
+            mainPage.currentSortBy = sortBy;
+            mainPage.currentSortOrder = sortOrder;
+            mainPage.sortDialogVisible = false;
+            mainPage.performSearch(mainPage.currentSearchText, mainPage.selectedTags); // Повторный поиск с новой сортировкой
+            toastManager.show(qsTr("Notes sorted!"));
+        }
+
+        onCancelled: {
+            mainPage.sortDialogVisible = false;
+        }
+    }
+
 }
