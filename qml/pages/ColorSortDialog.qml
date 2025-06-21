@@ -156,8 +156,8 @@ Item {
                                     height: Theme.itemSizeSmall
                                     radius: 5
                                     color: model.colorValue
-                                    border.color: (root.selectedIndex === index) ? Theme.highlightColor : "white"
-                                    border.width: (root.selectedIndex === index) ? 2 : 1
+                                    border.color: (root.selectedIndex === index) ? Theme.primaryColor : Theme.secondaryColor
+                                    border.width: (root.selectedIndex === index) ? 6 : 3
                                 }
                             }
                         }
@@ -197,7 +197,6 @@ Item {
 
                     Timer {
                         id: arrowClickTimer
-                        // Adjust this duration as needed (e.g., 200-300ms)
                         interval: 350
                         onTriggered: {
                             root.allowArrowClick = true
@@ -208,7 +207,7 @@ Item {
 
             Button {
                 id: bottomButton
-                text: qsTr("Apply Color Sort")
+                text: qsTr("Apply color sort")
                 anchors.horizontalCenter: parent.horizontalCenter
                 implicitHeight: Theme.itemSizeMedium
 

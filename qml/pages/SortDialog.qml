@@ -92,8 +92,6 @@ Item {
                     text: qsTr("Ascending")
                     highlighted: root.currentSortOrder === 'asc'
                     onClicked: root.currentSortOrder = 'asc'
-
-                    // Эти привязки мы добавили в прошлый раз, они остаются
                     enabled: root.currentSortBy !== 'color'
                     opacity: root.currentSortBy === 'color' ? 0.3 : (highlighted ? 1.0 : 0.5)
                 }
@@ -101,8 +99,6 @@ Item {
                     text: qsTr("Descending")
                     highlighted: root.currentSortOrder === 'desc'
                     onClicked: root.currentSortOrder = 'desc'
-
-                    // И эти тоже
                     enabled: root.currentSortBy !== 'color'
                     opacity: root.currentSortBy === 'color' ? 0.3 : (highlighted ? 1.0 : 0.5)
                 }

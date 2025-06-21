@@ -53,14 +53,13 @@ Item {
         anchors.centerIn: parent
         // Цвет текста тоже может быть адаптивным
         color: root.highlighted ? Theme.primaryColor : Theme.secondaryColor
-        opacity: root.enabled ? 1.0 : 0.5 // Текст тоже становится прозрачным, если кнопка отключена
+        opacity: root.enabled ? 1.0 : 0.5
     }
 
-    // Область для обработки нажатий
     MouseArea {
         id: mouseArea
         anchors.fill: parent
-        enabled: root.enabled // MouseArea активна только если компонент активен
-        onClicked: root.clicked() // При клике отправляем сигнал "clicked"
+        enabled: root.enabled
+        onClicked: root.clicked()
     }
 }

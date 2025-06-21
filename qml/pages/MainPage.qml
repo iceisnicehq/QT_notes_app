@@ -1102,49 +1102,27 @@ Page {
             mainPage.sortDialogVisible = false;
             mainPage.currentSortBy = sortBy;
             mainPage.currentSortOrder = sortOrder;
-
-//            if (sortBy !== 'color') {
-//                mainPage.customColorSortOrder = [];
-//            }
-
             mainPage.performSearch();
             toastManager.show(qsTr("Notes sorted!"));
             //DB.saveSortSettings(mainPage.currentSortBy, mainPage.currentSortOrder, mainPage.customColorSortOrder);
         }
 
         onColorSortRequested: {
-            // --- НАЧАЛО НОВОЙ ЛОГИКИ ---
-
-            // 1. Получаем сохраненный порядок (если он есть, иначе пустой массив)
             var savedOrder = mainPage.customColorSortOrder || [];
-
-            // 2. Получаем ВСЕ уникальные цвета, которые есть в заметках сейчас
             var allCurrentColors = DB.getUniqueNoteColors();
-
-            // 3. Формируем итоговый список для диалога, чтобы сохранить порядок
-            // и добавить новые цвета в конец.
             var finalOrderForDialog = [];
-
-            // Используем объект для быстрой проверки, какие цвета мы уже добавили
             var seenColors = {};
-
-            // Сначала добавляем все цвета из сохраненного порядка,
-            // если они все еще существуют среди актуальных цветов.
             savedOrder.forEach(function(color) {
                 if (allCurrentColors.indexOf(color) !== -1) {
                     finalOrderForDialog.push(color);
                     seenColors[color] = true;
                 }
             });
-
-            // Затем добавляем все НОВЫЕ цвета (которых не было в сохраненном порядке)
             allCurrentColors.forEach(function(color) {
                 if (!seenColors[color]) {
                     finalOrderForDialog.push(color);
                 }
             });
-
-            // 4. Передаем в диалог этот финальный, правильно отсортированный список
             colorSortDialog.colorsToOrder = finalOrderForDialog;
             mainPage.colorSortDialogVisible = true;
         }
@@ -1155,7 +1133,7 @@ Page {
     ColorSortDialog {
         id: colorSortDialog
         dialogVisible: mainPage.colorSortDialogVisible
-
+        dialogBackgroundColor: DB.darkenColor(mainPage.customBackgroundColor, 0.3)
         onColorOrderApplied: function(orderedColors) {
             mainPage.colorSortDialogVisible = false;
             mainPage.customColorSortOrder = orderedColors;
