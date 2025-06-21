@@ -1136,6 +1136,7 @@ Page {
         dialogBackgroundColor: DB.darkenColor(mainPage.customBackgroundColor, 0.3)
         onColorOrderApplied: function(orderedColors) {
             mainPage.colorSortDialogVisible = false;
+            mainPage.sortDialogVisible = false;
             mainPage.customColorSortOrder = orderedColors;
             mainPage.currentSortBy = 'color';
             mainPage.performSearch();
