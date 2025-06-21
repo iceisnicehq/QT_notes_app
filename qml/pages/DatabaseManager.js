@@ -162,7 +162,7 @@ function initDatabase(localStorageInstance) {
                         color: note.color,
                         deleted: note.deleted,
                         archived: note.archived,
-                        tags: noteTags // Add this if generateNoteChecksum needs tags for old notes
+                        //tags: noteTags // Add this if generateNoteChecksum needs tags for old notes
                     };
 
                     // Generate checksum for the old note
@@ -205,7 +205,7 @@ function initDatabase(localStorageInstance) {
                         color: note.color,
                         deleted: note.deleted,
                         archived: note.archived,
-                        tags: noteTags
+                        //tags: noteTags
                     };
                     var generatedChecksum = generateNoteChecksum(tempNoteForChecksum);
 
@@ -1154,13 +1154,13 @@ function generateNoteChecksum(note) {
     var deleted = note.deleted ? "1" : "0";
 
     // Sort tags for consistent checksum generation
-    var sortedTags = (note.tags && Array.isArray(note.tags)) ? note.tags.slice().sort().join(';') : '';
+    //var sortedTags = (note.tags && Array.isArray(note.tags)) ? note.tags.slice().sort().join(';') : '';
 
     var data = title + content + color +
                "|pinned:" + pinned +
                "|archived:" + archived +
-               "|deleted:" + deleted +
-               "|tags:" + sortedTags;
+               "|deleted:" + deleted; //+
+               //"|tags:" + sortedTags;
 
     var checksum = simpleStringHash(data);
     return checksum;
@@ -1260,7 +1260,7 @@ function addImportedNote(note, tx) {
         pinned: notePinned,
         deleted: noteDeleted,
         archived: noteArchived,
-        tags: note.tags // Use the tags array already populated by importNotes
+        //tags: note.tags // Use the tags array already populated by importNotes
     });
 
     if (!importedNoteChecksum) {

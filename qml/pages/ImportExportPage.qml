@@ -661,18 +661,24 @@ Page {
         console.log("APP_DEBUG: Export/Import Page: Component.onCompleted finished.");
     }
 
+    // Function to generate CSV string from notes data
     function generateCsv(data) {
         var headers = ["id", "title", "content", "color", "pinned", "deleted", "archived", "created_at", "updated_at", "tags"];
         var csv = headers.join(",") + "\n";
         var escapeCsvField = function(field) {
-            return "\"" + String(field || '').replace(/"/g, '""') + "\"";
+            // Replace newlines with spaces for simpler CSV compatibility
+            // This is a trade-off: content won't be perfectly preserved with original newlines
+            // CHANGED: Use 'var' instead of 'let' for QML compatibility
+            var cleanedField = String(field || '').replace(/\r\n|\n|\r/g, ' ').replace(/"/g, '""');
+            return "\"" + cleanedField + "\"";
         };
+
         for (var i = 0; i < data.length; i++) {
             var note = data[i];
             var row = [
                 note.id,
                 escapeCsvField(note.title),
-                escapeCsvField(note.content),
+                escapeCsvField(note.content), // Use the modified escapeCsvField
                 escapeCsvField(note.color),
                 note.pinned ? 1 : 0,
                 note.deleted ? 1 : 0,
