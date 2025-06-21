@@ -8,36 +8,59 @@ Item {
     z: 101
     visible: root.dialogVisible
 
+    // Свойства
     property bool dialogVisible: false
     property var colorsToOrder: []
     property color dialogBackgroundColor: DB.darkenColor(DB.getThemeColor() || "#121218", 0.15)
     property int selectedIndex: -1
 
+    // Сигналы
     signal colorOrderApplied(var orderedColors)
     signal cancelled()
 
+    // Модель и функции
     ListModel { id: colorSortOrderModel }
 
     function moveItem(direction) {
         if (selectedIndex === -1) return;
         var originalIndex = selectedIndex;
-        var newIndex = (direction === 'up') ? selectedIndex - 1 : selectedIndex + 1;
+        var newIndex;
 
-        if (newIndex >= 0 && newIndex < colorSortOrderModel.count) {
-            colorSortOrderModel.move(originalIndex, newIndex, 1);
-            selectedIndex = newIndex;
+        if (direction === 'up') {
+            if (selectedIndex > 0) {
+                newIndex = selectedIndex - 1;
+                colorSortOrderModel.move(originalIndex, newIndex, 1);
+                selectedIndex = newIndex;
+            }
+        } else if (direction === 'down') {
+            if (selectedIndex < colorSortOrderModel.count - 1) {
+                // При перемещении вниз нужно указывать целевой индекс + 1
+                newIndex = selectedIndex + 1;
+                colorSortOrderModel.move(originalIndex, newIndex + 1, 1);
+                selectedIndex = newIndex;
+            }
         }
     }
 
-    // Этот обработчик теперь максимально простой и надежный
+
     onColorsToOrderChanged: {
         colorSortOrderModel.clear();
         selectedIndex = -1;
-        for (var i = 0; i < colorsToOrder.length; i++) {
-            colorSortOrderModel.append({ "colorValue": colorsToOrder[i] });
+        if (!root.dialogVisible) {
+            for (var i = 0; i < colorsToOrder.length; i++) {
+                colorSortOrderModel.append({ "colorValue": colorsToOrder[i] });
+            }
         }
     }
 
+    onDialogVisibleChanged: {
+        if (!dialogVisible) {
+            selectedIndex = -1;
+            colorSortOrderModel.clear();
+        }
+    }
+
+    // UI
     Rectangle {
         anchors.fill: parent; color: "#000000"; opacity: root.dialogVisible ? 0.6 : 0
         Behavior on opacity { NumberAnimation { duration: 200 } }
@@ -52,36 +75,35 @@ Item {
         radius: Theme.itemSizeSmall / 2
         anchors.centerIn: parent
         clip: true
+        opacity: root.dialogVisible ? 1 : 0
+        scale: root.dialogVisible ? 1.0 : 0.9
+        Behavior on opacity { NumberAnimation { duration: 200 } }
+        Behavior on scale { PropertyAnimation { property: "scale"; duration: 200; easing.type: Easing.OutBack } }
 
-        // --- НАДЕЖНАЯ ВЕРСТКА НА ЯКОРЯХ ---
         Column {
             id: contentColumn
-            anchors.fill: parent
-            anchors.margins: Theme.paddingMedium
-            spacing: Theme.paddingMedium
+            width: parent.width
+            height: parent.height
+            anchors.centerIn: parent
 
             PageHeader {
-                id: pageHeader
                 title: qsTr("Set Color Order")
             }
 
             Label {
-                id: subHeader
                 width: parent.width
                 text: qsTr("Click to select a color, then use arrows to move it.")
                 font.pixelSize: Theme.fontSizeSmall; color: Theme.secondaryColor
                 horizontalAlignment: Text.AlignHCenter; wrapMode: Text.WordWrap
+                padding: Theme.paddingMedium
             }
 
             Row {
                 id: listContainer
                 width: parent.width
-                // Якоря, чтобы занять все доступное место между подзаголовком и кнопкой
-                anchors.top: subHeader.bottom
-                anchors.bottom: bottomButton.top
-                anchors.topMargin: Theme.paddingMedium
-                anchors.bottomMargin: Theme.paddingMedium
+                height: parent.height - header.height - subHeader.height - bottomButton.height - (Theme.paddingLarge * 2)
                 spacing: Theme.paddingMedium
+                anchors.horizontalCenter: parent.horizontalCenter
 
                 SilicaFlickable {
                     width: parent.width - arrowButtons.width - listContainer.spacing
@@ -92,25 +114,32 @@ Item {
                         id: listView
                         anchors.fill: parent
                         model: colorSortOrderModel
-                        spacing: Theme.paddingSmall
+                        spacing: Theme.paddingTiny // Уменьшаем отступ между элементами
 
+                        // --- ИЗМЕНЕНИЕ: Уменьшаем размер каждого элемента ---
                         delegate: BackgroundItem {
                             width: parent.width
-                            height: Theme.itemSizeMedium
+                            height: Theme.itemSizeSmall // Используем меньший стандартный размер
                             highlighted: root.selectedIndex === index
-                            onClicked: { root.selectedIndex = (root.selectedIndex === index) ? -1 : index }
+
+                            onClicked: {
+                                root.selectedIndex = (root.selectedIndex === index) ? -1 : index
+                            }
 
                             Row {
                                 anchors.verticalCenter: parent.verticalCenter
                                 anchors.left: parent.left; anchors.leftMargin: Theme.paddingMedium
                                 spacing: Theme.paddingMedium
+
                                 Rectangle {
-                                    width: Theme.itemSizeSmall; height: Theme.itemSizeSmall
+                                    width: Theme.iconSizeMedium // Уменьшаем размер кружка
+                                    height: Theme.iconSizeMedium
                                     radius: width/2; color: model.colorValue
                                     border.color: "white"; border.width: 1
                                 }
                                 Label {
                                     text: model.colorValue
+                                    font.pixelSize: Theme.fontSizeSmall // Уменьшаем шрифт
                                     color: parent.highlighted ? Theme.highlightColor : Theme.primaryColor
                                 }
                             }
@@ -138,13 +167,15 @@ Item {
                 }
             }
 
+            Item { id: header; height: 1; anchors.top: contentColumn.top }
+            Item { id: subHeader; height: 1 }
+
             Button {
                 id: bottomButton
                 text: qsTr("Apply Color Sort")
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: Theme.paddingLarge
-
                 onClicked: {
                     var finalColorOrder = [];
                     for (var i = 0; i < colorSortOrderModel.count; i++) {
