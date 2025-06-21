@@ -18,12 +18,12 @@ Item {
     signal colorSortRequested()
 
     readonly property var sortOptions: [
-        { key: "updated_at", text: qsTr("By Update Date") },
-        { key: "created_at", text: qsTr("By Creation Date") },
-        { key: "title_alpha", text: qsTr("By Title (A-Z)") },
-        { key: "title_length", text: qsTr("By Title Length") },
-        { key: "content_length", text: qsTr("By Content Length") },
-        { key: "color", text: qsTr("By Color") }
+        { key: "updated_at", text: qsTr("By update date") },
+        { key: "created_at", text: qsTr("By creation date") },
+        { key: "title_alpha", text: qsTr("By title (A-Z)") },
+        { key: "title_length", text: qsTr("By title length") },
+        { key: "content_length", text: qsTr("By content length") },
+        { key: "color", text: qsTr("By color") }
     ]
 
     Rectangle {
