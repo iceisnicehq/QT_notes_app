@@ -96,7 +96,10 @@ function initDatabase(localStorageInstance) {
                 'lastExportDate TIMESTAMP, ' +
                 'notesExportedCount INTEGER, ' +
                 'lastImportDate TIMESTAMP, ' +
-                'notesImportedCount INTEGER' +
+                'notesImportedCount INTEGER,' +
+                'sort_by TEXT,' +
+                'sort_order TEXT,' +
+                'color_sort_order TEXT' +
                 ')'
             );
 
@@ -129,6 +132,16 @@ function initDatabase(localStorageInstance) {
 
             try { tx.executeSql('SELECT notesImportedCount FROM AppSettings LIMIT 1'); }
             catch (e) { console.log("DB_MGR: Adding 'notesImportedCount' column to AppSettings."); tx.executeSql('ALTER TABLE AppSettings ADD COLUMN notesImportedCount INTEGER DEFAULT 0'); }
+
+            try { tx.executeSql('SELECT sort_by FROM AppSettings LIMIT 1'); }
+            catch (e) { console.log("DB_MGR: Adding 'sort_by' column to AppSettings."); tx.executeSql('ALTER TABLE AppSettings ADD COLUMN sort_by TEXT'); }
+
+            try { tx.executeSql('SELECT sort_order FROM AppSettings LIMIT 1'); }
+            catch (e) { console.log("DB_MGR: Adding 'sort_order' column to AppSettings."); tx.executeSql('ALTER TABLE AppSettings ADD COLUMN sort_order TEXT'); }
+
+            try { tx.executeSql('SELECT color_sort_order FROM AppSettings LIMIT 1'); }
+            catch (e) { console.log("DB_MGR: Adding 'color_sort_order' column to AppSettings."); tx.executeSql('ALTER TABLE AppSettings ADD COLUMN color_sort_order TEXT'); }
+
 
             try {
             // Fetch notes that have NULL checksums
@@ -903,7 +916,35 @@ function checkIfNotesExist(idsToCheck) {
 
 
 
+function saveSortSettings(sortBy, sortOrder, colorOrderArray) {
+    if (!db) return;
+    var colorOrderString = JSON.stringify(colorOrderArray); // Превращаем массив в строку
+    db.transaction(function(tx) {
+        tx.executeSql('UPDATE AppSettings SET sort_by = ?, sort_order = ?, color_sort_order = ? WHERE id = 1', [sortBy, sortOrder, colorOrderString]);
+        console.log("DB_MGR: Sort settings saved.", sortBy, sortOrder, colorOrderString);
+    });
+}
 
+function loadSortSettings() {
+    if (!db) return null;
+    var settings = {};
+    db.readTransaction(function(tx) {
+        var result = tx.executeSql('SELECT sort_by, sort_order, color_sort_order FROM AppSettings WHERE id = 1');
+        if (result.rows.length > 0) {
+            var row = result.rows.item(0);
+            settings.sortBy = row.sort_by || "updated_at";
+            settings.sortOrder = row.sort_order || "desc";
+            try {
+                // Превращаем строку обратно в массив
+                settings.colorOrder = JSON.parse(row.color_sort_order) || [];
+            } catch (e) {
+                settings.colorOrder = [];
+            }
+        }
+    });
+    console.log("DB_MGR: Sort settings loaded.", JSON.stringify(settings));
+    return settings;
+}
 
 
 
@@ -921,6 +962,17 @@ function checkIfNotesExist(idsToCheck) {
 function searchNotes(searchText, selectedTagNames, sortBy, sortOrder, customColorOrder) {
     if (!db) return [];
     var notes = [];
+
+    // --- НАЧАЛО БЛОКА ЛОГИРОВАНИЯ ---
+    console.log("SEARCH_NOTES: --- New Search Initiated ---");
+    console.log("SEARCH_NOTES: searchText:", searchText);
+    console.log("SEARCH_NOTES: selectedTagNames:", JSON.stringify(selectedTagNames));
+    console.log("SEARCH_NOTES: sortBy:", sortBy);
+    console.log("SEARCH_NOTES: sortOrder:", sortOrder);
+    // Проверяем, что массив с порядком цветов действительно пришел
+    console.log("SEARCH_NOTES: customColorOrder:", JSON.stringify(customColorOrder));
+    // --- КОНЕЦ БЛОКА ЛОГИРОВАНИЯ ---
+
     db.readTransaction(function(tx) {
         var query = 'SELECT N.* FROM Notes N ';
         var params = [];
@@ -952,26 +1004,33 @@ function searchNotes(searchText, selectedTagNames, sortBy, sortOrder, customColo
         var orderByClause = "";
         var sortDirection = (sortOrder && sortOrder.toLowerCase() === 'asc') ? "ASC" : "DESC";
 
+        // Важная проверка - сортировка по цвету сработает только если sortBy === 'color'
         if (sortBy === 'color' && customColorOrder && customColorOrder.length > 0) {
             orderByClause = "CASE N.color ";
             for (var i = 0; i < customColorOrder.length; i++) {
                 orderByClause += "WHEN ? THEN " + i + " ";
                 params.push(customColorOrder[i]);
             }
-            orderByClause += "ELSE 999 END";
+            orderByClause += "ELSE 999 END, N.updated_at DESC"; // Добавим вторичную сортировку для стабильности
         } else {
             var sortMap = {
                 "updated_at": "N.updated_at",
                 "created_at": "N.created_at",
-                "title_alpha": "N.title",
+                "title_alpha": "LOWER(N.title)", // Используем LOWER для корректной алфавитной сортировки
                 "title_length": "LENGTH(N.title)",
                 "content_length": "LENGTH(N.content)",
-                "color": "N.color"
+                "color": "N.color" // Обычная сортировка по цвету (алфавитная по hex-коду)
             };
-            orderByClause = (sortMap[sortBy] || "N.updated_at") + " " + sortDirection;
+            var sortColumn = sortMap[sortBy] || "N.updated_at";
+            orderByClause = sortColumn + " " + sortDirection;
         }
 
         query += " ORDER BY N.pinned DESC, " + orderByClause;
+
+        // --- ЛОГИРОВАНИЕ SQL-ЗАПРОСА ---
+        console.log("SEARCH_NOTES: SQL Query:", query);
+        console.log("SEARCH_NOTES: SQL Params:", JSON.stringify(params));
+        // --- КОНЕЦ ЛОГИРОВАНИЯ ---
 
         var result = tx.executeSql(query, params);
 
@@ -984,6 +1043,16 @@ function searchNotes(searchText, selectedTagNames, sortBy, sortOrder, customColo
         }
         notes = tempNotes;
     });
+
+    // --- ЛОГИРОВАНИЕ РЕЗУЛЬТАТА ---
+    console.log("SEARCH_NOTES: Found " + notes.length + " notes.");
+    if (notes.length > 0) {
+        // Выводим цвета первых 5 заметок, чтобы увидеть порядок
+        console.log("SEARCH_NOTES: Resulting order (colors of first 5 notes):", JSON.stringify(notes.slice(0, 5).map(function(n) { return n.color; })));
+    }
+    console.log("SEARCH_NOTES: --- Search Finished ---");
+    // --- КОНЕЦ ЛОГИРОВАНИЯ ---
+
     return notes;
 }
 
