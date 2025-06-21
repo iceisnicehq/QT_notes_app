@@ -12,6 +12,8 @@ Item {
     property var colorsToOrder: []
     property color dialogBackgroundColor: DB.darkenColor(DB.getThemeColor() || "#121218", 0.15)
     property int selectedIndex: -1
+    // New property to control button enabling
+    property bool allowArrowClick: true
 
     signal colorOrderApplied(var orderedColors)
     signal cancelled()
@@ -74,10 +76,7 @@ Item {
         width: parent.width - (Theme.paddingLarge * 2)
         height: Math.min(
             parent.height - (Theme.paddingLarge * 4),
-            subHeader.implicitHeight + bottomButton.implicitHeight +
-            (colorSortOrderModel.count * (Theme.itemSizeSmall + listView.spacing)) +
-            (Theme.paddingLarge * 2) +
-            (Theme.paddingMedium * 4)
+            contentColumn.implicitHeight + (Theme.paddingLarge * 2)
         )
         color: root.dialogBackgroundColor
         radius: Theme.itemSizeSmall / 2
@@ -98,19 +97,17 @@ Item {
 
             Label {
                 id: subHeader
-                width: parent.width
+                width: parent.width - (parent.padding * 2)
                 text: qsTr("Click to select a color, then use arrows to move it.")
                 font.pixelSize: Theme.fontSizeSmall; color: Theme.secondaryColor
                 horizontalAlignment: Text.AlignHCenter; wrapMode: Text.WordWrap
-                padding: Theme.paddingMedium
             }
 
             Row {
                 id: listAndArrowsContainer
-                width: parent.width
-                height: parent.height - subHeader.implicitHeight - bottomButton.implicitHeight - (contentColumn.spacing * 3) - Theme.paddingLarge
+                width: parent.width - (parent.padding * 2)
+                height: parent.height - subHeader.implicitHeight - bottomButton.implicitHeight - (contentColumn.spacing * 2) - (contentColumn.padding * 2)
                 spacing: Theme.paddingMedium
-                anchors.horizontalCenter: parent.horizontalCenter
 
                 SilicaFlickable {
                     id: flickableList
@@ -175,13 +172,36 @@ Item {
 
                     Button {
                         icon.source: "image://theme/icon-m-up"
-                        enabled: root.selectedIndex > 0
-                        onClicked: root.moveItem('up')
+                        // Disable button if an item is not selected, or if another click is pending
+                        enabled: root.selectedIndex > 0 && root.allowArrowClick
+                        onClicked: {
+                            root.moveItem('up')
+                            // Disable clicks temporarily
+                            root.allowArrowClick = false
+                            // Start timer to re-enable clicks
+                            arrowClickTimer.start()
+                        }
                     }
                     Button {
                         icon.source: "image://theme/icon-m-down"
-                        enabled: root.selectedIndex !== -1 && root.selectedIndex < (colorSortOrderModel.count - 1)
-                        onClicked: root.moveItem('down')
+                        // Disable button if an item is not selected, or if another click is pending
+                        enabled: root.selectedIndex !== -1 && root.selectedIndex < (colorSortOrderModel.count - 1) && root.allowArrowClick
+                        onClicked: {
+                            root.moveItem('down')
+                            // Disable clicks temporarily
+                            root.allowArrowClick = false
+                            // Start timer to re-enable clicks
+                            arrowClickTimer.start()
+                        }
+                    }
+
+                    Timer {
+                        id: arrowClickTimer
+                        // Adjust this duration as needed (e.g., 200-300ms)
+                        interval: 350
+                        onTriggered: {
+                            root.allowArrowClick = true
+                        }
                     }
                 }
             }
@@ -190,8 +210,6 @@ Item {
                 id: bottomButton
                 text: qsTr("Apply Color Sort")
                 anchors.horizontalCenter: parent.horizontalCenter
-                anchors.bottom: parent.bottom
-                anchors.bottomMargin: Theme.paddingLarge
                 implicitHeight: Theme.itemSizeMedium
 
                 onClicked: {
