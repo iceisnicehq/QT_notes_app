@@ -1,6 +1,6 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import Sailfish.Pickers 1.0
+import Sailfish.Pickers 1.0 // FolderPickerPage находится здесь
 import QtQuick.Layouts 1.1
 import Nemo.Configuration 1.0
 import "DatabaseManager.js" as DB
@@ -23,18 +23,28 @@ Page {
     property var lastImportDate: null
     property int notesImportedCount: 0
 
+    // Property to store the selected export directory
+    // This will now be initialized from saved settings
+    property string selectedExportDirectory: documentsPathConfig.value // Default fallback
+
     ConfigurationValue {
         id: documentsPathConfig
         key: "/desktop/nemo/preferences/documents_path"
         defaultValue: StandardPaths.documents
         onValueChanged: {
             console.log("APP_DEBUG: Documents path is: " + value);
+            // If selectedExportDirectory hasn't been explicitly set by user, update it
+            // Otherwise, user's choice takes precedence over system default changes
+            if (selectedExportDirectory === StandardPaths.documents || selectedExportDirectory === "") {
+                 selectedExportDirectory = value;
+            }
         }
     }
     ToastManager {
         id: toastManager
     }
 
+    // FilePickerComponent for import (remains unchanged)
     Component {
         id: filePickerComponent
 
@@ -57,6 +67,70 @@ Page {
             }
         }
     }
+
+    // FolderPickerComponent for export
+    Component {
+
+    id: folderPickerComponent
+
+
+
+    FolderPickerPage { // Using FolderPickerPage
+
+    id: folderSelectPage
+
+    title: qsTr("Select Export Directory")
+
+
+
+    onSelectedPathChanged: {
+
+    console.log("APP_DEBUG: FolderPickerPage: selectedPath triggered.");
+
+    console.log("APP_DEBUG: selectedPath (raw):", selectedPath);
+
+
+
+    if (selectedPath !== null && selectedPath.filePath !== null) {
+
+    var folderPathRaw = selectedPath.toString();
+
+    var folderPathClean;
+
+
+
+    if (folderPathRaw.indexOf("file://") === 0) {
+
+    folderPathClean = folderPathRaw.substring(7);
+
+    } else {
+
+    folderPathClean = folderPathRaw;
+
+    }
+
+                    importExportPage.selectedExportDirectory = folderPathClean;
+                    console.log("APP_DEBUG: Export directory selected via FolderPickerPage: " + importExportPage.selectedExportDirectory);
+
+                    // --- SAVE THE SELECTED DIRECTORY FOR PERSISTENCE ---
+                    DB.setSetting("exportDirectoryPath", folderPathClean);
+                    console.log("APP_DEBUG: Saved selected export directory: " + folderPathClean);
+                    // --- END SAVE ---
+
+                } else {
+                    console.warn("APP_DEBUG: Folder selection via FolderPickerPage accepted, but selectedContentProperties or filePath is invalid or empty.");
+                    toastManager.show(qsTr("Selected folder path is invalid or empty. Using default documents path."));
+                    // No change to selectedExportDirectory, it will retain its previous value (default or last valid)
+                }
+            }
+
+            onCanceled: {
+                console.log("APP_DEBUG: Folder selection via FolderPickerPage cancelled.");
+                toastManager.show(qsTr("Folder selection cancelled.")); // Inform the user
+            }
+        }
+    }
+
 
     Item {
         id: exportResultDialog
@@ -396,18 +470,40 @@ Page {
                 color: "white"
             }
 
+            // --- Export Directory Section, now with FolderPickerPage ---
+            RowLayout {
+                id: exportDirectoryRow
+                width: parent.width
+                spacing: Theme.paddingMedium
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                Button {
+                    id: exportDirectoryButton
+                    text: qsTr("Select Export Directory") // Back to dynamic selection
+                    Layout.fillWidth: false
+                    onClicked: {
+                        // Push the FolderPickerPage onto the page stack
+                        pageStack.push(folderPickerComponent); // Use the new folderPickerComponent
+                    }
+                }
+
+                Label {
+                    id: exportPathLabel
+                    text: importExportPage.selectedExportDirectory // Bound to selectedExportDirectory
+                    Layout.fillWidth: true
+                    wrapMode: Text.Wrap
+                    font.pixelSize: Theme.fontSizeSmall
+                    color: Theme.secondaryColor
+                    verticalAlignment: Text.AlignVCenter
+                }
+            }
+            // --- End Export Directory Section ---
+
             TextField {
                 id: fileNameField
                 width: parent.width
                 label: qsTr("File Name")
                 placeholderText: qsTr("e.g., notes_backup")
-            }
-
-            TextField {
-                id: newTagField
-                width: parent.width
-                label: qsTr("This Tag Will Be Added To Exported Notes")
-                placeholderText: qsTr("Add Tag to Exported Notes (Optional)")
             }
 
             Label {
@@ -447,7 +543,7 @@ Page {
                     opacity: selectedExportFormat === "csv" ? 1.0 : 0.6
                     onClicked: {
                         selectedExportFormat = "csv";
-                        fileNameField.text = fileNameField.text.replace(/\.(json|csv)$/, "") + ".csv";
+                        fileNameField.text = fileNameField.text.replace(/\.(json)$/, "") + ".csv";
                     }
                 }
             }
@@ -456,7 +552,7 @@ Page {
                 text: qsTr("Export All Notes")
                 anchors.horizontalCenter: parent.horizontalCenter
                 enabled: !processInProgress && fileNameField.text.length > 0
-                onClicked: exportData(selectedExportFormat, newTagField.text.trim())
+                onClicked: exportData(selectedExportFormat)
             }
 
             Label {
@@ -571,6 +667,18 @@ Page {
         var initialBaseName = qsTr("notes_backup_") + Qt.formatDateTime(new Date(), "yyyyMMdd_HHmmss");
         fileNameField.text = initialBaseName + ".json";
 
+        // --- LOAD SAVED EXPORT DIRECTORY ---
+        var savedExportPath = DB.getSetting("exportDirectoryPath");
+        if (savedExportPath && savedExportPath.length > 0) {
+            selectedExportDirectory = savedExportPath;
+            console.log("APP_DEBUG: Loaded saved export directory: " + selectedExportDirectory);
+        } else {
+            // If no saved path, use the default documents path
+            selectedExportDirectory = documentsPathConfig.value;
+            console.log("APP_DEBUG: Using default documents path for export: " + selectedExportDirectory);
+        }
+        // --- END LOAD ---
+
         console.log("APP_DEBUG: Export/Import Page: Component.onCompleted finished.");
     }
 
@@ -626,10 +734,11 @@ Page {
         return notes;
     }
 
-    function exportData(format, optionalNewTag) {
+    // exportData function (no optionalNewTag parameter, uses selectedExportDirectory)
+    function exportData(format) {
         processInProgress = true;
         statusText = qsTr("Gathering data for export...");
-        console.log("APP_DEBUG: exportData started. Format: " + format + ", Optional tag: " + optionalNewTag);
+        console.log("APP_DEBUG: exportData started. Format: " + format);
 
         var userFileName = fileNameField.text;
         var finalFileName = userFileName;
@@ -664,7 +773,8 @@ Page {
                     return;
                 }
 
-                var finalPath = documentsPathConfig.value + "/" + finalFileName;
+                // Use the dynamically selectedExportDirectory
+                var finalPath = importExportPage.selectedExportDirectory + "/" + finalFileName;
                 console.log("APP_DEBUG: Attempting to write file to: " + finalPath);
                 writeToFile(finalPath, generatedData, notes.length);
             },
@@ -672,8 +782,7 @@ Page {
                 console.error("APP_DEBUG: getNotesForExport FAILED: " + error.message);
                 statusText = qsTr("Export error: ") + error.message;
                 processInProgress = false;
-            },
-            optionalNewTag
+            }
         );
         console.log("APP_DEBUG: exportData finished, waiting for callbacks.");
     }
@@ -781,28 +890,28 @@ Page {
                 var notesToImport;
                 var fileExtension = absoluteFilePathString.split('.').pop().toLowerCase();
 
-                console.log("APP_DEBUG: File extension detected: " + fileExtension); // ADD THIS
-                console.log("APP_DEBUG: First 200 chars of fileContent: " + fileContent.substring(0, 200)); // ADD THIS (careful with very large files)
+                console.log("APP_DEBUG: File extension detected: " + fileExtension);
+                console.log("APP_DEBUG: First 200 chars of fileContent: " + fileContent.substring(0, 200));
 
                 if (fileExtension === "json") {
                     try {
                         notesToImport = JSON.parse(fileContent);
-                        console.log("APP_DEBUG: Successfully parsed JSON. Number of notes: " + (notesToImport ? notesToImport.length : 'null/undefined')); // ADD THIS
+                        console.log("APP_DEBUG: Successfully parsed JSON. Number of notes: " + (notesToImport ? notesToImport.length : 'null/undefined'));
                     } catch (jsonError) {
-                        console.error("APP_DEBUG: JSON parsing failed: " + jsonError.message); // ADD THIS
+                        console.error("APP_DEBUG: JSON parsing failed: " + jsonError.message);
                         statusText = qsTr("Error parsing JSON file: ") + jsonError.message;
                         processInProgress = false;
-                        return; // Exit if JSON is invalid
+                        return;
                     }
                 } else if (fileExtension === "csv") {
                     try {
                         notesToImport = parseCsv(fileContent);
-                        console.log("APP_DEBUG: Successfully parsed CSV. Number of notes: " + (notesToImport ? notesToImport.length : 'null/undefined')); // ADD THIS
+                        console.log("APP_DEBUG: Successfully parsed CSV. Number of notes: " + (notesToImport ? notesToImport.length : 'null/undefined'));
                     } catch (csvError) {
-                        console.error("APP_DEBUG: CSV parsing failed: " + csvError.message); // ADD THIS
+                        console.error("APP_DEBUG: CSV parsing failed: " + csvError.message);
                         statusText = qsTr("Error parsing CSV file: ") + csvError.message;
                         processInProgress = false;
-                        return; // Exit if CSV is invalid
+                        return;
                     }
                 }
                 else {
@@ -812,8 +921,8 @@ Page {
                     return;
                 }
 
-                console.log("APP_DEBUG: notesToImport variable after parsing attempt:"); // ADD THIS
-                console.log(JSON.stringify(notesToImport, null, 2)); // ADD THIS (will show 'undefined' if it failed)
+                console.log("APP_DEBUG: notesToImport variable after parsing attempt:");
+                console.log(JSON.stringify(notesToImport, null, 2));
 
 
                 if (notesToImport && notesToImport.length > 0) {
@@ -826,9 +935,8 @@ Page {
                         function(results) { // successCallback for DB.importNotes
                             console.log("APP_DEBUG: DB.importNotes SUCCESS. Imported: " + results.importedCount + ", Skipped: " + results.skippedCount);
 
-                            // Update UI properties with actual counts from DB.importNotes
                             notesImportedCount = results.importedCount;
-                            lastImportDate = DB.getSetting("lastImportDate"); // Fetch updated date
+                            lastImportDate = DB.getSetting("lastImportDate");
 
                             var tagsAfterImportCount = DB.getAllTags().length;
                             var newlyCreatedTagsCount = tagsAfterImportCount - tagsBeforeImportCount;
@@ -837,11 +945,11 @@ Page {
                             importResultDialog.dialogFileName = absoluteFilePathString.split('/').pop();
                             importResultDialog.dialogFilePath = absoluteFilePathString;
                             importResultDialog.dialogNotesImportedCount = results.importedCount;
-                            importResultDialog.dialogNotesSkippedCount = results.skippedCount; // THIS IS NEW
+                            importResultDialog.dialogNotesSkippedCount = results.skippedCount;
                             importResultDialog.dialogTagsCreatedCount = newlyCreatedTagsCount;
                             importResultDialog.dialogVisible = true;
 
-                            statusText = ""; // Clear status text on success
+                            statusText = "";
                             processInProgress = false;
                             console.log("APP_DEBUG: Import process finished successfully.");
                         },
@@ -851,56 +959,21 @@ Page {
                             processInProgress = false;
                         }
                     );
-//                } else {
-//                    toastManager.show(qsTr("No valid notes found in file."));
-//                    statusText = "";
-//                    processInProgress = false;
-//                }
-
-
-
-
-
-
-                    console.log("APP_DEBUG: DB transaction call returned. Proceeding with UI updates.");
-
-                    var tagsAfterImport = DB.getAllTags().length;
-                    //var newlyCreatedTagsCount = tagsAfterImport - tagsBeforeImport;
-                    console.log("APP_DEBUG: Tags after import: " + tagsAfterImport);
-                    //console.log("APP_DEBUG: Newly created tags: " + newlyCreatedTagsCount);
-
-                    DB.updateLastImportDate();
-                    DB.updateNotesImportedCount(notes.length);
-
-                    lastImportDate = DB.getSetting("lastImportDate");
-                    notesImportedCount = DB.getSetting("notesImportedCount");
-
-                    importResultDialog.dialogFileName = absoluteFilePathString.split('/').pop();
-                    importResultDialog.dialogFilePath = absoluteFilePathString;
-                    importResultDialog.dialogNotesImportedCount = notes.length;
-                    importResultDialog.dialogTagsCreatedCount = newlyCreatedTagsCount;
-                    importResultDialog.dialogVisible = true;
-                    statusText = "";
-
-                    processInProgress = false;
-                    console.log("APP_DEBUG: processInProgress set to false after transaction initiation. Imported: " + notes.length);
-
                 } else {
-                    statusText = qsTr("File contains no notes to import.");
+                    toastManager.show(qsTr("No valid notes found in file."));
+                    statusText = "";
                     processInProgress = false;
-                    //console.log("APP_DEBUG: No notes to import, processInProgress set to false.");
                 }
-
             } else {
                 statusText = qsTr("File is empty.");
                 processInProgress = false;
                 console.log("APP_DEBUG: File empty, processInProgress set to false.");
             }
         } catch (e) {
-            //statusText = qsTr("File processing error: ") + e.message;
-            //console.error("APP_DEBUG: EXCEPTION caught during file processing for import: " + e.message);
+            statusText = qsTr("File processing error: ") + e.message;
+            console.error("APP_DEBUG: EXCEPTION caught during file processing for import: " + e.message);
             processInProgress = false;
-            //console.log("APP_DEBUG: General catch block, processInProgress set to false due to exception.");
+            console.log("APP_DEBUG: General catch block, processInProgress set to false due to exception.");
         }
     }
 

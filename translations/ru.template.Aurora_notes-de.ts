@@ -215,18 +215,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
 <context>
     <name>ColorSortDialog</name>
     <message>
-        <location filename="../qml/pages/ColorSortDialog.qml" line="97"/>
-        <source>Set Color Order</source>
+        <location filename="../qml/pages/ColorSortDialog.qml" line="101"/>
+        <source>Click to select a color, then use arrows to move it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ColorSortDialog.qml" line="103"/>
-        <source>Click one color, then another to swap them. Click a selected color again to deselect.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ColorSortDialog.qml" line="173"/>
-        <source>Apply Color Sort</source>
+        <location filename="../qml/pages/ColorSortDialog.qml" line="210"/>
+        <source>Apply color sort</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -259,185 +254,201 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
 <context>
     <name>ImportExportPage</name>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="42"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="52"/>
         <source>Select file for import</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="134"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="82"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="482"/>
+        <source>Select Export Directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="122"/>
+        <source>Selected folder path is invalid or empty. Using default documents path.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="129"/>
+        <source>Folder selection cancelled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="208"/>
         <source>Export completed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="152"/>
-        <location filename="../qml/pages/ImportExportPage.qml" line="290"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="226"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="364"/>
         <source>File: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="160"/>
-        <location filename="../qml/pages/ImportExportPage.qml" line="298"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="234"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="372"/>
         <source>Path: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="170"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="244"/>
         <source>Notes exported: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="178"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="252"/>
         <source>File size: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="178"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="252"/>
         <source> KB</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="183"/>
-        <location filename="../qml/pages/ImportExportPage.qml" line="321"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="257"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="395"/>
         <source>Great!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="272"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="346"/>
         <source>Import completed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="308"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="382"/>
         <source>Notes imported: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="316"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="390"/>
         <source>Tags created: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="369"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="443"/>
         <source>Import/Export</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="391"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="465"/>
         <source>Export Notes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="402"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="505"/>
         <source>File Name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="403"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="506"/>
         <source>e.g., notes_backup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="409"/>
-        <source>This Tag Will Be Added To Exported Notes</source>
+        <location filename="../qml/pages/ImportExportPage.qml" line="963"/>
+        <source>No valid notes found in file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="410"/>
-        <source>Add Tag to Exported Notes (Optional)</source>
+        <location filename="../qml/pages/ImportExportPage.qml" line="973"/>
+        <source>File processing error: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="414"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="510"/>
         <source>Notes in the trash don&apos;t get exported</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="423"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="519"/>
         <source>Choose file format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="437"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="533"/>
         <source>Export as JSON</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="446"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="542"/>
         <source>Export as CSV</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="456"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="552"/>
         <source>Export All Notes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="469"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="565"/>
         <source>Last export: %1 (%2 notes)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="470"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="566"/>
         <source>No export detected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="483"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="579"/>
         <source>Import Notes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="494"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="590"/>
         <source>This Tag Will Get Added To Imported Notes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="495"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="591"/>
         <source>Add Tag to Imported Notes (Optional)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="499"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="595"/>
         <source>Import from File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="515"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="611"/>
         <source>Last import: %1 (%2 notes)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="516"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="612"/>
         <source>No import detected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="793"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="902"/>
         <source>Error parsing JSON file: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="803"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="912"/>
         <source>Error parsing CSV file: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="552"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="648"/>
         <source>Error: Database not initialized. Please restart the application.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="571"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="667"/>
         <source>notes_backup_</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="631"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="740"/>
         <source>Gathering data for export...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="647"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="756"/>
         <source>No notes to export.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -447,78 +458,73 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="653"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="762"/>
         <source>Preparing </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="653"/>
-        <location filename="../qml/pages/ImportExportPage.qml" line="820"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="762"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="929"/>
         <source> notes...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="662"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="771"/>
         <source>Error: Unsupported export format.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="673"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="783"/>
         <source>Export error: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="682"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="791"/>
         <source>Saving file...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="725"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="834"/>
         <source>File save error (XHR): </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="731"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="840"/>
         <source>File save error: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="742"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="851"/>
         <source>Reading file: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="749"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="858"/>
         <source>Error: Database not initialized for import.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="772"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="881"/>
         <source>File read error (XHR): </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="809"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="918"/>
         <source>Unsupported file format. Only JSON and CSV are supported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="820"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="929"/>
         <source>Importing </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="850"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="958"/>
         <source>Import error: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="889"/>
-        <source>File contains no notes to import.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="895"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="968"/>
         <source>File is empty.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -603,12 +609,12 @@ Click on the plus button to create one!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="1111"/>
+        <location filename="../qml/pages/MainPage.qml" line="1106"/>
         <source>Notes sorted!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="1164"/>
+        <location filename="../qml/pages/MainPage.qml" line="1143"/>
         <source>Notes sorted by color!</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1296,32 +1302,32 @@ to create one!</source>
     <name>SortDialog</name>
     <message>
         <location filename="../qml/pages/SortDialog.qml" line="21"/>
-        <source>By Update Date</source>
+        <source>By update date</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/pages/SortDialog.qml" line="22"/>
-        <source>By Creation Date</source>
+        <source>By creation date</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/pages/SortDialog.qml" line="23"/>
-        <source>By Title (A-Z)</source>
+        <source>By title (A-Z)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/pages/SortDialog.qml" line="24"/>
-        <source>By Title Length</source>
+        <source>By title length</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/pages/SortDialog.qml" line="25"/>
-        <source>By Content Length</source>
+        <source>By content length</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/pages/SortDialog.qml" line="26"/>
-        <source>By Color</source>
+        <source>By color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1335,12 +1341,12 @@ to create one!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SortDialog.qml" line="101"/>
+        <location filename="../qml/pages/SortDialog.qml" line="99"/>
         <source>Descending</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SortDialog.qml" line="114"/>
+        <location filename="../qml/pages/SortDialog.qml" line="110"/>
         <source>Apply</source>
         <translation type="unfinished"></translation>
     </message>
