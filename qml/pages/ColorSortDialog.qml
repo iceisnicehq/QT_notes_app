@@ -1,6 +1,6 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import "DatabaseManager.js" as DB
+import "DatabaseManager.js" as DB // Assuming this exists for color functions
 
 Item {
     id: root
@@ -11,226 +11,348 @@ Item {
     property bool dialogVisible: false
     property var colorsToOrder: []
     property color dialogBackgroundColor: DB.darkenColor(DB.getThemeColor() || "#121218", 0.15)
+
+    // Properties for click-to-swap
     property int selectedIndex: -1
-    // New property to control button enabling
-    property bool allowArrowClick: true
+
+    // Properties for drag and drop
+    property int draggedIndex: -1 // This will be the *current* model index of the item being dragged
+    property var draggedColorData: null // Stores the color value of the item being dragged visually
 
     signal colorOrderApplied(var orderedColors)
     signal cancelled()
 
     ListModel { id: colorSortOrderModel }
 
-    function moveItem(direction) {
-        if (selectedIndex < 0) {
+    // Function to swap items using set, which is safer when dealing with indices
+    function swapItems(indexA, indexB) {
+        if (indexA === indexB || indexA < 0 || indexB < 0 ||
+            indexA >= colorSortOrderModel.count || indexB >= colorSortOrderModel.count) {
+            console.log("Invalid swap indices or same index: " + indexA + ", " + indexB);
             return;
         }
 
-        var oldIndex = selectedIndex;
-        var newIndex = -1;
+        console.log("Swapping index " + indexA + " and " + indexB);
 
-        if (direction === 'up' && oldIndex > 0) {
-            newIndex = oldIndex - 1;
-        } else if (direction === 'down' && oldIndex < colorSortOrderModel.count - 1) {
-            newIndex = oldIndex + 1;
-        }
+        var itemA = colorSortOrderModel.get(indexA);
+        var itemB = colorSortOrderModel.get(indexB);
 
-        if (newIndex !== -1) {
-            colorSortOrderModel.move(oldIndex, newIndex, 1);
-            selectedIndex = newIndex;
-        }
+        // Temporarily store values to avoid conflicts
+        var tempValueA = itemA.colorValue;
+        var tempValueB = itemB.colorValue;
+
+        // Set the values
+        colorSortOrderModel.set(indexA, { "colorValue": tempValueB });
+        colorSortOrderModel.set(indexB, { "colorValue": tempValueA });
     }
 
     onColorsToOrderChanged: {
-    }
+        colorSortOrderModel.clear();
+        root.selectedIndex = -1; // Reset selection on new data
+        root.draggedIndex = -1; // Reset drag state
+        root.draggedColorData = null;
 
-    onDialogVisibleChanged: {
-        if (dialogVisible) {
-            colorSortOrderModel.clear();
-            selectedIndex = -1;
+        if (colorsToOrder && colorsToOrder.length > 0) {
             for (var i = 0; i < colorsToOrder.length; i++) {
                 colorSortOrderModel.append({ "colorValue": colorsToOrder[i] });
             }
-        } else {
-            selectedIndex = -1;
-            colorSortOrderModel.clear();
         }
     }
 
-    Rectangle {
+    Rectangle { // Background dimming overlay
         anchors.fill: parent
         color: "#000000"
         opacity: root.dialogVisible ? 0.6 : 0
         Behavior on opacity { NumberAnimation { duration: 200 } }
-        MouseArea {
-            id: backgroundMouseArea
-            anchors.fill: parent
-            enabled: root.dialogVisible
-            onClicked: {
-                root.cancelled()
-            }
-        }
+        MouseArea { anchors.fill: parent; enabled: root.dialogVisible; onClicked: root.cancelled() }
     }
 
     Rectangle {
         id: dialogBody
-        // Width of the dialog body, with padding from parent edges
-        width: parent.width - (Theme.paddingLarge * 2)
-        // Height is now based on the implicit height of the contentColumn,
-        // clamped by a maximum height to prevent it from going off-screen.
-        height: Math.min(
-            parent.height - (Theme.paddingLarge * 4), // Maximum height constraint
-            contentColumn.implicitHeight + (contentColumn.padding * 2) // Dynamic height based on content
-        )
-        color: root.dialogBackgroundColor
+        width: Math.min(parent.width * 0.9, Theme.itemSizeExtraLarge * 9)
+        height: Math.min(parent.height * 0.8, contentColumn.implicitHeight + Theme.paddingLarge * 2)
+        color: root.dialogBackgroundColor // Dialog's main background color
         radius: Theme.itemSizeSmall / 2
         anchors.centerIn: parent
         clip: true
+        opacity: root.dialogVisible ? 1 : 0
+        scale: root.dialogVisible ? 1.0 : 0.9
+        Behavior on opacity { NumberAnimation { duration: 200 } }
+        Behavior on scale { PropertyAnimation { property: "scale"; duration: 200; easing.type: Easing.OutBack } }
 
-        // REMOVE THIS MOUSEAREA: It was consuming clicks regardless of button enabled state.
-        // MouseArea {
-        //     anchors.fill: parent
-        //     enabled: root.dialogVisible
-        //     onClicked: { /* Consume click to prevent background interaction */ }
-        // }
+        SilicaFlickable {
+            id: flickable
+            anchors.fill: parent
+            contentHeight: contentColumn.implicitHeight
 
-        Column {
-            id: contentColumn
-            width: parent.width // Fills the dialogBody width
-            // Removed fixed height: allows implicitHeight to be calculated from children
-            spacing: Theme.paddingMedium
-          //  padding: Theme.paddingLarge // Added padding to the column content
-
-            Label {
-                id: subHeader
-                // Width adjusted to respect contentColumn's padding
-                width: parent.width - (parent.padding * 2)
-                text: qsTr("Click to select a color, then use arrows to move it.")
-                font.pixelSize: Theme.fontSizeSmall; color: Theme.secondaryColor
-                horizontalAlignment: Text.AlignHCenter; wrapMode: Text.WordWrap
-            }
-
-            Row {
-                id: listAndArrowsContainer
-                // Width adjusted to respect contentColumn's padding
-                width: parent.width - (parent.padding * 2)
-                // Removed fixed height: allows its implicitHeight to be calculated from children
+            Column {
+                id: contentColumn
+                width: parent.width - (Theme.paddingLarge * 2)
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                anchors.topMargin: Theme.paddingLarge
+                anchors.bottomMargin: Theme.paddingLarge
                 spacing: Theme.paddingMedium
 
-                SilicaFlickable {
-                    id: flickableList
+                Label {
+                    width: parent.width
+                    text: qsTr("Set Color Order")
+                    font.pixelSize: Theme.fontSizeLarge; font.bold: true; color: "white"
+                    horizontalAlignment: Text.AlignHCenter
+                }
+                Label {
+                    width: parent.width
+                    text: qsTr("Long press to drag and drop. Click to select and swap.")
+                    font.pixelSize: Theme.fontSizeSmall; color: Theme.secondaryColor
+                    horizontalAlignment: Text.AlignHCenter; wrapMode: Text.WordWrap
+                }
 
-                    // Width calculation for the flickable list
-                    width: parent.width - arrowButtons.width
-                    // Dynamic height: grows with content but is capped at 60% of the root item's height
-                    height: Math.min(listView.contentHeight, root.height * 0.6)
-                    contentHeight: listView.contentHeight
-                    flickableDirection: Flickable.VerticalFlick
-                    interactive: true // Allow user to flick the list
+                GridView {
+                    id: colorSortGrid
+                    width: parent.width
+                    implicitHeight: contentHeight
+                    cellWidth: width / 4
+                    cellHeight: cellWidth
+                    model: colorSortOrderModel
+                    clip: true
+                    interactive: false // Disable GridView's default interaction
 
-                    ListView {
-                        id: listView
-                        width: parent.width + arrowButtons.width// List view fills the flickable's width
-                        height: contentHeight // List view height adapts to its content
-                        model: colorSortOrderModel
-                        spacing: Theme.paddingTiny
-                        highlightFollowsCurrentItem: false
-                        highlightMoveDuration: 0
+                    // MouseArea covering the entire GridView for drag-and-drop and click-to-swap
+                    MouseArea {
+                        id: gridDragHandler
+                        anchors.fill: parent
+                        enabled: root.dialogVisible // Only active when dialog is visible
 
-                        delegate: Item {
-                            width: parent.width
-                            height: Theme.itemSizeSmall
+                        property int currentDraggedDelegateInitialIndex: -1 // The *initial* index of the delegate that started the drag
 
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: {
-                                    root.selectedIndex = (root.selectedIndex === index) ? -1 : index
+                        onPressAndHold: {
+                            var clickedIndex = colorSortGrid.indexAt(mouseX, mouseY);
+                            if (clickedIndex !== -1) {
+                                currentDraggedDelegateInitialIndex = clickedIndex;
+                                root.draggedIndex = clickedIndex; // Set the root property to indicate dragging is active
+                                root.draggedColorData = colorSortOrderModel.get(clickedIndex).colorValue; // Store data
+                                root.selectedIndex = -1; // Deselect any clicked item when drag starts
+
+                                // Configure and show the separate dragVisual
+                                dragVisual.color = root.draggedColorData;
+                                dragVisual.width = colorSortGrid.cellWidth * 0.8;
+                                dragVisual.height = colorSortGrid.cellHeight * 0.8;
+
+                                // --- IMPORTANT FIX HERE: Use mapToItem for correct coordinate translation ---
+                                var localMousePointInDialogBody = mapToItem(dialogBody, mouseX, mouseY);
+                                dragVisual.x = localMousePointInDialogBody.x - dragVisual.width / 2;
+                                dragVisual.y = localMousePointInDialogBody.y - dragVisual.height / 2;
+                                // --- END FIX ---
+
+                                // console.log("onPressAndHold - MouseX:", mouseX, "MouseY:", mouseY);
+                                // console.log("onPressAndHold - dragVisual X:", dragVisual.x, "Y:", dragVisual.y);
+
+                                dragVisual.visible = true;
+                                dragVisual.opacity = 1; // Ensure it's visible after being configured
+                                dragVisual.z = 10; // Bring to front
+                            }
+                        }
+
+                        onReleased: {
+                            // Reset pressed visual state for the item that was initially pressed
+                            var pressedItem = colorSortGrid.itemAt(mouseX, mouseY);
+                            if (pressedItem && pressedItem.colorCircle) {
+                                pressedItem.colorCircle.isPressedInternal = false;
+                            }
+
+                            if (root.draggedIndex !== -1) { // If a drag operation was active
+                                // Hide and reset the dragVisual
+                                dragVisual.visible = false;
+                                dragVisual.opacity = 0;
+                                dragVisual.z = 0; // Reset z-index
+
+                                currentDraggedDelegateInitialIndex = -1;
+                                root.draggedIndex = -1; // Clear drag active flag
+                                root.draggedColorData = null;
+                            }
+                        }
+
+                        onPositionChanged: {
+                            if (root.draggedIndex !== -1) { // If a drag is active
+                                // --- IMPORTANT FIX HERE: Use mapToItem for correct coordinate translation ---
+                                var localMousePointInDialogBody = mapToItem(dialogBody, mouseX, mouseY);
+                                // Move the floating visual element (dragVisual)
+                                dragVisual.x = localMousePointInDialogBody.x - dragVisual.width / 2;
+                                dragVisual.y = localMousePointInDialogBody.y - dragVisual.height / 2;
+                                // console.log("onPositionChanged - dragVisual X:", dragVisual.x, "Y:", dragVisual.y);
+                                // --- END FIX ---
+
+
+                                // Determine the new target index in the grid
+                                // Use the dragVisual's center point for accurate indexAt lookup
+                                var targetXInGrid = dragVisual.mapToItem(colorSortGrid, dragVisual.width/2, dragVisual.height/2).x;
+                                var targetYInGrid = dragVisual.mapToItem(colorSortGrid, dragVisual.width/2, dragVisual.height/2).y;
+                                var newTargetIndex = colorSortGrid.indexAt(targetXInGrid, targetYInGrid);
+
+                                // If the target index is valid and different from the current position of the dragged item
+                                if (newTargetIndex !== -1 && newTargetIndex !== root.draggedIndex) {
+                                    console.log("Moving model item from " + root.draggedIndex + " to " + newTargetIndex);
+                                    colorSortOrderModel.move(root.draggedIndex, newTargetIndex, 1);
+                                    // Crucial: Update root.draggedIndex to the item's *new* model position
+                                    // This keeps `root.draggedIndex` in sync with the actual item's position in the model
+                                    root.draggedIndex = newTargetIndex;
                                 }
-                                onPressed: { mouse.accepted = true; }
-                                onPositionChanged: {
-                                    if (mouse.drag && mouse.drag.active) {
-                                        mouse.accepted = true;
-                                        mouse.drag.active = false;
+                            }
+                        }
+
+                        onClicked: { // Handle click-to-swap only if no drag was active
+                            if (root.draggedIndex === -1) { // Ensure no drag operation is in progress
+                                var clickedIndex = colorSortGrid.indexAt(mouseX, mouseY);
+                                if (clickedIndex !== -1) {
+                                    if (root.selectedIndex === -1) {
+                                        root.selectedIndex = clickedIndex; // Select this item
+                                    } else {
+                                        if (root.selectedIndex === clickedIndex) {
+                                            root.selectedIndex = -1; // Deselect this item if already selected
+                                        } else {
+                                            // Swap with the previously selected item
+                                            root.swapItems(root.selectedIndex, clickedIndex);
+                                            root.selectedIndex = -1; // Deselect after swap
+                                        }
                                     }
                                 }
-                                drag.target: null
                             }
+                        }
 
-                            Row {
-                                // Centered horizontally within the delegate item
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                width: childrenRect.width
-                                anchors.verticalCenter: parent.verticalCenter
-                                spacing: Theme.paddingMedium
+                        onPressed: {
+                            // Visual feedback for press (before potential long press or quick click)
+                            var pressedItem = colorSortGrid.itemAt(mouseX, mouseY);
+                            if (pressedItem && pressedItem.colorCircle) {
+                                pressedItem.colorCircle.isPressedInternal = true;
+                            }
+                        }
+                    } // End of gridDragHandler MouseArea
 
-                                Rectangle {
-                                    width: Theme.itemSizeMedium * 1.5
-                                    height: Theme.itemSizeSmall
-                                    radius: 5
-                                    color: model.colorValue
-                                    border.color: (root.selectedIndex === index) ? Theme.primaryColor : Theme.secondaryColor
-                                    border.width: (root.selectedIndex === index) ? 5 : 2
+                    delegate: Item {
+                        id: delegateRoot
+                        width: colorSortGrid.cellWidth
+                        height: colorSortGrid.cellHeight
 
+                        // Behaviors for delegateRoot's x and y for smooth grid movements
+                        // These apply to the *underlying* grid items as the model changes
+                        Behavior on x {
+                            enabled: root.draggedIndex === -1 || (root.draggedIndex !== index)
+                            NumberAnimation { duration: 150; easing.type: Easing.OutQuad }
+                        }
+                        Behavior on y {
+                            enabled: root.draggedIndex === -1 || (root.draggedIndex !== index)
+                            NumberAnimation { duration: 150; easing.type: Easing.OutQuad }
+                        }
+
+                        Rectangle {
+                            id: colorCircle
+                            anchors.centerIn: parent
+                            width: parent.width * 0.8; height: parent.height * 0.8
+                            radius: width / 2; color: model.colorValue
+                            border.color: "white"
+                            border.width: 1 // Default border width
+                            z: 0 // Default z-index for grid items
+
+                            // Hide the original item when its model index matches the currently dragged item's index
+                            opacity: (root.draggedIndex === index) ? 0 : 1
+
+                            property bool isPressedInternal: false // For visual pressed feedback
+
+                            states: [
+                                State {
+                                    name: "selected"
+                                    when: root.selectedIndex === index && root.draggedIndex === -1 // Only selected if not dragging
+                                    PropertyChanges { target: colorCircle; scale: 1.2; border.width: 3 }
+                                },
+                                State {
+                                    name: "pressed"
+                                    // Only show pressed state if not in a drag operation and not the item currently being dragged (invisible)
+                                    when: colorCircle.isPressedInternal && root.draggedIndex === -1
+                                    PropertyChanges { target: colorCircle; scale: 1.1; border.width: 2 }
+                                },
+                                // Default normal state for when neither dragging, selected nor pressed
+                                State {
+                                    name: "normal"
+                                    when: root.selectedIndex !== index && !colorCircle.isPressedInternal && root.draggedIndex === -1
+                                    PropertyChanges { target: colorCircle; scale: 1.0; border.width: 1; z:0; opacity: 1; }
                                 }
-                            }
-                        }
-                    }
-                    VerticalScrollDecorator { flickable: parent }
-                }
-
-                Column {
-                    id: arrowButtons
-                    anchors.verticalCenter: parent.verticalCenter
-                    spacing: Theme.paddingMedium
-
-                    Button {
-                        icon.source: "image://theme/icon-m-up"
-                        // Disable button if an item is not selected, or if another click is pending
-                        opacity: root.selectedIndex > 0 && root.allowArrowClick ? 1 : 0.5
-//                        enabled: root.selectedIndex > 0 && root.allowArrowClick
-                        onClicked: {
-                            root.moveItem('up')
-                            // Disable clicks temporarily
-                            root.allowArrowClick = false
-                            // Start timer to re-enable clicks
-                            arrowClickTimer.start()
-                        }
-                    }
-                    Button {
-                        icon.source: "image://theme/icon-m-down"
-                        // Disable button if an item is not selected, or if another click is pending
-                        opacity: root.selectedIndex > 0 && root.allowArrowClick ? 1 : 0.5
-                        onClicked: {
-                            root.moveItem('down')
-                            // Disable clicks temporarily
-                            root.allowArrowClick = false
-                            // Start timer to re-enable clicks
-                            arrowClickTimer.start()
-                        }
-                    }
-
-                    Timer {
-                        id: arrowClickTimer
-                        interval: 350
-                        onTriggered: {
-                            root.allowArrowClick = true
+                            ]
+                            transitions: [
+                                // Transition for original item's opacity when drag starts/ends
+                                Transition {
+                                    from: "*"; to: "dragging"
+                                    NumberAnimation { properties: "opacity"; duration: 150 }
+                                },
+                                Transition {
+                                    from: "dragging"; to: "*"
+                                    NumberAnimation { properties: "opacity"; duration: 150 }
+                                },
+                                Transition {
+                                    from: "normal"; to: "selected"
+                                    NumberAnimation { properties: "scale,border.width"; duration: 150; easing.type: Easing.OutQuad }
+                                },
+                                Transition {
+                                    from: "selected"; to: "normal"
+                                    NumberAnimation { properties: "scale,border.width"; duration: 150; easing.type: Easing.OutQuad }
+                                },
+                                Transition {
+                                    from: "*"; to: "pressed"
+                                    NumberAnimation { properties: "scale,border.width"; duration: 50; easing.type: Easing.OutQuad }
+                                },
+                                Transition {
+                                    from: "pressed"; to: "*"
+                                    NumberAnimation { properties: "scale,border.width"; duration: 100; easing.type: Easing.OutQuad }
+                                }
+                            ]
                         }
                     }
                 }
+
+                // --- Floating visual for drag and drop ---
+                Rectangle {
+                    id: dragVisual
+                    parent: dialogBody // Parent to dialogBody so it floats above flickable content
+                    width: 0; height: 0 // Will be set dynamically based on dragged item
+                    radius: width / 2
+                    color: "transparent" // Will be set dynamically
+                    border.color: "white"
+                    border.width: 3
+                    visible: false // Hidden by default
+                    opacity: 0 // Hidden by default, will fade in/out
+                    scale: 1.2 // Visually larger when dragged
+                    z: 20 // Ensure it's on top of everything else
+
+                    // Transitions for drag object appearance
+                    transitions: [
+                        Transition {
+                            from: "false"; to: "true" // When becoming visible
+                            NumberAnimation { properties: "opacity"; duration: 100 }
+                        },
+                        Transition {
+                            from: "true"; to: "false" // When becoming invisible
+                            NumberAnimation { properties: "opacity"; duration: 100 }
+                        }
+                    ]
+                }
+                // --- END Floating visual ---
+
+                Item { width: 1; height: Theme.paddingLarge }
+
+                Button {
+                    text: qsTr("Apply Color Sort")
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    highlightColor: Theme.highlightColor
+                    onClicked: {
+                        var finalColorOrder = [];
+                        for (var i = 0; i < colorSortOrderModel.count; i++) {
+                            finalColorOrder.push(colorSortOrderModel.get(i).colorValue);
+                        }
+                        root.colorOrderApplied(finalColorOrder);
+                    }
+                }
+                 Item { width: 1; height: Theme.paddingLarge }
             }
-            Button {
-                id: bottomButton
-                text: qsTr("Apply color sort")
-                anchors.horizontalCenter: parent.horizontalCenter
-//                implicitHeight: Theme.itemSizeMedium
-
-                onClicked: {
-                    var finalColorOrder = [];
-                    for (var i = 0; i < colorSortOrderModel.count; i++) {
-                        finalColorOrder.push(colorSortOrderModel.get(i).colorValue);
-                    }
-                    root.colorOrderApplied(finalColorOrder);
-                }
-            }
+            VerticalScrollDecorator { flickable: flickable }
         }
     }
 }
