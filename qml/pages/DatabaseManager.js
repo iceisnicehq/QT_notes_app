@@ -454,17 +454,9 @@ function getArchivedNotes() {
 
 
 function getTagsForNote(tx_param, noteId) {
-    if (!db) initDatabase(LocalStorage);
     var tempTags = [];
-    if (tx_param) {
-        var res = tx_param.executeSql(
-            'SELECT t.name FROM Tags t JOIN NoteTags nt ON t.id = nt.tag_id WHERE nt.note_id = ?',
-            [noteId]
-        );
-        for (var i = 0; i < res.rows.length; i++) {
-            tempTags.push(res.rows.item(i).name);
-        }
-    } else {
+    if (!tx_param) { // If a transaction object isn't explicitly passed, use a readTransaction
+        if (!db) initDatabase(LocalStorage); // Ensure DB is initialized
         db.readTransaction(function(tx) {
             var res = tx.executeSql(
                 'SELECT t.name FROM Tags t JOIN NoteTags nt ON t.id = nt.tag_id WHERE nt.note_id = ?',
@@ -474,6 +466,14 @@ function getTagsForNote(tx_param, noteId) {
                 tempTags.push(res.rows.item(i).name);
             }
         });
+    } else { // Use the provided transaction object
+        var res = tx_param.executeSql(
+            'SELECT t.name FROM Tags t JOIN NoteTags nt ON t.id = nt.tag_id WHERE nt.note_id = ?',
+            [noteId]
+        );
+        for (var i = 0; i < res.rows.length; i++) {
+            tempTags.push(res.rows.item(i).name);
+        }
     }
     return tempTags;
 }
@@ -1145,17 +1145,24 @@ function generateNoteChecksum(note) {
         return null;
     }
 
+    // Ensure all properties exist, even if empty, for consistent hashing
+    var title = note.title || "";
+    var content = note.content || "";
+    var color = note.color || defaultNoteColor;
+    var pinned = note.pinned ? "1" : "0";
+    var archived = note.archived ? "1" : "0";
+    var deleted = note.deleted ? "1" : "0";
+
+    // Sort tags for consistent checksum generation
     var sortedTags = (note.tags && Array.isArray(note.tags)) ? note.tags.slice().sort().join(';') : '';
-    var data = (note.title || "") +
-               (note.content || "") +
-               (note.color || "") +
-               "|pinned:" + (note.pinned ? "1" : "0") +
-               "|archived:" + (note.archived ? "1" : "0") +
-               "|deleted:" + (note.deleted ? "1" : "0") +
+
+    var data = title + content + color +
+               "|pinned:" + pinned +
+               "|archived:" + archived +
+               "|deleted:" + deleted +
                "|tags:" + sortedTags;
 
     var checksum = simpleStringHash(data);
-
     return checksum;
 }
 
@@ -1234,47 +1241,71 @@ function getNotesForExport(successCallback, errorCallback) {
     });
 }
 
-function addImportedNote(note, tx, optionalTagForImport) {
-    console.log("DB_MGR_DEBUG: Processing note for import: ID " + (note.id || 'new'));
+function addImportedNote(note, tx) {
+    console.log("DB_MGR_DEBUG: addImportedNote: Processing note '${note.title}' (ID: ${note.id || 'new'}) for import.");
+
+    // Ensure defaults for note properties if they are undefined in the imported data
+    var notePinned = note.pinned === undefined ? 0 : note.pinned;
     var noteColor = note.color || defaultNoteColor;
-    var importedNoteChecksum = generateNoteChecksum(note);
+    var noteDeleted = note.deleted === undefined ? 0 : note.deleted;
+    var noteArchived = note.archived === undefined ? 0 : note.archived;
+    var noteTitle = note.title || "";
+    var noteContent = note.content || "";
+
+    // Generate checksum with the *current* state of the note, including its (potentially modified) tags array
+    var importedNoteChecksum = generateNoteChecksum({
+        title: noteTitle,
+        content: noteContent,
+        color: noteColor,
+        pinned: notePinned,
+        deleted: noteDeleted,
+        archived: noteArchived,
+        tags: note.tags // Use the tags array already populated by importNotes
+    });
+
     if (!importedNoteChecksum) {
-        console.error("DB_MGR_DEBUG: Failed to generate checksum for imported note (title: " + note.title + "). Skipping.");
+        console.error("DB_MGR_DEBUG: addImportedNote: Failed to generate checksum for note '${noteTitle}'. Skipping.");
         return null;
     }
+
     var noteId = addNoteInternal(
         tx,
-        note.pinned,
-        note.title,
-        note.content,
+        notePinned,
+        noteTitle,
+        noteContent,
         noteColor,
-        note.deleted || 0,
-        note.archived || 0,
+        noteDeleted,
+        noteArchived,
         importedNoteChecksum
     );
 
     if (noteId === null) {
-        console.error("DB_MGR_DEBUG: addNoteInternal failed for note with title: " + note.title);
+        console.error("DB_MGR_DEBUG: addImportedNote: addNoteInternal failed for note '${noteTitle}'.");
         return null;
     }
 
-    if (note.tags && note.tags.length > 0) {
+    // Process all tags that are now part of the 'note.tags' array (including the new default tag)
+    if (note.tags && Array.isArray(note.tags) && note.tags.length > 0) {
+        console.log("DB_MGR_DEBUG: addImportedNote: Adding tags for note ID ${noteId}: ${JSON.stringify(note.tags)}");
         for (var j = 0; j < note.tags.length; j++) {
-            addTagToNoteInternal(tx, noteId, note.tags[j]);
+            var currentTag = note.tags[j];
+            if (currentTag && currentTag.trim() !== "") {
+                 addTagToNoteInternal(tx, noteId, currentTag.trim());
+            } else {
+                 console.warn("DB_MGR_DEBUG: addImportedNote: Skipping empty tag for note ID ${noteId}.");
+            }
         }
-    }
-    if (optionalTagForImport && typeof optionalTagForImport === 'string' && optionalTagForImport.length > 0) {
-        console.log("DB_MGR_DEBUG: Adding optional import tag '" + optionalTagForImport + "' to imported note ID " + noteId);
-        addTagToNoteInternal(tx, noteId, optionalTagForImport);
+    } else {
+        console.log("DB_MGR_DEBUG: addImportedNote: No tags to add for note ID ${noteId}.");
     }
 
-    console.log("DB_MGR_DEBUG: Successfully added imported note with new DB ID: " + noteId + " and checksum: " + importedNoteChecksum);
+    console.log("DB_MGR_DEBUG: addImportedNote: Successfully added imported note with new DB ID: ${noteId} and checksum: ${importedNoteChecksum}");
     return noteId;
 }
 
 function importNotes(importedNotes, optionalTagForImport, successCallback, errorCallback) {
     if (!db) {
-        initDatabase(LocalStorage); // Attempt to initialize if not already
+        initDatabase(LocalStorage);
         if (!db) {
             var errorMsg = "DB_MGR: Database not initialized for importNotes. Cannot proceed.";
             console.error(errorMsg);
@@ -1287,27 +1318,29 @@ function importNotes(importedNotes, optionalTagForImport, successCallback, error
     var skippedCount = 0;
     var now = new Date();
     var pad = function(num) { return num < 10 ? '0' + num : String(num); };
-    var formattedDate = pad(now.getDate()) +
-                        pad(now.getMonth() + 1) +
-                        (now.getFullYear() % 100) + '_' +
-                        pad(now.getHours()) +
-                        pad(now.getMinutes());
-    var autoGeneratedConflictTag = "import-conflict-" + formattedDate; // More specific tag for conflicts
+    var formattedDate = pad(now.getDate()) + pad(now.getMonth() + 1) + (now.getFullYear() % 100) + '_' + pad(now.getHours()) + pad(now.getMinutes());
+    var autoGeneratedConflictTag = "import-" + formattedDate;
+
+    console.log("DB_MGR_IMPORT: --- Starting Import Process ---");
+    console.log("DB_MGR_IMPORT: Auto-generated conflict tag will be: '" + autoGeneratedConflictTag + "'");
+    console.log("DB_MGR_IMPORT: Optional tag from UI: '" + optionalTagForImport + "' (trimmed: '" + (optionalTagForImport ? optionalTagForImport.trim() : '') + "')");
+
 
     db.transaction(function(tx) {
-        var existingNotesByChecksum = {}; // Store existing notes by their checksum
-        var existingNoteIds = {}; // Store all existing note IDs
+        var existingNotesByChecksum = {}; // Stores {checksum: note_id} for local notes
+        var existingNoteIds = {}; // Stores {id: true} for local note IDs (using object as hash map)
+
         try {
-            // Fetch ALL notes (even deleted/archived) with their checksums for comprehensive comparison
             var result = tx.executeSql('SELECT id, checksum FROM Notes');
             for (var i = 0; i < result.rows.length; i++) {
                 var existingNote = result.rows.item(i);
                 if (existingNote.checksum) {
                     existingNotesByChecksum[existingNote.checksum] = existingNote.id;
                 }
-                 existingNoteIds[existingNote.id] = true; // Add all existing IDs to the set
+                existingNoteIds[existingNote.id] = true; // Use the ID as a key
             }
-            console.log("DB_MGR_IMPORT: [INIT] Found ${Object.keys(existingNotesByChecksum).length} existing notes by checksum and ${existingNoteIds.size} total existing note IDs.");
+            console.log("DB_MGR_IMPORT: [INIT] Found " + Object.keys(existingNotesByChecksum).length + " existing notes by checksum.");
+            console.log("DB_MGR_IMPORT: [INIT] Total " + Object.keys(existingNoteIds).length + " existing note IDs: " + JSON.stringify(Object.keys(existingNoteIds)));
         } catch (e) {
             console.error("DB_MGR_IMPORT: [FATAL] Error fetching existing notes for comparison: " + e.message);
             if (errorCallback) errorCallback(new Error("DB error: " + e.message));
@@ -1316,73 +1349,91 @@ function importNotes(importedNotes, optionalTagForImport, successCallback, error
 
         for (var z = 0; z < importedNotes.length; z++) {
             var noteToImport = importedNotes[z];
+            console.log("\nDB_MGR_IMPORT: --- Processing Note #" + (z + 1) + ": '" + (noteToImport.title || "No Title") + "' ---");
 
-            // Ensure imported note has proper defaults for checksum generation
-            if (noteToImport.pinned === undefined) noteToImport.pinned = 0;
-            if (noteToImport.deleted === undefined) noteToImport.deleted = 0;
-            if (noteToImport.archived === undefined) noteToImport.archived = 0;
-            if (noteToImport.color === undefined) noteToImport.color = defaultNoteColor;
-            if (!noteToImport.tags) noteToImport.tags = []; // Ensure tags is an array
+            // Ensure imported note has proper defaults for checksum generation and DB insertion
+            noteToImport.pinned = noteToImport.pinned === undefined ? 0 : noteToImport.pinned;
+            noteToImport.deleted = noteToImport.deleted === undefined ? 0 : noteToImport.deleted;
+            noteToImport.archived = noteToImport.archived === undefined ? 0 : noteToImport.archived;
+            noteToImport.color = noteToImport.color || defaultNoteColor;
+            if (!noteToImport.tags) {
+                noteToImport.tags = [];
+            } else if (!Array.isArray(noteToImport.tags)) { // Ensure it's an array if it exists
+                 noteToImport.tags = [noteToImport.tags]; // Wrap in array if it's a single string
+            }
 
             var generatedChecksumForImportedNote = generateNoteChecksum(noteToImport);
+            console.log("DB_MGR_IMPORT: Generated Checksum for imported note: '" + generatedChecksumForImportedNote + "'");
+
 
             if (!generatedChecksumForImportedNote) {
-                console.warn("DB_MGR_IMPORT: [SKIPPED] Failed to generate checksum for imported note (title: '${noteToImport.title}').");
+                console.warn("DB_MGR_IMPORT: [SKIPPED] Failed to generate checksum for imported note (title: '" + noteToImport.title + "').");
                 skippedCount++;
                 continue;
             }
 
-            var localNoteIdForImportedNoteId = noteToImport.id; // The ID from the imported file
+            var importedFileId = noteToImport.id; // This is the ID from the JSON/CSV
 
             // Check if an identical note (by checksum) already exists locally
             var existingNoteIdByChecksum = existingNotesByChecksum[generatedChecksumForImportedNote];
 
+            console.log("DB_MGR_IMPORT: Comparison - importedFileId: " + importedFileId + " (type: " + typeof importedFileId + ")");
+            console.log("DB_MGR_IMPORT: Comparison - existingNoteIdByChecksum (matching checksum): " + existingNoteIdByChecksum);
+
             if (existingNoteIdByChecksum !== undefined) {
                 // Scenario 1: An identical note (by checksum) already exists. Skip.
-                console.log("DB_MGR_IMPORT: [SKIPPED] Note '${noteToImport.title}' (checksum: '${generatedChecksumForImportedNote}') is identical to existing local note ID: ${existingNoteIdByChecksum}.");
+                console.log("DB_MGR_IMPORT: [SKIPPED] Note '" + noteToImport.title + "' (checksum: '" + generatedChecksumForImportedNote + "') is identical to existing local note ID: " + existingNoteIdByChecksum + ".");
                 skippedCount++;
             } else {
                 // Scenario 2: No identical note by checksum. Add it as a new note.
-                // If the imported ID exists but the checksum is different, it's a conflict, add a tag.
+                // This is the path where a tag *should* be added if there's a conflict or user input.
                 var tagToAdd = null;
-                if (localNoteIdForImportedNoteId !== undefined && existingNoteIds[localNoteIdForImportedNoteId]) {
-                    // This means a note with the same 'id' exists locally, but its content (checksum) is different.
-                    // This is a "conflict" or a new version of a note from the same "ID space".
-                    // We treat it as a new note in the database to avoid overwriting.
-                    tagToAdd = autoGeneratedConflictTag;
-                    console.log("DB_MGR_IMPORT: [ADDING NEW - CONFLICT] Note '${noteToImport.title}' (imported ID: ${localNoteIdForImportedNoteId}) has a different checksum. Adding as new with tag: '${tagToAdd}'.");
+                console.log("DB_MGR_IMPORT: No exact checksum match found. Considering adding as new note.");
+
+                // Keep this check to log if an ID conflict was detected for debugging,
+                // but its direct influence on 'tagToAdd' changes below.
+                var isConflictById = (importedFileId !== undefined && existingNoteIds[importedFileId]);
+                console.log("DB_MGR_IMPORT: Conflict check - importedFileId exists: " + (importedFileId !== undefined) + ", importedFileId in existingNoteIds map: " + existingNoteIds[importedFileId] + ", Combined isConflictById: " + isConflictById);
+
+                if (optionalTagForImport && optionalTagForImport.trim() !== '') {
+                    // Always prioritize user-defined tag if present
+                    tagToAdd = optionalTagForImport.trim();
+                    console.log("DB_MGR_IMPORT: [ADDING NEW - USER TAG PATH] User provided an optional tag. Tag will be: '" + tagToAdd + "'.");
                 } else {
-                    // This is a truly new note (no matching ID or checksum)
-                    if (optionalTagForImport && optionalTagForImport.trim() !== '') {
-                        tagToAdd = optionalTagForImport.trim();
-                        console.log("DB_MGR_IMPORT: [ADDING NEW] Note '${noteToImport.title}'. Applying user tag: '${tagToAdd}'.");
-                    } else {
-                        console.log("DB_MGR_IMPORT: [ADDING NEW] Note '${noteToImport.title}'. No extra tag needed.");
-                    }
+                    // If no user tag, then apply the auto-generated tag for *any* newly added note
+                    // (since it wasn't skipped by checksum, it's considered "new")
+                    tagToAdd = autoGeneratedConflictTag; // Renamed to a more general "import tag"
+                    console.log("DB_MGR_IMPORT: [ADDING NEW - AUTO-GENERATED TAG PATH] No optional tag. Auto-generated tag will be: '" + tagToAdd + "'.");
                 }
 
-                // Add the relevant tag if determined
+                // Add the determined tag to the note's tags array before passing to addImportedNote
                 if (tagToAdd) {
-                    if (!noteToImport.tags) noteToImport.tags = [];
                     if (noteToImport.tags.indexOf(tagToAdd) === -1) {
                         noteToImport.tags.push(tagToAdd);
+                        console.log("DB_MGR_IMPORT: Tag '" + tagToAdd + "' ADDED to noteToImport.tags for '" + noteToImport.title + "'. Note's tags now: " + JSON.stringify(noteToImport.tags));
+                    } else {
+                        console.log("DB_MGR_IMPORT: Tag '" + tagToAdd + "' already present in noteToImport.tags for '" + noteToImport.title + "'.");
                     }
+                } else {
+                    console.log("DB_MGR_IMPORT: 'tagToAdd' is null. No tag pushed to noteToImport.tags.");
                 }
 
-                // Add the note
+                // Call addImportedNote, which will now use noteToImport.tags directly
                 var newNoteDbId = addImportedNote(noteToImport, tx);
                 if (newNoteDbId !== null) {
                     importedCount++;
+                    console.log("DB_MGR_IMPORT: Successfully imported note. New DB ID: " + newNoteDbId + ".");
                 } else {
                     skippedCount++;
+                    console.error("DB_MGR_IMPORT: Failed to import note '" + noteToImport.title + "'.");
                 }
             }
         }
 
-        DB.updateNotesImportedCount(importedCount);
-        DB.updateLastImportDate(); // Use DB.updateLastImportDate to ensure the setting is saved
-
-        console.log("DB_MGR_IMPORT: [COMPLETE] Imported: ${importedCount}, Skipped: ${skippedCount}.");
+        updateNotesImportedCount(importedCount);
+        updateLastImportDate();
+        console.log("DB_MGR_IMPORT: --- Import Process Complete ---");
+        console.log("DB_MGR_IMPORT: Total Added: " + importedCount + ", Total Skipped: " + skippedCount + ".");
         if (successCallback) {
             successCallback({ importedCount: importedCount, updatedCount: 0, skippedCount: skippedCount });
         }
@@ -1393,7 +1444,6 @@ function importNotes(importedNotes, optionalTagForImport, successCallback, error
         }
     });
 }
-
 function updateLastExportDate() {
     if (!db) {
         console.error("DB_MGR: База данных не инициализирована для обновления статистики экспорта.");

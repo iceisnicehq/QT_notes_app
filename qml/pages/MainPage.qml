@@ -635,10 +635,7 @@ Page {
         anchors.bottomMargin: Theme.paddingLarge * 2
         z: 5
         antialiasing: true
-        // Кнопка видна только когда мы не в режиме выделения
-        visible: !mainPage.selectionMode && !mainPage.tagPickerOpen
-
-        // Логика затухания при прокрутке, как у основной кнопки
+        visible: !mainPage.selectionMode && !mainPage.tagPickerOpen && allNotes.length > 1
         property real baseOpacity: 0.8
         property real minOpacity: 0.1
         property real fadeDistance: Theme.itemSizeExtraLarge * 1.5
