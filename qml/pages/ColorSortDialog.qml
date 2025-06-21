@@ -18,172 +18,141 @@ Item {
 
     ListModel { id: colorSortOrderModel }
 
-    // ЗАМЕНИТЕ СТАРУЮ ФУНКЦИЮ SWAPITEMS НА ЭТУ:
-    function swapItems(indexA, indexB) {
-        // Проверка, чтобы индексы были разными и корректными
-        if (indexA === indexB || indexA < 0 || indexB < 0) return;
+    function moveItem(direction) {
+        if (selectedIndex === -1) return;
+        var originalIndex = selectedIndex;
+        var newIndex = (direction === 'up') ? selectedIndex - 1 : selectedIndex + 1;
 
-        console.log("Swapping index " + indexA + " and " + indexB);
-
-        // Чтобы избежать ошибок с индексами, всегда двигаем элемент
-        // с большим индексом первым.
-        if (indexA < indexB) {
-            // Сначала двигаем B на место A
-            colorSortOrderModel.move(indexB, indexA, 1);
-            // Бывший A теперь находится на месте A+1, двигаем его на место B
-            colorSortOrderModel.move(indexA + 1, indexB, 1);
-        } else { // indexA > indexB
-            // Сначала двигаем A на место B
-            colorSortOrderModel.move(indexA, indexB, 1);
-            // Бывший B теперь находится на месте B+1, двигаем его на место A
-            colorSortOrderModel.move(indexB + 1, indexA, 1);
+        if (newIndex >= 0 && newIndex < colorSortOrderModel.count) {
+            colorSortOrderModel.move(originalIndex, newIndex, 1);
+            selectedIndex = newIndex;
         }
     }
 
-    // --- ИСПРАВЛЕННЫЙ БЛОК ---
+    // Этот обработчик теперь максимально простой и надежный
     onColorsToOrderChanged: {
         colorSortOrderModel.clear();
-        root.selectedIndex = -1; // Сбрасываем выбор при открытии
-
-        // УСЛОВИЕ 'root.visible' УБРАНО. ЭТО ИСПРАВЛЕНИЕ.
-        if (colorsToOrder && colorsToOrder.length > 0) {
-            for (var i = 0; i < colorsToOrder.length; i++) {
-                colorSortOrderModel.append({ "colorValue": colorsToOrder[i] });
-            }
+        selectedIndex = -1;
+        for (var i = 0; i < colorsToOrder.length; i++) {
+            colorSortOrderModel.append({ "colorValue": colorsToOrder[i] });
         }
     }
-    // --- КОНЕЦ ИСПРАВЛЕННОГО БЛОКА ---
 
-
-    Rectangle { // Фон
-        anchors.fill: parent
-        color: "#000000"
-        opacity: root.dialogVisible ? 0.6 : 0
+    Rectangle {
+        anchors.fill: parent; color: "#000000"; opacity: root.dialogVisible ? 0.6 : 0
         Behavior on opacity { NumberAnimation { duration: 200 } }
         MouseArea { anchors.fill: parent; enabled: root.dialogVisible; onClicked: root.cancelled() }
     }
 
     Rectangle {
         id: dialogBody
-        width: Math.min(parent.width * 0.9, Theme.itemSizeExtraLarge * 9)
-        height: Math.min(parent.height * 0.8, contentColumn.implicitHeight + Theme.paddingLarge * 2)
+        width: parent.width - (Theme.paddingLarge * 2)
+        height: parent.height - (Theme.paddingLarge * 4)
         color: root.dialogBackgroundColor
         radius: Theme.itemSizeSmall / 2
         anchors.centerIn: parent
         clip: true
-        opacity: root.dialogVisible ? 1 : 0
-        scale: root.dialogVisible ? 1.0 : 0.9
-        Behavior on opacity { NumberAnimation { duration: 200 } }
-        Behavior on scale { PropertyAnimation { property: "scale"; duration: 200; easing.type: Easing.OutBack } }
 
-        MouseArea { anchors.fill: parent; hoverEnabled: true; }
-
-        SilicaFlickable {
-            id: flickable
+        // --- НАДЕЖНАЯ ВЕРСТКА НА ЯКОРЯХ ---
+        Column {
+            id: contentColumn
             anchors.fill: parent
-            contentHeight: contentColumn.implicitHeight
+            anchors.margins: Theme.paddingMedium
+            spacing: Theme.paddingMedium
 
-            Column {
-                id: contentColumn
-                width: parent.width - (Theme.paddingLarge * 2)
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.top: parent.top
-                anchors.topMargin: Theme.paddingLarge
-                anchors.bottomMargin: Theme.paddingLarge
+            PageHeader {
+                id: pageHeader
+                title: qsTr("Set Color Order")
+            }
+
+            Label {
+                id: subHeader
+                width: parent.width
+                text: qsTr("Click to select a color, then use arrows to move it.")
+                font.pixelSize: Theme.fontSizeSmall; color: Theme.secondaryColor
+                horizontalAlignment: Text.AlignHCenter; wrapMode: Text.WordWrap
+            }
+
+            Row {
+                id: listContainer
+                width: parent.width
+                // Якоря, чтобы занять все доступное место между подзаголовком и кнопкой
+                anchors.top: subHeader.bottom
+                anchors.bottom: bottomButton.top
+                anchors.topMargin: Theme.paddingMedium
+                anchors.bottomMargin: Theme.paddingMedium
                 spacing: Theme.paddingMedium
 
-                Label {
-                    width: parent.width
-                    text: qsTr("Set Color Order")
-                    font.pixelSize: Theme.fontSizeLarge; font.bold: true; color: "white"
-                    horizontalAlignment: Text.AlignHCenter
-                }
-                Label {
-                    width: parent.width
-                    text: qsTr("Click one color, then another to swap them. Click a selected color again to deselect.")
-                    font.pixelSize: Theme.fontSizeSmall; color: Theme.secondaryColor
-                    horizontalAlignment: Text.AlignHCenter; wrapMode: Text.WordWrap
-                }
+                SilicaFlickable {
+                    width: parent.width - arrowButtons.width - listContainer.spacing
+                    height: parent.height
+                    contentHeight: listView.contentHeight
 
-                GridView {
-                    id: colorSortGrid
-                    width: parent.width
-                    implicitHeight: contentHeight
-                    cellWidth: width / 4
-                    cellHeight: cellWidth
-                    model: colorSortOrderModel
-                    clip: true
+                    ListView {
+                        id: listView
+                        anchors.fill: parent
+                        model: colorSortOrderModel
+                        spacing: Theme.paddingSmall
 
-                    delegate: Item {
-                        width: colorSortGrid.cellWidth
-                        height: colorSortGrid.cellHeight
+                        delegate: BackgroundItem {
+                            width: parent.width
+                            height: Theme.itemSizeMedium
+                            highlighted: root.selectedIndex === index
+                            onClicked: { root.selectedIndex = (root.selectedIndex === index) ? -1 : index }
 
-                        Rectangle {
-                            id: colorCircle
-                            width: parent.width * 0.8; height: parent.height * 0.8
-                            anchors.centerIn: parent
-                            radius: width / 2; color: model.colorValue
-                            border.color: "white"
-
-                            states: [
-                                State {
-                                    name: "selected"
-                                    when: root.selectedIndex === index
-                                    PropertyChanges { target: colorCircle; scale: 1.2; border.width: 3 }
-                                },
-                                State {
-                                    name: "normal"
-                                    when: root.selectedIndex !== index
-                                    PropertyChanges { target: colorCircle; scale: 1.0; border.width: 1 }
+                            Row {
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left; anchors.leftMargin: Theme.paddingMedium
+                                spacing: Theme.paddingMedium
+                                Rectangle {
+                                    width: Theme.itemSizeSmall; height: Theme.itemSizeSmall
+                                    radius: width/2; color: model.colorValue
+                                    border.color: "white"; border.width: 1
                                 }
-                            ]
-                            transitions: [
-                                Transition {
-                                    from: "normal"; to: "selected"
-                                    NumberAnimation { properties: "scale,border.width"; duration: 150; easing.type: Easing.OutQuad }
-                                },
-                                Transition {
-                                    from: "selected"; to: "normal"
-                                    NumberAnimation { properties: "scale,border.width"; duration: 150; easing.type: Easing.OutQuad }
-                                }
-                            ]
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                if (root.selectedIndex === -1) {
-                                    root.selectedIndex = index;
-                                } else {
-                                    if (root.selectedIndex === index) {
-                                        root.selectedIndex = -1;
-                                    } else {
-                                        root.swapItems(root.selectedIndex, index);
-                                        root.selectedIndex = -1;
-                                    }
+                                Label {
+                                    text: model.colorValue
+                                    color: parent.highlighted ? Theme.highlightColor : Theme.primaryColor
                                 }
                             }
                         }
                     }
+                    VerticalScrollDecorator { flickable: parent }
                 }
 
-                Item { width: 1; height: Theme.paddingLarge }
+                Column {
+                    id: arrowButtons
+                    height: parent.height
+                    spacing: Theme.paddingMedium
+                    anchors.verticalCenter: parent.verticalCenter
 
-                Button {
-                    text: qsTr("Apply Color Sort")
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    highlightColor: Theme.highlightColor
-                    onClicked: {
-                        var finalColorOrder = [];
-                        for (var i = 0; i < colorSortOrderModel.count; i++) {
-                            finalColorOrder.push(colorSortOrderModel.get(i).colorValue);
-                        }
-                        root.colorOrderApplied(finalColorOrder);
+                    Button {
+                        icon.source: "image://theme/icon-m-up"
+                        enabled: root.selectedIndex > 0
+                        onClicked: root.moveItem('up')
+                    }
+                    Button {
+                        icon.source: "image://theme/icon-m-down"
+                        enabled: root.selectedIndex !== -1 && root.selectedIndex < (colorSortOrderModel.count - 1)
+                        onClicked: root.moveItem('down')
                     }
                 }
-                 Item { width: 1; height: Theme.paddingLarge }
             }
-            VerticalScrollDecorator { flickable: flickable }
+
+            Button {
+                id: bottomButton
+                text: qsTr("Apply Color Sort")
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: Theme.paddingLarge
+
+                onClicked: {
+                    var finalColorOrder = [];
+                    for (var i = 0; i < colorSortOrderModel.count; i++) {
+                        finalColorOrder.push(colorSortOrderModel.get(i).colorValue);
+                    }
+                    root.colorOrderApplied(finalColorOrder);
+                }
+            }
         }
     }
 }
