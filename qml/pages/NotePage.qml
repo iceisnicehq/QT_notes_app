@@ -411,7 +411,7 @@ Page {
                             function() {
                                 // Original duplication logic moved here
                                 console.log(qsTr("Duplicate button clicked for note ID: %1 (confirmed)").arg(newNotePage.noteId));
-                                pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
+                                pageStack.replace(Qt.resolvedUrl("NotePage.qml"), {
                                    onNoteSavedOrDeleted: newNotePage.onNoteSavedOrDeleted, // Use the same refresh callback
                                    noteId: -1, // This makes it a new note
                                    noteTitle: newNotePage.noteTitle + qsTr(" (copy)"), // Append "(copy)" to title
