@@ -5,7 +5,7 @@
 #include <QTranslator>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-// #include <QQuickView> // NO LONGER NEEDED HERE if not storing m_view
+// #include <QQuickView>
 
 class AppSettings : public QObject
 {
