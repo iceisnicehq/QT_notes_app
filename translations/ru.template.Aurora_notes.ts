@@ -526,114 +526,114 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
 <context>
     <name>MainPage</name>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="177"/>
+        <location filename="../qml/pages/MainPage.qml" line="190"/>
         <source>You have no notes.
 Click on the plus button to create one!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="220"/>
+        <location filename="../qml/pages/MainPage.qml" line="233"/>
         <source>Search notes...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="382"/>
+        <location filename="../qml/pages/MainPage.qml" line="395"/>
         <source>Confirm Deletion</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="383"/>
+        <location filename="../qml/pages/MainPage.qml" line="396"/>
         <source>Are you sure you want to move %1 selected note(s) to trash?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="384"/>
+        <location filename="../qml/pages/MainPage.qml" line="397"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="389"/>
+        <location filename="../qml/pages/MainPage.qml" line="402"/>
         <source>%1 note(s) moved to trash!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="396"/>
-        <location filename="../qml/pages/MainPage.qml" line="432"/>
+        <location filename="../qml/pages/MainPage.qml" line="409"/>
+        <location filename="../qml/pages/MainPage.qml" line="445"/>
         <source>No notes selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="418"/>
+        <location filename="../qml/pages/MainPage.qml" line="431"/>
         <source>Confirm Archiving</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="419"/>
+        <location filename="../qml/pages/MainPage.qml" line="432"/>
         <source>Are you sure you want to archive %1 selected note(s)?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="420"/>
+        <location filename="../qml/pages/MainPage.qml" line="433"/>
         <source>Archive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="425"/>
+        <location filename="../qml/pages/MainPage.qml" line="438"/>
         <source>%1 note(s) archived!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="495"/>
+        <location filename="../qml/pages/MainPage.qml" line="508"/>
         <source>No notes found matching your criteria.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="504"/>
+        <location filename="../qml/pages/MainPage.qml" line="517"/>
         <source>Try a different keyword or fewer tags.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="524"/>
+        <location filename="../qml/pages/MainPage.qml" line="537"/>
         <source>Pinned</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="568"/>
+        <location filename="../qml/pages/MainPage.qml" line="581"/>
         <source>Others</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="1098"/>
+        <location filename="../qml/pages/MainPage.qml" line="1111"/>
         <source>Notes sorted!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="1128"/>
+        <location filename="../qml/pages/MainPage.qml" line="1164"/>
         <source>Notes sorted by color!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="829"/>
+        <location filename="../qml/pages/MainPage.qml" line="842"/>
         <source>Search tags...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="1007"/>
+        <location filename="../qml/pages/MainPage.qml" line="1020"/>
         <source>Done</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="1019"/>
+        <location filename="../qml/pages/MainPage.qml" line="1032"/>
         <source>Create</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="1038"/>
+        <location filename="../qml/pages/MainPage.qml" line="1051"/>
         <source>No tags found matching your search</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="1050"/>
+        <location filename="../qml/pages/MainPage.qml" line="1063"/>
         <source>You have no tags.
 Go to edit tags page to create one!</source>
         <translation type="unfinished"></translation>
@@ -1330,17 +1330,17 @@ to create one!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SortDialog.qml" line="100"/>
+        <location filename="../qml/pages/SortDialog.qml" line="92"/>
         <source>Ascending</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SortDialog.qml" line="109"/>
+        <location filename="../qml/pages/SortDialog.qml" line="101"/>
         <source>Descending</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/SortDialog.qml" line="122"/>
+        <location filename="../qml/pages/SortDialog.qml" line="114"/>
         <source>Apply</source>
         <translation type="unfinished"></translation>
     </message>

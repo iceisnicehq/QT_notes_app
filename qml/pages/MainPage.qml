@@ -55,6 +55,12 @@ Page {
         console.log(("MainPage created."));
         DB.initDatabase()
         DB.permanentlyDeleteExpiredDeletedNotes();
+        var savedSettings = DB.loadSortSettings();
+        if (savedSettings) {
+            mainPage.currentSortBy = savedSettings.sortBy;
+            mainPage.currentSortOrder = savedSettings.sortOrder;
+            mainPage.customColorSortOrder = savedSettings.colorOrder;
+        }
         refreshData()
     }
 
@@ -73,14 +79,21 @@ Page {
     function refreshData() {
         allNotes = DB.getAllNotes();
         allTags = DB.getAllTags();
-        performSearch(currentSearchText, selectedTags);
+        performSearch();
         loadTagsForDrawer();
     }
 
     // Main search function that calls the DatabaseManager and updates searchResults
-    function performSearch(text, tags, customColorOrder) {
-        var colorOrder = customColorOrder || [];
-        searchResults = DB.searchNotes(text, tags, mainPage.currentSortBy, mainPage.currentSortOrder, colorOrder);
+    function performSearch() {
+        // Теперь функция не принимает аргументов, а использует свойства mainPage.
+        // Это делает ее поведение предсказуемым и надежным.
+        searchResults = DB.searchNotes(
+            mainPage.currentSearchText,
+            mainPage.selectedTags,
+            mainPage.currentSortBy,
+            mainPage.currentSortOrder,
+            mainPage.customColorSortOrder // Всегда передаем актуальный порядок цветов
+        );
         console.log("MAIN_PAGE: Search performed. SortBy: " + mainPage.currentSortBy);
     }
 
@@ -93,7 +106,7 @@ Page {
             selectedTags = selectedTags.concat(tagName);
             console.log("MAIN_PAGE: Added tag:", tagName, "Selected tags:", JSON.stringify(selectedTags));
         }
-        performSearch(currentSearchText, selectedTags);
+        performSearch();
     }
 
     // Function to load tags into the ListModel for the tag selection panel
@@ -223,7 +236,7 @@ Page {
                     readOnly: allNotes.length === 0
                     onTextChanged: {
                         mainPage.currentSearchText = text;
-                        performSearch(text, selectedTags);
+                        performSearch();
                     }
 
                     EnterKey.onClicked: {
@@ -1094,23 +1107,46 @@ Page {
                 mainPage.customColorSortOrder = [];
             }
 
-            mainPage.performSearch(mainPage.currentSearchText, mainPage.selectedTags);
+            mainPage.performSearch();
             toastManager.show(qsTr("Notes sorted!"));
+            DB.saveSortSettings(mainPage.currentSortBy, mainPage.currentSortOrder, mainPage.customColorSortOrder);
         }
 
         onColorSortRequested: {
-            // ДОБАВЬТЕ ЭТИ СТРОКИ
-            var uniqueColors = DB.getUniqueNoteColors();
-            console.log("MAIN_PAGE: Color sort requested. Unique colors fetched:", JSON.stringify(uniqueColors));
+            // --- НАЧАЛО НОВОЙ ЛОГИКИ ---
 
-            // Убедимся, что диалог существует
-            if (colorSortDialog) {
-                colorSortDialog.colorsToOrder = uniqueColors;
-                mainPage.colorSortDialogVisible = true;
-                console.log("MAIN_PAGE: Passing colors to ColorSortDialog and making it visible.");
-            } else {
-                console.error("MAIN_PAGE: Error! colorSortDialog instance is not available.");
-            }
+            // 1. Получаем сохраненный порядок (если он есть, иначе пустой массив)
+            var savedOrder = mainPage.customColorSortOrder || [];
+
+            // 2. Получаем ВСЕ уникальные цвета, которые есть в заметках сейчас
+            var allCurrentColors = DB.getUniqueNoteColors();
+
+            // 3. Формируем итоговый список для диалога, чтобы сохранить порядок
+            // и добавить новые цвета в конец.
+            var finalOrderForDialog = [];
+
+            // Используем объект для быстрой проверки, какие цвета мы уже добавили
+            var seenColors = {};
+
+            // Сначала добавляем все цвета из сохраненного порядка,
+            // если они все еще существуют среди актуальных цветов.
+            savedOrder.forEach(function(color) {
+                if (allCurrentColors.indexOf(color) !== -1) {
+                    finalOrderForDialog.push(color);
+                    seenColors[color] = true;
+                }
+            });
+
+            // Затем добавляем все НОВЫЕ цвета (которых не было в сохраненном порядке)
+            allCurrentColors.forEach(function(color) {
+                if (!seenColors[color]) {
+                    finalOrderForDialog.push(color);
+                }
+            });
+
+            // 4. Передаем в диалог этот финальный, правильно отсортированный список
+            colorSortDialog.colorsToOrder = finalOrderForDialog;
+            mainPage.colorSortDialogVisible = true;
         }
 
         onCancelled: mainPage.sortDialogVisible = false
@@ -1123,10 +1159,12 @@ Page {
         onColorOrderApplied: function(orderedColors) {
             mainPage.colorSortDialogVisible = false;
             mainPage.customColorSortOrder = orderedColors;
-            // Сразу же применяем сортировку
-            mainPage.performSearch(mainPage.currentSearchText, mainPage.selectedTags);
+            mainPage.currentSortBy = 'color';
+            mainPage.performSearch();
             toastManager.show(qsTr("Notes sorted by color!"));
+            DB.saveSortSettings(mainPage.currentSortBy, mainPage.currentSortOrder, mainPage.customColorSortOrder);
         }
         onCancelled: mainPage.colorSortDialogVisible = false
+
     }
 }
