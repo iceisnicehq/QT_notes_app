@@ -897,18 +897,20 @@ function simpleStringHash(str) {
     return (hash >>> 0).toString(16);
 }
 
+// Замените старую версию этой функции на новую
+
 function generateNoteChecksum(note) {
     if (!note) {
         console.error("DB_MGR: generateNoteChecksum received null/undefined note.");
         return null;
     }
 
-    var title = note.title || "";
-    var content = note.content || "";
-    var color = note.color || defaultNoteColor;
-    var pinned = note.pinned ? "1" : "0";
-    var archived = note.archived ? "1" : "0";
-    var deleted = note.deleted ? "1" : "0";
+    var title = String(note.title || "");
+    var content = String(note.content || "");
+    var color = String(note.color || defaultNoteColor);
+    var pinned = String(note.pinned ? "1" : "0");
+    var archived = String(note.archived ? "1" : "0");
+    var deleted = String(note.deleted ? "1" : "0");
 
     var data = title + content + color +
                "|pinned:" + pinned +
