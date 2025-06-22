@@ -1619,3 +1619,43 @@ function bulkUnpinNotes(noteIds) {
     });
     console.log("DB: Bulk unpinned notes with IDs:", JSON.stringify(noteIds));
 }
+
+function bulkUpdateNoteColor(noteIds, newColor) { // Parameter is noteIds
+    if (!noteIds || noteIds.length === 0) { // Use noteIds here
+        console.warn("DB_MGR: No IDs provided for bulkUpdateNoteColor.");
+        return;
+    }
+    if (!db) initDatabase(LocalStorage); // Ensure DB is initialized
+
+    db.transaction(function(tx) {
+        // Iterate through each note ID and update its color and checksum
+        for (var i = 0; i < noteIds.length; i++) { // Use noteIds here
+            var noteId = noteIds[i];
+
+            // 1. Get the current note data to generate a correct checksum
+            // This assumes getNoteById exists and fetches all necessary fields (title, content, tags, etc.)
+            // IMPORTANT: getNoteById must be available in this scope (e.g., defined before this function)
+            var currentNote = getNoteById(noteId);
+            if (currentNote) {
+                // Temporarily update the color for checksum generation
+                currentNote.color = newColor;
+                currentNote.pinned = currentNote.pinned ? 1 : 0; // Ensure boolean is converted back to int for checksum consistency
+                currentNote.archived = currentNote.archived ? 1 : 0;
+                currentNote.deleted = currentNote.deleted ? 1 : 0;
+
+                // Generate new checksum with the updated color
+                var newChecksum = generateNoteChecksum(currentNote);
+
+                // Update the note in the database
+                tx.executeSql(
+                    'UPDATE Notes SET color = ?, checksum = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+                    [newColor, newChecksum, noteId]
+                );
+                console.log("DB_MGR: Updated color for note ID:", noteId, "to", newColor, "with new checksum:", newChecksum);
+            } else {
+                console.warn("DB_MGR: Note with ID:", noteId, "not found for color update. Skipping.");
+            }
+        }
+    });
+    console.log("DB_MGR: Bulk updated colors for notes with IDs:", JSON.stringify(noteIds), "to", newColor); // Use noteIds here
+}
