@@ -192,7 +192,7 @@ Page {
                     spacing: Theme.paddingSmall
 
                     Icon {
-                        source: "../icons/language.svg"
+                        source: "../icons/lang.png"
                         width: Theme.iconSizeSmall
                         height: Theme.iconSizeSmall
                         color: "white"
