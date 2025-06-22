@@ -664,85 +664,69 @@ Page {
     }
 
     function generateCsv(data) {
-        var headers = ["id", "title", "content", "color", "pinned", "deleted", "archived", "created_at", "updated_at", "tags"];
-        var csv = headers.join(",") + "\n";
+        if (!data || data.length === 0) {
+            return "";
+        }
         var escapeCsvField = function(field) {
-            var cleanedField = String(field || '')
-                               .replace(/,/g, ';')
-                               .replace(/\r\n|\n|\r/g, ' ')
-                               .replace(/"/g, '""');
-
-            return "\"" + cleanedField + "\"";
+            var stringField = String(field || '');
+            if (stringField.search(/("|,|\n)/g) >= 0) {
+                stringField = '"' + stringField.replace(/"/g, '""') + '"';
+            }
+            return stringField;
         };
 
+        var headers = Object.keys(data[0]);
+        var csv = headers.join(',') + '\n';
         for (var i = 0; i < data.length; i++) {
-            var note = data[i];
-            var row = [
-                note.id,
-                escapeCsvField(note.title),
-                escapeCsvField(note.content),
-                escapeCsvField(note.color),
-                note.pinned ? 1 : 0,
-                note.deleted ? 1 : 0,
-                note.archived ? 1 : 0,
-                escapeCsvField(note.created_at),
-                escapeCsvField(note.updated_at),
-                escapeCsvField(note.tags ? note.tags.join(';') : '')
-            ];
-            csv += row.join(",") + "\n";
+            var row = headers.map(function(header) {
+                return escapeCsvField(data[i][header]);
+            });
+            csv += row.join(',') + '\n';
         }
+
         return csv;
     }
 
-    function parseCsv(content) {
-        var lines = content.split('\n');
+   function parseCsv(content) {
+        var lines = content.replace(/\r/g, '').split('\n');
         if (lines.length < 2) return [];
 
-        var headers = lines[0].trim().split(',').map(function(h) {
-            return h.replace(/^"|"$/g, '').trim();
-        });
-
+        var headers = lines[0].split(',');
         var notes = [];
+        var regex = /("([^"]|"")*"|[^,]*)(,|$)/g;
+
         for (var i = 1; i < lines.length; i++) {
-            var line = lines[i].trim();
-            if (line === "") continue;
+            var line = lines[i];
+            if (line.trim() === "") continue;
 
             var values = [];
-            var inQuote = false;
-            var currentField = "";
-            for (var j = 0; j < line.length; j++) {
-                var character = line[j];
-                if (character === '"') {
-                    if (inQuote && line[j+1] === '"') {
-                        currentField += '"';
-                        j++;
-                    } else {
-                        inQuote = !inQuote;
-                    }
-                } else if (character === ',' && !inQuote) {
-                    values.push(currentField);
-                    currentField = "";
-                } else {
-                    currentField += character;
+            var match;
+            regex.lastIndex = 0;
+
+            while ((match = regex.exec(line))) {
+                var value = match[1];
+                if (value.startsWith('"') && value.endsWith('"')) {
+                    value = value.slice(1, -1).replace(/""/g, '"');
                 }
+                values.push(value);
+                if (match[3] === '') break; // Конец строки
             }
-            values.push(currentField);
+
+            if (values.length !== headers.length) {
+                console.warn("DB_MGR: CSV parsing warning: skipping malformed line", i + 1);
+                continue;
+            }
 
             var note = {};
             for(var k = 0; k < headers.length; k++) {
-                var header = headers[k];
-                var value = values[k] !== undefined ? values[k] : "";
-
-                value = value.replace(/""/g, '"');
-
-                note[header] = value;
+                note[headers[k]] = values[k];
             }
 
             note.id = parseInt(note.id, 10);
-            note.pinned = (note.pinned === "1" || note.pinned === "true");
-            note.deleted = (note.deleted === "1" || note.deleted === "true");
-            note.archived = (note.archived === "1" || note.archived === "true");
-            note.tags = note.tags ? note.tags.split(';').map(function(tag) { return tag.trim(); }).filter(function(tag) { return tag !== ''; }) : [];
+            note.pinned = (note.pinned === "1" || note.pinned === true);
+            note.deleted = (note.deleted === "1" || note.deleted === true);
+            note.archived = (note.archived === "1" || note.archived === true);
+            note.tags = note.tags ? note.tags.split(';').map(function(tag){ return tag.trim(); }).filter(Boolean) : [];
 
             if (!isNaN(note.id)) {
                notes.push(note);

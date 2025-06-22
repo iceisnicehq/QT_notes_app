@@ -182,8 +182,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     </message>
     <message>
         <location filename="../qml/dialogs/ColorSortDialog.qml" line="322"/>
-        <source>Apply Color Sort</source>
-        <translation>Aplicar ordenación por color</translation>
+        <source>Apply and Save Order</source>
+        <translation>Aplicar y guardar pedido</translation>
     </message>
 </context>
 <context>
@@ -209,7 +209,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     <message>
         <location filename="../qml/cover/DefaultPageCover.qml" line="22"/>
         <source>Notes</source>
-        <translation type="unfinished">Notas</translation>
+        <translation>Notas</translation>
     </message>
 </context>
 <context>
@@ -492,185 +492,185 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
 <context>
     <name>MainPage</name>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="195"/>
-        <location filename="../qml/pages/MainPage.qml" line="235"/>
-        <location filename="../qml/pages/MainPage.qml" line="513"/>
-        <location filename="../qml/pages/MainPage.qml" line="551"/>
-        <location filename="../qml/pages/MainPage.qml" line="586"/>
+        <location filename="../qml/pages/MainPage.qml" line="202"/>
+        <location filename="../qml/pages/MainPage.qml" line="242"/>
+        <location filename="../qml/pages/MainPage.qml" line="520"/>
+        <location filename="../qml/pages/MainPage.qml" line="558"/>
+        <location filename="../qml/pages/MainPage.qml" line="593"/>
         <source>No notes selected.</source>
         <translation>Ninguna nota seleccionada.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="208"/>
+        <location filename="../qml/pages/MainPage.qml" line="215"/>
         <source>unpin</source>
         <translation>desanclar</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="208"/>
+        <location filename="../qml/pages/MainPage.qml" line="215"/>
         <source>pin</source>
         <translation>anclar</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="209"/>
+        <location filename="../qml/pages/MainPage.qml" line="216"/>
         <source>Are you sure you want to %1 %2 selected note(s)?</source>
         <translation>¿Está seguro de que desea %1 %2 nota(s) seleccionada(s)?</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="213"/>
+        <location filename="../qml/pages/MainPage.qml" line="220"/>
         <source>Confirm Pin/Unpin</source>
         <translation>Confirmar anclaje/desanclaje</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="221"/>
+        <location filename="../qml/pages/MainPage.qml" line="228"/>
         <source>%1 note(s) unpinned!</source>
         <translation>¡%1 nota(s) desanclada(s)!</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="224"/>
+        <location filename="../qml/pages/MainPage.qml" line="231"/>
         <source>%1 note(s) pinned!</source>
         <translation>¡%1 nota(s) anclada(s)!</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="239"/>
+        <location filename="../qml/pages/MainPage.qml" line="246"/>
         <source>Confirm Color Change</source>
         <translation>Confirmar cambio de color</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="240"/>
+        <location filename="../qml/pages/MainPage.qml" line="247"/>
         <source>Are you sure you want to change the color of %1 selected note(s) to the chosen color?</source>
         <translation>¿Está seguro de que desea cambiar el color de %1 nota(s) seleccionada(s) al color elegido?</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="241"/>
+        <location filename="../qml/pages/MainPage.qml" line="248"/>
         <source>Change Color</source>
         <translation>Cambiar color</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="246"/>
+        <location filename="../qml/pages/MainPage.qml" line="253"/>
         <source>Color changed for %1 note(s)!</source>
         <translation>¡Color cambiado para %1 nota(s)!</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="259"/>
+        <location filename="../qml/pages/MainPage.qml" line="266"/>
         <source>You have no notes.
 Click on the plus button to create one!</source>
         <translation>No tienes notas.
 ¡Haz clic en el botón de más para crear una!</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="299"/>
+        <location filename="../qml/pages/MainPage.qml" line="306"/>
         <source>Search notes...</source>
         <translation>Buscar notas...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="536"/>
+        <location filename="../qml/pages/MainPage.qml" line="543"/>
         <source>Confirm Deletion</source>
         <translation>Confirmar eliminación</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="537"/>
+        <location filename="../qml/pages/MainPage.qml" line="544"/>
         <source>Are you sure you want to move %1 selected note(s) to trash?</source>
         <translation>¿Está seguro de que desea mover %1 nota(s) seleccionada(s) a la papelera?</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="538"/>
+        <location filename="../qml/pages/MainPage.qml" line="545"/>
         <source>Delete</source>
         <translation>Eliminar</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="543"/>
+        <location filename="../qml/pages/MainPage.qml" line="550"/>
         <source>%1 note(s) moved to trash!</source>
         <translation>¡%1 nota(s) movida(s) a la papelera!</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="571"/>
+        <location filename="../qml/pages/MainPage.qml" line="578"/>
         <source>Confirm Archiving</source>
         <translation>Confirmar archivo</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="572"/>
+        <location filename="../qml/pages/MainPage.qml" line="579"/>
         <source>Are you sure you want to archive %1 selected note(s)?</source>
         <translation>¿Está seguro de que desea archivar %1 nota(s) seleccionada(s)?</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="573"/>
+        <location filename="../qml/pages/MainPage.qml" line="580"/>
         <source>Archive</source>
         <translation>Archivar</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="578"/>
+        <location filename="../qml/pages/MainPage.qml" line="585"/>
         <source>%1 note(s) archived!</source>
         <translation>¡%1 nota(s) archivada(s)!</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="647"/>
+        <location filename="../qml/pages/MainPage.qml" line="654"/>
         <source>No notes found matching your criteria.</source>
         <translation>No se encontraron notas que coincidan con sus criterios.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="656"/>
+        <location filename="../qml/pages/MainPage.qml" line="663"/>
         <source>Try a different keyword or fewer tags.</source>
         <translation>Pruebe con una palabra clave diferente o menos etiquetas.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="674"/>
+        <location filename="../qml/pages/MainPage.qml" line="681"/>
         <source>Pinned</source>
         <translation>Anclado</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="717"/>
+        <location filename="../qml/pages/MainPage.qml" line="724"/>
         <source>Others</source>
         <translation>Otros</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="955"/>
+        <location filename="../qml/pages/MainPage.qml" line="962"/>
         <source>Select Color for Notes</source>
         <translation>Seleccionar color para notas</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="1108"/>
+        <location filename="../qml/pages/MainPage.qml" line="1115"/>
         <source>Search tags...</source>
         <translation>Buscar etiquetas...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="1261"/>
+        <location filename="../qml/pages/MainPage.qml" line="1268"/>
         <source>Done</source>
         <translation>Hecho</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="1273"/>
+        <location filename="../qml/pages/MainPage.qml" line="1280"/>
         <source>Create</source>
         <translation>Crear</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="1292"/>
+        <location filename="../qml/pages/MainPage.qml" line="1299"/>
         <source>No tags found matching your search</source>
         <translation>No se encontraron etiquetas que coincidan con su búsqueda</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="1304"/>
+        <location filename="../qml/pages/MainPage.qml" line="1311"/>
         <source>You have no tags.
 Go to edit tags page to create one!</source>
         <translation>No tienes etiquetas.
 ¡Ve a la página de editar etiquetas para crear una!</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="1344"/>
+        <location filename="../qml/pages/MainPage.qml" line="1351"/>
         <source>Notes sorted!</source>
         <translation>¡Notas ordenadas!</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="1351"/>
+        <location filename="../qml/pages/MainPage.qml" line="1358"/>
         <source>Only one color is used in the filtered notes.</source>
         <translation>En las notas filtradas solo se utiliza un color.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="1376"/>
+        <location filename="../qml/pages/MainPage.qml" line="1383"/>
         <source>Sorting by color is not available when there is only one color.</source>
         <translation>La clasificación por color no está disponible cuando solo hay un color.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="1390"/>
+        <location filename="../qml/pages/MainPage.qml" line="1397"/>
         <source>Notes sorted by color!</source>
         <translation>¡Notas ordenadas por color!</translation>
     </message>
@@ -1077,59 +1077,59 @@ Go to edit tags page to create one!</source>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="146"/>
         <source>Aurora Notes</source>
-        <translation type="unfinished">Notas de Aurora</translation>
+        <translation>Notas de Aurora</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="194"/>
         <source>Navigation</source>
-        <translation type="unfinished">Navegación</translation>
+        <translation>Navegación</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="204"/>
         <source>Notes</source>
-        <translation type="unfinished">Notas</translation>
+        <translation>Notas</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="215"/>
         <source>Archive</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="226"/>
         <source>Trash</source>
-        <translation type="unfinished">Papelera</translation>
+        <translation>Papelera</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="237"/>
         <source>Import &amp; Export</source>
-        <translation type="unfinished">Importar y Exportar</translation>
+        <translation>Importar y Exportar</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="247"/>
         <source>Settings</source>
-        <translation type="unfinished">Configuración</translation>
+        <translation>Configuración</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="257"/>
         <source>About</source>
-        <translation type="unfinished">Acerca de</translation>
+        <translation>Acerca de</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="278"/>
         <source>Tags</source>
-        <translation type="unfinished">Etiquetas</translation>
+        <translation>Etiquetas</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="289"/>
         <source>Edit Tags</source>
-        <translation type="unfinished">Editar etiquetas</translation>
+        <translation>Editar etiquetas</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="301"/>
         <source>You have no tags.
  Go to edit tags page
 to create one!</source>
-        <translation type="unfinished">No tienes etiquetas.
+        <translation>No tienes etiquetas.
  Ve a la página de editar etiquetas
  para crear una!</translation>
     </message>

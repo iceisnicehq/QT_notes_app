@@ -182,8 +182,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     </message>
     <message>
         <location filename="../qml/dialogs/ColorSortDialog.qml" line="322"/>
-        <source>Apply Color Sort</source>
-        <translation>应用颜色排序</translation>
+        <source>Apply and Save Order</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -492,183 +492,183 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
 <context>
     <name>MainPage</name>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="259"/>
+        <location filename="../qml/pages/MainPage.qml" line="266"/>
         <source>You have no notes.
 Click on the plus button to create one!</source>
         <translation>您没有笔记。
 点击加号按钮创建一个！</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="299"/>
+        <location filename="../qml/pages/MainPage.qml" line="306"/>
         <source>Search notes...</source>
         <translation>搜索笔记...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="536"/>
+        <location filename="../qml/pages/MainPage.qml" line="543"/>
         <source>Confirm Deletion</source>
         <translation>确认删除</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="537"/>
+        <location filename="../qml/pages/MainPage.qml" line="544"/>
         <source>Are you sure you want to move %1 selected note(s) to trash?</source>
         <translation>您确定要将选定的 %1 个笔记移动到垃圾桶吗？</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="538"/>
+        <location filename="../qml/pages/MainPage.qml" line="545"/>
         <source>Delete</source>
         <translation>删除</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="543"/>
+        <location filename="../qml/pages/MainPage.qml" line="550"/>
         <source>%1 note(s) moved to trash!</source>
         <translation>%1 个笔记已移至垃圾桶！</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="195"/>
-        <location filename="../qml/pages/MainPage.qml" line="235"/>
-        <location filename="../qml/pages/MainPage.qml" line="513"/>
-        <location filename="../qml/pages/MainPage.qml" line="551"/>
-        <location filename="../qml/pages/MainPage.qml" line="586"/>
+        <location filename="../qml/pages/MainPage.qml" line="202"/>
+        <location filename="../qml/pages/MainPage.qml" line="242"/>
+        <location filename="../qml/pages/MainPage.qml" line="520"/>
+        <location filename="../qml/pages/MainPage.qml" line="558"/>
+        <location filename="../qml/pages/MainPage.qml" line="593"/>
         <source>No notes selected.</source>
         <translation>未选择笔记。</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="208"/>
+        <location filename="../qml/pages/MainPage.qml" line="215"/>
         <source>unpin</source>
         <translation>取消置顶</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="208"/>
+        <location filename="../qml/pages/MainPage.qml" line="215"/>
         <source>pin</source>
         <translation>置顶</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="209"/>
+        <location filename="../qml/pages/MainPage.qml" line="216"/>
         <source>Are you sure you want to %1 %2 selected note(s)?</source>
         <translation>您确定要 %1 选定的 %2 个笔记吗？</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="213"/>
+        <location filename="../qml/pages/MainPage.qml" line="220"/>
         <source>Confirm Pin/Unpin</source>
         <translation>确认置顶/取消置顶</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="221"/>
+        <location filename="../qml/pages/MainPage.qml" line="228"/>
         <source>%1 note(s) unpinned!</source>
         <translation>%1 个笔记已取消置顶！</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="224"/>
+        <location filename="../qml/pages/MainPage.qml" line="231"/>
         <source>%1 note(s) pinned!</source>
         <translation>%1 个笔记已置顶！</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="239"/>
+        <location filename="../qml/pages/MainPage.qml" line="246"/>
         <source>Confirm Color Change</source>
         <translation>确认颜色更改</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="240"/>
+        <location filename="../qml/pages/MainPage.qml" line="247"/>
         <source>Are you sure you want to change the color of %1 selected note(s) to the chosen color?</source>
         <translation>您确定要将选定的 %1 个笔记的颜色更改为所选颜色吗？</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="241"/>
+        <location filename="../qml/pages/MainPage.qml" line="248"/>
         <source>Change Color</source>
         <translation>更改颜色</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="246"/>
+        <location filename="../qml/pages/MainPage.qml" line="253"/>
         <source>Color changed for %1 note(s)!</source>
         <translation>%1 个笔记的颜色已更改！</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="571"/>
+        <location filename="../qml/pages/MainPage.qml" line="578"/>
         <source>Confirm Archiving</source>
         <translation>确认存档</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="572"/>
+        <location filename="../qml/pages/MainPage.qml" line="579"/>
         <source>Are you sure you want to archive %1 selected note(s)?</source>
         <translation>您确定要存档选定的 %1 个笔记吗？</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="573"/>
+        <location filename="../qml/pages/MainPage.qml" line="580"/>
         <source>Archive</source>
         <translation>存档</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="578"/>
+        <location filename="../qml/pages/MainPage.qml" line="585"/>
         <source>%1 note(s) archived!</source>
         <translation>%1 个笔记已存档！</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="647"/>
+        <location filename="../qml/pages/MainPage.qml" line="654"/>
         <source>No notes found matching your criteria.</source>
         <translation>未找到符合您条件的笔记。</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="656"/>
+        <location filename="../qml/pages/MainPage.qml" line="663"/>
         <source>Try a different keyword or fewer tags.</source>
         <translation>尝试不同的关键词或更少的标签。</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="674"/>
+        <location filename="../qml/pages/MainPage.qml" line="681"/>
         <source>Pinned</source>
         <translation>已置顶</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="717"/>
+        <location filename="../qml/pages/MainPage.qml" line="724"/>
         <source>Others</source>
         <translation>其他</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="955"/>
+        <location filename="../qml/pages/MainPage.qml" line="962"/>
         <source>Select Color for Notes</source>
         <translation>选择笔记颜色</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="1344"/>
+        <location filename="../qml/pages/MainPage.qml" line="1351"/>
         <source>Notes sorted!</source>
         <translation>笔记已排序！</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="1351"/>
+        <location filename="../qml/pages/MainPage.qml" line="1358"/>
         <source>Only one color is used in the filtered notes.</source>
         <translation>過濾後的筆記僅使用一種顏色</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="1376"/>
+        <location filename="../qml/pages/MainPage.qml" line="1383"/>
         <source>Sorting by color is not available when there is only one color.</source>
         <translation>當只有一種顏色時，無法依顏色排序</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="1390"/>
+        <location filename="../qml/pages/MainPage.qml" line="1397"/>
         <source>Notes sorted by color!</source>
         <translation>笔记已按颜色排序！</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="1108"/>
+        <location filename="../qml/pages/MainPage.qml" line="1115"/>
         <source>Search tags...</source>
         <translation>搜索标签...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="1261"/>
+        <location filename="../qml/pages/MainPage.qml" line="1268"/>
         <source>Done</source>
         <translation>完成</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="1273"/>
+        <location filename="../qml/pages/MainPage.qml" line="1280"/>
         <source>Create</source>
         <translation>创建</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="1292"/>
+        <location filename="../qml/pages/MainPage.qml" line="1299"/>
         <source>No tags found matching your search</source>
         <translation>未找到与您的搜索匹配的标签</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MainPage.qml" line="1304"/>
+        <location filename="../qml/pages/MainPage.qml" line="1311"/>
         <source>You have no tags.
 Go to edit tags page to create one!</source>
         <translation>您没有标签。

@@ -74,6 +74,13 @@ Page {
         console.log(("MainPage created."));
         DB.initDatabase()
         DB.permanentlyDeleteExpiredDeletedNotes();
+        var savedSettings = DB.loadSortSettings();
+        if (savedSettings) {
+            mainPage.currentSortBy = savedSettings.sortBy;
+            mainPage.currentSortOrder = savedSettings.sortOrder;
+            mainPage.customColorSortOrder = savedSettings.colorOrder;
+            console.log("MainPage: Loaded sort settings from DB. SortBy:", mainPage.currentSortBy);
+        }
         refreshData()
     }
 
