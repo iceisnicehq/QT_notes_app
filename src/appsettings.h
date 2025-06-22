@@ -14,9 +14,7 @@ class AppSettings : public QObject
 
 public:
     explicit AppSettings(QObject *parent = nullptr);
-
-    // Only takes QGuiApplication now
-    void loadInitialLanguage(QGuiApplication* app); // <--- CHANGED SIGNATURE
+    void loadInitialLanguage(QGuiApplication* app);
 
     Q_INVOKABLE bool setApplicationLanguage(const QString& languageCode);
     QString currentLanguage() const { return m_currentLanguage; }
@@ -27,9 +25,7 @@ signals:
 private:
     QTranslator m_translator;
     QGuiApplication* m_app;
-    // QQuickView* m_view; // <--- REMOVE THIS MEMBER
     QString m_currentLanguage;
-
     void saveLanguageSetting(const QString& languageCode);
     QString loadLanguageSetting();
 };

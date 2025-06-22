@@ -1,51 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="ru">
+<TS version="2.1" language="es">
 <context>
     <name>AboutPage</name>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="17"/>
         <source>AboutPage opened. Initializing side panel and theme.</source>
-        <translation>Страница &quot;О приложении&quot; открыта. Инициализация боковой панели и темы.</translation>
+        <translation>Página de información abierta. Inicializando panel lateral y tema.</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="57"/>
         <source>Menu button clicked in AboutPage → panelOpen = true</source>
-        <translation>Нажата кнопка меню на странице &quot;О приложении&quot; → panelOpen = true</translation>
+        <translation>Botón de menú clicado en Página de información → panelOpen = true</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="62"/>
         <source>About Application</source>
-        <translation>О приложении</translation>
+        <translation>Acerca de la aplicación</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="87"/>
         <source>What is this app?</source>
-        <translation>Что это за приложение?</translation>
+        <translation>¿Qué es esta aplicación?</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="98"/>
         <source>This is a simple yet powerful note-taking application designed to help you organize your thoughts,
                             ideas, and tasks efficiently. It provides a clean interface for creating, editing, and managing your notes, complete with tagging capabilities and quick search functionality.
                             Whether for personal reminders or professional project management, this app aims to be your reliable digital notebook.</source>
-        <translation>Это простое, но мощное приложение для заметок, разработанное, чтобы помочь вам эффективно организовать свои мысли, идеи и задачи. Оно предоставляет чистый интерфейс для создания, редактирования и управления вашими заметками, с возможностями добавления тегов и быстрого поиска. Будь то личные напоминания или профессиональное управление проектами, это приложение призвано стать вашим надежным цифровым блокнотом.</translation>
+        <translation>Esta es una aplicación de toma de notas simple pero potente, diseñada para ayudarle a organizar sus pensamientos, ideas y tareas de manera eficiente. Proporciona una interfaz limpia para crear, editar y administrar sus notas, con capacidades de etiquetado y funcionalidad de búsqueda rápida. Ya sea para recordatorios personales o para la gestión de proyectos profesionales, esta aplicación aspira a ser su cuaderno digital de confianza.</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="105"/>
         <source>Who are the Developers?</source>
-        <translation>Кто разработчики?</translation>
+        <translation>¿Quiénes son los desarrolladores?</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="116"/>
         <source>This application was developed with passion and dedication by a team committed to creating intuitive and effective tools for everyday use.
                             We believe in open-source principles and continuously work to improve the app based on user feedback. Special thanks to the Sailfish OS community for their
                             invaluable support and resources.</source>
-        <translation>Это приложение было разработано с энтузиазмом и самоотверженностью командой, приверженной созданию интуитивно понятных и эффективных инструментов для повседневного использования. Мы верим в принципы открытого исходного кода и постоянно работаем над улучшением приложения на основе отзывов пользователей. Особая благодарность сообществу Sailfish OS за их бесценную поддержку и ресурсы.</translation>
+        <translation>Esta aplicación fue desarrollada con pasión y dedicación por un equipo comprometido con la creación de herramientas intuitivas y efectivas para el uso diario. Creemos en los principios de código abierto y trabajamos continuamente para mejorar la aplicación basándonos en los comentarios de los usuarios. Un agradecimiento especial a la comunidad de Sailfish OS por su invaluable apoyo y recursos.</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="125"/>
         <source>3-Clause BSD License</source>
-        <translation>Лицензия 3-Clause BSD</translation>
+        <translation>Licencia BSD de 3 cláusulas</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="136"/>
@@ -86,33 +86,38 @@ CAUSED AND ON ANY THEORY OF LIABILITY,
                     WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
-        <translation>Copyright (c) [Год], [Имя Разработчика/Организация]
-Все права защищены.
+        <translation>Copyright (c) [Año], [Nombre del desarrollador/Organización]
+Todos los derechos
+                    reservados.
 
-Распространение и использование в исходной и двоичной формах, с изменениями или без них,
-разрешаются при соблюдении следующих условий:
+Se permite la redistribución y el uso en formas de código fuente y binarias, con o sin
+modificación,
+                    siempre que se cumplan las siguientes condiciones:
 
-1. При распространении исходного кода должны сохраняться вышеуказанное уведомление об авторских правах,
-   этот список условий и последующее заявление об отказе от ответственности.
+1. Las redistribuciones del código fuente deben conservar el aviso de derechos de autor anterior, esta
+                    lista de condiciones y la siguiente exención de responsabilidad.
 
-2. При распространении в двоичной форме должны воспроизводиться вышеуведомление об авторских правах,
-   этот список условий и последующее заявление об отказе от ответственности в документации
-   и/или других материалах, предоставляемых вместе с распространением.
+2. Las redistribuciones en formato binario deben reproducir el aviso de derechos de autor anterior,
+                    esta lista de condiciones y la siguiente exención de responsabilidad en la documentación
+   y/u otros materiales proporcionados con la distribución.
 
-3. Ни название правообладателя, ни имена его
-   участников не могут быть использованы для одобрения или продвижения продуктов, полученных из
-   этого программного обеспечения без специального предварительного письменного разрешения.
+3.
+                    Ni el nombre del titular de los derechos de autor ni los nombres de sus
+   colaboradores pueden utilizarse para respaldar o promocionar productos derivados de
+                    este software sin un permiso previo por escrito específico.
 
-ДАННОЕ ПРОГРАММНОЕ ОБЕСПЕЧЕНИЕ ПРЕДОСТАВЛЯЕТСЯ ПРАВООБЛАДАТЕЛЯМИ И УЧАСТНИКАМИ «КАК ЕСТЬ»
-И ЛЮБЫЕ ЯВНЫЕ ИЛИ ПОДРАЗУМЕВАЕМЫЕ ГАРАНТИИ, ВКЛЮЧАЯ, НО НЕ ОГРАНИЧИВАЯСЬ,
-ПОДРАЗУМЕВАЕМЫЕ ГАРАНТИИ ТОВАРНОЙ ПРИГОДНОСТИ И ПРИГОДНОСТИ ДЛЯ ОПРЕДЕЛЕННОЙ ЦЕЛИ,
-ОТКАЗЫВАЮТСЯ. НИ В КОЕМ СЛУЧАЕ ПРАВООБЛАДАТЕЛЬ ИЛИ УЧАСТНИКИ НЕ НЕСУТ ОТВЕТСТВЕННОСТИ
-ЗА ЛЮБЫЕ ПРЯМЫЕ, КОСВЕННЫЕ, СЛУЧАЙНЫЕ, СПЕЦИАЛЬНЫЕ, ПРИМЕРНЫЕ ИЛИ ПОСЛЕДУЮЩИЕ
-УБЫТКИ (ВКЛЮЧАЯ, НО НЕ ОГРАНИЧИВАЯСЬ, ПРИОБРЕТЕНИЕ ЗАМЕНЯЮЩИХ ТОВАРОВ ИЛИ
-УСЛУГ; ПОТЕРЮ ИСПОЛЬЗОВАНИЯ, ДАННЫХ ИЛИ ПРИБЫЛИ; ИЛИ ПРЕРЫВАНИЕ ДЕЯТЕЛЬНОСТИ) НЕЗАВИСИМО ОТ
-ПРИЧИНЫ И НА ЛЮБОЙ ТЕОРИИ ОТВЕТСТВЕННОСТИ, БУДЬ ТО В КОНТРАКТЕ, СТРОГОЙ ОТВЕТСТВЕННОСТИ
-ИЛИ ДЕЛИКТЕ (ВКЛЮЧАЯ НЕБРЕЖНОСТЬ ИЛИ ИНОЕ), ВОЗНИКШИЕ В РЕЗУЛЬТАТЕ ИСПОЛЬЗОВАНИЯ
-ДАННОГО ПРОГРАММНОГО ОБЕСПЕЧЕНИЯ, ДАЖЕ ЕСЛИ БЫЛО СООБЩЕНО О ВОЗМОЖНОСТИ ТАКИХ УБЫТКОВ.</translation>
+ESTE SOFTWARE SE PROPORCIONA POR LOS TITULARES DE LOS DERECHOS DE AUTOR Y LOS COLABORADORES &quot;TAL CUAL&quot;
+Y CUALQUIER GARANTÍA EXPRESA
+                    O IMPLÍCITA, INCLUYENDO, PERO SIN LIMITARSE A, LAS
+GARANTÍAS IMPLÍCITAS DE COMERCIABILIDAD E IDONEIDAD PARA UN PROPÓSITO PARTICULAR SON
+RECHAZADAS. EN NINGÚN
+                    CASO EL TITULAR DE LOS DERECHOS DE AUTOR O LOS COLABORADORES SERÁN RESPONSABLES
+DE NINGÚN DAÑO DIRECTO, INDIRECTO, INCIDENTAL, ESPECIAL, EJEMPLAR O CONSECUENTE
+(INCLUYENDO, PERO SIN LIMITARSE A, LA ADQUISICIÓN DE BIENES O SERVICIOS SUSTITUTOS;
+LA PÉRDIDA DE USO, DATOS O BENEFICIOS; O LA INTERRUPCIÓN DEL NEGOCIO) CUALQUIERA
+QUE SEA LA CAUSA Y BAJO CUALQUIER TEORÍA DE RESPONSABILIDAD, YA SEA POR CONTRATO, RESPONSABILIDAD ESTRICTA
+O AGRAVIO (INCLUYENDO NEGLIGENCIA O DE OTRA MANERA) QUE SURJA DEL USO
+DE ESTE SOFTWARE, INCLUSO SI SE HA ADVERTIDO DE LA POSIBILIDAD DE DICHOS DAÑOS.</translation>
     </message>
 </context>
 <context>
@@ -123,20 +128,20 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <location filename="../qml/pages/ArchivePage.qml" line="214"/>
         <location filename="../qml/pages/ArchivePage.qml" line="366"/>
         <source>archive</source>
-        <translation>архив</translation>
+        <translation>archivo</translation>
     </message>
     <message>
         <location filename="../qml/pages/ArchivePage.qml" line="19"/>
         <location filename="../qml/pages/ArchivePage.qml" line="50"/>
         <source>Confirm Deletion</source>
-        <translation>Подтвердить удаление</translation>
+        <translation>Confirmar eliminación</translation>
     </message>
     <message>
         <location filename="../qml/pages/ArchivePage.qml" line="21"/>
         <location filename="../qml/pages/ArchivePage.qml" line="53"/>
         <location filename="../qml/pages/ArchivePage.qml" line="261"/>
         <source>Delete</source>
-        <translation>Удалить</translation>
+        <translation>Eliminar</translation>
     </message>
     <message>
         <location filename="../qml/pages/ArchivePage.qml" line="35"/>
@@ -148,94 +153,94 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <location filename="../qml/pages/ArchivePage.qml" line="367"/>
         <location filename="../qml/pages/ArchivePage.qml" line="406"/>
         <source>trash</source>
-        <translation>корзина</translation>
+        <translation>papelera</translation>
     </message>
     <message>
         <location filename="../qml/pages/ArchivePage.qml" line="103"/>
         <source>Trash</source>
-        <translation>Корзина</translation>
+        <translation>Papelera</translation>
     </message>
     <message>
         <location filename="../qml/pages/ArchivePage.qml" line="103"/>
         <source>Archive</source>
-        <translation>Архив</translation>
+        <translation>Archivo</translation>
     </message>
     <message>
         <location filename="../qml/pages/ArchivePage.qml" line="150"/>
         <source>Select</source>
-        <translation>Выбрать</translation>
+        <translation>Seleccionar</translation>
     </message>
     <message>
         <location filename="../qml/pages/ArchivePage.qml" line="189"/>
         <location filename="../qml/pages/ArchivePage.qml" line="206"/>
         <source>Restore</source>
-        <translation>Восстановить</translation>
+        <translation>Restaurar</translation>
     </message>
     <message>
         <location filename="../qml/pages/ArchivePage.qml" line="189"/>
         <location filename="../qml/pages/ArchivePage.qml" line="217"/>
         <source>Unarchive</source>
-        <translation>Разархивировать</translation>
+        <translation>Desarchivar</translation>
     </message>
     <message>
         <location filename="../qml/pages/ArchivePage.qml" line="204"/>
         <source>Are you sure you want to restore %1 selected notes to your main notes?</source>
-        <translation>Вы уверены, что хотите восстановить %1 выбранных заметок в основные?</translation>
+        <translation>¿Está seguro de que desea restaurar %1 nota(s) seleccionada(s) a sus notas principales?</translation>
     </message>
     <message>
         <location filename="../qml/pages/ArchivePage.qml" line="205"/>
         <source>Confirm Restoration</source>
-        <translation>Подтвердите восстановление</translation>
+        <translation>Confirmar restauración</translation>
     </message>
     <message>
         <location filename="../qml/pages/ArchivePage.qml" line="211"/>
         <source>%1 note(s) restored!</source>
-        <translation>%1 заметка(и) восстановлена(ы)!</translation>
+        <translation>¡%1 nota(s) restaurada(s)!</translation>
     </message>
     <message>
         <location filename="../qml/pages/ArchivePage.qml" line="215"/>
         <source>Are you sure you want to unarchive %1 selected notes?</source>
-        <translation>Вы уверены, что хотите разархивировать %1 выбранных заметок?</translation>
+        <translation>¿Está seguro de que desea desarchivar %1 nota(s) seleccionada(s)?</translation>
     </message>
     <message>
         <location filename="../qml/pages/ArchivePage.qml" line="216"/>
         <source>Confirm Unarchive</source>
-        <translation>Подтвердить разархивацию</translation>
+        <translation>Confirmar desarchivo</translation>
     </message>
     <message>
         <location filename="../qml/pages/ArchivePage.qml" line="222"/>
         <source>%1 note(s) unarchived!</source>
-        <translation>%1 заметка(и) разархивирована(ы)!</translation>
+        <translation>¡%1 nota(s) desarchivada(s)!</translation>
     </message>
     <message>
         <location filename="../qml/pages/ArchivePage.qml" line="269"/>
         <source>Are you sure you want to permanently delete %1 selected notes? This action cannot be undone.</source>
-        <translation>Вы уверены, что хотите безвозвратно удалить %1 выбранных заметок? Это действие отменить невозможно.</translation>
+        <translation>¿Está seguro de que desea eliminar permanentemente %1 nota(s) seleccionada(s)? Esta acción no se puede deshacer.</translation>
     </message>
     <message>
         <location filename="../qml/pages/ArchivePage.qml" line="276"/>
         <source>%1 note(s) permanently deleted!</source>
-        <translation>%1 заметка(и) безвозвратно удалена(ы)!</translation>
+        <translation>¡%1 nota(s) eliminada(s) permanentemente!</translation>
     </message>
     <message>
         <location filename="../qml/pages/ArchivePage.qml" line="279"/>
         <source>Confirm Permanent Deletion</source>
-        <translation>Подтвердите безвозвратное удаление</translation>
+        <translation>Confirmar eliminación permanente</translation>
     </message>
     <message>
         <location filename="../qml/pages/ArchivePage.qml" line="280"/>
         <source>Delete Permanently</source>
-        <translation>Удалить безвозвратно</translation>
+        <translation>Eliminar permanentemente</translation>
     </message>
     <message>
         <location filename="../qml/pages/ArchivePage.qml" line="406"/>
         <source>Trash is empty.</source>
-        <translation>Корзина пуста.</translation>
+        <translation>La papelera está vacía.</translation>
     </message>
     <message>
         <location filename="../qml/pages/ArchivePage.qml" line="406"/>
         <source>Archive is empty.</source>
-        <translation>Архив пуст.</translation>
+        <translation>El archivo está vacío.</translation>
     </message>
 </context>
 <context>
@@ -243,35 +248,35 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     <message>
         <location filename="../qml/pages/ColorSortDialog.qml" line="99"/>
         <source>Set Color Order</source>
-        <translation>Установить порядок цветов</translation>
+        <translation>Establecer orden de color</translation>
     </message>
     <message>
         <location filename="../qml/pages/ColorSortDialog.qml" line="106"/>
         <source>Long press to drag and drop. Click to select and swap.</source>
-        <translation>Долгое нажатие для перетаскивания. Нажмите, чтобы выбрать и поменять местами.</translation>
+        <translation>Mantén presionado para arrastrar y soltar. Haz clic para seleccionar e intercambiar.</translation>
     </message>
     <message>
         <location filename="../qml/pages/ColorSortDialog.qml" line="343"/>
         <source>Apply Color Sort</source>
-        <translation>Применить сортировку по цвету</translation>
+        <translation>Aplicar ordenación por color</translation>
     </message>
 </context>
 <context>
     <name>ConfirmDialog</name>
     <message>
-        <location filename="../qml/pages/ConfirmDialog.qml" line="12"/>
+        <location filename="../qml/pages/ConfirmDialog.qml" line="10"/>
         <source></source>
         <translation></translation>
     </message>
     <message>
         <location filename="../qml/pages/ConfirmDialog.qml" line="12"/>
         <source>Confirm</source>
-        <translation>Подтвердить</translation>
+        <translation>Confirmar</translation>
     </message>
     <message>
         <location filename="../qml/pages/ConfirmDialog.qml" line="102"/>
         <source>Cancel</source>
-        <translation>Отмена</translation>
+        <translation>Cancelar</translation>
     </message>
 </context>
 <context>
@@ -279,7 +284,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     <message>
         <location filename="../qml/cover/DefaultCoverPage.qml" line="10"/>
         <source>Notes</source>
-        <translation>Заметки</translation>
+        <translation>Notas</translation>
     </message>
 </context>
 <context>
@@ -287,290 +292,285 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="51"/>
         <source>Select file for import</source>
-        <translation>Выберите файл для импорта</translation>
+        <translation>Seleccionar archivo para importar</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="76"/>
         <source>Select Export Directory</source>
-        <translation>Выберите каталог для экспорта</translation>
+        <translation>Seleccionar directorio de exportación</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="101"/>
         <source>Selected folder path is invalid or empty. Using default documents path.</source>
-        <translation>Выбранный путь к папке недействителен или пуст. Используется путь к документам по умолчанию.</translation>
+        <translation>La ruta de la carpeta seleccionada no es válida o está vacía. Se utiliza la ruta de documentos predeterminada.</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="108"/>
         <source>Folder selection cancelled.</source>
-        <translation>Выбор папки отменен.</translation>
+        <translation>Selección de carpeta cancelada.</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="187"/>
         <source>Export completed</source>
-        <translation>Экспорт завершен</translation>
+        <translation>Exportación completada</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="205"/>
         <location filename="../qml/pages/ImportExportPage.qml" line="343"/>
         <source>File: </source>
-        <translation>Файл: </translation>
+        <translation>Archivo: </translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="213"/>
         <location filename="../qml/pages/ImportExportPage.qml" line="351"/>
         <source>Path: </source>
-        <translation>Путь: </translation>
+        <translation>Ruta: </translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="223"/>
         <source>Notes exported: </source>
-        <translation>Экспортировано заметок: </translation>
+        <translation>Notas exportadas: </translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="231"/>
         <source>File size: </source>
-        <translation>Размер файла: </translation>
+        <translation>Tamaño del archivo: </translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="231"/>
         <source> KB</source>
-        <translation> КБ</translation>
+        <translation> KB</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="236"/>
         <location filename="../qml/pages/ImportExportPage.qml" line="374"/>
         <source>Great!</source>
-        <translation>Отлично!</translation>
+        <translation>¡Genial!</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="325"/>
         <source>Import completed</source>
-        <translation>Импорт завершен</translation>
+        <translation>Importación completada</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="361"/>
         <source>Notes imported: </source>
-        <translation>Импортировано заметок: </translation>
+        <translation>Notas importadas: </translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="369"/>
         <source>Tags created: </source>
-        <translation>Создано тегов: </translation>
+        <translation>Etiquetas creadas: </translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="422"/>
         <source>Import/Export</source>
-        <translation>Импорт/Экспорт</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="484"/>
-        <source>File Name</source>
-        <translation>Имя файла</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="485"/>
-        <source>e.g., notes_backup</source>
-        <translation>например, notes_backup</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="531"/>
-        <source>Export all notes</source>
-        <translation>Экспортировать все заметки</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="558"/>
-        <source>Import notes</source>
-        <translation>Импортировать заметки</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="569"/>
-        <source>This tag will get added to imported notes</source>
-        <translation>Этот тег будет добавлен к импортированным заметкам</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="570"/>
-        <source>Add tag to imported notes (optional)</source>
-        <translation>Добавить тег к импортированным заметкам (необязательно)</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="574"/>
-        <source>Import from file</source>
-        <translation>Импортировать из файла</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="989"/>
-        <source>No valid notes found in file.</source>
-        <translation>В файле не найдено действительных заметок.</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="999"/>
-        <source>File processing error: </source>
-        <translation>Ошибка обработки файла: </translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="489"/>
-        <source>Notes in the trash don&apos;t get exported</source>
-        <translation>Заметки в корзине не экспортируются</translation>
+        <translation>Importar/Exportar</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="444"/>
         <source>Export notes</source>
-        <translation>Экспортировать заметки</translation>
+        <translation>Exportar notas</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="461"/>
         <source>Select export directory</source>
-        <translation>Выбрать каталог для экспорта</translation>
+        <translation>Seleccionar directorio de exportación</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="484"/>
+        <source>File Name</source>
+        <translation>Nombre del archivo</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="485"/>
+        <source>e.g., notes_backup</source>
+        <translation>p. ej., notas_copia_seguridad</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="489"/>
+        <source>Notes in the trash don&apos;t get exported</source>
+        <translation>Las notas en la papelera no se exportan</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="498"/>
         <source>Choose file format</source>
-        <translation>Выбрать формат файла</translation>
+        <translation>Elegir formato de archivo</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="512"/>
         <source>Export as JSON</source>
-        <translation>Экспортировать как JSON</translation>
+        <translation>Exportar como JSON</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="521"/>
         <source>Export as CSV</source>
-        <translation>Экспортировать как CSV</translation>
+        <translation>Exportar como CSV</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="531"/>
+        <source>Export all notes</source>
+        <translation>Exportar todas las notas</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="544"/>
         <source>Last export: %1 (%2 notes)</source>
-        <translation>Последний экспорт: %1 (%2 заметок)</translation>
+        <translation>Última exportación: %1 (%2 notas)</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="545"/>
         <source>No export detected.</source>
-        <translation>Экспорт не обнаружен.</translation>
+        <translation>No se detectó ninguna exportación.</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="558"/>
+        <source>Import notes</source>
+        <translation>Importar notas</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="569"/>
+        <source>This tag will get added to imported notes</source>
+        <translation>Esta etiqueta se agregará a las notas importadas</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="570"/>
+        <source>Add tag to imported notes (optional)</source>
+        <translation>Añadir etiqueta a las notas importadas (opcional)</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="574"/>
+        <source>Import from file</source>
+        <translation>Importar desde archivo</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="590"/>
         <source>Last import: %1 (%2 notes)</source>
-        <translation>Последний импорт: %1 (%2 заметок)</translation>
+        <translation>Última importación: %1 (%2 notas)</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="591"/>
         <source>No import detected.</source>
-        <translation>Импорт не обнаружен.</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="928"/>
-        <source>Error parsing JSON file: </source>
-        <translation>Ошибка при разборе JSON-файла: </translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="938"/>
-        <source>Error parsing CSV file: </source>
-        <translation>Ошибка при разборе CSV-файла: </translation>
+        <translation>No se detectó ninguna importación.</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="627"/>
         <source>Error: Database not initialized. Please restart the application.</source>
-        <translation>Ошибка: База данных не инициализирована. Пожалуйста, перезапустите приложение.</translation>
+        <translation>Error: Base de datos no inicializada. Por favor, reinicie la aplicación.</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="646"/>
         <source>notes_backup_</source>
-        <translation>notes_backup_</translation>
+        <translation>notas_copia_seguridad_</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="766"/>
         <source>Gathering data for export...</source>
-        <translation>Сбор данных для экспорта...</translation>
+        <translation>Recopilando datos para exportar...</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="782"/>
         <source>No notes to export.</source>
-        <translation>Нет заметок для экспорта.</translation>
+        <translation>No hay notas para exportar.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="684"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="783"/>
         <source></source>
         <translation></translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="788"/>
         <source>Preparing </source>
-        <translation>Подготовка </translation>
+        <translation>Preparando </translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="788"/>
         <location filename="../qml/pages/ImportExportPage.qml" line="955"/>
         <source> notes...</source>
-        <translation> заметок...</translation>
+        <translation> notas...</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="797"/>
         <source>Error: Unsupported export format.</source>
-        <translation>Ошибка: Неподдерживаемый формат экспорта.</translation>
+        <translation>Error: Formato de exportación no compatible.</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="809"/>
         <source>Export error: </source>
-        <translation>Ошибка экспорта: </translation>
+        <translation>Error de exportación: </translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="817"/>
         <source>Saving file...</source>
-        <translation>Сохранение файла...</translation>
+        <translation>Guardando archivo...</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="860"/>
         <source>File save error (XHR): </source>
-        <translation>Ошибка сохранения файла (XHR): </translation>
+        <translation>Error al guardar archivo (XHR): </translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="866"/>
         <source>File save error: </source>
-        <translation>Ошибка сохранения файла: </translation>
+        <translation>Error al guardar archivo: </translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="877"/>
         <source>Reading file: </source>
-        <translation>Чтение файла: </translation>
+        <translation>Leyendo archivo: </translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="884"/>
         <source>Error: Database not initialized for import.</source>
-        <translation>Ошибка: База данных не инициализирована для импорта.</translation>
+        <translation>Error: Base de datos no inicializada para importar.</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="907"/>
         <source>File read error (XHR): </source>
-        <translation>Ошибка чтения файла (XHR): </translation>
+        <translation>Error de lectura de archivo (XHR): </translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="928"/>
+        <source>Error parsing JSON file: </source>
+        <translation>Error al analizar el archivo JSON: </translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="938"/>
+        <source>Error parsing CSV file: </source>
+        <translation>Error al analizar el archivo CSV: </translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="944"/>
         <source>Unsupported file format. Only JSON and CSV are supported.</source>
-        <translation>Неподдерживаемый формат файла. Поддерживаются только JSON и CSV.</translation>
+        <translation>Formato de archivo no compatible. Solo se admiten JSON y CSV.</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="955"/>
         <source>Importing </source>
-        <translation>Импорт </translation>
+        <translation>Importando </translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="984"/>
         <source>Import error: </source>
-        <translation>Ошибка импорта: </translation>
+        <translation>Error de importación: </translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="989"/>
+        <source>No valid notes found in file.</source>
+        <translation>No se encontraron notas válidas en el archivo.</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="994"/>
         <source>File is empty.</source>
-        <translation>Файл пуст.</translation>
+        <translation>El archivo está vacío.</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ImportExportPage.qml" line="999"/>
+        <source>File processing error: </source>
+        <translation>Error de procesamiento de archivo: </translation>
     </message>
 </context>
 <context>
     <name>MainPage</name>
-    <message>
-        <location filename="../qml/pages/MainPage.qml" line="593"/>
-        <source>%1 note(s) archived!</source>
-        <translation>%1 заметка(и) заархивирована(ы)!</translation>
-    </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="194"/>
         <location filename="../qml/pages/MainPage.qml" line="235"/>
@@ -578,171 +578,176 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <location filename="../qml/pages/MainPage.qml" line="565"/>
         <location filename="../qml/pages/MainPage.qml" line="602"/>
         <source>No notes selected.</source>
-        <translation>Заметки не выбраны.</translation>
+        <translation>Ninguna nota seleccionada.</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="207"/>
         <source>unpin</source>
-        <translation>открепить</translation>
+        <translation>desanclar</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="207"/>
         <source>pin</source>
-        <translation>закрепить</translation>
+        <translation>anclar</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="208"/>
         <source>Are you sure you want to %1 %2 selected note(s)?</source>
-        <translation>Вы уверены, что хотите %1 %2 выбранную(ые) заметку(и)?</translation>
+        <translation>¿Está seguro de que desea %1 %2 nota(s) seleccionada(s)?</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="212"/>
         <source>Confirm Pin/Unpin</source>
-        <translation>Подтвердить закрепление/открепление</translation>
+        <translation>Confirmar anclaje/desanclaje</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="220"/>
         <source>%1 note(s) unpinned!</source>
-        <translation>%1 заметка(и) откреплена(ы)!</translation>
+        <translation>¡%1 nota(s) desanclada(s)!</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="223"/>
         <source>%1 note(s) pinned!</source>
-        <translation>%1 заметка(и) закреплена(ы)!</translation>
+        <translation>¡%1 nota(s) anclada(s)!</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="239"/>
         <source>Confirm Color Change</source>
-        <translation>Подтвердить изменение цвета</translation>
+        <translation>Confirmar cambio de color</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="240"/>
         <source>Are you sure you want to change the color of %1 selected note(s) to the chosen color?</source>
-        <translation>Вы уверены, что хотите изменить цвет %1 выбранной(ых) заметки(ок) на выбранный цвет?</translation>
+        <translation>¿Está seguro de que desea cambiar el color de %1 nota(s) seleccionada(s) al color elegido?</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="241"/>
         <source>Change Color</source>
-        <translation>Изменить цвет</translation>
+        <translation>Cambiar color</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="246"/>
         <source>Color changed for %1 note(s)!</source>
-        <translation>Цвет изменен для %1 заметки(ок)!</translation>
+        <translation>¡Color cambiado para %1 nota(s)!</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="259"/>
         <source>You have no notes.
 Click on the plus button to create one!</source>
-        <translation>У вас нет заметок.
-Нажмите на плюс, чтобы создать!</translation>
+        <translation>No tienes notas.
+¡Haz clic en el botón de más para crear una!</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="302"/>
         <source>Search notes...</source>
-        <translation>Поиск заметок...</translation>
+        <translation>Buscar notas...</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="549"/>
         <source>Confirm Deletion</source>
-        <translation>Подтвердить удаление</translation>
+        <translation>Confirmar eliminación</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="550"/>
         <source>Are you sure you want to move %1 selected note(s) to trash?</source>
-        <translation>Вы уверены, что хотите переместить %1 выбранную(-ые) заметку(-и) в корзину?</translation>
+        <translation>¿Está seguro de que desea mover %1 nota(s) seleccionada(s) a la papelera?</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="551"/>
         <source>Delete</source>
-        <translation>Удалить</translation>
+        <translation>Eliminar</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="556"/>
         <source>%1 note(s) moved to trash!</source>
-        <translation>%1 заметка(и) перемещена(ы) в корзину!</translation>
+        <translation>¡%1 nota(s) movida(s) a la papelera!</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="586"/>
         <source>Confirm Archiving</source>
-        <translation>Подтвердить архивацию</translation>
+        <translation>Confirmar archivo</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="587"/>
         <source>Are you sure you want to archive %1 selected note(s)?</source>
-        <translation>Вы уверены, что хотите заархивировать %1 выбранную(-ые) заметку(-и)?</translation>
+        <translation>¿Está seguro de que desea archivar %1 nota(s) seleccionada(s)?</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="588"/>
         <source>Archive</source>
-        <translation>Архивировать</translation>
+        <translation>Archivar</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MainPage.qml" line="593"/>
+        <source>%1 note(s) archived!</source>
+        <translation>¡%1 nota(s) archivada(s)!</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="663"/>
         <source>No notes found matching your criteria.</source>
-        <translation>Заметки, соответствующие вашим критериям, не найдены.</translation>
+        <translation>No se encontraron notas que coincidan con sus criterios.</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="672"/>
         <source>Try a different keyword or fewer tags.</source>
-        <translation>Попробуйте другое ключевое слово или меньше тегов.</translation>
+        <translation>Pruebe con una palabra clave diferente o menos etiquetas.</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="691"/>
         <source>Pinned</source>
-        <translation>Закрепленные</translation>
+        <translation>Anclado</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="735"/>
         <source>Others</source>
-        <translation>Другие</translation>
+        <translation>Otros</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="969"/>
         <source>Select Color for Notes</source>
-        <translation>Выбрать цвет для заметок</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/MainPage.qml" line="1371"/>
-        <source>Notes sorted!</source>
-        <translation>Заметки отсортированы!</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/MainPage.qml" line="1394"/>
-        <source>Only one color found among notes. No need to sort by color.</source>
-        <translation>Среди заметок найден только один цвет. Нет необходимости сортировать по цвету.</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/MainPage.qml" line="1416"/>
-        <source>Notes sorted by color!</source>
-        <translation>Заметки отсортированы по цвету!</translation>
+        <translation>Seleccionar color para notas</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="1134"/>
         <source>Search tags...</source>
-        <translation>Поиск тегов...</translation>
+        <translation>Buscar etiquetas...</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="1287"/>
         <source>Done</source>
-        <translation>Готово</translation>
+        <translation>Hecho</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="1299"/>
         <source>Create</source>
-        <translation>Создать</translation>
+        <translation>Crear</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="1318"/>
         <source>No tags found matching your search</source>
-        <translation>Нет тегов, соответствующих вашему запросу</translation>
+        <translation>No se encontraron etiquetas que coincidan con su búsqueda</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="1330"/>
         <source>You have no tags.
 Go to edit tags page to create one!</source>
-        <translation>У вас нет тегов.
-Откройте страницу редактирования для создания!</translation>
+        <translation>No tienes etiquetas.
+¡Ve a la página de editar etiquetas para crear una!</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MainPage.qml" line="1371"/>
+        <source>Notes sorted!</source>
+        <translation>¡Notas ordenadas!</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MainPage.qml" line="1394"/>
+        <source>Only one color found among notes. No need to sort by color.</source>
+        <translation>Solo se encontró un color entre las notas. No es necesario ordenar por color.</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/MainPage.qml" line="1416"/>
+        <source>Notes sorted by color!</source>
+        <translation>¡Notas ordenadas por color!</translation>
     </message>
 </context>
 <context>
@@ -751,7 +756,7 @@ Go to edit tags page to create one!</source>
         <location filename="../qml/pages/NoteCard.qml" line="77"/>
         <location filename="../qml/pages/NoteCard.qml" line="94"/>
         <source>Empty</source>
-        <translation>Пусто</translation>
+        <translation>Vacío</translation>
     </message>
 </context>
 <context>
@@ -759,593 +764,593 @@ Go to edit tags page to create one!</source>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="61"/>
         <source>History auto-saved: &quot;%1&quot; (cursor: %2)</source>
-        <translation>История автоматически сохранена: &quot;%1&quot; (курсор: %2)</translation>
+        <translation>Historial guardado automáticamente: &quot;%1&quot; (cursor: %2)</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="66"/>
         <source>Initial history state added by timer: &quot;%1&quot; (cursor: %2)</source>
-        <translation>Начальное состояние истории добавлено по таймеру: &quot;%1&quot; (курсор: %2)</translation>
+        <translation>Estado inicial del historial añadido por temporizador: &quot;%1&quot; (cursor: %2)</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="84"/>
         <source>Confirm Action</source>
-        <translation>Подтвердить действие</translation>
+        <translation>Confirmar acción</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="85"/>
         <source>Confirm</source>
-        <translation>Подтвердить</translation>
+        <translation>Confirmar</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="110"/>
         <source>Cannot Edit Deleted Note</source>
-        <translation>Невозможно редактировать удаленную заметку</translation>
+        <translation>No se puede editar la nota eliminada</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="111"/>
         <source>To edit this note, you need to restore it first.</source>
-        <translation>Чтобы отредактировать эту заметку, вам нужно сначала ее восстановить.</translation>
+        <translation>Para editar esta nota, primero debe restaurarla.</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="112"/>
         <source>Restore</source>
-        <translation>Восстановить</translation>
+        <translation>Restaurar</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="117"/>
         <source>Note restored!</source>
-        <translation>Заметка восстановлена!</translation>
+        <translation>¡Nota restaurada!</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="124"/>
         <source>Cannot Edit Archived Note</source>
-        <translation>Невозможно редактировать заархивированную заметку</translation>
+        <translation>No se puede editar la nota archivada</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="125"/>
         <source>To edit this note, you need to unarchive it first.</source>
-        <translation>Чтобы отредактировать эту заметку, вам нужно сначала ее разархивировать.</translation>
+        <translation>Para editar esta nota, primero debe desarchivarla.</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="126"/>
         <source>Unarchive</source>
-        <translation>Разархивировать</translation>
+        <translation>Desarchivar</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="131"/>
         <source>Note unarchived!</source>
-        <translation>Заметка разархивирована!</translation>
+        <translation>¡Nota desarchivada!</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="169"/>
         <source>Added to history: &quot;%1&quot;</source>
-        <translation>Добавлено в историю: &quot;%1&quot;</translation>
+        <translation>Añadido al historial: &quot;%1&quot;</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="169"/>
         <source>History size: %1</source>
-        <translation>Размер истории: %1</translation>
+        <translation>Tamaño del historial: %1</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="169"/>
         <source>Current index: %1</source>
-        <translation>Текущий индекс: %1</translation>
+        <translation>Índice actual: %1</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="180"/>
         <source>NewNotePage opened. ReadOnly mode: %1, isArchived: %2, isDeleted: %3</source>
-        <translation>NewNotePage открыта. Режим только для чтения: %1, заархивирована: %2, удалена: %3</translation>
+        <translation>Página NuevaNota abierta. Modo solo lectura: %1, archivada: %2, eliminada: %3</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="189"/>
         <source>NewNotePage opened in EDIT mode for ID: %1</source>
-        <translation>NewNotePage открыта в режиме РЕДАКТИРОВАНИЯ для ID: %1</translation>
+        <translation>Página NuevaNota abierta en modo EDICIÓN para ID: %1</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="190"/>
         <source>Note color on open: %1</source>
-        <translation>Цвет заметки при открытии: %1</translation>
+        <translation>Color de la nota al abrir: %1</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="196"/>
         <source>NewNotePage opened in CREATE mode. Default color: %1</source>
-        <translation>NewNotePage открыта в режиме СОЗДАНИЯ. Цвет по умолчанию: %1</translation>
+        <translation>Página NuevaNota abierta en modo CREAR. Color predeterminado: %1</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="203"/>
         <source>Initial history state: Index %1, History: %2</source>
-        <translation>Начальное состояние истории: Индекс %1, История: %2</translation>
+        <translation>Estado inicial del historial: Índice %1, Historial: %2</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="205"/>
         <source>Note in read-only mode, history not initialized.</source>
-        <translation>Заметка в режиме только для чтения, история не инициализирована.</translation>
+        <translation>Nota en modo de solo lectura, historial no inicializado.</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="211"/>
         <source>NewNotePage being destroyed. Attempting to save/delete note.</source>
-        <translation>NewNotePage уничтожается. Попытка сохранить/удалить заметку.</translation>
+        <translation>Página NuevaNota siendo destruida. Intentando guardar/eliminar nota.</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="217"/>
         <source>Debug: In read-only mode. Skipping save/delete on destruction.</source>
-        <translation>Отладка: В режиме только для чтения. Пропуск сохранения/удаления при уничтожении.</translation>
+        <translation>Depuración: En modo de solo lectura. Se omite guardar/eliminar al destruir.</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="220"/>
         <source>Debug: Note already sent to trash/archive. Skipping save/delete on destruction.</source>
-        <translation>Отладка: Заметка уже отправлена в корзину/архив. Пропуск сохранения/удаления при уничтожении.</translation>
+        <translation>Depuración: Nota ya enviada a la papelera/archivo. Se omite guardar/eliminar al destruir.</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="226"/>
         <source>Debug: Empty existing note permanently deleted with ID: %1</source>
-        <translation>Отладка: Существующая пустая заметка безвозвратно удалена с ID: %1</translation>
+        <translation>Depuración: Nota existente vacía eliminada permanentemente con ID: %1</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="229"/>
         <source>Debug: New empty note not saved.</source>
-        <translation>Отладка: Новая пустая заметка не сохранена.</translation>
+        <translation>Depuración: Nueva nota vacía no guardada.</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="242"/>
         <source>Debug: New note added with ID: %1, Color: %2, Tags: %3</source>
-        <translation>Отладка: Новая заметка добавлена с ID: %1, Цвет: %2, Теги: %3</translation>
+        <translation>Depuración: Nueva nota añadida con ID: %1, Color: %2, Etiquetas: %3</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="251"/>
         <source>Debug: Note updated with ID: %1, Color: %2, Tags: %3</source>
-        <translation>Отладка: Заметка обновлена с ID: %1, Цвет: %2, Теги: %3</translation>
+        <translation>Depuración: Nota actualizada con ID: %1, Color: %2, Etiquetas: %3</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="253"/>
         <source>Debug: Note with ID: %1 not modified, skipping update.</source>
-        <translation>Отладка: Заметка с ID: %1 не изменена, пропуск обновления.</translation>
+        <translation>Depuración: Nota con ID: %1 no modificada, se omite la actualización.</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="278"/>
         <source>New Note</source>
-        <translation>Новая заметка</translation>
+        <translation>Nueva nota</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="278"/>
         <source>Edit Note</source>
-        <translation>Редактировать заметку</translation>
+        <translation>Editar nota</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="287"/>
         <source>Created: %1</source>
-        <translation>Создана: %1</translation>
+        <translation>Creado: %1</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="296"/>
         <source>Deleted: %1</source>
-        <translation>Удалена: %1</translation>
+        <translation>Eliminado: %1</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="298"/>
         <source>Archived: %1</source>
-        <translation>Заархивирована: %1</translation>
+        <translation>Archivado: %1</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="300"/>
         <source>Edited: %1</source>
-        <translation>Отредактирована: %1</translation>
+        <translation>Editado: %1</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="374"/>
         <source>The note was pinned</source>
-        <translation>Заметка закреплена</translation>
+        <translation>La nota fue anclada</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="374"/>
         <source>The note was unpinned</source>
-        <translation>Заметка откреплена</translation>
+        <translation>La nota fue desanclada</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="404"/>
         <source>Cannot duplicate a new note. Save it first.</source>
-        <translation>Невозможно продублировать новую заметку. Сначала сохраните ее.</translation>
+        <translation>No se puede duplicar una nueva nota. Guárdela primero.</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="410"/>
         <source>Do you want to create a copy of this note?</source>
-        <translation>Вы хотите создать копию этой заметки?</translation>
+        <translation>¿Desea crear una copia de esta nota?</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="413"/>
         <source>Duplicate button clicked for note ID: %1 (confirmed)</source>
-        <translation>Нажата кнопка дублирования для заметки ID: %1 (подтверждено)</translation>
+        <translation>Botón duplicar clicado para la nota ID: %1 (confirmado)</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="417"/>
         <source> (copy)</source>
-        <translation> (копия)</translation>
+        <translation> (copia)</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="426"/>
         <source>Note duplicated!</source>
-        <translation>Заметка продублирована!</translation>
+        <translation>¡Nota duplicada!</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="428"/>
         <source>Confirm Duplicate</source>
-        <translation>Подтвердить дублирование</translation>
+        <translation>Confirmar duplicado</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="429"/>
         <source>Duplicate</source>
-        <translation>Дублировать</translation>
+        <translation>Duplicar</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="432"/>
         <source>Showing duplicate confirmation dialog for note ID: %1</source>
-        <translation>Отображение диалога подтверждения дублирования для заметки ID: %1</translation>
+        <translation>Mostrando diálogo de confirmación de duplicado para la nota ID: %1</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="482"/>
         <source>Change color/theme - toggling panel visibility</source>
-        <translation>Изменить цвет/тему - переключение видимости панели</translation>
+        <translation>Cambiar color/tema - alternar visibilidad del panel</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="514"/>
         <location filename="../qml/pages/NotePage.qml" line="890"/>
         <source>Add Tag button clicked. Opening tag selection panel.</source>
-        <translation>Нажата кнопка &quot;Добавить тег&quot;. Открытие панели выбора тегов.</translation>
+        <translation>Botón Añadir Etiqueta clicado. Abriendo panel de selección de etiquetas.</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="560"/>
         <source>Undo action triggered!</source>
-        <translation>Действие &quot;Отменить&quot; инициировано!</translation>
+        <translation>¡Acción de deshacer activada!</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="569"/>
         <source>Undo successful!</source>
-        <translation>Отмена прошла успешно!</translation>
+        <translation>¡Deshacer con éxito!</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="571"/>
         <source>Nothing to undo.</source>
-        <translation>Нечего отменять.</translation>
+        <translation>Nada que deshacer.</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="600"/>
         <source>Redo action triggered!</source>
-        <translation>Действие &quot;Повторить&quot; инициировано!</translation>
+        <translation>¡Acción de rehacer activada!</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="609"/>
         <source>Redo successful!</source>
-        <translation>Повтор прошел успешно!</translation>
+        <translation>¡Rehacer con éxito!</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="611"/>
         <source>Nothing to redo.</source>
-        <translation>Нечего повторять.</translation>
+        <translation>Nada que rehacer.</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="651"/>
         <source>Cannot archive a new note. Save it first.</source>
-        <translation>Невозможно заархивировать новую заметку. Сначала сохраните ее.</translation>
+        <translation>No se puede archivar una nueva nota. Guárdela primero.</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="655"/>
         <source>Note is already archived</source>
-        <translation>Заметка уже заархивирована</translation>
+        <translation>La nota ya está archivada</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="660"/>
         <source>Do you want to archive this note?</source>
-        <translation>Вы хотите заархивировать эту заметку?</translation>
+        <translation>¿Desea archivar esta nota?</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="664"/>
         <source>Note ID: %1 moved to archive after confirmation.</source>
-        <translation>Заметка с ID: %1 перемещена в архив после подтверждения.</translation>
+        <translation>Nota ID: %1 movida a archivo después de confirmación.</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="666"/>
         <source>Note archived!</source>
-        <translation>Заметка заархивирована!</translation>
+        <translation>¡Nota archivada!</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="671"/>
         <source>New unsaved note discarded without archiving.</source>
-        <translation>Новая несохраненная заметка удалена без архивации.</translation>
+        <translation>Nueva nota sin guardar descartada sin archivar.</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="675"/>
         <source>Confirm Archive</source>
-        <translation>Подтвердить архивацию</translation>
+        <translation>Confirmar archivo</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="676"/>
         <source>Archive</source>
-        <translation>Архивировать</translation>
+        <translation>Archivar</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="708"/>
         <source>Cannot delete a new note. Save it first.</source>
-        <translation>Невозможно удалить новую заметку. Сначала сохраните ее.</translation>
+        <translation>No se puede eliminar una nueva nota. Guárdela primero.</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="713"/>
         <source>Note is already in the trash</source>
-        <translation>Заметка уже в корзине</translation>
+        <translation>La nota ya está en la papelera</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="719"/>
         <source>Do you want to move this note to trash?</source>
-        <translation>Вы хотите переместить эту заметку в корзину?</translation>
+        <translation>¿Desea mover esta nota a la papelera?</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="723"/>
         <source>Note ID: %1 moved to trash after confirmation.</source>
-        <translation>Заметка с ID: %1 перемещена в корзину после подтверждения.</translation>
+        <translation>Nota ID: %1 movida a la papelera después de confirmación.</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="725"/>
         <source>Note moved to trash!</source>
-        <translation>Заметка перемещена в корзину!</translation>
+        <translation>¡Nota movida a la papelera!</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="730"/>
         <source>New unsaved note discarded without deletion.</source>
-        <translation>Новая несохраненная заметка удалена без перемещения в корзину.</translation>
+        <translation>Nueva nota sin guardar descartada sin eliminación.</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="734"/>
         <source>Confirm Delete</source>
-        <translation>Подтвердить удаление</translation>
+        <translation>Confirmar eliminación</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="735"/>
         <source>Delete</source>
-        <translation>Удалить</translation>
+        <translation>Eliminar</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="767"/>
         <source>Title</source>
-        <translation>Заголовок</translation>
+        <translation>Título</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="788"/>
         <source>Note</source>
-        <translation>Заметка</translation>
+        <translation>Nota</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="846"/>
         <source>Tag clicked for editing: %1</source>
-        <translation>Нажат тег для редактирования: %1</translation>
+        <translation>Etiqueta clicada para edición: %1</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="878"/>
         <source>No tags</source>
-        <translation>Нет тегов</translation>
+        <translation>Sin etiquetas</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="962"/>
         <source>Select Note Color</source>
-        <translation>Выбрать цвет заметки</translation>
+        <translation>Seleccionar color de nota</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="1056"/>
         <source>Tag picker closed by clicking overlay.</source>
-        <translation>Выбор тегов закрыт нажатием на оверлей.</translation>
+        <translation>Selector de etiquetas cerrado al hacer clic en la superposición.</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="1089"/>
         <source>Tag selection panel opened. Loading tags and scrolling to top.</source>
-        <translation>Панель выбора тегов открыта. Загрузка тегов и прокрутка в начало.</translation>
+        <translation>Panel de selección de etiquetas abierto. Cargando etiquetas y desplazándose hacia arriba.</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="1107"/>
         <source>Tag name cannot be empty!</source>
-        <translation>Имя тега не может быть пустым!</translation>
+        <translation>¡El nombre de la etiqueta no puede estar vacío!</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="1119"/>
         <source>Error: Tag &apos;%1&apos; already exists.</source>
-        <translation>Ошибка: Тег &apos;%1&apos; уже существует.</translation>
+        <translation>Error: La etiqueta &apos;%1&apos; ya existe.</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="1120"/>
         <source>Tag &apos;%1&apos; already exists!</source>
-        <translation>Тег &apos;%1&apos; уже существует!</translation>
+        <translation>¡La etiqueta &apos;%1&apos; ya existe!</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="1124"/>
         <source>New tag &apos;%1&apos; added to DB.</source>
-        <translation>Новый тег &apos;%1&apos; добавлен в БД.</translation>
+        <translation>Nueva etiqueta &apos;%1&apos; añadida a la BD.</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="1133"/>
         <source>Tag &apos;%1&apos; also added to current note&apos;s tags.</source>
-        <translation>Тег &apos;%1&apos; также добавлен к тегам текущей заметки.</translation>
+        <translation>La etiqueta &apos;%1&apos; también se añadió a las etiquetas de la nota actual.</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="1142"/>
         <source>Tag &apos;%1&apos; created and added!</source>
-        <translation>Тег &apos;%1&apos; создан и добавлен!</translation>
+        <translation>¡Etiqueta &apos;%1&apos; creada y añadida!</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="1177"/>
         <source>TagSelectionPanel: Loaded tags for display in panel. Model items: %1</source>
-        <translation>TagSelectionPanel: Загружены теги для отображения в панели. Элементов модели: %1</translation>
+        <translation>Panel de selección de etiquetas: Etiquetas cargadas para mostrar en el panel. Elementos del modelo: %1</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="1205"/>
         <source>Add new tag...</source>
-        <translation>Добавить новый тег...</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/NotePage.qml" line="1331"/>
-        <source>Note&apos;s tags updated: %1</source>
-        <translation>Теги заметки обновлены: %1</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/NotePage.qml" line="1441"/>
-        <source>Action cancelled by user.</source>
-        <translation>Действие отменено пользователем.</translation>
+        <translation>Añadir nueva etiqueta...</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="1323"/>
         <source>Added tag &apos;%1&apos; to note ID %2</source>
-        <translation>Добавлен тег &apos;%1&apos; к заметке ID %2</translation>
+        <translation>Se agregó la etiqueta &apos;%1&apos; a la nota ID %2</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="1326"/>
         <source>Removed tag &apos;%1&apos; from note ID %2</source>
-        <translation>Удален тег &apos;%1&apos; из заметки ID %2</translation>
+        <translation>Se eliminó la etiqueta &apos;%1&apos; de la nota ID %2</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="1331"/>
+        <source>Note&apos;s tags updated: %1</source>
+        <translation>Etiquetas de la nota actualizadas: %1</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="1406"/>
         <source>Done</source>
-        <translation>Готово</translation>
+        <translation>Hecho</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="1412"/>
         <source>Tag picker closed by Done button.</source>
-        <translation>Выбор тегов закрыт кнопкой &quot;Готово&quot;.</translation>
+        <translation>Selector de etiquetas cerrado por el botón Hecho.</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/NotePage.qml" line="1441"/>
+        <source>Action cancelled by user.</source>
+        <translation>Acción cancelada por el usuario.</translation>
     </message>
 </context>
 <context>
     <name>SettingsPage</name>
     <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="19"/>
+        <source>English</source>
+        <translation>Inglés</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="20"/>
+        <source>Русский</source>
+        <translation>Ruso</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="21"/>
+        <source>Deutsch</source>
+        <translation>Alemán</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="22"/>
+        <source>Français</source>
+        <translation>Francés</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="23"/>
+        <source>Español</source>
+        <translation>Español</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="24"/>
+        <source>中國人</source>
+        <translation>Chino</translation>
+    </message>
+    <message>
         <location filename="../qml/pages/SettingsPage.qml" line="31"/>
         <location filename="../qml/pages/SettingsPage.qml" line="106"/>
         <source>Confirm Action</source>
-        <translation>Подтвердить действие</translation>
+        <translation>Confirmar acción</translation>
     </message>
     <message>
         <location filename="../qml/pages/SettingsPage.qml" line="33"/>
         <location filename="../qml/pages/SettingsPage.qml" line="107"/>
         <source>Confirm</source>
-        <translation>Подтвердить</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="158"/>
-        <source>Settings</source>
-        <translation>Настройки</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="207"/>
-        <source>Language</source>
-        <translation>Язык</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="82"/>
-        <source>Failed to change language.</source>
-        <translation>Не удалось изменить язык.</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="19"/>
-        <source>English</source>
-        <translation>Английский</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="22"/>
-        <source>Français</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="23"/>
-        <source>Español</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="336"/>
-        <source>Theme Color</source>
-        <translation>Цвет темы</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="471"/>
-        <source>Data Management Actions</source>
-        <translation>Действия по управлению данными</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="495"/>
-        <source>Archive All Notes</source>
-        <translation>Архивировать все заметки</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="504"/>
-        <source>Are you sure you want to archive all your notes?</source>
-        <translation>Вы уверены, что хотите архивировать все свои заметки?</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="510"/>
-        <source>Confirm Archive</source>
-        <translation>Подтвердить архивацию</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="511"/>
-        <source>Archive All</source>
-        <translation>Архивировать все</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="527"/>
-        <source>Move All Notes to Trash</source>
-        <translation>Переместить все заметки в корзину</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="536"/>
-        <source>Are you sure you want to move all your notes to trash?</source>
-        <translation>Вы уверены, что хотите переместить все свои заметки в корзину?</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="542"/>
-        <source>Confirm Move to Trash</source>
-        <translation>Подтвердить перемещение в корзину</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="543"/>
-        <source>Move to Trash</source>
-        <translation>Переместить в корзину</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="561"/>
-        <source>Permanently Delete All Notes</source>
-        <translation>Безвозвратно удалить все заметки</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="571"/>
-        <source>Are you sure you want to permanently delete ALL your notes and associated tags? This action cannot be undone.</source>
-        <translation>Вы уверены, что хотите безвозвратно удалить ВСЕ свои заметки и связанные с ними теги? Это действие невозможно отменить.</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="577"/>
-        <source>Confirm Permanent Deletion</source>
-        <translation>Подтвердить безвозвратное удаление</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="578"/>
-        <source>Delete</source>
-        <translation>Удалить</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="364"/>
-        <source>Select Theme Color</source>
-        <translation>Выбрать цвет темы</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="20"/>
-        <source>Русский</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="21"/>
-        <source>Deutsch</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="24"/>
-        <source>中國人</source>
-        <translation></translation>
+        <translation>Confirmar</translation>
     </message>
     <message>
         <location filename="../qml/pages/SettingsPage.qml" line="70"/>
         <source>Language changed to %1</source>
-        <translation>Язык изменен на %1</translation>
+        <translation>Idioma cambiado a %1</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="82"/>
+        <source>Failed to change language.</source>
+        <translation>No se pudo cambiar el idioma.</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="158"/>
+        <source>Settings</source>
+        <translation>Configuración</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="207"/>
+        <source>Language</source>
+        <translation>Idioma</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="336"/>
+        <source>Theme Color</source>
+        <translation>Color del tema</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="364"/>
+        <source>Select Theme Color</source>
+        <translation>Seleccionar color del tema</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="471"/>
+        <source>Data Management Actions</source>
+        <translation>Acciones de gestión de datos</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="495"/>
+        <source>Archive All Notes</source>
+        <translation>Archivar todas las notas</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="504"/>
+        <source>Are you sure you want to archive all your notes?</source>
+        <translation>¿Está seguro de que desea archivar todas sus notas?</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="510"/>
+        <source>Confirm Archive</source>
+        <translation>Confirmar archivo</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="511"/>
+        <source>Archive All</source>
+        <translation>Archivar todo</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="527"/>
+        <source>Move All Notes to Trash</source>
+        <translation>Mover todas las notas a la papelera</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="536"/>
+        <source>Are you sure you want to move all your notes to trash?</source>
+        <translation>¿Está seguro de que desea mover todas sus notas a la papelera?</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="542"/>
+        <source>Confirm Move to Trash</source>
+        <translation>Confirmar mover a la papelera</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="543"/>
+        <source>Move to Trash</source>
+        <translation>Mover a la papelera</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="561"/>
+        <source>Permanently Delete All Notes</source>
+        <translation>Eliminar permanentemente todas las notas</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="571"/>
+        <source>Are you sure you want to permanently delete ALL your notes and associated tags? This action cannot be undone.</source>
+        <translation>¿Está seguro de que desea eliminar permanentemente TODAS sus notas y etiquetas asociadas? Esta acción no se puede deshacer.</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="577"/>
+        <source>Confirm Permanent Deletion</source>
+        <translation>Confirmar eliminación permanente</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="578"/>
+        <source>Delete</source>
+        <translation>Eliminar</translation>
     </message>
 </context>
 <context>
@@ -1353,62 +1358,61 @@ Go to edit tags page to create one!</source>
     <message>
         <location filename="../qml/pages/SidePanel.qml" line="130"/>
         <source>Aurora Notes</source>
-        <translation>Aurora Заметки</translation>
+        <translation>Notas de Aurora</translation>
     </message>
     <message>
         <location filename="../qml/pages/SidePanel.qml" line="178"/>
         <source>Navigation</source>
-        <translation>Навигация</translation>
+        <translation>Navegación</translation>
     </message>
     <message>
         <location filename="../qml/pages/SidePanel.qml" line="188"/>
         <source>Notes</source>
-        <translation>Заметки</translation>
+        <translation>Notas</translation>
     </message>
     <message>
         <location filename="../qml/pages/SidePanel.qml" line="199"/>
         <source>Archive</source>
-        <translation>Архив</translation>
+        <translation>Archivo</translation>
     </message>
     <message>
         <location filename="../qml/pages/SidePanel.qml" line="210"/>
         <source>Trash</source>
-        <translation>Корзина</translation>
+        <translation>Papelera</translation>
     </message>
     <message>
         <location filename="../qml/pages/SidePanel.qml" line="221"/>
         <source>Import &amp; Export</source>
-        <translation>Импорт и экспорт</translation>
+        <translation>Importar y Exportar</translation>
     </message>
     <message>
         <location filename="../qml/pages/SidePanel.qml" line="231"/>
         <source>Settings</source>
-        <translation>Настройки</translation>
+        <translation>Configuración</translation>
     </message>
     <message>
         <location filename="../qml/pages/SidePanel.qml" line="241"/>
         <source>About</source>
-        <translation>О программе</translation>
+        <translation>Acerca de</translation>
     </message>
     <message>
         <location filename="../qml/pages/SidePanel.qml" line="262"/>
         <source>Tags</source>
-        <translation>Теги</translation>
+        <translation>Etiquetas</translation>
     </message>
     <message>
         <location filename="../qml/pages/SidePanel.qml" line="273"/>
         <source>Edit Tags</source>
-        <translation>Редактировать теги</translation>
+        <translation>Editar etiquetas</translation>
     </message>
     <message>
         <location filename="../qml/pages/SidePanel.qml" line="285"/>
         <source>You have no tags.
  Go to edit tags page
 to create one!</source>
-        <translation>У вас нет тегов.
-Перейдите на
-страницу редактирования,
-для создания!</translation>
+        <translation>No tienes etiquetas.
+ Ve a la página de editar etiquetas
+ para crear una!</translation>
     </message>
 </context>
 <context>
@@ -1416,52 +1420,52 @@ to create one!</source>
     <message>
         <location filename="../qml/pages/SortDialog.qml" line="30"/>
         <source>By update date</source>
-        <translation>По дате обновления</translation>
+        <translation>Por fecha de actualización</translation>
     </message>
     <message>
         <location filename="../qml/pages/SortDialog.qml" line="31"/>
         <source>By creation date</source>
-        <translation>По дате создания</translation>
+        <translation>Por fecha de creación</translation>
     </message>
     <message>
         <location filename="../qml/pages/SortDialog.qml" line="32"/>
         <source>By title (A-Z)</source>
-        <translation>По заголовку (А-Я)</translation>
+        <translation>Por título (A-Z)</translation>
     </message>
     <message>
         <location filename="../qml/pages/SortDialog.qml" line="33"/>
         <source>By title length</source>
-        <translation>По длине заголовка</translation>
+        <translation>Por longitud del título</translation>
     </message>
     <message>
         <location filename="../qml/pages/SortDialog.qml" line="34"/>
         <source>By content length</source>
-        <translation>По длине содержимого</translation>
+        <translation>Por longitud del contenido</translation>
     </message>
     <message>
         <location filename="../qml/pages/SortDialog.qml" line="35"/>
         <source>By color</source>
-        <translation>По цвету</translation>
+        <translation>Por color</translation>
     </message>
     <message>
         <location filename="../qml/pages/SortDialog.qml" line="72"/>
         <source>Sort Notes</source>
-        <translation>Сортировать заметки</translation>
+        <translation>Ordenar notas</translation>
     </message>
     <message>
         <location filename="../qml/pages/SortDialog.qml" line="108"/>
         <source>Ascending</source>
-        <translation>По возрастанию</translation>
+        <translation>Ascendente</translation>
     </message>
     <message>
         <location filename="../qml/pages/SortDialog.qml" line="115"/>
         <source>Descending</source>
-        <translation>По убыванию</translation>
+        <translation>Descendente</translation>
     </message>
     <message>
         <location filename="../qml/pages/SortDialog.qml" line="126"/>
         <source>Apply</source>
-        <translation>Применить</translation>
+        <translation>Aplicar</translation>
     </message>
 </context>
 <context>
@@ -1470,63 +1474,63 @@ to create one!</source>
         <location filename="../qml/pages/TagEditPage.qml" line="75"/>
         <source>You have no tags.
 You can create one!</source>
-        <translation>У вас нет тегов.
-Вы можете создать его!</translation>
+        <translation>No tienes etiquetas.
+¡Puedes crear una!</translation>
     </message>
     <message>
         <location filename="../qml/pages/TagEditPage.qml" line="132"/>
         <source>Edit Tags</source>
-        <translation>Редактировать теги</translation>
+        <translation>Editar etiquetas</translation>
     </message>
     <message>
         <location filename="../qml/pages/TagEditPage.qml" line="181"/>
         <source>Create new tag</source>
-        <translation>Создать новый тег</translation>
+        <translation>Crear nueva etiqueta</translation>
     </message>
     <message>
         <location filename="../qml/pages/TagEditPage.qml" line="228"/>
         <location filename="../qml/pages/TagEditPage.qml" line="267"/>
         <source>Tag creation cancelled.</source>
-        <translation>Создание тега отменено.</translation>
+        <translation>Creación de etiqueta cancelada.</translation>
     </message>
     <message>
         <location filename="../qml/pages/TagEditPage.qml" line="308"/>
         <location filename="../qml/pages/TagEditPage.qml" line="548"/>
         <source>Tag name cannot be empty!</source>
-        <translation>Имя тега не может быть пустым!</translation>
+        <translation>¡El nombre de la etiqueta no puede estar vacío!</translation>
     </message>
     <message>
         <location filename="../qml/pages/TagEditPage.qml" line="317"/>
         <location filename="../qml/pages/TagEditPage.qml" line="569"/>
         <source>Tag &apos;%1&apos; already exists!</source>
-        <translation>Тег «%1» уже существует!</translation>
+        <translation>¡La etiqueta &apos;%1&apos; ya existe!</translation>
     </message>
     <message>
         <location filename="../qml/pages/TagEditPage.qml" line="326"/>
         <source>Tag &apos;%1&apos; created!</source>
-        <translation>Тег «%1» создан!</translation>
+        <translation>¡Etiqueta &apos;%1&apos; creada!</translation>
     </message>
     <message>
         <location filename="../qml/pages/TagEditPage.qml" line="396"/>
         <source>Edit tag name</source>
-        <translation>Редактировать имя тега</translation>
+        <translation>Editar nombre de etiqueta</translation>
     </message>
     <message>
         <location filename="../qml/pages/TagEditPage.qml" line="434"/>
         <location filename="../qml/pages/TagEditPage.qml" line="533"/>
         <location filename="../qml/pages/TagEditPage.qml" line="554"/>
         <source>Edit cancelled.</source>
-        <translation>Редактирование отменено.</translation>
+        <translation>Edición cancelada.</translation>
     </message>
     <message>
         <location filename="../qml/pages/TagEditPage.qml" line="484"/>
         <source>Deleted tag &apos;%1&apos;</source>
-        <translation>Удален тег «%1»</translation>
+        <translation>Etiqueta &apos;%1&apos; eliminada</translation>
     </message>
     <message>
         <location filename="../qml/pages/TagEditPage.qml" line="574"/>
         <source>Updated tag &apos;%1&apos; to &apos;%2&apos;</source>
-        <translation>Тег «%1» обновлен до «%2»</translation>
+        <translation>Etiqueta &apos;%1&apos; actualizada a &apos;%2&apos;</translation>
     </message>
 </context>
 <context>
@@ -1535,62 +1539,21 @@ You can create one!</source>
         <location filename="../qml/pages/TrashArchiveNoteCard.qml" line="181"/>
         <location filename="../qml/pages/TrashArchiveNoteCard.qml" line="199"/>
         <source>Empty</source>
-        <translation>Пусто</translation>
+        <translation>Vacío</translation>
     </message>
     <message>
         <location filename="../qml/pages/TrashArchiveNoteCard.qml" line="277"/>
         <source>Will be permanently deleted on: %1</source>
-        <translation>Будет безвозвратно удалено: %1</translation>
+        <translation>Se eliminará permanentemente el: %1</translation>
     </message>
 </context>
 <context>
     <name>TrashPage</name>
     <message>
-        <location filename="../qml/pages/TrashPage.qml" line="119"/>
-        <source>Trash</source>
-        <translation>Корзина</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/TrashPage.qml" line="185"/>
-        <source>Select</source>
-        <translation>Выбрать</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/TrashPage.qml" line="225"/>
-        <location filename="../qml/pages/TrashPage.qml" line="244"/>
-        <source>Restore</source>
-        <translation>Восстановить</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/TrashPage.qml" line="233"/>
-        <source>Are you sure you want to restore %1 selected notes to your main notes?</source>
-        <translation>Вы уверены, что хотите восстановить %1 выбранных заметок в основные?</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/TrashPage.qml" line="240"/>
-        <source>%1 note(s) restored!</source>
-        <translation>%1 заметка(и) восстановлена(ы)!</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/TrashPage.qml" line="243"/>
-        <source>Confirm Restoration</source>
-        <translation>Подтвердить восстановление</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/TrashPage.qml" line="282"/>
-        <source>Are you sure you want to permanently delete %1 selected notes? This action cannot be undone.</source>
-        <translation>Вы уверены, что хотите безвозвратно удалить %1 выбранных заметок? Это действие невозможно отменить.</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/TrashPage.qml" line="293"/>
-        <source>Confirm Permanent Deletion</source>
-        <translation>Подтвердить безвозвратное удаление</translation>
-    </message>
-    <message>
         <location filename="../qml/pages/TrashPage.qml" line="24"/>
         <location filename="../qml/pages/TrashPage.qml" line="57"/>
         <source>Confirm Deletion</source>
-        <translation>Подтвердить удаление</translation>
+        <translation>Confirmar eliminación</translation>
     </message>
     <message>
         <location filename="../qml/pages/TrashPage.qml" line="26"/>
@@ -1598,27 +1561,68 @@ You can create one!</source>
         <location filename="../qml/pages/TrashPage.qml" line="274"/>
         <location filename="../qml/pages/TrashPage.qml" line="294"/>
         <source>Delete</source>
-        <translation>Удалить</translation>
+        <translation>Eliminar</translation>
     </message>
     <message>
         <location filename="../qml/pages/TrashPage.qml" line="42"/>
         <source>trash</source>
-        <translation>корзина</translation>
+        <translation>papelera</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/TrashPage.qml" line="119"/>
+        <source>Trash</source>
+        <translation>Papelera</translation>
     </message>
     <message>
         <location filename="../qml/pages/TrashPage.qml" line="126"/>
         <source>Notes in trash are deleted after 30 days.</source>
-        <translation>Заметки в корзине удаляются через 30 дней.</translation>
+        <translation>Las notas en la papelera se eliminan después de 30 días.</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/TrashPage.qml" line="185"/>
+        <source>Select</source>
+        <translation>Seleccionar</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/TrashPage.qml" line="225"/>
+        <location filename="../qml/pages/TrashPage.qml" line="244"/>
+        <source>Restore</source>
+        <translation>Restaurar</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/TrashPage.qml" line="233"/>
+        <source>Are you sure you want to restore %1 selected notes to your main notes?</source>
+        <translation>¿Está seguro de que desea restaurar %1 nota(s) seleccionada(s) a sus notas principales?</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/TrashPage.qml" line="240"/>
+        <source>%1 note(s) restored!</source>
+        <translation>¡%1 nota(s) restaurada(s)!</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/TrashPage.qml" line="243"/>
+        <source>Confirm Restoration</source>
+        <translation>Confirmar restauración</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/TrashPage.qml" line="282"/>
+        <source>Are you sure you want to permanently delete %1 selected notes? This action cannot be undone.</source>
+        <translation>¿Está seguro de que desea eliminar permanentemente %1 nota(s) seleccionada(s)? Esta acción no se puede deshacer.</translation>
     </message>
     <message>
         <location filename="../qml/pages/TrashPage.qml" line="290"/>
         <source>%1 note(s) permanently deleted!</source>
-        <translation>%1 заметка(и) безвозвратно удалена(ы)!</translation>
+        <translation>¡%1 nota(s) eliminada(s) permanentemente!</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/TrashPage.qml" line="293"/>
+        <source>Confirm Permanent Deletion</source>
+        <translation>Confirmar eliminación permanente</translation>
     </message>
     <message>
         <location filename="../qml/pages/TrashPage.qml" line="431"/>
         <source>Trash is empty.</source>
-        <translation>Корзина пуста.</translation>
+        <translation>La papelera está vacía.</translation>
     </message>
 </context>
 </TS>

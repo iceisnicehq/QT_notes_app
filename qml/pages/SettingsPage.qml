@@ -19,6 +19,8 @@ Page {
         { name: qsTr("English"), code: "en" },
         { name: qsTr("Русский"), code: "ru" },
         { name: qsTr("Deutsch"), code: "de" },
+        { name: qsTr("Français"), code: "fr" },
+        { name: qsTr("Español"), code: "es" },
         { name: qsTr("中國人"), code: "ch" },
     ]
 
@@ -66,11 +68,6 @@ Page {
             settingsPage.currentLanguageSetting = newLangCode; // Update for getCurrentLanguageDisplayName
 
             toastManager.show(qsTr("Language changed to %1").arg(settingsPage.getCurrentLanguageDisplayName()));
-
-            // --- CRITICAL CHANGE FOR UI REFRESH ---
-            // Force a reload of the current page to apply new translations.
-            // This is often the most reliable way for qsTr() to update.
-            // It replaces the *current* instance of SettingsPage with a new one.
             if (pageStack.currentPage === settingsPage) { // Ensure we are on settings page
                 refreshPageStack();
                 console.log("SettingsPage: Replaced current SettingsPage instance to apply language changes.");
