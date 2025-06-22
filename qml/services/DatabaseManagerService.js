@@ -18,11 +18,11 @@
 
 var db = null;
 var dbName = "AuroraNotesDB";
+var LATEST_DB_VERSION = 2;
 var dbDescription = "Aurora Notes Database";
 var dbSize = 1000000;
 var defaultNoteColor = "#1c1d29";
 
-var LATEST_DB_VERSION = 2;
 var migrations = [
             {
                 version: 1,
@@ -110,33 +110,26 @@ function initDatabase(localStorageInstance) {
     if (db) return;
 
     try {
-        db = localStorageInstance.openDatabaseSync(dbName, "1.0", dbDescription, dbSize);
+        db = localStorageInstance.openDatabaseSync(dbName, "2", dbDescription, dbSize);
 
         db.transaction(function(tx) {
-            // 1. Создаем таблицу для хранения версии БД, если ее нет
             tx.executeSql('CREATE TABLE IF NOT EXISTS DB_Info (version INTEGER)');
-
-            // 2. Получаем текущую версию БД
             var result = tx.executeSql('SELECT version FROM DB_Info');
             var currentVersion = 0;
             if (result.rows.length > 0) {
                 currentVersion = result.rows.item(0).version;
             } else {
-                // Если таблицы нет или она пуста, вставляем версию 0
                 tx.executeSql('INSERT INTO DB_Info (version) VALUES (?)', [0]);
             }
 
             console.log("DB_MGR: Current DB version: " + currentVersion, " | Target DB version: " + LATEST_DB_VERSION);
-
-            // 3. Последовательно применяем все необходимые миграции
             if (currentVersion < LATEST_DB_VERSION) {
                 console.log("DB_MIGRATOR: Database update required. Applying migrations...");
 
                 for (var i = currentVersion; i < LATEST_DB_VERSION; i++) {
-                    var migration = migrations[i]; // Получаем миграцию (индекс = версия - 1)
+                    var migration = migrations[i];
                     if (migration && migration.version === i + 1) {
-                        migration.migrate(tx); // Выполняем миграцию
-                        // Обновляем версию в БД после успешного выполнения
+                        migration.migrate(tx);
                         tx.executeSql('UPDATE DB_Info SET version = ?', [migration.version]);
                         console.log("DB_MIGRATOR: Successfully migrated to version " + migration.version);
                     } else {
