@@ -1375,6 +1375,7 @@ Page {
         onColorSortRequested: {
             var savedOrder = mainPage.customColorSortOrder || [];
             var allCurrentColors = DB.getUniqueNoteColors();
+            var uniqueColorsCount = allCurrentColors.length;
             var finalOrderForDialog = [];
             var seenColors = {};
             savedOrder.forEach(function(color) {
@@ -1388,6 +1389,13 @@ Page {
                     finalOrderForDialog.push(color);
                 }
             });
+
+            if (uniqueColorsCount <= 1) {
+                toastManager.show(qsTr("Only one color found among notes. No need to sort by color."));
+                //mainPage.sortDialogVisible = false; // Close the main sort dialog
+                return; // Prevent ColorSortDialog from opening
+            }
+
             colorSortDialog.colorsToOrder = finalOrderForDialog;
             mainPage.colorSortDialogVisible = true;
         }

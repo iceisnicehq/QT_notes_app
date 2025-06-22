@@ -17,6 +17,15 @@ Item {
     signal cancelled()
     signal colorSortRequested()
 
+    property int uniqueColorsInNotesCount: 0
+
+    onDialogVisibleChanged: {
+    if (dialogVisible) {
+        uniqueColorsInNotesCount = DB.getUniqueNoteColors().length; // Or DB.getUniqueNoteColorsCount() if you make that function
+        }
+    }
+
+
     readonly property var sortOptions: [
         { key: "updated_at", text: qsTr("By update date") },
         { key: "created_at", text: qsTr("By creation date") },
@@ -75,6 +84,7 @@ Item {
                     baseColor: root.dialogBackgroundColor
                     highlighted: root.currentSortBy === modelData.key
                     onClicked: {
+                        if (!enabled) return;
                         root.currentSortBy = modelData.key;
                         if (modelData.key === 'color') {
                             root.colorSortRequested();
@@ -82,6 +92,12 @@ Item {
                     }
                 }
             }
+
+            states: [
+                State { when: modelData.key === 'color';
+                PropertyChanges { target: AdaptiveButton;
+                enabled: root.uniqueColorsInNotesCount > 1 } }
+            ]
 
             Item { width: 1; height: Theme.paddingMedium }
 
