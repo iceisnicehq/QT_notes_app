@@ -9,6 +9,7 @@ Page {
     backgroundColor: settingsPage.customBackgroundColor !== undefined ? settingsPage.customBackgroundColor : "#121218"
     showNavigationIndicator: false
 
+
     property bool panelOpen: false
 
     readonly property var colorPalette: ["#121218", "#1c1d29", "#3a2c2c", "#2c3a2c", "#2c2c3a", "#3a3a2c",
@@ -18,9 +19,8 @@ Page {
         { name: qsTr("English"), code: "en" },
         { name: qsTr("Русский"), code: "ru" },
         { name: qsTr("Deutsch"), code: "de" },
-        { name: qsTr("中國人"), code: "ch" },
+        { name: qsTr("中國人"), code: "zh" },
     ]
-    property bool languageListVisible: false
 
     property string customBackgroundColor: DB.getThemeColor() || "#121218"
     property string currentLanguageSetting: DB.getLanguage()
@@ -36,6 +36,16 @@ Page {
     property bool hasNonArchivedNonDeletedNotes: false
     property bool hasNonDeletedNotes: false
 
+    function getCurrentLanguageDisplayName() {
+        var currentLangCode = DB.getLanguage() || "en";
+        for (var i = 0; i < settingsPage.languageModel.length; i++) {
+            if (settingsPage.languageModel[i].code === currentLangCode) {
+                return settingsPage.languageModel[i].name;
+            }
+        }
+        return "English"; // Fallback
+    }
+
     Component.onCompleted: {
         console.log("SettingsPage opened. Initializing settings.");
         sidePanelInstance.currentPage = "settings";
@@ -46,9 +56,37 @@ Page {
             DB.setThemeColor("#121218");
             settingsPage.customBackgroundColor = "#121218";
         }
-        settingsPage.currentLanguageSetting = DB.getLanguage();
+        settingsPage.currentLanguageSetting = DB.getLanguage() || "en";
         updateNoteCounts();
     }
+
+    function applyLanguageChange(newLangCode) {
+        if (AppSettings.setApplicationLanguage(newLangCode)) {
+            DB.setLanguage(newLangCode);
+            settingsPage.currentLanguageSetting = newLangCode; // Update for getCurrentLanguageDisplayName
+
+            toastManager.show(qsTr("Language changed to %1").arg(settingsPage.getCurrentLanguageDisplayName()));
+
+            // --- CRITICAL CHANGE FOR UI REFRESH ---
+            // Force a reload of the current page to apply new translations.
+            // This is often the most reliable way for qsTr() to update.
+            // It replaces the *current* instance of SettingsPage with a new one.
+            if (pageStack.currentPage === settingsPage) { // Ensure we are on settings page
+                refreshPageStack();
+                console.log("SettingsPage: Replaced current SettingsPage instance to apply language changes.");
+            } else {
+                // If the language was changed from somewhere else (e.g., via DB direct edit, unlikely for this UI),
+                // or if it wasn't the current page, just log.
+                console.log("SettingsPage: Language changed, but SettingsPage is not current page. UI will update on next visit.");
+            }
+            // --- END CRITICAL CHANGE ---
+
+        } else {
+            toastManager.show(qsTr("Failed to change language."));
+        }
+    }
+    // --- END MODIFIED section ---
+
 
     function updateNoteCounts() {
         var activeNotes = DB.getAllNotes();
@@ -134,12 +172,6 @@ Page {
         flickableDirection: Flickable.VerticalFlick
         clip: true
 
-        MouseArea {
-            anchors.fill: parent
-            enabled: settingsPage.languageListVisible
-            onClicked: settingsPage.languageListVisible = false
-        }
-
         Item {
             id: contentContainer
             width: parent.width - (2 * Theme.paddingLarge)
@@ -153,77 +185,108 @@ Page {
                 anchors.horizontalCenter: parent.horizontalCenter
                 spacing: Theme.paddingMedium
 
-                Label {
-                    text: qsTr("Language")
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    font.pixelSize: Theme.fontSizeMedium
-                    font.bold: true
-                    color: "white"
-                }
+                // MODIFIED: Use anchors to center the RowLayout containing the icon and label
+                RowLayout {
+                    id: languageHeaderRow
+                    anchors.horizontalCenter: parent.horizontalCenter // This centers THIS RowLayout within languageSection
+                    spacing: Theme.paddingSmall
 
-                Item {
-                    width: parent.width
-                    height: languageButton.height + (languageList.visible ? languageList.height : 0)
-
-                    Button {
-                        id: languageButton
-                        width: parent.width
-                        text: {
-                            var currentLangCode = DB.getLanguage() || "en";
-                            for (var i = 0; i < settingsPage.languageModel.length; i++) {
-                                if (settingsPage.languageModel[i].code === currentLangCode) {
-                                    return settingsPage.languageModel[i].name;
-                                }
-                            }
-                            return "English";
-                        }
-                        onClicked: {
-                            settingsPage.languageListVisible = !settingsPage.languageListVisible;
-                        }
+                    Icon {
+                        source: "../icons/language.svg"
+                        width: Theme.iconSizeSmall
+                        height: Theme.iconSizeSmall
+                        color: "white"
+                        Layout.alignment: Qt.AlignVCenter
                     }
 
-                    Rectangle {
-                        id: languageList
-                        width: parent.width
-                        height: contentColumn.implicitHeight
-                        anchors.top: languageButton.bottom
-                        visible: settingsPage.languageListVisible
-                        z: 10
-                        color: DB.darkenColor(settingsPage.customBackgroundColor, 0.15)
-                        radius: Theme.paddingSmall
+                    Label {
+                        text: qsTr("Language")
+                        font.pixelSize: Theme.fontSizeMedium
+                        font.bold: true
+                        color: "white"
+                        Layout.alignment: Qt.AlignVCenter
+                    }
+                }
 
-                        Behavior on opacity { NumberAnimation { duration: 100 } }
-                        opacity: visible ? 1.0 : 0.0
+                Rectangle {
+                    width: parent.width
+                    height: Theme.itemSizeLarge
+                    color: DB.darkenColor(settingsPage.customBackgroundColor, 0.15)
+                    radius: Theme.paddingSmall
+                    anchors.horizontalCenter: parent.horizontalCenter
 
-                        Column {
-                            id: contentColumn
-                            width: parent.width
-                            Repeater {
-                                model: settingsPage.languageModel
-                                delegate: BackgroundItem {
-                                    width: parent.width
-                                    height: Theme.itemSizeMedium
-                                    highlighted: (DB.getLanguage() || "en") === modelData.code
+                    RowLayout {
+                        anchors.fill: parent
+                        Layout.maximumWidth: parent.width
+                        spacing: Theme.paddingMedium
 
-                                    Label {
-                                        anchors.centerIn: parent
-                                        text: modelData.name
-                                        color: highlighted ? DB.darkenColor(Theme.primaryColor, 0.5) : Theme.secondaryColor
-                                    }
+                        Item {
+                            Layout.preferredWidth: Theme.iconSizeLarge
+                            Layout.preferredHeight: Theme.iconSizeLarge
+                            Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
 
-                                    onClicked: {
-                                        settingsPage.languageListVisible = false;
-                                        var newLangCode = modelData.code;
-                                        if ((DB.getLanguage() || "en") !== newLangCode) {
-                                            if (AppSettings.setApplicationLanguage(newLangCode)) {
-                                                DB.setLanguage(newLangCode);
-                                                toastManager.show(qsTr("Language changed to %1").arg(modelData.name));
-                                                settingsPage.refreshPageStack();
-                                            } else {
-                                                toastManager.show(qsTr("Failed to change language."));
-                                            }
+                            Icon {
+                                source: "../icons/back.svg"
+                                anchors.fill: parent
+                                color: Theme.primaryColor
+                                fillMode: Image.PreserveAspectFit
+                            }
+                            RippleEffect { id: leftArrowRipple }
+                            MouseArea {
+                                anchors.fill: parent
+                                onPressed: leftArrowRipple.ripple(mouseX, mouseY)
+                                onClicked: {
+                                    var currentIndex = -1;
+                                    for (var i = 0; i < settingsPage.languageModel.length; i++) {
+                                        if (settingsPage.languageModel[i].code === settingsPage.currentLanguageSetting) {
+                                            currentIndex = i;
+                                            break;
                                         }
                                     }
+                                    var newIndex = (currentIndex - 1 + settingsPage.languageModel.length) % settingsPage.languageModel.length;
+                                    var newLangCode = settingsPage.languageModel[newIndex].code;
+                                    settingsPage.applyLanguageChange(newLangCode);
+                                }
+                            }
+                        }
+
+                        Label {
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: parent.height
+                            Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
+                            text: settingsPage.getCurrentLanguageDisplayName()
+                            color: Theme.primaryColor
+                            font.pixelSize: Theme.fontSizeLarge
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+
+                        Item {
+                            Layout.preferredWidth: Theme.iconSizeLarge
+                            Layout.preferredHeight: Theme.iconSizeLarge
+                            Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
+
+                            Icon {
+                                source: "../icons/back.svg" // сюда правую
+                                anchors.fill: parent
+                                color: Theme.primaryColor
+                                fillMode: Image.PreserveAspectFit
+                            }
+                            RippleEffect { id: rightArrowRipple }
+                            MouseArea {
+                                anchors.fill: parent
+                                onPressed: rightArrowRipple.ripple(mouseX, mouseY)
+                                onClicked: {
+                                    var currentIndex = -1;
+                                    for (var i = 0; i < settingsPage.languageModel.length; i++) {
+                                        if (settingsPage.languageModel[i].code === settingsPage.currentLanguageSetting) {
+                                            currentIndex = i;
+                                            break;
+                                        }
+                                    }
+                                    var newIndex = (currentIndex + 1) % settingsPage.languageModel.length;
+                                    var newLangCode = settingsPage.languageModel[newIndex].code;
+                                    settingsPage.applyLanguageChange(newLangCode);
                                 }
                             }
                         }
@@ -333,7 +396,7 @@ Page {
                                         onClicked: {
                                             settingsPage.customBackgroundColor = modelData;
                                             DB.setThemeColor(modelData);
-                                            settingsPage.refreshPageStack();
+                                            settingsPage.applyLanguageChange(settingsPage.currentLanguageSetting);
                                         }
                                     }
                                 }
@@ -395,7 +458,7 @@ Page {
                                 function() {
                                     DB.archiveAllNotes();
                                     settingsPage.updateNoteCounts();
-                                    settingsPage.refreshPageStack();
+                                    settingsPage.applyLanguageChange(settingsPage.currentLanguageSetting);
                                 },
                                 qsTr("Confirm Archive"),
                                 qsTr("Archive All"),
@@ -427,7 +490,7 @@ Page {
                                 function() {
                                     DB.moveAllNotesToTrash();
                                     settingsPage.updateNoteCounts();
-                                    settingsPage.refreshPageStack();
+                                    settingsPage.applyLanguageChange(settingsPage.currentLanguageSetting);
                                 },
                                 qsTr("Confirm Move to Trash"),
                                 qsTr("Move to Trash"),
@@ -462,7 +525,7 @@ Page {
                                 function() {
                                     DB.permanentlyDeleteAllNotes();
                                     settingsPage.updateNoteCounts();
-                                    settingsPage.refreshPageStack();
+                                    settingsPage.applyLanguageChange(settingsPage.currentLanguageSetting);
                                 },
                                 qsTr("Confirm Permanent Deletion"),
                                 qsTr("Delete"),
