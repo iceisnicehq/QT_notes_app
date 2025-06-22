@@ -666,10 +666,14 @@ Page {
         var headers = ["id", "title", "content", "color", "pinned", "deleted", "archived", "created_at", "updated_at", "tags"];
         var csv = headers.join(",") + "\n";
         var escapeCsvField = function(field) {
-            // Replace newlines with spaces for simpler CSV compatibility
-            // This is a trade-off: content won't be perfectly preserved with original newlines
-            // CHANGED: Use 'var' instead of 'let' for QML compatibility
-            var cleanedField = String(field || '').replace(/\r\n|\n|\r/g, ' ').replace(/"/g, '""');
+            // Convert to string, replace internal commas with semicolons
+            // and newlines with spaces for simpler CSV interpretation.
+            // Then, enclose the result in quotes and escape any *remaining* double quotes.
+            var cleanedField = String(field || '')
+                               .replace(/,/g, ';') // Replace commas with semicolons
+                               .replace(/\r\n|\n|\r/g, ' ') // Replace newlines with spaces
+                               .replace(/"/g, '""'); // Escape any double quotes that might still exist
+
             return "\"" + cleanedField + "\"";
         };
 
@@ -678,9 +682,9 @@ Page {
             var row = [
                 note.id,
                 escapeCsvField(note.title),
-                escapeCsvField(note.content), // Use the modified escapeCsvField
+                escapeCsvField(note.content),
                 escapeCsvField(note.color),
-                note.pinned ? 1 : 0,
+                note.pinned ? 1 : 0, // Boolean to 1 or 0
                 note.deleted ? 1 : 0,
                 note.archived ? 1 : 0,
                 escapeCsvField(note.created_at),
@@ -692,26 +696,63 @@ Page {
         return csv;
     }
 
+    // In ImportExportPage.qml
     function parseCsv(content) {
         var lines = content.split('\n');
         if (lines.length < 2) return [];
-        var headers = lines[0].trim().split(',');
+
+        var headers = lines[0].trim().split(',').map(function(h) {
+            // Trim and unquote headers if they were quoted (they shouldn't be with current generateCsv)
+            return h.replace(/^"|"$/g, '').trim();
+        });
+
         var notes = [];
         for (var i = 1; i < lines.length; i++) {
             var line = lines[i].trim();
             if (line === "") continue;
-            var values = line.split(',');
-            var note = {};
-            for(var j = 0; j < headers.length; j++) {
-                if (values[j] !== undefined) {
-                    note[headers[j].trim()] = values[j].replace(/^"|"$/g, '').replace(/""/g, '"');
+
+            // Use a simple split. This works reliably now because internal commas
+            // have been replaced by semicolons during export.
+            var values = [];
+            var inQuote = false;
+            var currentField = "";
+            for (var j = 0; j < line.length; j++) {
+                var character = line[j];
+                if (character === '"') {
+                    if (inQuote && line[j+1] === '"') { // Escaped double quote
+                        currentField += '"';
+                        j++;
+                    } else {
+                        inQuote = !inQuote; // Toggle quote state
+                    }
+                } else if (character === ',' && !inQuote) { // Field delimiter outside quotes
+                    values.push(currentField);
+                    currentField = "";
+                } else {
+                    currentField += character;
                 }
             }
+            values.push(currentField); // Add the last field
+
+            var note = {};
+            for(var k = 0; k < headers.length; k++) {
+                var header = headers[k];
+                var value = values[k] !== undefined ? values[k] : "";
+
+                // Unescape double quotes (e.g., "" becomes ")
+                value = value.replace(/""/g, '"');
+
+                note[header] = value;
+            }
+
+            // Type conversion
             note.id = parseInt(note.id, 10);
-            note.pinned = parseInt(note.pinned, 10) === 1;
-            note.deleted = parseInt(note.deleted, 10) === 1;
-            note.archived = parseInt(note.archived, 10) === 1;
-            note.tags = note.tags ? note.tags.split(';') : [];
+            note.pinned = (note.pinned === "1" || note.pinned === "true");
+            note.deleted = (note.deleted === "1" || note.deleted === "true");
+            note.archived = (note.archived === "1" || note.archived === "true");
+            // Tags are still semicolon-separated, so split them back
+            note.tags = note.tags ? note.tags.split(';').map(function(tag) { return tag.trim(); }).filter(function(tag) { return tag !== ''; }) : [];
+
             if (!isNaN(note.id)) {
                notes.push(note);
             }
