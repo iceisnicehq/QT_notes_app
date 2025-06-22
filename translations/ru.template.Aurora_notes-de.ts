@@ -1270,7 +1270,7 @@ Gehen Sie zur Tag-Bearbeitungsseite, um einen zu erstellen!</translation>
     <message>
         <location filename="../qml/pages/SettingsPage.qml" line="339"/>
         <source>Theme Color</source>
-        <translation>Themenfarbe</
+        <translation>Themenfarbe</translation>
     </message>
     <message>
         <location filename="../qml/pages/SettingsPage.qml" line="367"/>

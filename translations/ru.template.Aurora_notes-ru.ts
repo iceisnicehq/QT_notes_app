@@ -6,12 +6,12 @@
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="17"/>
         <source>AboutPage opened. Initializing side panel and theme.</source>
-        <translation>Страница "О приложении" открыта. Инициализация боковой панели и темы.</translation>
+        <translation>Страница &quot;О приложении&quot; открыта. Инициализация боковой панели и темы.</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="57"/>
         <source>Menu button clicked in AboutPage → panelOpen = true</source>
-        <translation>Нажата кнопка меню на странице "О приложении" → panelOpen = true</translation>
+        <translation>Нажата кнопка меню на странице &quot;О приложении&quot; → panelOpen = true</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="62"/>
@@ -454,7 +454,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="591"/>
-        <source>No import detected.</s`ource>
+        <source>No import detected.</source>
         <translation>Импорт не обнаружен.</translation>
     </message>
     <message>
@@ -990,12 +990,12 @@ Go to edit tags page to create one!</source>
         <location filename="../qml/pages/NotePage.qml" line="514"/>
         <location filename="../qml/pages/NotePage.qml" line="890"/>
         <source>Add Tag button clicked. Opening tag selection panel.</source>
-        <translation>Нажата кнопка "Добавить тег". Открытие панели выбора тегов.</translation>
+        <translation>Нажата кнопка &quot;Добавить тег&quot;. Открытие панели выбора тегов.</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="560"/>
         <source>Undo action triggered!</source>
-        <translation>Действие "Отменить" инициировано!</translation>
+        <translation>Действие &quot;Отменить&quot; инициировано!</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="569"/>
@@ -1010,12 +1010,12 @@ Go to edit tags page to create one!</source>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="600"/>
         <source>Redo action triggered!</source>
-        <translation>Действие "Повторить" инициировано!</translation>
+        <translation>Действие &quot;Повторить&quot; инициировано!</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="609"/>
         <source>Redo successful!</source>
-        <translation>Повтор прошел успешно!</l</translation>
+        <translation>Повтор прошел успешно!</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="611"/>
@@ -1164,7 +1164,7 @@ Go to edit tags page to create one!</source>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="1142"/>
-        <source>Tag &apos;%1&apos; created and added!</s`ource>
+        <source>Tag &apos;%1&apos; created and added!</source>
         <translation>Тег &apos;%1&apos; создан и добавлен!</translation>
     </message>
     <message>
@@ -1205,7 +1205,7 @@ Go to edit tags page to create one!</source>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="1412"/>
         <source>Tag picker closed by Done button.</source>
-        <translation>Выбор тегов закрыт кнопкой "Готово".</translation>
+        <translation>Выбор тегов закрыт кнопкой &quot;Готово&quot;.</translation>
     </message>
 </context>
 <context>
