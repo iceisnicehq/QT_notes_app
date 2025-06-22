@@ -267,7 +267,7 @@ Page {
                             Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
 
                             Icon {
-                                source: "../icons/back.svg" // сюда правую
+                                source: "../icons/right.svg" // сюда правую
                                 anchors.fill: parent
                                 color: Theme.primaryColor
                                 fillMode: Image.PreserveAspectFit
