@@ -81,7 +81,7 @@ Page {
         color: Theme.secondaryColor
         font.pixelSize: Theme.fontSizeSmall
         anchors.centerIn: parent
-        visible: allTags.length === 0
+        visible: allTagsWithCounts.length === 0
     }
 
     // Header Area - Positioned above the Flickable
