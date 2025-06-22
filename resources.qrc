@@ -26,7 +26,7 @@
     <file>qml/pages/TrashPage.qml</file>
 
     <file>qml/services/DatabaseManagerService.js</file>
-    <file>qml/services/ToastManager.qml</file>
+    <file>qml/services/ToastManagerService.qml</file>
     <file>qml/services/ToastService.qml</file>
 
     <file>qml/icons/about.svg</file>
