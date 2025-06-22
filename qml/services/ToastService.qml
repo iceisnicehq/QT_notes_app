@@ -1,14 +1,19 @@
-// /qml/services/ToastService.js
+/* 
+ * Студент 1, Студент 2
+ * 
+ * курсовая работа на тему "Разработка приложения для организации заметок с поддержкой тегов и поиска"
+ *
+ * /qml/services/ToastService.qml
+ * Этот файл определяет визуальный компонент для одного всплывающего
+ * уведомления (тоста). Он представляет собой прямоугольник с текстом.
+ * Функция show() запускает анимацию, которая плавно показывает,
+ * удерживает и затем скрывает уведомление. Компонент может
+ * самоуничтожаться после завершения анимации.
+ */
+
 import QtQuick 2.0
 
-/**
-  * @brief An Android-like timed message text in a box that self-destroys when finished if desired
-  */
 Rectangle {
-
-    /**
-      * @brief Shows this Toast
-      */
     function show(text, duration) {
         message.text = text;
         if (typeof duration !== "undefined") {
