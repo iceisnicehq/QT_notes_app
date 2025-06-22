@@ -95,7 +95,7 @@ Page {
 
             Icon {
                 id: leftIcon
-                source: archivePage.selectedNoteIds.length > 0 ? "../icons/close.svg" : "../icons/menu.svg"
+                source: archivePage.selectedNoteIds.length > 0 ? "qrc:/qml/icons/close.svg" : "qrc:/qml/icons/menu.svg"
                 anchors.centerIn: parent
                 width: parent.width
                 height: parent.height
@@ -159,7 +159,7 @@ Page {
                         anchors.horizontalCenter: parent.horizontalCenter
 
                         Icon {
-                            source: archivePage.allNotesSelected ? "../icons/deselect_all.svg" : "../icons/select_all.svg"
+                            source: archivePage.allNotesSelected ? "qrc:/qml/icons/deselect_all.svg" : "qrc:/qml/icons/select_all.svg"
                             anchors.fill: parent
                             color: Theme.primaryColor
                         }
@@ -198,7 +198,7 @@ Page {
                         anchors.horizontalCenter: parent.horizontalCenter
 
                         Icon {
-                            source: pageMode === "trash" ? "../icons/restore_notes.svg" : "../icons/unarchive.svg"
+                            source: pageMode === "trash" ? "qrc:/qml/icons/restore_notes.svg" : "qrc:/qml/icons/unarchive.svg"
                             anchors.fill: parent
                             color: Theme.primaryColor
                         }
@@ -270,7 +270,7 @@ Page {
                         anchors.horizontalCenter: parent.horizontalCenter
 
                         Icon {
-                            source: "../icons/delete.svg"
+                            source: "qrc:/qml/icons/delete.svg"
                             anchors.fill: parent
                             color: Theme.primaryColor
                         }

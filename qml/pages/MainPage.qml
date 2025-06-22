@@ -318,7 +318,7 @@ Page {
 
                         Icon {
                             id: leftIcon
-                            source: (searchField.text.length > 0 || selectedTags.length > 0) ? "../icons/close.svg" : "../icons/menu.svg"
+                            source: (searchField.text.length > 0 || selectedTags.length > 0) ? "qrc:/qml/icons/close.svg" : "qrc:/qml/icons/menu.svg"
                             anchors.centerIn: parent
                             width: parent.width
                             height: parent.height
@@ -355,7 +355,7 @@ Page {
 
                         Icon {
                             id: rightIcon
-                            source: selectedTags.length > 0 ? "../icons/tag-filled.svg" : "../icons/tag-white.svg"
+                            source: selectedTags.length > 0 ? "qrc:/qml/icons/tag-filled.svg" : "qrc:/qml/icons/tag-white.svg"
                             anchors.centerIn: parent
                             width: parent.width
                             height: parent.height
@@ -395,7 +395,7 @@ Page {
                     anchors.left: parent.left
                     anchors.leftMargin: Theme.paddingLarge
 
-                    Icon { source: "../icons/close.svg"; anchors.centerIn: parent; width: parent.width; height: parent.height }
+                    Icon { source: "qrc:/qml/icons/close.svg"; anchors.centerIn: parent; width: parent.width; height: parent.height }
                     RippleEffectComponent { id: closeRipple }
                     MouseArea {
                         anchors.fill: parent
@@ -426,7 +426,7 @@ Page {
                     anchors.rightMargin: Theme.paddingMedium
 
                     Icon {
-                        source: mainPage.allVisibleNotesSelected ? "../icons/deselect_all.svg" : "../icons/select_all.svg"
+                        source: mainPage.allVisibleNotesSelected ? "qrc:/qml/icons/deselect_all.svg" : "qrc:/qml/icons/select_all.svg"
                         color: Theme.primaryColor
                         anchors.centerIn: parent
                         width: parent.width
@@ -471,7 +471,7 @@ Page {
                             }
                             return true;
                         }
-                        source: allSelectedPinned ? "../icons/pin-enabled.svg" : "../icons/pin.svg"
+                        source: allSelectedPinned ? "qrc:/qml/icons/pin-enabled.svg" : "qrc:/qml/icons/pin.svg"
                         color: Theme.primaryColor
                         anchors.centerIn: parent
                         width: parent.width
@@ -498,7 +498,7 @@ Page {
 
                     Icon {
                         id: paletteIcon
-                        source: "../icons/palette.svg"
+                        source: "qrc:/qml/icons/palette.svg"
                         anchors.centerIn: parent
                         width: parent.width
                         height: parent.height
@@ -527,7 +527,7 @@ Page {
                     anchors.right: parent.right
                     anchors.rightMargin: Theme.paddingLarge
 
-                    Icon { source: "../icons/delete.svg"; color: Theme.errorColor; anchors.centerIn: parent; width: parent.width; height: parent.height }
+                    Icon { source: "qrc:/qml/icons/delete.svg"; color: Theme.errorColor; anchors.centerIn: parent; width: parent.width; height: parent.height }
                     RippleEffectComponent { id: deleteRipple }
                     MouseArea {
                         anchors.fill: parent
@@ -562,7 +562,7 @@ Page {
                     anchors.right: deleteButton.left
                     anchors.rightMargin: Theme.paddingMedium
 
-                    Icon { source: "../icons/archive.svg"; color: Theme.primaryColor; anchors.centerIn: parent; width: parent.width; height: parent.height }
+                    Icon { source: "qrc:/qml/icons/archive.svg"; color: Theme.primaryColor; anchors.centerIn: parent; width: parent.width; height: parent.height }
                     RippleEffectComponent { id: archiveRipple }
                     MouseArea {
                         anchors.fill: parent
@@ -793,7 +793,7 @@ Page {
         }
 
         Icon {
-            source: "../icons/sort.svg"
+            source: "qrc:/qml/icons/sort.svg"
             color: Theme.primaryColor
             anchors.centerIn: parent
             width: parent.width * 0.5
@@ -864,7 +864,7 @@ Page {
         }
 
         Icon {
-            source: "../icons/plus.svg"
+            source: "qrc:/qml/icons/plus.svg"
             color: Theme.primaryColor
             anchors.centerIn: parent
             width: parent.width * 0.5
@@ -1003,7 +1003,7 @@ Page {
                                     color: modelData
 
                                     Icon {
-                                        source: "../icons/check.svg"
+                                        source: "qrc:/qml/icons/check.svg"
                                         anchors.centerIn: parent
                                         width: parent.width * 0.75
                                         height: parent.height * 0.75
@@ -1130,7 +1130,7 @@ Page {
 
                                 Icon {
                                     id: rightIconCloseTagSearch
-                                    source: "../icons/close.svg"
+                                    source: "qrc:/qml/icons/close.svg"
                                     color: Theme.primaryColor
                                     anchors.centerIn: parent
                                     width: parent.width
@@ -1205,7 +1205,7 @@ Page {
 
                                 Icon {
                                     id: tagPanelTagIcon
-                                    source: "../icons/tag-white.svg"
+                                    source: "qrc:/qml/icons/tag-white.svg"
                                     color: "#e2e3e8"
                                     width: Theme.iconSizeMedium
                                     height: Theme.iconSizeMedium
@@ -1236,7 +1236,7 @@ Page {
 
                                     Image {
                                         id: tagPanelCheckIcon
-                                        source: model.isChecked ? "../icons/box-checked.svg" : "../icons/box.svg"
+                                        source: model.isChecked ? "qrc:/qml/icons/box-checked.svg" : "qrc:/qml/icons/box.svg"
                                         anchors.centerIn: parent
                                         width: parent.width
                                         height: parent.height

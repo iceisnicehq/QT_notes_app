@@ -782,38 +782,6 @@ function permanentlyDeleteNotes(ids) {
     });
 }
 
-function checkIfNotesExist(idsToCheck) {
-    if (!db) {
-        console.error("DB_MGR: Database not initialized. Cannot check for note existence.");
-        return;
-    }
-    if (idsToCheck.length === 0) {
-        console.log("DB_MGR: No IDs to check for existence.");
-        return;
-    }
-
-    db.readTransaction(function(tx) {
-        var placeholders = idsToCheck.map(function() { return '?'; }).join(',');
-        var query = "SELECT id, title, deleted FROM Notes WHERE id IN (" + placeholders + ")";
-        tx.executeSql(query, idsToCheck,
-            function(tx, results) {
-                if (results.rows.length > 0) {
-                    console.warn("DB_MGR_CHECK: !!! ATTENTION: Found " + results.rows.length + " notes that should have been deleted:");
-                    for (var i = 0; i < results.rows.length; i++) {
-                        var note = results.rows.item(i);
-                        console.warn("DB_MGR_CHECK: Note ID: " + note.id + ", Title: '" + note.title + "', Deleted Flag: " + note.deleted);
-                    }
-                } else {
-                    console.log("DB_MGR_CHECK: Successfully verified that notes with IDs [" + idsToCheck.join(',') + "] do NOT exist in DB.");
-                }
-            },
-            function(tx, error) {
-                console.error("DB_MGR_CHECK: Error checking for deleted notes: " + error.message);
-            }
-        );
-    });
-}
-
 function saveSortSettings(sortBy, sortOrder, colorOrderArray) {
     if (!db) return;
     var colorOrderString = JSON.stringify(colorOrderArray);
@@ -978,28 +946,6 @@ function bulkUnarchiveNotes(ids) {
         var placeholders = ids.map(function() { return '?'; }).join(',');
         tx.executeSql("UPDATE Notes SET archived = 0, deleted = 0, updated_at = CURRENT_TIMESTAMP WHERE id IN (" + placeholders + ")", ids);
         console.log("DB_MGR: Bulk unarchived notes with IDs:", ids);
-    });
-}
-
-function moveNoteFromArchiveToTrash(noteId) {
-    if (!db) initDatabase(LocalStorage);
-    db.transaction(function(tx) {
-        tx.executeSql(
-            'UPDATE Notes SET archived = 0, deleted = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-            [noteId]
-        );
-        console.log("DB_MGR: Note moved from archive to trash. ID:", noteId);
-    });
-}
-
-function moveNoteFromTrashToArchive(noteId) {
-    if (!db) initDatabase(LocalStorage);
-    db.transaction(function(tx) {
-            tx.executeSql(
-            'UPDATE Notes SET deleted = 0, archived = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-            [noteId]
-        );
-        console.log("DB_MGR: Note moved from trash to archive. ID:", noteId);
     });
 }
 
@@ -1289,117 +1235,6 @@ function importNotes(importedNotes, optionalTagForImport, successCallback, error
         if (errorCallback) {
             errorCallback(error);
         }
-    });
-}
-function updateLastExportDate() {
-    if (!db) {
-        console.error("DB_MGR: База данных не инициализирована для обновления статистики экспорта.");
-        return;
-    }
-    db.transaction(function(tx) {
-        var now = new Date().toISOString();
-        tx.executeSql(
-            'INSERT OR REPLACE INTO AppSettings (key, value) VALUES (?, ?)',
-            ['lastExportDate', now]
-        );
-        console.log("DB_MGR: Дата последнего экспорта обновлена: " + now);
-    }, function(error) {
-        console.error("DB_MGR: Ошибка при обновлении даты последнего экспорта: " + error.message);
-    });
-}
-
-function updateLastExportDate() {
-    if (!db) {
-        console.error("DB_MGR: Database not initialized for updateLastExportDate.");
-        return;
-    }
-    db.transaction(function(tx) {
-        var now = new Date().toISOString();
-        tx.executeSql(
-            'UPDATE AppSettings SET lastExportDate = ? WHERE id = 1',
-            [now]
-        );
-        console.log("DB_MGR: Дата последнего экспорта обновлена: " + now);
-    }, function(error) {
-        console.error("DB_MGR: Ошибка при обновлении даты последнего экспорта: " + error.message);
-    });
-}
-
-function updateNotesExportedCount(count) {
-    if (!db) {
-        console.error("DB_MGR: Database not initialized for updateNotesExportedCount.");
-        return;
-    }
-    db.transaction(function(tx) {
-        tx.executeSql(
-            'UPDATE AppSettings SET notesExportedCount = ? WHERE id = 1',
-            [count]
-        );
-        console.log("DB_MGR: Количество экспортированных заметок обновлено: " + count);
-    }, function(error) {
-        console.error("DB_MGR: Ошибка при обновлении количества экспортированных заметок: " + error.message);
-    });
-}
-
-function updateLastImportDate() {
-    if (!db) {
-        console.error("DB_MGR: Database not initialized for updateLastImportDate.");
-        return;
-    }
-    db.transaction(function(tx) {
-        var now = new Date().toISOString();
-        tx.executeSql(
-            'UPDATE AppSettings SET lastImportDate = ? WHERE id = 1',
-            [now]
-        );
-        console.log("DB_MGR: Дата последнего импорта обновлена: " + now);
-    }, function(error) {
-        console.error("DB_MGR: Ошибка при обновлении даты последнего импорта: " + error.message);
-    });
-}
-
-function updateNotesImportedCount(count) {
-    if (!db) {
-        console.error("DB_MGR: Database not initialized for updateNotesImportedCount.");
-        return;
-    }
-    db.transaction(function(tx) {
-        tx.executeSql(
-            'UPDATE AppSettings SET notesImportedCount = ? WHERE id = 1',
-            [count]
-        );
-        console.log("DB_MGR: Количество импортированных заметок обновлено: " + count);
-    }, function(error) {
-        console.error("DB_MGR: Ошибка при обновлении количества импортированных заметок: " + error.message);
-    });
-}
-
-function getSetting(columnName) {
-    if (!db) {
-        console.error("DB_MGR: Database not initialized when trying to get setting:", columnName);
-        return null;
-    }
-    var value = null;
-    db.readTransaction(function(tx) {
-        var result = tx.executeSql('SELECT ' + columnName + ' FROM AppSettings WHERE id = 1');
-        if (result.rows.length > 0) {
-            value = result.rows.item(0)[columnName];
-        }
-    });
-    return value;
-}
-
-function setSetting(columnName, value) {
-    if (!db) {
-        console.error("DB_MGR: Database not initialized when trying to set setting:", columnName);
-        return;
-    }
-    db.transaction(function(tx) {
-        tx.executeSql(
-            'UPDATE AppSettings SET ' + columnName + ' = ? WHERE id = 1',
-            [value]
-        );
-        console.log("DB_MGR: Setting '" + columnName + "' updated to '" + value + "'.");
     });
 }
 

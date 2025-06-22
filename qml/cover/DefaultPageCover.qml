@@ -21,7 +21,7 @@ CoverBackground {
         primaryText: "App"
         secondaryText: qsTr("Notes")
         icon {
-            source: Qt.resolvedUrl("../icons/Aurora_notes.svg")
+            source: Qt.resolvedUrl("qrc:/qml/icons/Aurora_notes.svg")
             sourceSize { width: icon.width; height: icon.height }
         }
     }

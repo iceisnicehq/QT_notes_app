@@ -296,12 +296,12 @@ Page {
                 source: {
                         if (newNotePage.noteId === -1) {
                         if (noteTitleInput.text.trim() === "" && noteContentInput.text.trim() === "") {
-                            return "../icons/close.svg";
+                            return "qrc:/qml/icons/close.svg";
                         } else {
-                            return "../icons/check.svg";
+                            return "qrc:/qml/icons/check.svg";
                         }
                     } else {
-                        return "../icons/back.svg";
+                        return "qrc:/qml/icons/back.svg";
                     }
                 }
                 anchors.centerIn: parent
@@ -325,7 +325,7 @@ Page {
             RippleEffectComponent { id: pinRipple }
             Icon {
                 id: pinIconButton
-                source: noteIsPinned ? "../icons/pin-enabled.svg" : "../icons/pin.svg"
+                source: noteIsPinned ? "qrc:/qml/icons/pin-enabled.svg" : "qrc:/qml/icons/pin.svg"
                 anchors.centerIn: parent
                 width: parent.width
                 height: parent.height
@@ -354,7 +354,7 @@ Page {
             RippleEffectComponent { id: duplicateRipple }
             Icon {
                 id: duplicateIconButton
-                source: "../icons/copy.svg"
+                source: "qrc:/qml/icons/copy.svg"
                 anchors.centerIn: parent
                 width: parent.width
                 height: parent.height
@@ -426,7 +426,7 @@ Page {
                 RippleEffectComponent { id: paletteRipple }
                 Icon {
                     id: paletteIcon
-                    source: "../icons/palette.svg"
+                    source: "qrc:/qml/icons/palette.svg"
                     anchors.centerIn: parent
                     width: parent.width
                     height: parent.height
@@ -456,7 +456,7 @@ Page {
                 RippleEffectComponent { id: addTagRipple }
                 Icon {
                     id: addTagIcon
-                    source: "../icons/tag.svg"
+                    source: "qrc:/qml/icons/tag.svg"
                     anchors.centerIn: parent
                     width: parent.width
                     height: parent.height
@@ -494,7 +494,7 @@ Page {
                 RippleEffectComponent { id: undoRipple }
                 Icon {
                     id: undoIcon
-                    source: "../icons/undo.svg"
+                    source: "qrc:/qml/icons/undo.svg"
                     anchors.centerIn: parent
                     width: parent.width
                     height: parent.height
@@ -531,7 +531,7 @@ Page {
                 RippleEffectComponent { id: redoRipple }
                 Icon {
                     id: redoIcon
-                    source: "../icons/redo.svg"
+                    source: "qrc:/qml/icons/redo.svg"
                     anchors.centerIn: parent
                     width: parent.width
                     height: parent.height
@@ -578,7 +578,7 @@ Page {
                 RippleEffectComponent { id: archiveRipple }
                 Icon {
                     id: archiveIcon
-                    source: "../icons/archive.svg"
+                    source: "qrc:/qml/icons/archive.svg"
                     anchors.centerIn: parent
                     width: parent.width
                     height: parent.height
@@ -630,7 +630,7 @@ Page {
                 RippleEffectComponent { id: deleteRipple }
                 Icon {
                     id: deleteIcon
-                    source: "../icons/delete.svg"
+                    source: "qrc:/qml/icons/delete.svg"
                     anchors.centerIn: parent
                     width: parent.width
                     height: parent.height
@@ -923,7 +923,7 @@ Page {
                                     color: modelData
 
                                     Icon {
-                                        source: "../icons/check.svg"
+                                        source: "qrc:/qml/icons/check.svg"
                                         anchors.centerIn: parent
                                         width: parent.width * 0.75
                                         height: parent.height * 0.75
@@ -1118,7 +1118,7 @@ Page {
 
                     Icon {
                         id: addTagPanelIcon
-                        source: tagSelectionPanel.currentNewTagInput.trim().length > 0 ? "../icons/plus.svg" : "../icons/plus.svg"
+                        source: tagSelectionPanel.currentNewTagInput.trim().length > 0 ? "qrc:/qml/icons/plus.svg" : "qrc:/qml/icons/plus.svg"
                         anchors.centerIn: parent
                         width: parent.width
                         height: parent.height
@@ -1215,7 +1215,7 @@ Page {
 
                             Icon {
                                 id: tagPanelTagIcon
-                                source: "../icons/tag-white.svg"
+                                source: "qrc:/qml/icons/tag-white.svg"
                                 color: "#e2e3e8"
                                 width: Theme.iconSizeMedium
                                 height: Theme.iconSizeMedium
@@ -1245,7 +1245,7 @@ Page {
 
                                 Image {
                                     id: tagPanelCheckIcon
-                                    source: model.isChecked ? "../icons/box-checked.svg" : "../icons/box.svg"
+                                    source: model.isChecked ? "qrc:/qml/icons/box-checked.svg" : "qrc:/qml/icons/box.svg"
                                     anchors.centerIn: parent
                                     width: parent.width
                                     height: parent.height
