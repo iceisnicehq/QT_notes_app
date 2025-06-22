@@ -25,12 +25,16 @@ Notes
 %install
 %make_install
 mkdir -p %{buildroot}%{_datadir}/ru.template.Aurora_notes/translations/
+
 cp %{_builddir}/translations/ru.template.Aurora_notes-en.qm \
    %{buildroot}%{_datadir}/ru.template.Aurora_notes/translations/
+
 cp %{_builddir}/translations/ru.template.Aurora_notes-ru.qm \
    %{buildroot}%{_datadir}/ru.template.Aurora_notes/translations/
-#cp %{_builddir}/translations/ru.template.Aurora_notes-de.qm \
-#   %{buildroot}%{_datadir}/ru.template.Aurora_notes/translations/\
+
+cp %{_builddir}/translations/ru.template.Aurora_notes-de.qm \
+   %{buildroot}%{_datadir}/ru.template.Aurora_notes/translations/
+
 cp %{_builddir}/translations/ru.template.Aurora_notes-ch.qm \
    %{buildroot}%{_datadir}/ru.template.Aurora_notes/translations/
 
@@ -44,5 +48,5 @@ cp %{_builddir}/translations/ru.template.Aurora_notes-ch.qm \
 
 %{_datadir}/%{name}/translations/ru.template.Aurora_notes-en.qm
 %{_datadir}/%{name}/translations/ru.template.Aurora_notes-ru.qm
-#%{_datadir}/%{name}/translations/ru.template.Aurora_notes-de.qm
+%{_datadir}/%{name}/translations/ru.template.Aurora_notes-de.qm
 %{_datadir}/%{name}/translations/ru.template.Aurora_notes-ch.qm
