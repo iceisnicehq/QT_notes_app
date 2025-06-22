@@ -667,9 +667,11 @@ Page {
         if (!data || data.length === 0) {
             return "";
         }
+
         var escapeCsvField = function(field) {
-            var stringField = String(field || '');
-            if (stringField.search(/("|,|\n)/g) >= 0) {
+            var stringField = String(field || '').replace(/\n/g, '_BR_');
+
+            if (stringField.search(/("|,)/g) >= 0) {
                 stringField = '"' + stringField.replace(/"/g, '""') + '"';
             }
             return stringField;
@@ -677,6 +679,7 @@ Page {
 
         var headers = Object.keys(data[0]);
         var csv = headers.join(',') + '\n';
+
         for (var i = 0; i < data.length; i++) {
             var row = headers.map(function(header) {
                 return escapeCsvField(data[i][header]);
@@ -687,12 +690,13 @@ Page {
         return csv;
     }
 
-   function parseCsv(content) {
+    function parseCsv(content) {
         var lines = content.replace(/\r/g, '').split('\n');
         if (lines.length < 2) return [];
 
         var headers = lines[0].split(',');
         var notes = [];
+
         var regex = /("([^"]|"")*"|[^,]*)(,|$)/g;
 
         for (var i = 1; i < lines.length; i++) {
@@ -704,12 +708,16 @@ Page {
             regex.lastIndex = 0;
 
             while ((match = regex.exec(line))) {
-                var value = match[1];
-                if (value.startsWith('"') && value.endsWith('"')) {
+                var value = String(match[1]);
+
+                if (value.length >= 2 && value.charAt(0) === '"' && value.charAt(value.length - 1) === '"') {
                     value = value.slice(1, -1).replace(/""/g, '"');
                 }
+
+                value = value.replace(/_BR_/g, '\n');
                 values.push(value);
-                if (match[3] === '') break; // Конец строки
+
+                if (match[3] === '') break;
             }
 
             if (values.length !== headers.length) {

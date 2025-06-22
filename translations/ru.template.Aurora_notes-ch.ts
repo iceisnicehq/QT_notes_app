@@ -328,12 +328,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation>从文件导入</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="977"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="969"/>
         <source>No valid notes found in file.</source>
         <translation>文件中未找到有效笔记。</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="987"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="979"/>
         <source>File processing error: </source>
         <translation>文件处理错误：</translation>
     </message>
@@ -388,12 +388,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation>未检测到导入。</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="916"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="908"/>
         <source>Error parsing JSON file: </source>
         <translation>解析JSON文件错误：</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="926"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="918"/>
         <source>Error parsing CSV file: </source>
         <translation>解析CSV文件错误：</translation>
     </message>
@@ -403,12 +403,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation>错误：数据库未初始化。请重新启动应用程序。</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="756"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="748"/>
         <source>Gathering data for export...</source>
         <translation>正在收集数据以供导出...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="772"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="764"/>
         <source>No notes to export.</source>
         <translation>没有笔记可导出。</translation>
     </message>
@@ -418,73 +418,73 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="778"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="770"/>
         <source>Preparing </source>
         <translation>正在准备</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="778"/>
-        <location filename="../qml/pages/ImportExportPage.qml" line="943"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="770"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="935"/>
         <source> notes...</source>
         <translation> 笔记...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="787"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="779"/>
         <source>Error: Unsupported export format.</source>
         <translation>错误：不支持的导出格式。</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="798"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="790"/>
         <source>Export error: </source>
         <translation>导出错误：</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="806"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="798"/>
         <source>Saving file...</source>
         <translation>正在保存文件...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="849"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="841"/>
         <source>File save error (XHR): </source>
         <translation>文件保存错误 (XHR)：</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="855"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="847"/>
         <source>File save error: </source>
         <translation>文件保存错误：</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="866"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="858"/>
         <source>Reading file: </source>
         <translation>正在读取文件：</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="873"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="865"/>
         <source>Error: Database not initialized for import.</source>
         <translation>错误：数据库未初始化以进行导入。</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="895"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="887"/>
         <source>File read error (XHR): </source>
         <translation>文件读取错误 (XHR)：</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="932"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="924"/>
         <source>Unsupported file format. Only JSON and CSV are supported.</source>
         <translation>不支持的文件格式。仅支持 JSON 和 CSV。</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="943"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="935"/>
         <source>Importing </source>
         <translation>正在导入</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="972"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="964"/>
         <source>Import error: </source>
         <translation>导入错误：</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="982"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="974"/>
         <source>File is empty.</source>
         <translation>文件为空。</translation>
     </message>

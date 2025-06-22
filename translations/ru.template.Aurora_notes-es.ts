@@ -383,12 +383,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation>Error: Base de datos no inicializada. Por favor, reinicie la aplicación.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="756"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="748"/>
         <source>Gathering data for export...</source>
         <translation>Recopilando datos para exportar...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="772"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="764"/>
         <source>No notes to export.</source>
         <translation>No hay notas para exportar.</translation>
     </message>
@@ -398,93 +398,93 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="778"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="770"/>
         <source>Preparing </source>
         <translation>Preparando </translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="778"/>
-        <location filename="../qml/pages/ImportExportPage.qml" line="943"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="770"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="935"/>
         <source> notes...</source>
         <translation> notas...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="787"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="779"/>
         <source>Error: Unsupported export format.</source>
         <translation>Error: Formato de exportación no compatible.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="798"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="790"/>
         <source>Export error: </source>
         <translation>Error de exportación: </translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="806"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="798"/>
         <source>Saving file...</source>
         <translation>Guardando archivo...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="849"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="841"/>
         <source>File save error (XHR): </source>
         <translation>Error al guardar archivo (XHR): </translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="855"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="847"/>
         <source>File save error: </source>
         <translation>Error al guardar archivo: </translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="866"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="858"/>
         <source>Reading file: </source>
         <translation>Leyendo archivo: </translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="873"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="865"/>
         <source>Error: Database not initialized for import.</source>
         <translation>Error: Base de datos no inicializada para importar.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="895"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="887"/>
         <source>File read error (XHR): </source>
         <translation>Error de lectura de archivo (XHR): </translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="916"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="908"/>
         <source>Error parsing JSON file: </source>
         <translation>Error al analizar el archivo JSON: </translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="926"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="918"/>
         <source>Error parsing CSV file: </source>
         <translation>Error al analizar el archivo CSV: </translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="932"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="924"/>
         <source>Unsupported file format. Only JSON and CSV are supported.</source>
         <translation>Formato de archivo no compatible. Solo se admiten JSON y CSV.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="943"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="935"/>
         <source>Importing </source>
         <translation>Importando </translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="972"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="964"/>
         <source>Import error: </source>
         <translation>Error de importación: </translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="977"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="969"/>
         <source>No valid notes found in file.</source>
         <translation>No se encontraron notas válidas en el archivo.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="982"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="974"/>
         <source>File is empty.</source>
         <translation>El archivo está vacío.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ImportExportPage.qml" line="987"/>
+        <location filename="../qml/pages/ImportExportPage.qml" line="979"/>
         <source>File processing error: </source>
         <translation>Error de procesamiento de archivo: </translation>
     </message>
