@@ -319,7 +319,7 @@ Item {
                 Item { width: 1; height: Theme.paddingLarge }
 
                 Button {
-                    text: qsTr("Apply Color Sort")
+                    text: qsTr("Apply and Save Order")
                     anchors.horizontalCenter: parent.horizontalCenter
                     highlightColor: Theme.highlightColor
                     onClicked: {
@@ -327,6 +327,8 @@ Item {
                         for (var i = 0; i < colorSortOrderModel.count; i++) {
                             finalColorOrder.push(colorSortOrderModel.get(i).colorValue);
                         }
+                        DB.saveSortSettings('color', 'desc', finalColorOrder);
+                        console.log("ColorSortDialog: Saved color sort order to DB:", JSON.stringify(finalColorOrder));
                         root.colorOrderApplied(finalColorOrder);
                     }
                 }
