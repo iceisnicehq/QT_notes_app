@@ -828,9 +828,19 @@ Page {
             enabled: sortFabButton.visible
             onPressed: sortButtonRipple.ripple(mouseX, mouseY)
             onClicked: {
-                console.log("Кнопка сортировки нажата. Открываем диалог.");
+                console.log("Кнопка сортировки нажата. Вычисляем цвета из mainPage.searchResults.");
+                var uniqueColors = [];
+                var seenColors = {};
+                for (var i = 0; i < mainPage.searchResults.length; i++) {
+                    var color = mainPage.searchResults[i].color || "#1c1d29";
+                    if (!seenColors[color]) {
+                        seenColors[color] = true;
+                        uniqueColors.push(color);
+                    }
+                }
+                sortDialog.availableColors = uniqueColors;
                 mainPage.sortDialogVisible = true;
-                mainPage.bulkColorPickerOpen = false; // Close color picker if open
+                mainPage.bulkColorPickerOpen = false;
             }
         }
     }
@@ -1372,13 +1382,17 @@ Page {
             mainPage.currentSortOrder = sortOrder;
             mainPage.performSearch();
             toastManager.show(qsTr("Notes sorted!"));
-            //DB.saveSortSettings(mainPage.currentSortBy, mainPage.currentSortOrder, mainPage.customColorSortOrder);
+
         }
 
         onColorSortRequested: {
+            var allCurrentColors = sortDialog.availableColors;
+            if (allCurrentColors.length <= 1) {
+                toastManager.show(qsTr("Only one color is used in the filtered notes."));
+                return;
+            }
+
             var savedOrder = mainPage.customColorSortOrder || [];
-            var allCurrentColors = DB.getUniqueNoteColors();
-            var uniqueColorsCount = allCurrentColors.length;
             var finalOrderForDialog = [];
             var seenColors = {};
             savedOrder.forEach(function(color) {
@@ -1393,17 +1407,14 @@ Page {
                 }
             });
 
-            if (uniqueColorsCount <= 1) {
-                toastManager.show(qsTr("Only one color found among notes. No need to sort by color."));
-                //mainPage.sortDialogVisible = false; // Close the main sort dialog
-                return; // Prevent ColorSortDialog from opening
-            }
-
             colorSortDialog.colorsToOrder = finalOrderForDialog;
             mainPage.colorSortDialogVisible = true;
         }
 
         onCancelled: mainPage.sortDialogVisible = false
+        onShowDisabledToast: {
+            toastManager.show(qsTr("Sorting by color is not available when there is only one color."))
+        }
     }
 
     ColorSortDialog {
@@ -1417,7 +1428,6 @@ Page {
             mainPage.currentSortBy = 'color';
             mainPage.performSearch();
             toastManager.show(qsTr("Notes sorted by color!"));
-            //DB.saveSortSettings(mainPage.currentSortBy, mainPage.currentSortOrder, mainPage.customColorSortOrder);
         }
         onCancelled: mainPage.colorSortDialogVisible = false
 
