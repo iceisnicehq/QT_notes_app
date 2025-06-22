@@ -386,6 +386,18 @@ Page {
                     }
                 }
 
+                Label {
+                    id: selectedCountLabel
+                    text: mainPage.selectedNoteIds.length.toString() // Display the count
+                    font.pixelSize: Theme.fontSizeLarge // Use Theme.fontSizeSmall like in NavigationButton
+                    color: white         // Use Theme.secondaryColor like in NavigationButton
+                    // No font.bold property here, as counts in NavigationButton typically aren't bold
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.left: closeButton.right // Position next to the close button
+                    anchors.leftMargin: Theme.paddingSmall // Small margin between icon and text
+                    visible: mainPage.selectionMode // Only visible in selection mode
+                }
+
                 Item {
                     id: selectAllButton
                     width: Theme.fontSizeExtraLarge * 1.1
