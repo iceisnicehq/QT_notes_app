@@ -1,6 +1,6 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import "DatabaseManager.js" as DB // Assuming this exists for color functions
+import "../services/DatabaseManager.js" as DB
 
 Item {
     id: root

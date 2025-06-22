@@ -16,12 +16,11 @@ HEADERS += \
 
 DISTFILES += \
     qml/pages/AdaptiveButton.qml \
-    qml/pages/ColorSortDialog.qml \
-    qml/pages/ConfirmationDialog.qml \
-    qml/pages/ExportResultDialog.qml \
+    qml/dialogs/ColorSortDialog.qml \
+    qml/dialogs/ConfirmationDialog.qml \
     qml/pages/ImportExportPage.qml \
     qml/pages/SettingsPage.qml \
-    qml/pages/SortDialog.qml \
+    qml/dialogs/SortDialog.qml \
     qml/pages/TrashArchiveNoteCard.qml \
     rpm/ru.template.Aurora_notes.spec \
 
