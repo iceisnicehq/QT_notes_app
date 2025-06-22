@@ -1,11 +1,13 @@
-// TrashPage.qml
-
+// /qml/pages/TrashPage.qml
 import QtQuick.LocalStorage 2.0 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.Layouts 1.1
-import "../services/DatabaseManager.js" as DB
+import "../services/DatabaseManagerService.js" as DB
 import "../dialogs"
+import "../components"
+import "../services"
+import "../note_cards"
 
 Page {
     id: trashPage
@@ -87,7 +89,7 @@ Page {
                 verticalCenter: parent.verticalCenter
             }
 
-            RippleEffect { id: menuRipple }
+            RippleEffectComponent { id: menuRipple }
 
             // Dynamic Icon based on selection state, styled like the menu button's icon
             Icon {
@@ -394,12 +396,12 @@ Page {
 
         }
 
-        ScrollBar {
+        ScrollBarComponent {
             flickableSource: trashFlickable
         }
     }
 
-    ToastManager {
+    ToastManagerService {
         id: toastManager
     }
 
@@ -438,7 +440,7 @@ Page {
         width: parent.width * 0.8
         horizontalAlignment: Text.AlignHCenter
     }
-    SidePanel {
+    SidePanelComponent {
         id: sidePanelInstance
         open: trashPage.panelOpen
         onClosed: trashPage.panelOpen = false

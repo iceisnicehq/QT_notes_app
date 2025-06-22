@@ -1,3 +1,4 @@
+// /qml/services/ToastManagerService.js
 import QtQuick 2.0
 
 /**
@@ -28,7 +29,7 @@ ListView {
         }
     }
 
-    delegate: Toast {
+    delegate: ToastService {
         Component.onCompleted: {
             if (typeof duration === "undefined") {
                 show(text);

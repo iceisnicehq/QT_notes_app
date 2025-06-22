@@ -1,4 +1,4 @@
-// DatabaseManager.js
+// /qml/services/DatabaseManagerService.js
 var db = null;
 var dbName = "AuroraNotesDB";
 var dbVersion = "1.0";

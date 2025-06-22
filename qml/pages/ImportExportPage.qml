@@ -1,11 +1,14 @@
+// /qml/pages/ImportExportPage.qml
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import Sailfish.Pickers 1.0
 import QtQuick.Layouts 1.1
 import Nemo.Configuration 1.0
-import "../services/DatabaseManager.js" as DB
 import QtQuick.LocalStorage 2.0
+import "../services/DatabaseManagerService.js" as DB
 import "../dialogs"
+import "../services"
+import "../components"
 
 Page {
     id: importExportPage
@@ -40,7 +43,7 @@ Page {
             // The fallback is handled in Component.onCompleted.
         }
     }
-    ToastManager {
+    ToastManagerService {
         id: toastManager
     }
 
@@ -397,7 +400,7 @@ Page {
                 verticalCenter: parent.verticalCenter
             }
 
-            RippleEffect { id: menuRipple }
+            RippleEffectComponent { id: menuRipple }
 
             Icon {
                 id: leftIcon
@@ -1004,7 +1007,7 @@ Page {
         }
     }
 
-    SidePanel {
+    SidePanelComponent {
         id: sidePanelInstance
         open: importExportPage.panelOpen
         onClosed: importExportPage.panelOpen = false

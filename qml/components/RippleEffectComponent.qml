@@ -1,4 +1,4 @@
-// RippleEffect.qml
+// /qml/components/RippleEffectComponent.qml
 import QtQuick 2.0
 
 Item {

@@ -1,7 +1,9 @@
+// /qml/components/SidePanelComponent.qml
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.LocalStorage 2.0
-import "../services/DatabaseManager.js" as DB
+import "../services/DatabaseManagerService.js" as DB
+import "../pages"
 
 Item {
     id: sidePanel
@@ -123,7 +125,7 @@ Item {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
-                            navigateAndManageStack(Qt.resolvedUrl("MainPage.qml"), "notes", "mainPage");
+                            navigateAndManageStack(Qt.resolvedUrl("../pages/MainPage.qml"), "notes", "mainPage");
                         }
 
                         Label {
@@ -148,7 +150,7 @@ Item {
                             rightMargin: Theme.paddingLarge
                             verticalCenter: parent.verticalCenter
                         }
-                        RippleEffect {
+                        RippleEffectComponent {
                             id: closeRipple
                         }
                         Icon {
@@ -183,66 +185,66 @@ Item {
                         horizontalAlignment: "AlignLeft"
                     }
 
-                    NavigationButton {
+                    NavigationButtonComponent {
                         icon: "../icons/notes.svg"
                         text: qsTr("Notes")
                         selected: sidePanel.currentPage === "notes"
                         noteCount: sidePanel.totalNotesCount
                         selectedColor: sidePanel.activeSectionColor
                         onClicked: {
-                            navigateAndManageStack(Qt.resolvedUrl("MainPage.qml"), "notes", "mainPage");
+                            navigateAndManageStack(Qt.resolvedUrl("../pages/MainPage.qml"), "notes", "mainPage");
                         }
                     }
 
-                    NavigationButton {
+                    NavigationButtonComponent {
                         icon: "../icons/archive.svg"
                         text: qsTr("Archive")
                         selected: sidePanel.currentPage === "archive"
                         noteCount: sidePanel.archivedNotesCount
                         selectedColor: sidePanel.activeSectionColor
                         onClicked: {
-                            navigateAndManageStack(Qt.resolvedUrl("ArchivePage.qml"), "archive", "archivePage");
+                            navigateAndManageStack(Qt.resolvedUrl("../pages/ArchivePage.qml"), "archive", "archivePage");
                         }
                     }
 
-                    NavigationButton {
+                    NavigationButtonComponent {
                         icon: "../icons/trash.svg"
                         text: qsTr("Trash")
                         selected: sidePanel.currentPage === "trash"
                         noteCount: sidePanel.trashNotesCount
                         selectedColor: sidePanel.activeSectionColor
                         onClicked: {
-                            navigateAndManageStack(Qt.resolvedUrl("TrashPage.qml"), "trash", "trashPage");
+                            navigateAndManageStack(Qt.resolvedUrl("../pages/TrashPage.qml"), "trash", "trashPage");
                         }
                     }
 
-                    NavigationButton {
+                    NavigationButtonComponent {
                         icon: "../icons/import_export.svg"
                         text: qsTr("Import & Export")
                         selected: sidePanel.currentPage === "import/export"
                         selectedColor: sidePanel.activeSectionColor
                         onClicked: {
-                            navigateAndManageStack(Qt.resolvedUrl("ImportExportPage.qml"), "import/export", "importExportPage");
+                            navigateAndManageStack(Qt.resolvedUrl("../pages/ImportExportPage.qml"), "import/export", "importExportPage");
                         }
                     }
 
-                    NavigationButton {
+                    NavigationButtonComponent {
                         icon: "../icons/settings.svg"
                         text: qsTr("Settings")
                         selected: sidePanel.currentPage === "settings"
                         selectedColor: sidePanel.activeSectionColor
                         onClicked: {
-                            navigateAndManageStack(Qt.resolvedUrl("SettingsPage.qml"), "settings", "settingsPage");
+                            navigateAndManageStack(Qt.resolvedUrl("../pages/SettingsPage.qml"), "settings", "settingsPage");
                         }
                     }
 
-                    NavigationButton {
+                    NavigationButtonComponent {
                         icon: "../icons/about.svg"
                         text: qsTr("About")
                         selected: sidePanel.currentPage === "about"
                         selectedColor: sidePanel.activeSectionColor
                         onClicked: {
-                            navigateAndManageStack(Qt.resolvedUrl("AboutPage.qml"), "about", "aboutPage");
+                            navigateAndManageStack(Qt.resolvedUrl("../pages/AboutPage.qml"), "about", "aboutPage");
                         }
                     }
                 }
@@ -267,14 +269,14 @@ Item {
                         horizontalAlignment: "AlignLeft"
                     }
 
-                    NavigationButton {
+                    NavigationButtonComponent {
                         width: parent.width
                         icon: "../icons/edit.svg"
                         text: qsTr("Edit Tags")
                         selected: sidePanel.currentPage === "edit"
                         selectedColor: sidePanel.activeSectionColor
                         onClicked: {
-                            navigateAndManageStack(Qt.resolvedUrl("TagEditPage.qml"), "edit", "tagEditPage");
+                            navigateAndManageStack(Qt.resolvedUrl("../pages/TagEditPage.qml"), "edit", "tagEditPage");
                         }
                     }
                     Label {
@@ -290,7 +292,7 @@ Item {
                     }
                     Repeater {
                         model: tags
-                        delegate: NavigationButton {
+                        delegate: NavigationButtonComponent {
                             icon: "../icons/tag.svg"
                             text: modelData.name
                             noteCount: modelData.count
