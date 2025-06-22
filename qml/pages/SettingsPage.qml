@@ -19,7 +19,7 @@ Page {
         { name: qsTr("English"), code: "en" },
         { name: qsTr("Русский"), code: "ru" },
         { name: qsTr("Deutsch"), code: "de" },
-        { name: qsTr("中國人"), code: "zh" },
+        { name: qsTr("中國人"), code: "ch" },
     ]
 
     property string customBackgroundColor: DB.getThemeColor() || "#121218"
@@ -191,19 +191,21 @@ Page {
                     anchors.horizontalCenter: parent.horizontalCenter // This centers THIS RowLayout within languageSection
                     spacing: Theme.paddingSmall
 
-                    Label {
-                        Item {
-                            width: Theme.iconSizeSmallPlus
-                            height: width
-                            anchors.right: langlabel.left
-                            anchors.rightMargin: Theme.paddingSmall
-                            Icon {
-                                source: "../icons/language.svg"
-                                color: "white"
-                                fillMode: Image.PreserveAspectFit
-                                anchors.fill: parent
-                            }
+                    Item {
+                        Layout.preferredWidth: Theme.iconSizeSmallPlus
+                        Layout.preferredHeight: Theme.iconSizeSmallPlus
+                        Layout.alignment: Qt.AlignVCenter
+
+                        Icon {
+                            source: "../icons/language.svg"
+                            color: "white"
+                            fillMode: Image.PreserveAspectFit
+                            width: parent.width
+                            height: parent.height
                         }
+                    }
+
+                    Label {
                         id: langlabel
                         text: qsTr("Language")
                         font.pixelSize: Theme.fontSizeMedium
@@ -313,13 +315,33 @@ Page {
                 anchors.top: spacer1.bottom
                 spacing: Theme.paddingMedium
 
-                Label {
-                    text: qsTr("Theme Color")
+                RowLayout {
+                    id: themeHeaderRow
                     anchors.horizontalCenter: parent.horizontalCenter
-                    horizontalAlignment: "AlignHCenter"
-                    font.pixelSize: Theme.fontSizeMedium
-                    font.bold: true
-                    color: "white"
+                    spacing: Theme.paddingSmallPlus
+
+                    Item {
+                        Layout.preferredWidth: Theme.iconSizeSmallPlus
+                        Layout.preferredHeight: Theme.iconSizeSmallPlus
+                        Layout.alignment: Qt.AlignVCenter
+
+                        Icon {
+                            source: "../icons/palette.svg"
+                            color: "white"
+                            fillMode: Image.PreserveAspectFit
+                            width: parent.width
+                            height: parent.height
+                        }
+                    }
+
+                    Label {
+                        id: colorThemeLabel
+                        text: qsTr("Theme Color")
+                        font.pixelSize: Theme.fontSizeMedium
+                        font.bold: true
+                        color: "white"
+                        Layout.alignment: Qt.AlignVCenter
+                    }
                 }
 
                 Rectangle {
@@ -414,7 +436,7 @@ Page {
             Item {
                 id: spacer2
                 width: parent.width
-                height: Theme.paddingLarge
+                height: Theme.paddingSmall
                 anchors.top: themeColorSection.bottom
             }
 
@@ -425,14 +447,37 @@ Page {
                 anchors.top: spacer2.bottom
                 spacing: Theme.paddingMedium
 
-                Label {
-                    id: dataManagmentLabel
-                    text: qsTr("Data Management Actions")
+
+
+
+                RowLayout {
+                    id: dataHeaderRow
                     anchors.horizontalCenter: parent.horizontalCenter
-                    horizontalAlignment: "AlignHCenter"
-                    font.pixelSize: Theme.fontSizeMedium
-                    font.bold: true
-                    color: "white"
+                    spacing: 55
+
+                    Item {
+                        Layout.preferredWidth: Theme.iconSizeSmallPlus
+                        Layout.preferredHeight: Theme.iconSizeSmallPlus
+                        Layout.alignment: Qt.AlignVCenter
+
+                        Icon {
+                            source: "../icons/edit.svg"
+                            color: "white"
+                            fillMode: Image.PreserveAspectFit
+                            width: parent.width
+                            height: parent.height
+                        }
+                    }
+
+                    Label {
+                        id: dataManagmentLabel
+                        text: qsTr("Data Management Actions")
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        horizontalAlignment: "AlignHCenter"
+                        font.pixelSize: Theme.fontSizeMedium
+                        font.bold: true
+                        color: "white"
+                    }
                 }
 
                 ColumnLayout {
