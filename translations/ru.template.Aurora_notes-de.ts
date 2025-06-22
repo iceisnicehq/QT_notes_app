@@ -16,12 +16,12 @@
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="108"/>
         <source>This is a simple yet powerful note-taking application designed to help you organize your thoughts, ideas, and tasks efficiently. It provides a clean interface for creating, editing, and managing your notes, complete with tagging capabilities and quick search functionality. Whether for personal reminders or professional project management, this app aims to be your reliable digital notebook.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dies ist eine einfache, aber leistungsstarke Notizanwendung, die Ihnen hilft, Ihre Gedanken, Ideen und Aufgaben effizient zu organisieren. Sie bietet eine saubere Oberfläche zum Erstellen, Bearbeiten und Verwalten Ihrer Notizen, komplett mit Tagging-Funktionen und schneller Suchfunktion. Ob für persönliche Erinnerungen oder professionelles Projektmanagement, diese App soll Ihr zuverlässiges digitales Notizbuch sein.</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="123"/>
         <source>This application was developed with passion and dedication by a team committed to creating intuitive and effective tools for everyday use. We believe in open-source principles and continuously work to improve the app based on user feedback. Special thanks to the Sailfish OS community for their invaluable support and resources.</source>
-        <translation type="unfinished"></translation>
+        <translation>Diese Anwendung wurde mit Leidenschaft und Engagement von einem Team entwickelt, das sich zum Ziel gesetzt hat, intuitive und effektive Werkzeuge für den täglichen Gebrauch zu schaffen. Wir glauben an Open-Source-Prinzipien und arbeiten kontinuierlich daran, die App auf der Grundlage von Nutzerfeedback zu verbessern. Besonderer Dank gilt der Sailfish OS-Community für ihre unschätzbare Unterstützung und ihre Ressourcen.</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="140"/>
@@ -52,7 +52,35 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copyright (c) [Jahr], [Entwicklername/Organisation]
+Alle Rechte vorbehalten.
+
+Die Weiterverbreitung und Verwendung in Quell- und Binärform, mit oder ohne
+Änderung, sind unter den folgenden Bedingungen gestattet:
+
+1. Weiterverbreitungen des Quellcodes müssen den obigen Urheberrechtshinweis, diese
+   Liste der Bedingungen und den folgenden Haftungsausschluss enthalten.
+
+2. Weiterverbreitungen in Binärform müssen den obigen Urheberrechtshinweis,
+   diese Liste der Bedingungen und den folgenden Haftungsausschluss in der Dokumentation
+   und/oder anderen mit der Verbreitung gelieferten Materialien wiedergeben.
+
+3. Weder der Name des Urheberrechtsinhabers noch die Namen seiner
+   Mitwirkenden dürfen ohne vorherige schriftliche Genehmigung zur Befürwortung oder Förderung von
+   Produkten verwendet werden, die von dieser Software abgeleitet sind.
+
+DIESE SOFTWARE WIRD VON DEN URHEBERRECHTSINHABERN UND MITWIRKENDEN &quot;WIE BESEHEN&quot;
+BEREITGESTELLT UND JEGLICHE AUSDRÜCKLICHE ODER STILLSCHWEIGENDE GEWÄHRLEISTUNG, EINSCHLIESSLICH,
+ABER NICHT BESCHRÄNKT AUF DIE STILLSCHWEIGENDE GEWÄHRLEISTUNG DER MARKTGÄNGIGKEIT UND
+EIGNUNG FÜR EINEN BESTIMMTEN ZWECK, WIRD AUSGESCHLOSSEN. IN KEINEM FALL SIND DIE
+URHEBERRECHTSINHABER ODER MITWIRKENDEN HAFTBAR FÜR DIREKTE, INDIREKTE, ZUFÄLLIGE,
+BESONDERE, BEISPIELHAFTE ODER FOLGESCHÄDEN (EINSCHLIESSLICH, ABER NICHT BESCHRÄNKT
+AUF DIE BESCHAFFUNG VON ERSATZWAREN ODER -DIENSTLEISTUNGEN; NUTZUNGSAUSFALL, DATEN-
+ODER GEWINNVERLUST; ODER GESCHÄFTSUNTERBRECHUNG), UNABHÄNGIG DAVON, WIE SIE VERURSACHT
+WURDEN UND AUF WELCHER HAFTUNGSTHEORIE SIE BERUHEN, SEI ES VERTRAG, VERSCHULDENSUNABHÄNGIGE
+HAFTUNG ODER UNERLAUBTE HANDLUNG (EINSCHLIESSLICH FAHRLÄSSIGKEIT ODER ANDERWEITIG),
+DIE IN IRGENDEINER WEISE AUS DER NUTZUNG DIESER SOFTWARE ENTSTEHEN, SELBST WENN AUF
+DIE MÖGLICHKEIT SOLCHER SCHÄDEN HINGEWIESEN WURDE.</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="112"/>
@@ -183,7 +211,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     <message>
         <location filename="../qml/dialogs/ColorSortDialog.qml" line="322"/>
         <source>Apply and Save Order</source>
-        <translation type="unfinished"></translation>
+        <translation>Reihenfolge anwenden und speichern</translation>
     </message>
 </context>
 <context>
@@ -209,7 +237,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     <message>
         <location filename="../qml/cover/DefaultPageCover.qml" line="22"/>
         <source>Notes</source>
-        <translation type="unfinished">Notizen</translation>
+        <translation>Notizen</translation>
     </message>
 </context>
 <context>
@@ -984,12 +1012,12 @@ Gehen Sie zur Tag-Bearbeitungsseite, um einen zu erstellen!</translation>
     <message>
         <location filename="../qml/pages/SettingsPage.qml" line="41"/>
         <source>Français</source>
-        <translation type="unfinished"></translation>
+        <translation>Französisch</translation>
     </message>
     <message>
         <location filename="../qml/pages/SettingsPage.qml" line="42"/>
         <source>Español</source>
-        <translation type="unfinished"></translation>
+        <translation>Spanisch</translation>
     </message>
     <message>
         <location filename="../qml/pages/SettingsPage.qml" line="98"/>
@@ -1077,59 +1105,59 @@ Gehen Sie zur Tag-Bearbeitungsseite, um einen zu erstellen!</translation>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="146"/>
         <source>Aurora Notes</source>
-        <translation type="unfinished">Aurora Notizen</translation>
+        <translation>Aurora Notizen</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="194"/>
         <source>Navigation</source>
-        <translation type="unfinished">Navigation</translation>
+        <translation>Navigation</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="204"/>
         <source>Notes</source>
-        <translation type="unfinished">Notizen</translation>
+        <translation>Notizen</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="215"/>
         <source>Archive</source>
-        <translation type="unfinished"></translation>
+        <translation>Archiv</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="226"/>
         <source>Trash</source>
-        <translation type="unfinished">Mülleimer</translation>
+        <translation>Mülleimer</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="237"/>
         <source>Import &amp; Export</source>
-        <translation type="unfinished">Import &amp; Export</translation>
+        <translation>Import &amp; Export</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="247"/>
         <source>Settings</source>
-        <translation type="unfinished">Einstellungen</translation>
+        <translation>Einstellungen</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="257"/>
         <source>About</source>
-        <translation type="unfinished">Über</translation>
+        <translation>Über</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="278"/>
         <source>Tags</source>
-        <translation type="unfinished">Tags</translation>
+        <translation>Tags</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="289"/>
         <source>Edit Tags</source>
-        <translation type="unfinished">Tags bearbeiten</translation>
+        <translation>Tags bearbeiten</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="301"/>
         <source>You have no tags.
  Go to edit tags page
 to create one!</source>
-        <translation type="unfinished">Sie haben keine Tags.
+        <translation>Sie haben keine Tags.
 Gehen Sie zur Tag-Bearbeitungsseite,
 um einen zu erstellen!</translation>
     </message>

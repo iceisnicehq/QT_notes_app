@@ -16,12 +16,12 @@
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="108"/>
         <source>This is a simple yet powerful note-taking application designed to help you organize your thoughts, ideas, and tasks efficiently. It provides a clean interface for creating, editing, and managing your notes, complete with tagging capabilities and quick search functionality. Whether for personal reminders or professional project management, this app aims to be your reliable digital notebook.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ceci est une application de prise de notes simple mais puissante, conçue pour vous aider à organiser efficacement vos pensées, vos idées et vos tâches. Elle fournit une interface épurée pour créer, modifier et gérer vos notes, avec des fonctionnalités de balisage et de recherche rapide. Que ce soit pour des rappels personnels ou pour la gestion de projets professionnels, cette application vise à être votre carnet de notes numérique fiable.</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="123"/>
         <source>This application was developed with passion and dedication by a team committed to creating intuitive and effective tools for everyday use. We believe in open-source principles and continuously work to improve the app based on user feedback. Special thanks to the Sailfish OS community for their invaluable support and resources.</source>
-        <translation type="unfinished"></translation>
+        <translation>Cette application a été développée avec passion et dévouement par une équipe déterminée à créer des outils intuitifs et efficaces pour un usage quotidien. Nous croyons aux principes de l&apos;open-source et travaillons continuellement à améliorer l&apos;application en nous basant sur les retours des utilisateurs. Un grand merci à la communauté de Sailfish OS pour son soutien et ses ressources inestimables.</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="140"/>
@@ -52,7 +52,33 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copyright (c) [Année], [Nom du développeur/Organisation]
+Tous droits réservés.
+
+La redistribution et l&apos;utilisation sous forme de code source et binaire, avec ou sans
+modification, sont autorisées sous réserve que les conditions suivantes soient remplies :
+
+1. Les redistributions de code source doivent conserver la notice de copyright ci-dessus, cette
+   liste de conditions et la clause de non-responsabilité suivante.
+
+2. Les redistributions sous forme binaire doivent reproduire la notice de copyright ci-dessus,
+   cette liste de conditions et la clause de non-responsabilité suivante dans la documentation
+   et/ou les autres documents fournis avec la distribution.
+
+3. Ni le nom du détenteur du copyright ni les noms de ses
+   contributeurs ne peuvent être utilisés pour approuver ou promouvoir des produits dérivés de
+   ce logiciel sans autorisation écrite préalable spécifique.
+
+CE LOGICIEL EST FOURNI PAR LES DÉTENTEURS DU COPYRIGHT ET LES CONTRIBUTEURS &quot;TEL QUEL&quot;
+ET TOUTE GARANTIE EXPRESSE OU IMPLICITE, Y COMPRIS, MAIS SANS S&apos;Y LIMITER, LES
+GARANTIES IMPLICITES DE QUALITÉ MARCHANDE ET D&apos;ADÉQUATION À UN USAGE PARTICULIER SONT
+DÉCLINÉES. EN AUCUN CAS LE DÉTENTEUR DU COPYRIGHT OU LES CONTRIBUTEURS NE SERONT RESPONSABLES
+DE DOMMAGES DIRECTS, INDIRECTS, ACCESSOIRES, SPÉCIAUX, EXEMPLAIRES OU CONSÉCUTIFS
+(Y COMPRIS, MAIS SANS S&apos;Y LIMITER, L&apos;ACQUISITION DE BIENS OU SERVICES DE SUBSTITUTION ; LA PERTE D&apos;UTILISATION,
+DE DONNÉES OU DE PROFITS ; OU L&apos;INTERRUPTION DES AFFAIRES) QUELLE QU&apos;EN SOIT LA CAUSE ET SUR
+TOUTE THÉORIE DE RESPONSABILITÉ, QUE CE SOIT DANS LE CADRE D&apos;UN CONTRAT, D&apos;UNE RESPONSABILITÉ STRICTE
+OU D&apos;UN DÉLIT (Y COMPRIS LA NÉGLIGENCE OU AUTRE) DÉCOULANT DE QUELQUE MANIÈRE QUE CE SOIT DE L&apos;UTILISATION
+DE CE LOGICIEL, MÊME SI AVISÉ DE LA POSSIBILITÉ DE TELS DOMMAGES.</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="112"/>
@@ -183,7 +209,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     <message>
         <location filename="../qml/dialogs/ColorSortDialog.qml" line="322"/>
         <source>Apply and Save Order</source>
-        <translation type="unfinished"></translation>
+        <translation>Appliquer et enregistrer l&apos;ordre</translation>
     </message>
 </context>
 <context>
@@ -209,7 +235,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     <message>
         <location filename="../qml/cover/DefaultPageCover.qml" line="22"/>
         <source>Notes</source>
-        <translation type="unfinished">Notes</translation>
+        <translation>Notes</translation>
     </message>
 </context>
 <context>
@@ -1077,59 +1103,59 @@ Allez à la page d&apos;édition des balises pour en créer une !</translation>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="146"/>
         <source>Aurora Notes</source>
-        <translation type="unfinished">Aurora Notes</translation>
+        <translation>Aurora Notes</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="194"/>
         <source>Navigation</source>
-        <translation type="unfinished">Navigation</translation>
+        <translation>Navigation</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="204"/>
         <source>Notes</source>
-        <translation type="unfinished">Notes</translation>
+        <translation>Notes</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="215"/>
         <source>Archive</source>
-        <translation type="unfinished"></translation>
+        <translation>Archive</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="226"/>
         <source>Trash</source>
-        <translation type="unfinished">Corbeille</translation>
+        <translation>Corbeille</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="237"/>
         <source>Import &amp; Export</source>
-        <translation type="unfinished">Importer &amp; Exporter</translation>
+        <translation>Importer &amp; Exporter</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="247"/>
         <source>Settings</source>
-        <translation type="unfinished">Paramètres</translation>
+        <translation>Paramètres</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="257"/>
         <source>About</source>
-        <translation type="unfinished">À propos</translation>
+        <translation>À propos</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="278"/>
         <source>Tags</source>
-        <translation type="unfinished">Balises</translation>
+        <translation>Balises</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="289"/>
         <source>Edit Tags</source>
-        <translation type="unfinished">Modifier les balises</translation>
+        <translation>Modifier les balises</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="301"/>
         <source>You have no tags.
  Go to edit tags page
 to create one!</source>
-        <translation type="unfinished">Vous n&apos;avez pas de balises.
+        <translation>Vous n&apos;avez pas de balises.
 Allez à la page d&apos;édition des balises
 pour en créer une !</translation>
     </message>

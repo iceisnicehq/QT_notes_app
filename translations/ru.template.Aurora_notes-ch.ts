@@ -16,12 +16,12 @@
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="108"/>
         <source>This is a simple yet powerful note-taking application designed to help you organize your thoughts, ideas, and tasks efficiently. It provides a clean interface for creating, editing, and managing your notes, complete with tagging capabilities and quick search functionality. Whether for personal reminders or professional project management, this app aims to be your reliable digital notebook.</source>
-        <translation type="unfinished"></translation>
+        <translation>这是一款简单而强大的笔记应用程序，旨在帮助您高效地组织您的想法、创意和任务。它提供了一个干净的界面，用于创建、编辑和管理您的笔记，并具有标签功能和快速搜索功能。无论是个人提醒还是专业项目管理，此应用程序都旨在成为您可靠的数字笔记本。</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="123"/>
         <source>This application was developed with passion and dedication by a team committed to creating intuitive and effective tools for everyday use. We believe in open-source principles and continuously work to improve the app based on user feedback. Special thanks to the Sailfish OS community for their invaluable support and resources.</source>
-        <translation type="unfinished"></translation>
+        <translation>本应用程序由一个致力于为日常生活创造直观有效工具的团队充满热情和奉献精神地开发。我们信奉开源原则，并根据用户反馈不断努力改进应用程序。特别感谢Sailfish OS社区提供的宝贵支持和资源。</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="140"/>
@@ -52,7 +52,18 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
-        <translation type="unfinished"></translation>
+        <translation>版权所有 (c) [年份], [开发者名称/组织]
+保留所有权利。
+
+如果满足以下条件，则允许以源代码和二进制形式重新分发和使用，无论是否经过修改：
+
+1. 源代码的重新分发必须保留上述版权声明、此条件列表和以下免责声明。
+
+2. 二进制形式的重新分发必须在分发时提供的文档和/或其他材料中复制上述版权声明、此条件列表和以下免责声明。
+
+3. 未经事先明确书面许可，不得使用版权所有者或其贡献者的名称来认可或推广源自本软件的产品。
+
+本软件由版权所有者和贡献者“按原样”提供，并且不承担任何明示或暗示的保证，包括但不限于对适销性和特定用途适用性的暗示保证。在任何情况下，版权所有者或贡献者均不对任何直接、间接、偶然、特殊、惩戒性或后果性损害（包括但不限于采购替代商品或服务；使用、数据或利润的损失；或业务中断）承担责任，无论此等损害是如何造成的，以及基于何种责任理论，无论是合同责任、严格责任还是侵权行为（包括疏忽或其他方式），即使已被告知可能发生此类损害。</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="112"/>
@@ -183,7 +194,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     <message>
         <location filename="../qml/dialogs/ColorSortDialog.qml" line="322"/>
         <source>Apply and Save Order</source>
-        <translation type="unfinished"></translation>
+        <translation>应用并保存顺序</translation>
     </message>
 </context>
 <context>
@@ -209,7 +220,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     <message>
         <location filename="../qml/cover/DefaultPageCover.qml" line="22"/>
         <source>Notes</source>
-        <translation type="unfinished">笔记</translation>
+        <translation>笔记</translation>
     </message>
 </context>
 <context>
@@ -635,12 +646,12 @@ Click on the plus button to create one!</source>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="1358"/>
         <source>Only one color is used in the filtered notes.</source>
-        <translation>過濾後的筆記僅使用一種顏色</translation>
+        <translation>过滤后的笔记仅使用一种颜色</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="1383"/>
         <source>Sorting by color is not available when there is only one color.</source>
-        <translation>當只有一種顏色時，無法依顏色排序</translation>
+        <translation>当只有一种颜色时，无法按颜色排序</translation>
     </message>
     <message>
         <location filename="../qml/pages/MainPage.qml" line="1397"/>
@@ -984,12 +995,12 @@ Go to edit tags page to create one!</source>
     <message>
         <location filename="../qml/pages/SettingsPage.qml" line="41"/>
         <source>Français</source>
-        <translation type="unfinished"></translation>
+        <translation>法语</translation>
     </message>
     <message>
         <location filename="../qml/pages/SettingsPage.qml" line="42"/>
         <source>Español</source>
-        <translation type="unfinished"></translation>
+        <translation>西班牙语</translation>
     </message>
     <message>
         <location filename="../qml/pages/SettingsPage.qml" line="98"/>
@@ -1077,59 +1088,59 @@ Go to edit tags page to create one!</source>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="146"/>
         <source>Aurora Notes</source>
-        <translation type="unfinished">Aurora 笔记</translation>
+        <translation>Aurora 笔记</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="194"/>
         <source>Navigation</source>
-        <translation type="unfinished">导航</translation>
+        <translation>导航</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="204"/>
         <source>Notes</source>
-        <translation type="unfinished">笔记</translation>
+        <translation>笔记</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="215"/>
         <source>Archive</source>
-        <translation type="unfinished">存档</translation>
+        <translation>存档</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="226"/>
         <source>Trash</source>
-        <translation type="unfinished">垃圾桶</translation>
+        <translation>垃圾桶</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="237"/>
         <source>Import &amp; Export</source>
-        <translation type="unfinished">导入与导出</translation>
+        <translation>导入/导出</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="247"/>
         <source>Settings</source>
-        <translation type="unfinished">设置</translation>
+        <translation>设置</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="257"/>
         <source>About</source>
-        <translation type="unfinished">关于</translation>
+        <translation>关于</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="278"/>
         <source>Tags</source>
-        <translation type="unfinished">标签</translation>
+        <translation>标签</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="289"/>
         <source>Edit Tags</source>
-        <translation type="unfinished">编辑标签</translation>
+        <translation>编辑标签</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="301"/>
         <source>You have no tags.
  Go to edit tags page
 to create one!</source>
-        <translation type="unfinished">您没有标签。
+        <translation>您没有标签。
 请前往编辑标签页面
 创建一个！</translation>
     </message>

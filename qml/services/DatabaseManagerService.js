@@ -24,49 +24,50 @@ var defaultNoteColor = "#1c1d29";
 
 var LATEST_DB_VERSION = 2;
 var migrations = [
-    {
-        version: 1,
-        migrate: function(tx) {
-            console.log("DB_MIGRATOR: Applying migration to version 1...");
-            tx.executeSql(
-                'CREATE TABLE Notes (' +
-                'id INTEGER PRIMARY KEY AUTOINCREMENT, ' +
-                'pinned BOOLEAN NOT NULL DEFAULT 0, ' +
-                'title TEXT, ' +
-                'content TEXT, ' +
-                'color TEXT, ' + // Убрали DEFAULT, т.к. он будет в миграции v2
-                'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, ' +
-                'updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP' +
-                ')'
-            );
-            tx.executeSql(
-                'CREATE TABLE Tags (' +
-                'id INTEGER PRIMARY KEY AUTOINCREMENT, ' +
-                'name TEXT UNIQUE NOT NULL' +
-                ')'
-            );
-            tx.executeSql(
-                'CREATE TABLE NoteTags (' +
-                'note_id INTEGER NOT NULL, ' +
-                'tag_id INTEGER NOT NULL, ' +
-                'PRIMARY KEY (note_id, tag_id), ' +
-                'FOREIGN KEY(note_id) REFERENCES Notes(id) ON DELETE CASCADE, ' +
-                'FOREIGN KEY(tag_id) REFERENCES Tags(id) ON DELETE CASCADE' +
-                ')'
-            );
-            tx.executeSql(
-                'CREATE TABLE AppSettings (' +
-                'id INTEGER PRIMARY KEY, ' +
-                'themeColor TEXT, ' +
-                'language TEXT' +
-                ')'
-            );
-             tx.executeSql(
-                'INSERT INTO AppSettings (id, themeColor, language) VALUES (?, ?, ?)',
-                [1, "#121218", "en"]
-            );
-        }
-    },
+            {
+                version: 1,
+                migrate: function(tx) {
+                    console.log("DB_MIGRATOR: Applying migration to version 1...");
+
+                    tx.executeSql(
+                        'CREATE TABLE IF NOT EXISTS Notes (' +
+                        'id INTEGER PRIMARY KEY AUTOINCREMENT, ' +
+                        'pinned BOOLEAN NOT NULL DEFAULT 0, ' +
+                        'title TEXT, ' +
+                        'content TEXT, ' +
+                        'color TEXT, ' +
+                        'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, ' +
+                        'updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP' +
+                        ')'
+                    );
+                    tx.executeSql(
+                        'CREATE TABLE IF NOT EXISTS Tags (' +
+                        'id INTEGER PRIMARY KEY AUTOINCREMENT, ' +
+                        'name TEXT UNIQUE NOT NULL' +
+                        ')'
+                    );
+                    tx.executeSql(
+                        'CREATE TABLE IF NOT EXISTS NoteTags (' +
+                        'note_id INTEGER NOT NULL, ' +
+                        'tag_id INTEGER NOT NULL, ' +
+                        'PRIMARY KEY (note_id, tag_id), ' +
+                        'FOREIGN KEY(note_id) REFERENCES Notes(id) ON DELETE CASCADE, ' +
+                        'FOREIGN KEY(tag_id) REFERENCES Tags(id) ON DELETE CASCADE' +
+                        ')'
+                    );
+                    tx.executeSql(
+                        'CREATE TABLE IF NOT EXISTS AppSettings (' +
+                        'id INTEGER PRIMARY KEY, ' +
+                        'themeColor TEXT, ' +
+                        'language TEXT' +
+                        ')'
+                    );
+                     tx.executeSql(
+                        'INSERT INTO AppSettings (id, themeColor, language) VALUES (?, ?, ?)',
+                        [1, "#121218", "en"]
+                    );
+                }
+            },
     {
         version: 2,
         migrate: function(tx) {
@@ -896,8 +897,6 @@ function simpleStringHash(str) {
     }
     return (hash >>> 0).toString(16);
 }
-
-// Замените старую версию этой функции на новую
 
 function generateNoteChecksum(note) {
     if (!note) {

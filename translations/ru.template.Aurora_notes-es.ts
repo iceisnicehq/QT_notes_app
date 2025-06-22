@@ -16,12 +16,12 @@
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="108"/>
         <source>This is a simple yet powerful note-taking application designed to help you organize your thoughts, ideas, and tasks efficiently. It provides a clean interface for creating, editing, and managing your notes, complete with tagging capabilities and quick search functionality. Whether for personal reminders or professional project management, this app aims to be your reliable digital notebook.</source>
-        <translation type="unfinished"></translation>
+        <translation>Esta es una aplicación para tomar notas simple pero potente, diseñada para ayudarte a organizar tus pensamientos, ideas y tareas de manera eficiente. Proporciona una interfaz limpia para crear, editar y administrar tus notas, con capacidades de etiquetado y funcionalidad de búsqueda rápida. Ya sea para recordatorios personales o para la gestión de proyectos profesionales, esta aplicación aspira a ser tu cuaderno digital de confianza.</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="123"/>
         <source>This application was developed with passion and dedication by a team committed to creating intuitive and effective tools for everyday use. We believe in open-source principles and continuously work to improve the app based on user feedback. Special thanks to the Sailfish OS community for their invaluable support and resources.</source>
-        <translation type="unfinished"></translation>
+        <translation>Esta aplicación fue desarrollada сon pasión y dedicación por un equipo comprometido сon la creación de herramientas intuitivas y eficaces para el uso diario. Creemos en los principios del código abierto y trabajamos continuamente para mejorar la aplicación basándonos en los comentarios de los usuarios. Un agradecimiento especial a la comunidad de Sailfish OS por su inestimable apoyo y recursos.</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="140"/>
@@ -52,7 +52,33 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copyright (c) [Año], [Nombre del Desarrollador/Organización]
+Todos los derechos reservados.
+
+Se permite la redistribución y el uso en formas de fuente y binarias, con o sin
+modificación, siempre que se cumplan las siguientes condiciones:
+
+1. Las redistribuciones del código fuente deben conservar el aviso de copyright anterior, esta
+   lista de condiciones y el siguiente descargo de responsabilidad.
+
+2. Las redistribuciones en forma binaria deben reproducir el aviso de copyright anterior,
+   esta lista de condiciones y el siguiente descargo de responsabilidad en la documentación
+   y/u otros materiales proporcionados con la distribución.
+
+3. Ni el nombre del titular de los derechos de autor ni los nombres de sus
+   colaboradores pueden ser utilizados para respaldar o promocionar productos derivados de
+   este software sin un permiso previo por escrito específico.
+
+ESTE SOFTWARE ES PROPORCIONADO POR LOS TITULARES DE LOS DERECHOS DE AUTOR Y COLABORADORES &quot;TAL CUAL&quot;
+Y SE RENUNCIA A CUALQUIER GARANTÍA EXPRESA O IMPLÍCITA, INCLUIDAS, ENTRE OTRAS, LAS
+GARANTÍAS IMPLÍCITAS DE COMERCIABILIDAD E IDONEIDAD PARA UN PROPÓSITO PARTICULAR. EN
+NINGÚN CASO EL TITULAR DE LOS DERECHOS DE AUTOR O LOS COLABORADORES SERÁN RESPONSABLES
+DE NINGÚN DAÑO DIRECTO, INDIRECTO, INCIDENTAL, ESPECIAL, EJEMPLAR O CONSECUENTE
+(INCLUIDOS, ENTRE OTROS, LA ADQUISICIÓN DE BIENES O SERVICIOS SUSTITUTOS; LA PÉRDIDA DE
+USO, DATOS O BENEFICIOS; O LA INTERRUPCIÓN DEL NEGOCIO) INDEPENDIENTEMENTE DE CÓMO HAYA
+SIDO CAUSADO Y BAJO CUALQUIER TEORÍA DE RESPONSABILIDAD, YA SEA POR CONTRATO, RESPONSABILIDAD
+ESTRICTA O AGRAVIO (INCLUIDA LA NEGLIGENCIA U OTRA FORMA) QUE SURJA DE CUALQUIER MODO DEL
+USO DE ESTE SOFTWARE, INCLUSO SI SE HA ADVERTIDO DE LA POSIBILIDAD DE DICHO DAÑO.</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="112"/>
@@ -1092,7 +1118,7 @@ Go to edit tags page to create one!</source>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="215"/>
         <source>Archive</source>
-        <translation></translation>
+        <translation>Archivo</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="226"/>
@@ -1130,7 +1156,7 @@ Go to edit tags page to create one!</source>
  Go to edit tags page
 to create one!</source>
         <translation>No tienes etiquetas.
- Ve a la página de editar etiquetas
+ ¡Ve a la página de editar etiquetas
  para crear una!</translation>
     </message>
 </context>

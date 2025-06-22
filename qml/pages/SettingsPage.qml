@@ -31,8 +31,8 @@ Page {
 
     property bool panelOpen: false
 
-    readonly property var colorPalette: ["#121218", "#1c1d29", "#3a2c2c", "#2c3a2c", "#2c2c3a", "#3a3a2c",
-        "#43484e", "#5c4b37", "#3e4a52", "#503232", "#325032", "#325032"]
+    readonly property var colorPalette: ["#121218", "#1c1d29", "#3a2c2c", "#2c3a2c",
+    "#2c2c3a", "#3a3a2c", "#43484e", "#5c4b37", "#3e4a52", "#503232", "#325032", "#323250"]
 
     readonly property var languageModel: [
         { name: qsTr("English"), code: "en" },

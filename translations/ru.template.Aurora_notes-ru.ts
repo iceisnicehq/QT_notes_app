@@ -16,12 +16,12 @@
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="108"/>
         <source>This is a simple yet powerful note-taking application designed to help you organize your thoughts, ideas, and tasks efficiently. It provides a clean interface for creating, editing, and managing your notes, complete with tagging capabilities and quick search functionality. Whether for personal reminders or professional project management, this app aims to be your reliable digital notebook.</source>
-        <translation type="unfinished"></translation>
+        <translation>Это простое, но мощное приложение для создания заметок, разработанное, чтобы помочь вам эффективно организовывать ваши мысли, идеи и задачи. Оно предоставляет чистый интерфейс для создания, редактирования и управления вашими заметками, дополненный возможностями тегирования и функцией быстрого поиска. Будь то для личных напоминаний или управления профессиональными проектами, это приложение стремится стать вашим надежным цифровым блокнотом.</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="123"/>
         <source>This application was developed with passion and dedication by a team committed to creating intuitive and effective tools for everyday use. We believe in open-source principles and continuously work to improve the app based on user feedback. Special thanks to the Sailfish OS community for their invaluable support and resources.</source>
-        <translation type="unfinished"></translation>
+        <translation>Это приложение было разработано с энтузиазмом и самоотдачей командой, стремящейся создавать интуитивно понятные и эффективные инструменты для повседневного использования. Мы верим в принципы открытого исходного кода и постоянно работаем над улучшением приложения на основе отзывов пользователей. Особая благодарность сообществу Sailfish OS за их неоценимую поддержку и ресурсы.</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="140"/>
@@ -52,7 +52,18 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
-        <translation type="unfinished"></translation>
+        <translation>Авторское право (c) [Год], [Имя разработчика/Организация]
+Все права защищены.
+
+Перераспределение и использование в исходной и двоичной формах, с модификацией или без, разрешаются при соблюдении следующих условий:
+
+1. При перераспределении исходного кода должны оставаться указанное выше уведомление об авторском праве, этот список условий и последующий отказ от гарантий.
+
+2. При перераспределении двоичного кода в документации и/или других материалах, поставляемых с дистрибутивом, должны быть воспроизведены указанное выше уведомление об авторском праве, этот список условий и последующий отказ от гарантий.
+
+3. Ни имя правообладателя, ни имена его соавторов не могут быть использованы для одобрения или продвижения продуктов, основанных на этом программном обеспечении, без предварительного письменного разрешения.
+
+ДАННОЕ ПРОГРАММНОЕ ОБЕСПЕЧЕНИЕ ПРЕДОСТАВЛЯЕТСЯ ВЛАДЕЛЬЦАМИ АВТОРСКИХ ПРАВ И УЧАСТНИКАМИ «КАК ЕСТЬ», И ЛЮБЫЕ ЯВНЫЕ ИЛИ ПОДРАЗУМЕВАЕМЫЕ ГАРАНТИИ, ВКЛЮЧАЯ, ПОМИМО ПРОЧЕГО, ПОДРАЗУМЕВАЕМЫЕ ГАРАНТИИ КОММЕРЧЕСКОЙ ЦЕННОСТИ И ПРИГОДНОСТИ ДЛЯ ОПРЕДЕЛЕННОЙ ЦЕЛИ, ОТКЛОНЯЮТСЯ. НИ ПРИ КАКИХ ОБСТОЯТЕЛЬСТВАХ ВЛАДЕЛЕЦ АВТОРСКИХ ПРАВ ИЛИ УЧАСТНИКИ НЕ НЕСУТ ОТВЕТСТВЕННОСТИ ЗА ЛЮБЫЕ ПРЯМЫЕ, КОСВЕННЫЕ, СЛУЧАЙНЫЕ, СПЕЦИАЛЬНЫЕ, ПРИМЕРНЫЕ ИЛИ ПОСЛЕДУЮЩИЕ УБЫТКИ (ВКЛЮЧАЯ, ПОМИМО ПРОЧЕГО, ПРИОБРЕТЕНИЕ ЗАМЕНЯЮЩИХ ТОВАРОВ ИЛИ УСЛУГ; ПОТЕРЮ ИСПОЛЬЗОВАНИЯ, ДАННЫХ ИЛИ ПРИБЫЛИ; ИЛИ ПРЕРЫВАНИЕ ДЕЯТЕЛЬНОСТИ), НЕЗАВИСИМО ОТ ПРИЧИНЫ И ПО ЛЮБОЙ ТЕОРИИ ОТВЕТСТВЕННОСТИ, БУДЬ ТО ДОГОВОР, СТРОГАЯ ОТВЕТСТВЕННОСТЬ ИЛИ ПРАВОНАРУШЕНИЕ (ВКЛЮЧАЯ ХАЛАТНОСТЬ ИЛИ ИНОЕ), ВОЗНИКАЮЩИЕ КАКИМ-ЛИБО ОБРАЗОМ ИЗ ИСПОЛЬЗОВАНИЯ ДАННОГО ПРОГРАММНОГО ОБЕСПЕЧЕНИЯ, ДАЖЕ ЕСЛИ БЫЛО ИЗВЕЩЕНО О ВОЗМОЖНОСТИ ТАКОГО УЩЕРБА.</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="112"/>
@@ -183,7 +194,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     <message>
         <location filename="../qml/dialogs/ColorSortDialog.qml" line="322"/>
         <source>Apply and Save Order</source>
-        <translation type="unfinished"></translation>
+        <translation>Применить и сохранить порядок</translation>
     </message>
 </context>
 <context>
@@ -209,7 +220,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     <message>
         <location filename="../qml/cover/DefaultPageCover.qml" line="22"/>
         <source>Notes</source>
-        <translation type="unfinished">Заметки</translation>
+        <translation>Заметки</translation>
     </message>
 </context>
 <context>
@@ -914,12 +925,12 @@ Go to edit tags page to create one!</source>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="1025"/>
         <source>Tag &apos;%1&apos; already exists!</source>
-        <translation>Тег &apos;%1&apos; уже существует!</translation>
+        <translation>Тег «%1» уже существует!</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="1043"/>
         <source>Tag &apos;%1&apos; created and added!</source>
-        <translation>Тег &apos;%1&apos; создан и добавлен!</translation>
+        <translation>Тег «%1» создан и добавлен!</translation>
     </message>
     <message>
         <location filename="../qml/pages/NotePage.qml" line="1097"/>
@@ -969,12 +980,12 @@ Go to edit tags page to create one!</source>
     <message>
         <location filename="../qml/pages/SettingsPage.qml" line="41"/>
         <source>Français</source>
-        <translation type="unfinished"></translation>
+        <translation>Французский</translation>
     </message>
     <message>
         <location filename="../qml/pages/SettingsPage.qml" line="42"/>
         <source>Español</source>
-        <translation type="unfinished"></translation>
+        <translation>Испанский</translation>
     </message>
     <message>
         <location filename="../qml/pages/SettingsPage.qml" line="349"/>
@@ -1054,17 +1065,17 @@ Go to edit tags page to create one!</source>
     <message>
         <location filename="../qml/pages/SettingsPage.qml" line="39"/>
         <source>Русский</source>
-        <translation></translation>
+        <translation>Русский</translation>
     </message>
     <message>
         <location filename="../qml/pages/SettingsPage.qml" line="40"/>
         <source>Deutsch</source>
-        <translation></translation>
+        <translation>Немецкий</translation>
     </message>
     <message>
         <location filename="../qml/pages/SettingsPage.qml" line="43"/>
         <source>中國人</source>
-        <translation></translation>
+        <translation>Китайский</translation>
     </message>
     <message>
         <location filename="../qml/pages/SettingsPage.qml" line="89"/>
@@ -1077,62 +1088,62 @@ Go to edit tags page to create one!</source>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="146"/>
         <source>Aurora Notes</source>
-        <translation type="unfinished">Aurora Заметки</translation>
+        <translation>Aurora Заметки</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="194"/>
         <source>Navigation</source>
-        <translation type="unfinished">Навигация</translation>
+        <translation>Навигация</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="204"/>
         <source>Notes</source>
-        <translation type="unfinished">Заметки</translation>
+        <translation>Заметки</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="215"/>
         <source>Archive</source>
-        <translation type="unfinished"></translation>
+        <translation>Архив</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="226"/>
         <source>Trash</source>
-        <translation type="unfinished">Корзина</translation>
+        <translation>Корзина</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="237"/>
         <source>Import &amp; Export</source>
-        <translation type="unfinished">Импорт и экспорт</translation>
+        <translation>Импорт и Экспорт</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="247"/>
         <source>Settings</source>
-        <translation type="unfinished">Настройки</translation>
+        <translation>Настройки</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="257"/>
         <source>About</source>
-        <translation type="unfinished">О программе</translation>
+        <translation>О приложении</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="278"/>
         <source>Tags</source>
-        <translation type="unfinished">Теги</translation>
+        <translation>Теги</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="289"/>
         <source>Edit Tags</source>
-        <translation type="unfinished">Редактировать теги</translation>
+        <translation>Редактировать теги</translation>
     </message>
     <message>
         <location filename="../qml/components/SidePanelComponent.qml" line="301"/>
         <source>You have no tags.
  Go to edit tags page
 to create one!</source>
-        <translation type="unfinished">У вас нет тегов.
-Перейдите на
-страницу редактирования,
-для создания!</translation>
+        <translation>У вас нет тегов.
+ Перейдите на страницу
+ редактирования тегов,
+ чтобы создать!</translation>
     </message>
 </context>
 <context>
