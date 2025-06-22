@@ -191,22 +191,20 @@ Page {
                     anchors.horizontalCenter: parent.horizontalCenter // This centers THIS RowLayout within languageSection
                     spacing: Theme.paddingSmall
 
-                    Item {
-                        Layout.preferredHeight: Them.iconSizeSmall
-                        Layout.preferredWidth: Them.iconSizeSmall
-                        Layout.alignment: Qt.AlignVCenter
-                        Icon {
-                            source: "../icons/language.svg"
-                            width: 100
-                            height: width
-                            color: "white"
-                            //Layout.alignment: Qt.AlignVCenter
-                            anchors.fill: parent
-                        }
-                    }
-
-
                     Label {
+                        Item {
+                            width: Theme.iconSizeSmallPlus
+                            height: width
+                            anchors.right: langlabel.left
+                            anchors.rightMargin: Theme.paddingSmall
+                            Icon {
+                                source: "../icons/language.svg"
+                                color: "white"
+                                fillMode: Image.PreserveAspectFit
+                                anchors.fill: parent
+                            }
+                        }
+                        id: langlabel
                         text: qsTr("Language")
                         font.pixelSize: Theme.fontSizeMedium
                         font.bold: true
