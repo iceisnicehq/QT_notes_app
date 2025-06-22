@@ -1,9 +1,12 @@
+// /qml/pages/SettingsPage.qml
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.Layouts 1.1
 import QtQuick.LocalStorage 2.0
-import "../services/DatabaseManager.js" as DB
+import "../services/DatabaseManagerService.js" as DB
 import "../dialogs"
+import "../services"
+import "../components"
 
 Page {
     id: settingsPage
@@ -134,7 +137,7 @@ Page {
                 verticalCenter: parent.verticalCenter
             }
 
-            RippleEffect { id: menuRipple }
+            RippleEffectComponent { id: menuRipple }
 
             Icon {
                 id: leftIcon
@@ -236,7 +239,7 @@ Page {
                                 color: Theme.primaryColor
                                 fillMode: Image.PreserveAspectFit
                             }
-                            RippleEffect { id: leftArrowRipple }
+                            RippleEffectComponent { id: leftArrowRipple }
                             MouseArea {
                                 anchors.fill: parent
                                 onPressed: leftArrowRipple.ripple(mouseX, mouseY)
@@ -277,7 +280,7 @@ Page {
                                 color: Theme.primaryColor
                                 fillMode: Image.PreserveAspectFit
                             }
-                            RippleEffect { id: rightArrowRipple }
+                            RippleEffectComponent { id: rightArrowRipple }
                             MouseArea {
                                 anchors.fill: parent
                                 onPressed: rightArrowRipple.ripple(mouseX, mouseY)
@@ -587,7 +590,7 @@ Page {
         }
     }
 
-    ToastManager {
+    ToastManagerService {
         id: toastManager
     }
 
@@ -611,7 +614,7 @@ Page {
         }
     }
 
-    SidePanel {
+    SidePanelComponent {
         id: sidePanelInstance
         open: settingsPage.panelOpen
         onClosed: settingsPage.panelOpen = false

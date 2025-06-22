@@ -1,10 +1,8 @@
-// qml/components/TrashArchiveNoteCard.qml
-// This component displays an individual note card within the Trash or Archive pages.
-
+// qml/note_cards/TrashArchiveNoteCard.qml
 import QtQuick 2.0
 import Sailfish.Silica 1.0 
 import QtQuick.Layouts 1.1 
-import "../services/DatabaseManager.js" as DB
+import "../services/DatabaseManagerService.js" as DB
 
 Item { 
     id: root

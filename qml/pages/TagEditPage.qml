@@ -1,8 +1,11 @@
+// /qml/pages/TagEditPage.qml
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.LocalStorage 2.0
-import "../services/DatabaseManager.js" as DB
+import "../services/DatabaseManagerService.js" as DB
 import "../dialogs"
+import "../components"
+import "../services"
 
 Page {
     id: tagEditPage
@@ -110,7 +113,7 @@ Page {
                 height: Theme.fontSizeExtraLarge * 1.1
                 clip: false
                 anchors { left: parent.left; verticalCenter: parent.verticalCenter; leftMargin: Theme.paddingLarge }
-                RippleEffect { id: menuRipple }
+                RippleEffectComponent { id: menuRipple }
                 Icon {
                     id: menuIcon
                     source: "../icons/menu.svg" // Changed to explicit back icon
@@ -255,7 +258,7 @@ Page {
                                 rotation: creatingNewTag ? 45 : 0 // Rotate to X (45 degrees)
                                 Behavior on rotation { NumberAnimation { duration: 150 } }
                             }
-                            RippleEffect { id: plusXRipple }
+                            RippleEffectComponent { id: plusXRipple }
                             MouseArea {
                                 anchors.fill: parent
                                 onPressed: plusXRipple.ripple(mouseX, mouseY)
@@ -293,7 +296,7 @@ Page {
                             opacity: creatingNewTag ? 1 : 0.3 // Full opacity when creating, greyed out otherwise
                             Behavior on opacity { NumberAnimation { duration: 150 } } // Smooth transition
 
-                            RippleEffect { id: checkRipple }
+                            RippleEffectComponent { id: checkRipple }
                             Icon {
                                 id: checkIcon
                                 source: "../icons/check.svg"
@@ -471,7 +474,7 @@ Page {
                                         width: parent.width
                                         height: parent.height
                                     }
-                                    RippleEffect { id: leftRipple }
+                                    RippleEffectComponent { id: leftRipple }
                                     MouseArea {
                                         anchors.fill: parent
                                         onPressed: leftRipple.ripple(mouseX, mouseY)
@@ -518,7 +521,7 @@ Page {
                                         width: parent.width
                                         height: parent.height
                                     }
-                                    RippleEffect { id: rightRipple }
+                                    RippleEffectComponent { id: rightRipple }
                                     MouseArea {
                                         anchors.fill: parent
                                         enabled: true
@@ -585,16 +588,16 @@ Page {
         }
     }
     // Scrollbar for the flickable
-    ScrollBar {
+    ScrollBarComponent {
         flickableSource: flickable
         topAnchorItem: headerArea
     }
-    SidePanel {
+    SidePanelComponent {
         id: sidePanelInstance
         open: tagEditPage.panelOpen
         onClosed: tagEditPage.panelOpen = false
     }
-    ToastManager {
+    ToastManagerService {
         id: toastManager
     }
 }

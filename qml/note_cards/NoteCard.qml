@@ -1,7 +1,8 @@
+// qml/note_cards/NoteCard.qml
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.LocalStorage 2.0
-import "../services/DatabaseManager.js" as DB
+import "../services/DatabaseManagerService.js" as DB
 
 Item {
     id: root
@@ -178,7 +179,7 @@ Item {
                         root.mainPageInstance.toggleNoteSelection(root.noteId);
 
                     } else {
-                        pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
+                        pageStack.push(Qt.resolvedUrl("../pages/NotePage.qml"), {
                             onNoteSavedOrDeleted: root.mainPageInstance ? root.mainPageInstance.refreshData : null,
                             noteId: root.noteId,
                             noteTitle: root.title,

@@ -1,8 +1,10 @@
+// /qml/pages/AboutPage.qml
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.Layouts 1.1
 import QtQuick.LocalStorage 2.0
-import "../services/DatabaseManager.js" as DB
+import "../services/DatabaseManagerService.js" as DB
+import "../components"
 
 Page {
     id: aboutPage
@@ -39,7 +41,7 @@ Page {
                 verticalCenter: parent.verticalCenter
             }
 
-            RippleEffect { id: menuRipple }
+            RippleEffectComponent { id: menuRipple }
 
             Icon {
                 source: "../icons/menu.svg"
@@ -149,14 +151,14 @@ Page {
         }
     }
 
-    SidePanel {
+    SidePanelComponent {
         id: sidePanelInstance
         open: aboutPage.panelOpen
         onClosed: aboutPage.panelOpen = false
         Component.onCompleted: sidePanelInstance.currentPage = "about";
         customBackgroundColor: DB.darkenColor(aboutPage.customBackgroundColor, 0.30)
     }
-    ScrollBar {
+    ScrollBarComponent {
         flickableSource: flickable
         anchors.top: flickable.top
         anchors.bottom: flickable.bottom

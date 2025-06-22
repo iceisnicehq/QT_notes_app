@@ -1,10 +1,12 @@
-// NotePage.qml
+// /qml/pages/NotePage.qml
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.Layouts 1.1
 import QtQuick.LocalStorage 2.0
-import "../services/DatabaseManager.js" as DB
+import "../services/DatabaseManagerService.js" as DB
 import "../dialogs"
+import "../components"
+import "../services"
 
 Page {
     id: newNotePage
@@ -261,7 +263,7 @@ Page {
         }
     }
 
-    ToastManager {
+    ToastManagerService {
         id: toastManager
     }
 
@@ -317,7 +319,7 @@ Page {
             height: Theme.fontSizeExtraLarge * 1.1
             clip: false
             anchors { left: parent.left; verticalCenter: parent.verticalCenter; leftMargin: Theme.paddingLarge }
-            RippleEffect { id: backRipple }
+            RippleEffectComponent { id: backRipple }
             Icon {
                 id: closeButton
                 // Dynamic source based on note status and content, and read-only mode
@@ -353,7 +355,7 @@ Page {
             height: Theme.fontSizeExtraLarge * 1.1
             clip: false
             anchors { right: parent.right; verticalCenter: parent.verticalCenter; rightMargin: Theme.paddingLarge }
-            RippleEffect { id: pinRipple }
+            RippleEffectComponent { id: pinRipple }
             Icon {
                 id: pinIconButton
                 source: noteIsPinned ? "../icons/pin-enabled.svg" : "../icons/pin.svg"
@@ -385,7 +387,7 @@ Page {
             clip: false
             // Anchor to the left of the pin button, with some margin
             anchors { right: pinIconButton.parent.left; verticalCenter: parent.verticalCenter; rightMargin: Theme.paddingMedium }
-            RippleEffect { id: duplicateRipple }
+            RippleEffectComponent { id: duplicateRipple }
             Icon {
                 id: duplicateIconButton
                 source: "../icons/copy.svg" // Assuming a copy icon exists in your resources
@@ -412,7 +414,7 @@ Page {
                             function() {
                                 // Original duplication logic moved here
                                 console.log(qsTr("Duplicate button clicked for note ID: %1 (confirmed)").arg(newNotePage.noteId));
-                                pageStack.replace(Qt.resolvedUrl("NotePage.qml"), {
+                                pageStack.replace(Qt.resolvedUrl("../pages/NotePage.qml"), {
                                    onNoteSavedOrDeleted: newNotePage.onNoteSavedOrDeleted, // Use the same refresh callback
                                    noteId: -1, // This makes it a new note
                                    noteTitle: newNotePage.noteTitle + qsTr(" (copy)"), // Append "(copy)" to title
@@ -464,7 +466,7 @@ Page {
                 width: Theme.fontSizeExtraLarge * 1.1
                 height: Theme.fontSizeExtraLarge * 1.1
                 clip: false
-                RippleEffect { id: paletteRipple }
+                RippleEffectComponent { id: paletteRipple }
                 Icon {
                     id: paletteIcon
                     source: "../icons/palette.svg"
@@ -496,7 +498,7 @@ Page {
                 width: Theme.fontSizeExtraLarge * 1.1
                 height: Theme.fontSizeExtraLarge * 1.1
                 clip: false
-                RippleEffect { id: addTagRipple }
+                RippleEffectComponent { id: addTagRipple }
                 Icon {
                     id: addTagIcon
                     source: "../icons/tag.svg"
@@ -537,7 +539,7 @@ Page {
                 width: Theme.fontSizeExtraLarge * 1.1
                 height: Theme.fontSizeExtraLarge * 1.1
                 clip: false
-                RippleEffect { id: undoRipple }
+                RippleEffectComponent { id: undoRipple }
                 Icon {
                     id: undoIcon
                     source: "../icons/undo.svg"
@@ -580,7 +582,7 @@ Page {
                 width: Theme.fontSizeExtraLarge * 1.1
                 height: Theme.fontSizeExtraLarge * 1.1
                 clip: false
-                RippleEffect { id: redoRipple }
+                RippleEffectComponent { id: redoRipple }
                 Icon {
                     id: redoIcon
                     source: "../icons/redo.svg"
@@ -630,7 +632,7 @@ Page {
                 width: Theme.fontSizeExtraLarge * 1.1
                 height: Theme.fontSizeExtraLarge * 1.1
                 clip: false
-                RippleEffect { id: archiveRipple }
+                RippleEffectComponent { id: archiveRipple }
                 Icon {
                     id: archiveIcon
                     source: "../icons/archive.svg" // Assuming you have an archive icon
@@ -687,7 +689,7 @@ Page {
                 width: Theme.fontSizeExtraLarge * 1.1
                 height: Theme.fontSizeExtraLarge * 1.1
                 clip: false
-                RippleEffect { id: deleteRipple }
+                RippleEffectComponent { id: deleteRipple }
                 Icon {
                     id: deleteIcon
                     source: "../icons/delete.svg"
@@ -992,35 +994,35 @@ Page {
                                 width: parent.width * 0.95
                                 height: parent.height * 0.95
                                 radius: width / 2
-                                color: modelData // Actual color swatch
+                                color: modelData
                                 border.color: "transparent"
 
                                 Rectangle {
-                                    visible: newNotePage.noteColor === modelData // Checkmark for selected color
+                                    visible: newNotePage.noteColor === modelData
                                     anchors.centerIn: parent
                                     width: parent.width * 0.7
                                     height: parent.height * 0.7
                                     radius: width / 2
-                                    color: modelData // Match swatch color
+                                    color: modelData
 
                                     Icon {
                                         source: "../icons/check.svg"
                                         anchors.centerIn: parent
                                         width: parent.width * 0.75
                                         height: parent.height * 0.75
-                                        color: "white" // Checkmark color
+                                        color: "white"
                                     }
                                 }
                             }
 
                             MouseArea {
                                 anchors.fill: parent
-                                enabled: true // Always enabled to allow showing dialog
+                                enabled: true
                                 onClicked: {
-                                    if (handleInteractionAttempt()) { // Check read-only state and show dialog if needed
-                                        newNotePage.noteColor = modelData; // Set new note color
+                                    if (handleInteractionAttempt()) {
+                                        newNotePage.noteColor = modelData;
                                         newNotePage.noteModified = true;
-                                        colorSelectionPanel.opacity = 0; // Close panel
+                                        colorSelectionPanel.opacity = 0;
                                     }
                                 }
                             }
@@ -1031,27 +1033,23 @@ Page {
         }
     }
 
-    ScrollBar {
+    ScrollBarComponent {
         flickableSource: mainContentFlickable
         topAnchorItem: header
     }
 
-    // --- Overlay Rectangle for Tag Picker (Darkens background) ---
     Rectangle {
         id: tagOverlayRect
-        anchors.fill: parent // Fills the entire parent area
-        color: "#000000" // Black color
-        // Visibility and opacity are linked to the 'tagSelectionPanel.opacity' state
-        visible: tagSelectionPanel.opacity > 0.01 // Only visible when the tag picker is active
-        opacity: tagSelectionPanel.opacity * 0.4 // Fades in and out
-        z: 11.5 // Z-order to appear above other elements but below the picker itself
+        anchors.fill: parent
+        color: "#000000"
+        visible: tagSelectionPanel.opacity > 0.01
+        opacity: tagSelectionPanel.opacity * 0.4
+        z: 11.5
 
-        // MouseArea to detect clicks on the overlay
         MouseArea {
             anchors.fill: parent
-            enabled: tagOverlayRect.visible // Enabled if overlay is visible
+            enabled: tagOverlayRect.visible
             onClicked: {
-                // If the tag picker is open, clicking the overlay closes it.
                 if (tagSelectionPanel.opacity > 0.01) {
                     tagSelectionPanel.opacity = 0;
                     console.log(qsTr("Tag picker closed by clicking overlay."));
@@ -1238,7 +1236,7 @@ Page {
                         height: parent.height
                         color: Theme.primaryColor // Keep icon color consistent
                     }
-                    RippleEffect { id: addTagRippleEffect }
+                    RippleEffectComponent { id: addTagRippleEffect }
                     MouseArea {
                         anchors.fill: parent
                         // Only enabled if there's text and not in read-only mode
@@ -1287,7 +1285,7 @@ Page {
                         color: model.isChecked ? DB.darkenColor(newNotePage.noteColor, -0.25) : DB.darkenColor(newNotePage.noteColor, 0.25) // New styling colors
 
                         // Ripple effect for visual feedback on touch/click
-                        RippleEffect { id: tagPanelDelegateRipple }
+                        RippleEffectComponent { id: tagPanelDelegateRipple }
 
                         // MouseArea for handling clicks on each tag item
                         MouseArea {
@@ -1391,8 +1389,8 @@ Page {
                     }
                 }
             }
-            // Scrollbar for the flickable area
-            ScrollBar {
+
+            ScrollBarComponent {
                 flickableSource: tagsPanelFlickable
                 anchors.top: tagsPanelFlickable.top
                 anchors.bottom: tagsPanelFlickable.bottom

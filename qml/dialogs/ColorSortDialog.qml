@@ -1,6 +1,7 @@
+// /qml/dialogs/ColorSortDialog.qml
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import "../services/DatabaseManager.js" as DB
+import "../services/DatabaseManagerService.js" as DB
 
 Item {
     id: root

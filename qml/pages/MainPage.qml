@@ -1,10 +1,13 @@
-// MainPage.qml
+// /qml/pages/MainPage.qml
 import QtQuick.LocalStorage 2.0
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.Layouts 1.1
-import "../services/DatabaseManager.js" as DB
+import "../services/DatabaseManagerService.js" as DB
 import "../dialogs"
+import "../components"
+import "../note_cards"
+import "../services"
 
 Page {
     id: mainPage
@@ -40,8 +43,7 @@ Page {
     // NEW: Property to control the visibility of the bulk color picker
     property bool bulkColorPickerOpen: false
 
-    // --- ToastManager ---
-    ToastManager {
+    ToastManagerService {
         id: toastManager
     }
 
@@ -329,7 +331,7 @@ Page {
                             height: parent.height
                         }
 
-                        RippleEffect { id: menuRipple }
+                        RippleEffectComponent { id: menuRipple }
 
                         MouseArea {
                             anchors.fill: parent
@@ -367,7 +369,7 @@ Page {
                             height: parent.height
                         }
 
-                        RippleEffect { id: rightRipple }
+                        RippleEffectComponent { id: rightRipple }
 
                         MouseArea {
                             anchors.fill: parent
@@ -404,7 +406,7 @@ Page {
                     anchors.leftMargin: Theme.paddingLarge
 
                     Icon { source: "../icons/close.svg"; anchors.centerIn: parent; width: parent.width; height: parent.height }
-                    RippleEffect { id: closeRipple }
+                    RippleEffectComponent { id: closeRipple }
                     MouseArea {
                         anchors.fill: parent
                         onClicked: mainPage.resetSelection()
@@ -441,7 +443,7 @@ Page {
                         width: parent.width
                         height: parent.height
                     }
-                    RippleEffect { id: selectAllRipple }
+                    RippleEffectComponent { id: selectAllRipple }
                     MouseArea {
                         anchors.fill: parent
                         onPressed: selectAllRipple.ripple(mouseX, mouseY)
@@ -487,7 +489,7 @@ Page {
                         width: parent.width
                         height: parent.height
                     }
-                    RippleEffect { id: pinRipple }
+                    RippleEffectComponent { id: pinRipple }
                     MouseArea {
                         anchors.fill: parent
                         onPressed: pinRipple.ripple(mouseX, mouseY)
@@ -516,7 +518,7 @@ Page {
                         height: parent.height
                         color: Theme.primaryColor // Always primary color
                     }
-                    RippleEffect { id: paletteRipple }
+                    RippleEffectComponent { id: paletteRipple }
                     MouseArea {
                         anchors.fill: parent
                         onPressed: paletteRipple.ripple(mouseX, mouseY)
@@ -542,7 +544,7 @@ Page {
                     anchors.rightMargin: Theme.paddingLarge
 
                     Icon { source: "../icons/delete.svg"; color: Theme.errorColor; anchors.centerIn: parent; width: parent.width; height: parent.height }
-                    RippleEffect { id: deleteRipple }
+                    RippleEffectComponent { id: deleteRipple }
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
@@ -579,7 +581,7 @@ Page {
                     anchors.rightMargin: Theme.paddingMedium
 
                     Icon { source: "../icons/archive.svg"; color: Theme.primaryColor; anchors.centerIn: parent; width: parent.width; height: parent.height }
-                    RippleEffect { id: archiveRipple }
+                    RippleEffectComponent { id: archiveRipple }
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
@@ -610,7 +612,7 @@ Page {
         }
     }
 
-    SidePanel {
+    SidePanelComponent {
         id: sidePanel
         anchors.top: parent.top
         anchors.bottom: parent.bottom
@@ -771,7 +773,7 @@ Page {
         }
     }
 
-    ScrollBar {
+    ScrollBarComponent {
         flickableSource: flickable
         topAnchorItem: searchAreaWrapper
     }
@@ -819,7 +821,7 @@ Page {
             height: parent.height * 0.5
         }
 
-        RippleEffect { id: sortButtonRipple }
+        RippleEffectComponent { id: sortButtonRipple }
 
         MouseArea {
             anchors.fill: parent
@@ -880,7 +882,7 @@ Page {
             height: parent.height * 0.5
         }
 
-        RippleEffect { id: plusButtonRipple }
+        RippleEffectComponent { id: plusButtonRipple }
 
         MouseArea {
             anchors.fill: parent
@@ -1035,7 +1037,7 @@ Page {
                                 }
                             }
 
-                            RippleEffect { id: colorRipple }
+                            RippleEffectComponent { id: colorRipple }
 
                             MouseArea {
                                 anchors.fill: parent
@@ -1164,7 +1166,7 @@ Page {
                                     height: parent.height
                                 }
 
-                                RippleEffect { id: rightClearRippleTagSearch }
+                                RippleEffectComponent { id: rightClearRippleTagSearch }
 
                                 MouseArea {
                                     anchors.fill: parent
@@ -1193,7 +1195,7 @@ Page {
                     anchors.bottomMargin: Theme.paddingMedium
                     contentHeight: tagsPanelListView.contentHeight
                     clip: true
-                    ScrollBar { flickableSource: tagsPanelFlickable; z: 5 }
+                    ScrollBarComponent { flickableSource: tagsPanelFlickable; z: 5 }
 
                     ListView {
                         id: tagsPanelListView
@@ -1210,7 +1212,7 @@ Page {
                             clip: true
                             color: model.isChecked ? DB.darkenColor(mainPage.customBackgroundColor, -0.25) : DB.darkenColor(mainPage.customBackgroundColor, 0.25)
 
-                            RippleEffect { id: tagPanelDelegateRipple }
+                            RippleEffectComponent { id: tagPanelDelegateRipple }
 
                             MouseArea {
                                 anchors.fill: parent
@@ -1274,7 +1276,7 @@ Page {
                         }
                     }
                 }
-                ScrollBar {
+                ScrollBarComponent {
                     flickableSource: tagsPanelFlickable
                     anchors.top: tagsPanelFlickable.top
                     anchors.bottom: tagsPanelFlickable.bottom

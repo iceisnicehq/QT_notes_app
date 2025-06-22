@@ -1,7 +1,9 @@
+// /qml/dialogs/SortDialog.qml
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import "../services/DatabaseManager.js" as DB
+import "../services/DatabaseManagerService.js" as DB
 import "../pages"
+import "../components"
 
 Item {
     id: root
@@ -80,7 +82,7 @@ Item {
 
             Repeater {
                 model: root.sortOptions
-                delegate: AdaptiveButton { // <-- Наш компонент!
+                delegate: AdaptiveButtonComponent {
                     text: modelData.text
                     baseColor: root.dialogBackgroundColor
                     highlighted: root.currentSortBy === modelData.key
