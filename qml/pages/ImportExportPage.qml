@@ -407,7 +407,7 @@ Page {
 
             Icon {
                 id: leftIcon
-                source: "../icons/menu.svg"
+                source: "qrc:/qml/icons/menu.svg"
                 anchors.centerIn: parent
                 width: parent.width
                 height: parent.height

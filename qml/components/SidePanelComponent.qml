@@ -169,7 +169,7 @@ Item {
                         }
                         Icon {
                             id: pinIconButton
-                            source: "../icons/close.svg"
+                            source: "qrc:/qml/icons/close.svg"
                             anchors.centerIn: parent
                             width: parent.width
                             height: parent.height
@@ -200,7 +200,7 @@ Item {
                     }
 
                     NavigationButtonComponent {
-                        icon: "../icons/notes.svg"
+                        icon: "qrc:/qml/icons/notes.svg"
                         text: qsTr("Notes")
                         selected: sidePanel.currentPage === "notes"
                         noteCount: sidePanel.totalNotesCount
@@ -211,7 +211,7 @@ Item {
                     }
 
                     NavigationButtonComponent {
-                        icon: "../icons/archive.svg"
+                        icon: "qrc:/qml/icons/archive.svg"
                         text: qsTr("Archive")
                         selected: sidePanel.currentPage === "archive"
                         noteCount: sidePanel.archivedNotesCount
@@ -222,7 +222,7 @@ Item {
                     }
 
                     NavigationButtonComponent {
-                        icon: "../icons/trash.svg"
+                        icon: "qrc:/qml/icons/trash.svg"
                         text: qsTr("Trash")
                         selected: sidePanel.currentPage === "trash"
                         noteCount: sidePanel.trashNotesCount
@@ -233,7 +233,7 @@ Item {
                     }
 
                     NavigationButtonComponent {
-                        icon: "../icons/import_export.svg"
+                        icon: "qrc:/qml/icons/import_export.svg"
                         text: qsTr("Import & Export")
                         selected: sidePanel.currentPage === "import/export"
                         selectedColor: sidePanel.activeSectionColor
@@ -243,7 +243,7 @@ Item {
                     }
 
                     NavigationButtonComponent {
-                        icon: "../icons/settings.svg"
+                        icon: "qrc:/qml/icons/settings.svg"
                         text: qsTr("Settings")
                         selected: sidePanel.currentPage === "settings"
                         selectedColor: sidePanel.activeSectionColor
@@ -253,7 +253,7 @@ Item {
                     }
 
                     NavigationButtonComponent {
-                        icon: "../icons/about.svg"
+                        icon: "qrc:/qml/icons/about.svg"
                         text: qsTr("About")
                         selected: sidePanel.currentPage === "about"
                         selectedColor: sidePanel.activeSectionColor
@@ -285,7 +285,7 @@ Item {
 
                     NavigationButtonComponent {
                         width: parent.width
-                        icon: "../icons/edit.svg"
+                        icon: "qrc:/qml/icons/edit.svg"
                         text: qsTr("Edit Tags")
                         selected: sidePanel.currentPage === "edit"
                         selectedColor: sidePanel.activeSectionColor
@@ -307,7 +307,7 @@ Item {
                     Repeater {
                         model: tags
                         delegate: NavigationButtonComponent {
-                            icon: "../icons/tag.svg"
+                            icon: "qrc:/qml/icons/tag.svg"
                             text: modelData.name
                             noteCount: modelData.count
                             selectedColor: sidePanel.activeSectionColor

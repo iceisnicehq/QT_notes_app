@@ -102,7 +102,7 @@ Page {
 
             Icon {
                 id: leftIcon
-                source: trashPage.selectedNoteIds.length > 0 ? "../icons/close.svg" : "../icons/menu.svg"
+                source: trashPage.selectedNoteIds.length > 0 ? "qrc:/qml/icons/close.svg" : "qrc:/qml/icons/menu.svg"
                 anchors.centerIn: parent
                 width: parent.width
                 height: parent.height
@@ -185,7 +185,7 @@ Page {
                         anchors.horizontalCenter: parent.horizontalCenter
 
                         Icon {
-                            source: trashPage.allNotesSelected ? "../icons/deselect_all.svg" : "../icons/select_all.svg"
+                            source: trashPage.allNotesSelected ? "qrc:/qml/icons/deselect_all.svg" : "qrc:/qml/icons/select_all.svg"
                             anchors.fill: parent
                             color: Theme.primaryColor
                         }
@@ -225,7 +225,7 @@ Page {
                         anchors.horizontalCenter: parent.horizontalCenter
 
                         Icon {
-                            source: "../icons/restore_notes.svg"
+                            source: "qrc:/qml/icons/restore_notes.svg"
                             anchors.fill: parent
                             color: Theme.primaryColor
                         }
@@ -274,7 +274,7 @@ Page {
                         anchors.horizontalCenter: parent.horizontalCenter
 
                         Icon {
-                            source: "../icons/perma_delete.svg"
+                            source: "qrc:/qml/icons/perma_delete.svg"
                             anchors.fill: parent
                             color: Theme.primaryColor
                         }

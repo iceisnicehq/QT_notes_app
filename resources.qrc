@@ -1,18 +1,21 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource prefix="/">
     <file>qml/Aurora_notes.qml</file>
-    <file>qml/main.qml</file>
     <file>qml/cover/DefaultPageCover.qml</file>
+
     <file>qml/components/AdaptiveButtonComponent.qml</file>
     <file>qml/components/NavigationButtonComponent.qml</file>
     <file>qml/components/RippleEffectComponent.qml</file>
     <file>qml/components/ScrollBarComponent.qml</file>
     <file>qml/components/SidePanelComponent.qml</file>
+
     <file>qml/dialogs/ColorSortDialog.qml</file>
     <file>qml/dialogs/ConfirmDialog.qml</file>
     <file>qml/dialogs/SortDialog.qml</file>
+
     <file>qml/note_cards/NoteCard.qml</file>
     <file>qml/note_cards/TrashArchiveNoteCard.qml</file>
+
     <file>qml/pages/AboutPage.qml</file>
     <file>qml/pages/ArchivePage.qml</file>
     <file>qml/pages/ImportExportPage.qml</file>
@@ -21,10 +24,44 @@
     <file>qml/pages/SettingsPage.qml</file>
     <file>qml/pages/TagEditPage.qml</file>
     <file>qml/pages/TrashPage.qml</file>
+
     <file>qml/services/DatabaseManagerService.js</file>
-    <file>qml/services/ToastManagerService.qml</file>
+    <file>qml/services/ToastManager.qml</file>
     <file>qml/services/ToastService.qml</file>
+
+    <file>qml/icons/about.svg</file>
     <file>qml/icons/archive.svg</file>
+    <file>qml/icons/Aurora_notes.svg</file>
     <file>qml/icons/back.svg</file>
-    </qresource>
+    <file>qml/icons/box-checked.svg</file>
+    <file>qml/icons/box.svg</file>
+    <file>qml/icons/check.svg</file>
+    <file>qml/icons/close.svg</file>
+    <file>qml/icons/copy.svg</file>
+    <file>qml/icons/delete.svg</file>
+    <file>qml/icons/deselect_all.svg</file>
+    <file>qml/icons/edit.svg</file>
+    <file>qml/icons/edit_filled.svg</file>
+    <file>qml/icons/import_export.svg</file>
+    <file>qml/icons/language.svg</file>
+    <file>qml/icons/menu.svg</file>
+    <file>qml/icons/notes.svg</file>
+    <file>qml/icons/palette.svg</file>
+    <file>qml/icons/perma_delete.svg</file>
+    <file>qml/icons/pin.svg</file>
+    <file>qml/icons/pin-enabled.svg</file>
+    <file>qml/icons/plus.svg</file>
+    <file>qml/icons/redo.svg</file>
+    <file>qml/icons/restore_notes.svg</file>
+    <file>qml/icons/right.svg</file>
+    <file>qml/icons/select_all.svg</file>
+    <file>qml/icons/settings.svg</file>
+    <file>qml/icons/sort.svg</file>
+    <file>qml/icons/tag.svg</file>
+    <file>qml/icons/tag-filled.svg</file>
+    <file>qml/icons/tag-white.svg</file>
+    <file>qml/icons/trash.svg</file>
+    <file>qml/icons/unarchive.svg</file>
+    <file>qml/icons/undo.svg</file>
+</qresource>
 </RCC>

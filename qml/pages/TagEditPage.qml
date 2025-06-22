@@ -120,7 +120,7 @@ Page {
                 RippleEffectComponent { id: menuRipple }
                 Icon {
                     id: menuIcon
-                    source: "../icons/menu.svg"
+                    source: "qrc:/qml/icons/menu.svg"
                     anchors.centerIn: parent
                     width: parent.width
                     height: parent.height
@@ -245,7 +245,7 @@ Page {
 
                             Icon {
                                 id: plusXIcon
-                                source: "../icons/plus.svg"
+                                source: "qrc:/qml/icons/plus.svg"
                                 anchors.centerIn: parent
                                 width: parent.width
                                 height: parent.height
@@ -288,7 +288,7 @@ Page {
                             RippleEffectComponent { id: checkRipple }
                             Icon {
                                 id: checkIcon
-                                source: "../icons/check.svg"
+                                source: "qrc:/qml/icons/check.svg"
                                 anchors.centerIn: parent
                                 width: parent.width
                                 height: parent.height
@@ -439,7 +439,7 @@ Page {
                                     clip: false
 
                                     Icon {
-                                        source: tagEditPage.currentlyEditingTagDelegate === tagListItemDelegate ? "../icons/trash.svg" : "../icons/tag-white.svg"
+                                        source: tagEditPage.currentlyEditingTagDelegate === tagListItemDelegate ? "qrc:/qml/icons/trash.svg" : "qrc:/qml/icons/tag-white.svg"
                                         anchors.centerIn: parent
                                         width: parent.width
                                         height: parent.height
@@ -472,12 +472,12 @@ Page {
                                     Icon {
                                         source: {
                                             if (!isEditing) {
-                                                return "../icons/edit_filled.svg";
+                                                return "qrc:/qml/icons/edit_filled.svg";
                                             } else {
                                                 if (isTagNameChanged) {
-                                                    return "../icons/check.svg";
+                                                    return "qrc:/qml/icons/check.svg";
                                                 } else {
-                                                    return "../icons/close.svg";
+                                                    return "qrc:/qml/icons/close.svg";
                                                 }
                                             }
                                         }

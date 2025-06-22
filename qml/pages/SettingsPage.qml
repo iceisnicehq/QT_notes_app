@@ -151,7 +151,7 @@ Page {
 
             Icon {
                 id: leftIcon
-                source: "../icons/menu.svg"
+                source: "qrc:/qml/icons/menu.svg"
                 anchors.centerIn: parent
                 width: parent.width
                 height: parent.height
@@ -207,7 +207,7 @@ Page {
                         Layout.alignment: Qt.AlignVCenter
 
                         Icon {
-                            source: "../icons/language.svg"
+                            source: "qrc:/qml/icons/language.svg"
                             color: "white"
                             fillMode: Image.PreserveAspectFit
                             width: parent.width
@@ -243,7 +243,7 @@ Page {
                             Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
 
                             Icon {
-                                source: "../icons/back.svg"
+                                source: "qrc:/qml/icons/back.svg"
                                 anchors.fill: parent
                                 color: Theme.primaryColor
                                 fillMode: Image.PreserveAspectFit
@@ -284,7 +284,7 @@ Page {
                             Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
 
                             Icon {
-                                source: "../icons/right.svg"
+                                source: "qrc:/qml/icons/right.svg"
                                 anchors.fill: parent
                                 color: Theme.primaryColor
                                 fillMode: Image.PreserveAspectFit
@@ -336,7 +336,7 @@ Page {
                         Layout.alignment: Qt.AlignVCenter
 
                         Icon {
-                            source: "../icons/palette.svg"
+                            source: "qrc:/qml/icons/palette.svg"
                             color: "white"
                             fillMode: Image.PreserveAspectFit
                             width: parent.width
@@ -418,7 +418,7 @@ Page {
                                             color: modelData
 
                                             Icon {
-                                                source: "../icons/check.svg"
+                                                source: "qrc:/qml/icons/check.svg"
                                                 anchors.centerIn: parent
                                                 width: parent.width * 0.75
                                                 height: parent.height * 0.75
@@ -471,7 +471,7 @@ Page {
                         Layout.alignment: Qt.AlignVCenter
 
                         Icon {
-                            source: "../icons/edit.svg"
+                            source: "qrc:/qml/icons/edit.svg"
                             color: "white"
                             fillMode: Image.PreserveAspectFit
                             width: parent.width
