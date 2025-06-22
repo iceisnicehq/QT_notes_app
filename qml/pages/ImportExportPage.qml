@@ -1,4 +1,18 @@
-// /qml/pages/ImportExportPage.qml
+/* Студенты РГУ нефти и газа имени И.М. Губкина
+ * Поляков К.А., Сабиров Д.С.
+ * группы КС-22-03
+ * курсовая работа на тему "Разработка приложения для организации заметок с поддержкой тегов и поиска"
+ *
+ * /qml/pages/ImportExportPage.qml
+ * Эта страница предоставляет функционал для импорта и экспорта заметок.
+ * Пользователи могут экспортировать все свои заметки в форматы JSON или CSV,
+ * а также импортировать заметки из таких файлов. Страница использует
+ * FilePickerPage и FolderPickerPage для взаимодействия с файловой системой.
+ * Она отображает статус текущих операций и выводит диалоговое окно
+ * с результатами по завершении. Также ведется статистика по последним
+ * операциям импорта/экспорта.
+ */
+
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import Sailfish.Pickers 1.0
@@ -27,9 +41,7 @@ Page {
     property var lastImportDate: null
     property int notesImportedCount: 0
 
-    // Property to store the selected export directory
-    // This will now be initialized from saved settings
-    property string selectedExportDirectory: ""  // Initialize as empty, will be set in Component.onCompleted
+    property string selectedExportDirectory: ""
 
     ConfigurationValue {
         id: documentsPathConfig
@@ -37,17 +49,12 @@ Page {
         defaultValue: StandardPaths.documents
         onValueChanged: {
             console.log("APP_DEBUG: Documents path is: " + value);
-            // This ConfigurationValue is mainly used to provide a fallback default path.
-            // selectedExportDirectory is set in Component.onCompleted based on saved settings.
-            // We specifically avoid setting selectedExportDirectory here to prevent conflicts with DB loading.
-            // The fallback is handled in Component.onCompleted.
         }
     }
     ToastManagerService {
         id: toastManager
     }
 
-    // FilePickerComponent for import (remains unchanged)
     Component {
         id: filePickerComponent
 
@@ -71,11 +78,10 @@ Page {
         }
     }
 
-    // FolderPickerComponent for export
     Component {
         id: folderPickerComponent
 
-        FolderPickerPage { // Using FolderPickerPage
+        FolderPickerPage {
             id: folderSelectPage
             title: qsTr("Select Export Directory")
 
@@ -95,21 +101,18 @@ Page {
                     importExportPage.selectedExportDirectory = folderPathClean;
                     console.log("APP_DEBUG: Export directory selected via FolderPickerPage: " + importExportPage.selectedExportDirectory);
 
-                    // --- SAVE THE SELECTED DIRECTORY FOR PERSISTENCE ---
                     DB.setSetting("exportDirectoryPath", folderPathClean);
                     console.log("APP_DEBUG: Saved selected export directory: " + folderPathClean);
-                    // --- END SAVE ---
 
                 } else {
                     console.warn("APP_DEBUG: Folder selection via FolderPickerPage accepted, but selectedContentProperties or filePath is invalid or empty.");
                     toastManager.show(qsTr("Selected folder path is invalid or empty. Using default documents path."));
-                    // No change to selectedExportDirectory, it will retain its previous value (default or last valid)
                 }
             }
 
             onCanceled: {
                 console.log("APP_DEBUG: Folder selection via FolderPickerPage cancelled.");
-                toastManager.show(qsTr("Folder selection cancelled.")); // Inform the user
+                toastManager.show(qsTr("Folder selection cancelled."));
             }
         }
     }
@@ -453,12 +456,11 @@ Page {
                 color: "white"
             }
 
-            // --- Export Directory Section, now with FolderPickerPage ---
             RowLayout {
                 id: exportActionsRow
-                anchors.horizontalCenter: parent.horizontalCenter // Center this row
-                width: parent.width - (2 * Theme.paddingLarge) // Give it some horizontal padding
-                spacing: Theme.paddingMedium // Spacing between elements in this row
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width - (2 * Theme.paddingLarge)
+                spacing: Theme.paddingMedium
 
                 Button {
                     id: exportDirectoryButton
@@ -470,9 +472,9 @@ Page {
 
 
                 Label {
-                    Layout.alignment: Qt.AlignHCenter // Center the label itself
+                    Layout.alignment: Qt.AlignHCenter
                     id: exportPathLabel
-                    text: importExportPage.selectedExportDirectory // Bound to selectedExportDirectory
+                    text: importExportPage.selectedExportDirectory
                     Layout.fillWidth: true
                     wrapMode: Text.Wrap
                     font.pixelSize: Theme.fontSizeSmall
@@ -480,7 +482,6 @@ Page {
                     verticalAlignment: Text.AlignVCenter
                 }
             }
-            // --- End Export Directory Section ---
 
             TextField {
                 id: fileNameField
@@ -647,36 +648,29 @@ Page {
                         "Import Count:", notesImportedCount);
         }
 
-        var initialBaseName = qsTr("notes_backup_") + Qt.formatDateTime(new Date(), "yyyyMMdd_HHmmss");
+        var initialBaseName = "notes_backup_" + Qt.formatDateTime(new Date(), "yyyyMMdd_HHmmss");
         fileNameField.text = initialBaseName + ".json";
 
-        // --- LOAD SAVED EXPORT DIRECTORY ---
         var savedExportPath = DB.getSetting("exportDirectoryPath");
         if (savedExportPath && savedExportPath.length > 0) {
             selectedExportDirectory = savedExportPath;
             console.log("APP_DEBUG: Loaded saved export directory from DB: " + selectedExportDirectory);
         } else {
-            // If no saved path, use the default documents path
             selectedExportDirectory = documentsPathConfig.value;
             console.log("APP_DEBUG: No saved export directory in DB. Using default documents path: " + selectedExportDirectory);
         }
-        // --- END LOAD ---
 
         console.log("APP_DEBUG: Export/Import Page: Component.onCompleted finished.");
     }
 
-    // Function to generate CSV string from notes data
     function generateCsv(data) {
         var headers = ["id", "title", "content", "color", "pinned", "deleted", "archived", "created_at", "updated_at", "tags"];
         var csv = headers.join(",") + "\n";
         var escapeCsvField = function(field) {
-            // Convert to string, replace internal commas with semicolons
-            // and newlines with spaces for simpler CSV interpretation.
-            // Then, enclose the result in quotes and escape any *remaining* double quotes.
             var cleanedField = String(field || '')
-                               .replace(/,/g, ';') // Replace commas with semicolons
-                               .replace(/\r\n|\n|\r/g, ' ') // Replace newlines with spaces
-                               .replace(/"/g, '""'); // Escape any double quotes that might still exist
+                               .replace(/,/g, ';')
+                               .replace(/\r\n|\n|\r/g, ' ')
+                               .replace(/"/g, '""');
 
             return "\"" + cleanedField + "\"";
         };
@@ -688,7 +682,7 @@ Page {
                 escapeCsvField(note.title),
                 escapeCsvField(note.content),
                 escapeCsvField(note.color),
-                note.pinned ? 1 : 0, // Boolean to 1 or 0
+                note.pinned ? 1 : 0,
                 note.deleted ? 1 : 0,
                 note.archived ? 1 : 0,
                 escapeCsvField(note.created_at),
@@ -700,13 +694,11 @@ Page {
         return csv;
     }
 
-    // In ImportExportPage.qml
     function parseCsv(content) {
         var lines = content.split('\n');
         if (lines.length < 2) return [];
 
         var headers = lines[0].trim().split(',').map(function(h) {
-            // Trim and unquote headers if they were quoted (they shouldn't be with current generateCsv)
             return h.replace(/^"|"$/g, '').trim();
         });
 
@@ -715,46 +707,41 @@ Page {
             var line = lines[i].trim();
             if (line === "") continue;
 
-            // Use a simple split. This works reliably now because internal commas
-            // have been replaced by semicolons during export.
             var values = [];
             var inQuote = false;
             var currentField = "";
             for (var j = 0; j < line.length; j++) {
                 var character = line[j];
                 if (character === '"') {
-                    if (inQuote && line[j+1] === '"') { // Escaped double quote
+                    if (inQuote && line[j+1] === '"') {
                         currentField += '"';
                         j++;
                     } else {
-                        inQuote = !inQuote; // Toggle quote state
+                        inQuote = !inQuote;
                     }
-                } else if (character === ',' && !inQuote) { // Field delimiter outside quotes
+                } else if (character === ',' && !inQuote) {
                     values.push(currentField);
                     currentField = "";
                 } else {
                     currentField += character;
                 }
             }
-            values.push(currentField); // Add the last field
+            values.push(currentField);
 
             var note = {};
             for(var k = 0; k < headers.length; k++) {
                 var header = headers[k];
                 var value = values[k] !== undefined ? values[k] : "";
 
-                // Unescape double quotes (e.g., "" becomes ")
                 value = value.replace(/""/g, '"');
 
                 note[header] = value;
             }
 
-            // Type conversion
             note.id = parseInt(note.id, 10);
             note.pinned = (note.pinned === "1" || note.pinned === "true");
             note.deleted = (note.deleted === "1" || note.deleted === "true");
             note.archived = (note.archived === "1" || note.archived === "true");
-            // Tags are still semicolon-separated, so split them back
             note.tags = note.tags ? note.tags.split(';').map(function(tag) { return tag.trim(); }).filter(function(tag) { return tag !== ''; }) : [];
 
             if (!isNaN(note.id)) {
@@ -764,7 +751,6 @@ Page {
         return notes;
     }
 
-    // exportData function (no optionalNewTag parameter, uses selectedExportDirectory)
     function exportData(format) {
         processInProgress = true;
         statusText = qsTr("Gathering data for export...");
@@ -784,7 +770,7 @@ Page {
                 console.log("APP_DEBUG: getNotesForExport SUCCESS. Notes count: " + (notes ? notes.length : 0));
                 if (!notes || notes.length === 0) {
                     toastManager.show(qsTr("No notes to export."));
-                    statusText = qsTr("");
+                    statusText = "";
                     processInProgress = false;
                     return;
                 }
@@ -803,7 +789,6 @@ Page {
                     return;
                 }
 
-                // Use the dynamically selectedExportDirectory
                 var finalPath = importExportPage.selectedExportDirectory + "/" + finalFileName;
                 console.log("APP_DEBUG: Attempting to write file to: " + finalPath);
                 writeToFile(finalPath, generatedData, notes.length);
@@ -891,7 +876,6 @@ Page {
             return;
         }
         var tagsBeforeImportCount = DB.getAllTags().length;
-        //console.log("APP_DEBUG: Tags before import: " + tagsBeforeImport);
 
         try {
             var fileContent;
@@ -962,7 +946,7 @@ Page {
                     DB.importNotes(
                         notesToImport,
                         optionalNewTagForImport,
-                        function(results) { // successCallback for DB.importNotes
+                        function(results) {
                             console.log("APP_DEBUG: DB.importNotes SUCCESS. Imported: " + results.importedCount + ", Skipped: " + results.skippedCount);
 
                             notesImportedCount = results.importedCount;
@@ -983,7 +967,7 @@ Page {
                             processInProgress = false;
                             console.log("APP_DEBUG: Import process finished successfully.");
                         },
-                        function(error) { // errorCallback for DB.importNotes
+                        function(error) {
                             console.error("APP_DEBUG: DB.importNotes FAILED: " + error.message);
                             statusText = qsTr("Import error: ") + error.message;
                             processInProgress = false;

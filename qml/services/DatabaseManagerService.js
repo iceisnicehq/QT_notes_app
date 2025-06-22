@@ -1,4 +1,20 @@
-// /qml/services/DatabaseManagerService.js
+/* Студенты РГУ нефти и газа имени И.М. Губкина
+ * Поляков К.А., Сабиров Д.С.
+ * группы КС-22-03
+ * курсовая работа на тему "Разработка приложения для организации заметок с поддержкой тегов и поиска"
+ *
+ * /qml/services/DatabaseManagerService.js
+ * Этот файл является сервисом управления базой данных, который
+ * инкапсулирует всю логику взаимодействия с SQLite через LocalStorage.
+ * Он отвечает за инициализацию БД, создание таблиц (Notes, Tags, NoteTags, AppSettings)
+ * и проведение миграций для обновления структуры.
+ *
+ * Сервис предоставляет полный набор CRUD-операций для заметок и тегов,
+ * управляет настройками приложения (тема, язык), а также реализует
+ * сложную логику для поиска, фильтрации, сортировки, импорта/экспорта
+ * и массовых операций с заметками.
+ */
+
 var db = null;
 var dbName = "AuroraNotesDB";
 var dbVersion = "1.0";
@@ -9,7 +25,6 @@ var defaultNoteColor = "#1c1d29";
 
 function initDatabase(localStorageInstance) {
 
-    // Only proceed if a localStorageInstance is provided and db is null
     if (!localStorageInstance) {
         console.error("DB_MGR: LocalStorage instance not provided to initDatabase.");
         return;
@@ -17,10 +32,8 @@ function initDatabase(localStorageInstance) {
     if (db) return;
     console.log("DB_MGR: Инициализация базы данных...");
     try {
-        // Use the passed localStorageInstance
         db = localStorageInstance.openDatabaseSync(dbName, dbVersion, dbDescription, dbSize);
         db.transaction(function(tx) {
-            // Create Notes table
             tx.executeSql(
                 'CREATE TABLE IF NOT EXISTS Notes (' +
                 'id INTEGER PRIMARY KEY AUTOINCREMENT, ' +
@@ -35,14 +48,12 @@ function initDatabase(localStorageInstance) {
                 'checksum TEXT' +
                 ')'
             );
-            // Create Tags table
             tx.executeSql(
                 'CREATE TABLE IF NOT EXISTS Tags (' +
                 'id INTEGER PRIMARY KEY AUTOINCREMENT, ' +
                 'name TEXT UNIQUE NOT NULL' +
                 ')'
             );
-            // Create NoteTags join table
             tx.executeSql(
                 'CREATE TABLE IF NOT EXISTS NoteTags (' +
                 'note_id INTEGER NOT NULL, ' +
@@ -53,15 +64,6 @@ function initDatabase(localStorageInstance) {
                 ')'
             );
 
-
-
-            //tx.executeSql("DELETE FROM NoteTags WHERE note_id IN (71, 73, 76, 79);");
-            //tx.executeSql("DELETE FROM Notes WHERE id IN (71, 73, 76, 79);");
-
-
-
-
-            // --- Migrations for Notes table (if columns are missing in existing DB) ---
             try {
                 tx.executeSql('SELECT color FROM Notes LIMIT 1');
             } catch (e) {
@@ -72,7 +74,7 @@ function initDatabase(localStorageInstance) {
                 tx.executeSql('SELECT checksum FROM Notes LIMIT 1');
             } catch (e) {
                 console.log("DB_MGR: Adding 'checksum' column to Notes table.");
-                tx.executeSql('ALTER TABLE Notes ADD COLUMN checksum TEXT'); // Добавляем столбец checksum
+                tx.executeSql('ALTER TABLE Notes ADD COLUMN checksum TEXT');
             }
             try {
                 tx.executeSql('SELECT deleted FROM Notes LIMIT 1');
@@ -87,10 +89,9 @@ function initDatabase(localStorageInstance) {
                 tx.executeSql('ALTER TABLE Notes ADD COLUMN archived BOOLEAN NOT NULL DEFAULT 0');
             }
 
-            // --- AppSettings Table and its Migrations ---
             tx.executeSql(
                 'CREATE TABLE IF NOT EXISTS AppSettings (' +
-                'id INTEGER PRIMARY KEY, ' + // Use a fixed ID (e.g., 1) for a singleton row
+                'id INTEGER PRIMARY KEY, ' +
                 'themeColor TEXT, ' +
                 'language TEXT, ' +
                 'lastExportDate TIMESTAMP, ' +
@@ -104,18 +105,16 @@ function initDatabase(localStorageInstance) {
                 ')'
             );
 
-            // Check if AppSettings table is empty and insert default values if so
             var settingsCount = tx.executeSql('SELECT COUNT(*) AS count FROM AppSettings');
             if (settingsCount.rows.item(0).count === 0) {
                 console.log("DB_MGR: AppSettings table is empty, inserting default values.");
                 tx.executeSql(
                     'INSERT INTO AppSettings (id, themeColor, language, notesExportedCount, notesImportedCount, exportDirectoryPath) ' +
                     'VALUES (?, ?, ?, ?, ?, ?)',
-                    [1, "#121218", "en", 0, 0, ""] // Default values: dark theme, English, 0 exported/imported
+                    [1, "#121218", "en", 0, 0, ""]
                 );
             }
 
-            // Migrations for AppSettings table (add columns if they are missing in existing DB)
             try { tx.executeSql('SELECT themeColor FROM AppSettings LIMIT 1'); }
             catch (e) { console.log("DB_MGR: Adding 'themeColor' column to AppSettings."); tx.executeSql('ALTER TABLE AppSettings ADD COLUMN themeColor TEXT'); }
 
@@ -147,13 +146,11 @@ function initDatabase(localStorageInstance) {
             catch (e) { console.log("DB_MGR: Adding 'color_sort_order' column to AppSettings."); tx.executeSql('ALTER TABLE AppSettings ADD COLUMN exportDirectoryPath TEXT'); }
 
             try {
-            // Fetch notes that have NULL checksums
             var result = tx.executeSql('SELECT id, pinned, title, content, color, deleted, archived FROM Notes WHERE checksum IS NULL OR checksum = ""');
             if (result.rows.length > 0) {
                 console.log('DB_MGR_MIGRATION: Found ${result.rows.length} notes with missing checksums. Populating now.');
                 for (var i = 0; i < result.rows.length; i++) {
                     var note = result.rows.item(i);
-                    // Construct a temporary note object that generateNoteChecksum expects
                     var tempNote = {
                         id: note.id,
                         pinned: note.pinned,
@@ -162,10 +159,8 @@ function initDatabase(localStorageInstance) {
                         color: note.color,
                         deleted: note.deleted,
                         archived: note.archived,
-                        //tags: noteTags // Add this if generateNoteChecksum needs tags for old notes
                     };
 
-                    // Generate checksum for the old note
                     var generatedChecksum = generateNoteChecksum(tempNote);
 
                     if (generatedChecksum) {
@@ -180,23 +175,16 @@ function initDatabase(localStorageInstance) {
                 console.log("DB_MGR_MIGRATION: No notes found with missing checksums. Migration skipped.");
             }
         } catch (e) {
-            // This catch handles errors specifically during the checksum migration
             console.error("DB_MGR_MIGRATION: Error during checksum migration: " + e.message);
-            // Important: Don't re-throw if it's just a migration error.
-            // The main DB init should still proceed.
         }
 
-
-            console.log("DB_MGR: Checking for notes without checksums..."); // добавление в ините
+            console.log("DB_MGR: Checking for notes without checksums...");
             var notesWithoutChecksum = tx.executeSql('SELECT id, title, content, color FROM Notes WHERE checksum IS NULL');
             if (notesWithoutChecksum.rows.length > 0) {
                 console.log("DB_MGR: Found " + notesWithoutChecksum.rows.length + " notes without checksums. Generating them...");
                 for (var i = 0; i < notesWithoutChecksum.rows.length; i++) {
                     var note = notesWithoutChecksum.rows.item(i);
-                    // Fetch tags separately since generateNoteChecksum needs them
-                    // This is less efficient than fetching all notes with tags initially,
-                    // but practical for a one-time migration.
-                    var noteTags = getTagsForNote(tx, note.id); // Re-use getTagsForNote, ensuring it works with tx
+                    var noteTags = getTagsForNote(tx, note.id);
                     var tempNoteForChecksum = {
                         id: note.id,
                         pinned: note.pinned,
@@ -205,7 +193,6 @@ function initDatabase(localStorageInstance) {
                         color: note.color,
                         deleted: note.deleted,
                         archived: note.archived,
-                        //tags: noteTags
                     };
                     var generatedChecksum = generateNoteChecksum(tempNoteForChecksum);
 
@@ -221,7 +208,6 @@ function initDatabase(localStorageInstance) {
                 console.log("DB_MGR: All notes already have checksums.");
             }
 
-
         });
         console.log("DB_MGR: Database initialized successfully.");
     } catch (e) {
@@ -229,7 +215,6 @@ function initDatabase(localStorageInstance) {
     }
 }
 
-// Generic function to get a setting
 function getSetting(key) {
     if (!db) {
         console.error("DB_MGR: Database not initialized when trying to get setting:", key);
@@ -245,7 +230,6 @@ function getSetting(key) {
     return value;
 }
 
-// Generic function to set a setting
 function setSetting(key, value) {
     if (!db) {
         console.error("DB_MGR: Database not initialized when trying to set setting:", key);
@@ -260,16 +244,15 @@ function setSetting(key, value) {
     });
 }
 
-// Specific functions for settings (these will call initDatabase internally if needed)
 function getThemeColor() {
-    if (!db) initDatabase(LocalStorage); // Attempt to initialize if not already
+    if (!db) initDatabase(LocalStorage);
     return getSetting('themeColor');
 }
 
 function darkenColor(hex, percentage) {
     if (!hex || typeof hex !== 'string' || hex.length !== 7 || hex[0] !== '#') {
         console.warn("Invalid color format passed to darkenColor:", hex);
-        return "#000000"; // Fallback to black
+        return "#000000";
     }
 
     var r = parseInt(hex.substring(1, 3), 16);
@@ -277,29 +260,24 @@ function darkenColor(hex, percentage) {
     var b = parseInt(hex.substring(5, 7), 16);
 
     if (percentage < 0) {
-        // Lighten the color: move towards white (255)
         var absPercentage = Math.abs(percentage);
         r = Math.round(r + (255 - r) * absPercentage);
         g = Math.round(g + (255 - g) * absPercentage);
         b = Math.round(b + (255 - b) * absPercentage);
     } else {
-        // Darken the color: move towards black (0)
         r = Math.round(r * (1 - percentage));
         g = Math.round(g * (1 - percentage));
         b = Math.round(b * (1 - percentage));
     }
 
-    // Ensure RGB values stay within the valid range [0, 255]
     r = Math.max(0, Math.min(255, r));
     g = Math.max(0, Math.min(255, g));
     b = Math.max(0, Math.min(255, b));
 
-    // Convert back to hex string and ensure two digits for each component
     var result = "#" +
                  ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
     return result;
 }
-
 
 function setThemeColor(color) {
     if (!db) initDatabase(LocalStorage);
@@ -340,7 +318,6 @@ function updateNotesImportedCount(count) {
     console.log("DB_MGR: Notes imported count updated to: " + count);
 }
 
-
 function addNoteInternal(tx, pinned, title, content, color, deleted, archived, checksum) {
     if (deleted === undefined || deleted === null) {
         deleted = 0;
@@ -373,7 +350,6 @@ function addTagToNoteInternal(tx, noteId, tagName) {
         [noteId, tagId]
     );
 }
-
 
 function addTagToNote(noteId, tagName) {
     if (!db) initDatabase(LocalStorage);
@@ -418,7 +394,6 @@ function getDeletedNotes() {
     if (!db) initDatabase(LocalStorage);
     var notes = [];
     db.readTransaction(function(tx) {
-        // Fetch all notes currently marked as deleted
         var result = tx.executeSql('SELECT * FROM Notes WHERE deleted = 1 ORDER BY updated_at DESC');
         console.log("DB_MGR: getDeletedNotes found " + result.rows.length + " deleted notes.");
         for (var i = 0; i < result.rows.length; i++) {
@@ -452,11 +427,10 @@ function getArchivedNotes() {
     return notes;
 }
 
-
 function getTagsForNote(tx_param, noteId) {
     var tempTags = [];
-    if (!tx_param) { // If a transaction object isn't explicitly passed, use a readTransaction
-        if (!db) initDatabase(LocalStorage); // Ensure DB is initialized
+    if (!tx_param) {
+        if (!db) initDatabase(LocalStorage);
         db.readTransaction(function(tx) {
             var res = tx.executeSql(
                 'SELECT t.name FROM Tags t JOIN NoteTags nt ON t.id = nt.tag_id WHERE nt.note_id = ?',
@@ -466,7 +440,7 @@ function getTagsForNote(tx_param, noteId) {
                 tempTags.push(res.rows.item(i).name);
             }
         });
-    } else { // Use the provided transaction object
+    } else {
         var res = tx_param.executeSql(
             'SELECT t.name FROM Tags t JOIN NoteTags nt ON t.id = nt.tag_id WHERE nt.note_id = ?',
             [noteId]
@@ -577,7 +551,7 @@ function deleteNote(id) {
         var res = tx.executeSql('SELECT * FROM Notes WHERE id = ?', [id]);
         if (res.rows.length > 0) {
             var noteData = res.rows.item(0);
-            noteData.deleted = 1; // Устанавливаем новое состояние
+            noteData.deleted = 1;
             noteData.archived = 0;
             noteData.tags = getTagsForNote(tx, id);
 
@@ -598,7 +572,7 @@ function restoreNote(id) {
         var res = tx.executeSql('SELECT * FROM Notes WHERE id = ?', [id]);
         if (res.rows.length > 0) {
             var noteData = res.rows.item(0);
-            noteData.deleted = 0; // Восстанавливаем состояние
+            noteData.deleted = 0;
             noteData.archived = 0;
             noteData.tags = getTagsForNote(tx, id);
 
@@ -638,7 +612,7 @@ function unarchiveNote(id) {
         var res = tx.executeSql('SELECT * FROM Notes WHERE id = ?', [id]);
         if (res.rows.length > 0) {
             var noteData = res.rows.item(0);
-            noteData.archived = 0; // Восстанавливаем состояние
+            noteData.archived = 0;
             noteData.tags = getTagsForNote(tx, id);
 
             var newChecksum = generateNoteChecksum(noteData);
@@ -667,9 +641,9 @@ function permanentlyDeleteAllNotes() {
         return;
     }
     db.transaction(function(tx) {
-        tx.executeSql('DELETE FROM NoteTags'); // Delete all note-tag associations
-        tx.executeSql('DELETE FROM Notes');    // Delete all notes
-        tx.executeSql('DELETE FROM Tags');     // Delete all tags
+        tx.executeSql('DELETE FROM NoteTags');
+        tx.executeSql('DELETE FROM Notes');
+        tx.executeSql('DELETE FROM Tags');
         console.log("DB_MGR: All notes and associated tags permanently deleted.");
     });
 }
@@ -680,7 +654,6 @@ function archiveAllNotes() {
         return;
     }
     db.transaction(function(tx) {
-        // Archive notes that are not deleted and not already archived
         tx.executeSql('UPDATE Notes SET archived = 1, updated_at = CURRENT_TIMESTAMP WHERE deleted = 0 AND archived = 0');
         console.log("DB_MGR: All eligible notes moved to archive.");
     });
@@ -692,7 +665,6 @@ function moveAllNotesToTrash() {
         return;
     }
     db.transaction(function(tx) {
-        // Move all notes to trash. Unarchive if they were archived.
         tx.executeSql('UPDATE Notes SET deleted = 1, archived = 0, updated_at = CURRENT_TIMESTAMP WHERE deleted = 0');
         console.log("DB_MGR: All eligible notes moved to trash.");
     });
@@ -705,22 +677,20 @@ function permanentlyDeleteExpiredDeletedNotes() {
     }
 
     var deletedCount = 0;
-    var now = new Date(); // Current date and time
+    var now = new Date();
     var thresholdDate = new Date(now);
-    thresholdDate.setDate(now.getDate() - 30); // 30 days ago
+    thresholdDate.setDate(now.getDate() - 30);
 
     db.transaction(function(tx) {
-        // Select notes in trash that are older than 30 days based on updated_at (deletion date)
         var result = tx.executeSql(
             'SELECT id, updated_at FROM Notes WHERE deleted = 1'
         );
 
         for (var i = 0; i < result.rows.length; i++) {
             var note = result.rows.item(i);
-            var noteDeletionDate = new Date(note.updated_at); // Parse the deletion timestamp
+            var noteDeletionDate = new Date(note.updated_at);
 
             if (noteDeletionDate < thresholdDate) {
-                // If the note's deletion date is older than the threshold, delete it permanently
                 tx.executeSql('DELETE FROM NoteTags WHERE note_id = ?', [note.id]);
                 tx.executeSql('DELETE FROM Notes WHERE id = ?', [note.id]);
                 deletedCount++;
@@ -731,7 +701,6 @@ function permanentlyDeleteExpiredDeletedNotes() {
     console.log("DB_MGR: Cleaned up " + deletedCount + " expired deleted notes.");
     return deletedCount;
 }
-
 
 function togglePinned(id, pinned) {
     if (!db) initDatabase(LocalStorage);
@@ -813,70 +782,6 @@ function permanentlyDeleteNotes(ids) {
     });
 }
 
-
-//function permanentlyDeleteNotes(ids) {
-//    if (!db) {
-//        console.error("DB_MGR: Database not initialized. Cannot permanently delete notes.");
-//        return;
-//    }
-//    if (ids.length === 0) {
-//        console.warn("DB_MGR: No IDs provided for permanent deletion. Skipping.");
-//        return;
-//    }
-
-//    db.transaction(function(tx) {
-//        var placeholders = ids.map(function() { return '?'; }).join(',');
-
-//        tx.executeSql(
-//            "DELETE FROM NoteTags WHERE note_id IN (" + placeholders + ")",
-//            ids,
-//            function(tx, results) { // <-- results parameter is CRITICAL here
-//                console.log("DB_MGR: NoteTags DELETE successful. Rows affected: " + results.rowsAffected);
-//                if (results.rowsAffected === 0 && ids.length > 0) {
-//                    console.warn("DB_MGR: WARNING: NoteTags DELETE affected 0 rows for IDs:", ids);
-//                }
-
-//                tx.executeSql(
-//                    "DELETE FROM Notes WHERE id IN (" + placeholders + ")",
-//                    ids,
-//                    function(tx, results) { // <-- results parameter is CRITICAL here
-//                        console.log("DB_MGR: Notes DELETE successful. Rows affected: " + results.rowsAffected);
-//                        if (results.rowsAffected === 0 && ids.length > 0) {
-//                            console.warn("DB_MGR: WARNING: Notes DELETE affected 0 rows for IDs:", ids + ". Notes may still exist!");
-//                        }
-//                        console.log("DB_MGR: Successfully permanently deleted Notes with IDs:", ids);
-
-//                        // You can keep checkIfNotesExist(ids); here if you want to verify after all other logs.
-//                        // checkIfNotesExist(ids);
-
-//                    },
-//                    function(tx, error) { // <-- ERROR CALLBACK for Notes DELETE
-//                        console.error("DB_MGR: ERROR: Failed to permanently delete Notes (IDs: " + ids + "): " + error.message);
-//                        // checkIfNotesExist(ids);
-//                    }
-//                );
-//            },
-//            function(tx, error) { // <-- ERROR CALLBACK for NoteTags DELETE
-//                console.error("DB_MGR: ERROR: Failed to delete NoteTags (IDs: " + ids + "): " + error.message);
-//                // checkIfNotesExist(ids);
-//            }
-//        );
-//    }, function(error) { // <-- ERROR CALLBACK for entire transaction
-//        console.error("DB_MGR: ERROR: Transaction failed during permanent deletion: " + error.message);
-//        // checkIfNotesExist(ids);
-//    }, function() {
-//        console.log("DB_MGR: Permanent deletion transaction block initiated. Check individual SQL logs for success/failure.");
-//    });
-//}
-
-
-
-
-
-
-// Функция checkIfNotesExist остается такой же, как в предыдущем ответе.
-
-// Новая функция для проверки наличия заметок
 function checkIfNotesExist(idsToCheck) {
     if (!db) {
         console.error("DB_MGR: Database not initialized. Cannot check for note existence.");
@@ -909,12 +814,9 @@ function checkIfNotesExist(idsToCheck) {
     });
 }
 
-
-
-
 function saveSortSettings(sortBy, sortOrder, colorOrderArray) {
     if (!db) return;
-    var colorOrderString = JSON.stringify(colorOrderArray); // Превращаем массив в строку
+    var colorOrderString = JSON.stringify(colorOrderArray);
     db.transaction(function(tx) {
         tx.executeSql('UPDATE AppSettings SET sort_by = ?, sort_order = ?, color_sort_order = ? WHERE id = 1', [sortBy, sortOrder, colorOrderString]);
         console.log("DB_MGR: Sort settings saved.", sortBy, sortOrder, colorOrderString);
@@ -931,7 +833,6 @@ function loadSortSettings() {
             settings.sortBy = row.sort_by || "updated_at";
             settings.sortOrder = row.sort_order || "desc";
             try {
-                // Превращаем строку обратно в массив
                 settings.colorOrder = JSON.parse(row.color_sort_order) || [];
             } catch (e) {
                 settings.colorOrder = [];
@@ -941,19 +842,6 @@ function loadSortSettings() {
     console.log("DB_MGR: Sort settings loaded.", JSON.stringify(settings));
     return settings;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-// DatabaseManager.js
 
 function searchNotes(searchText, selectedTagNames, sortBy, sortOrder, customColorOrder) {
     if (!db) return [];
@@ -971,9 +859,6 @@ function searchNotes(searchText, selectedTagNames, sortBy, sortOrder, customColo
         var params = [];
         var whereConditions = ['N.deleted = 0', 'N.archived = 0'];
 
-        // --- ИСПРАВЛЕНИЕ НАЧАЛО ---
-        // Всегда добавляем условие поиска по тексту в основной массив условий,
-        // чтобы оно корректно применялось вместе с тегами.
         if (searchText) {
             var searchTerm = '%' + searchText + '%';
             whereConditions.push('(N.title LIKE ? OR N.content LIKE ?)');
@@ -986,18 +871,14 @@ function searchNotes(searchText, selectedTagNames, sortBy, sortOrder, customColo
             whereConditions.push('T.name IN (' + tagPlaceholders + ')');
             params = params.concat(selectedTagNames);
 
-            // Теперь, когда все условия в массиве, строим единый WHERE
             query += 'WHERE ' + whereConditions.join(' AND ') + ' ';
 
-            // И добавляем условие для фильтрации по ВСЕМ тегам
             query += 'GROUP BY N.id HAVING COUNT(DISTINCT T.id) = ' + selectedTagNames.length + ' ';
         } else {
-            // Если тегов нет, просто используем условия из массива
             if (whereConditions.length > 0) {
                 query += 'WHERE ' + whereConditions.join(' AND ') + ' ';
             }
         }
-        // --- ИСПРАВЛЕНИЕ КОНЕЦ ---
 
         var orderByClause = "";
         var sortDirection = (sortOrder && sortOrder.toLowerCase() === 'asc') ? "ASC" : "DESC";
@@ -1048,8 +929,6 @@ function searchNotes(searchText, selectedTagNames, sortBy, sortOrder, customColo
     return notes;
 }
 
-
-
 function getUniqueNoteColors() {
     if (!db) return [];
     var colors = [];
@@ -1059,7 +938,6 @@ function getUniqueNoteColors() {
             colors.push(result.rows.item(i).color);
         }
     });
-    // ДОБАВЬТЕ ЭТУ СТРОКУ
     console.log("DB_MGR: getUniqueNoteColors() found colors:", JSON.stringify(colors));
     return colors;
 }
@@ -1135,14 +1013,12 @@ function simpleStringHash(str) {
     return (hash >>> 0).toString(16);
 }
 
-
 function generateNoteChecksum(note) {
     if (!note) {
         console.error("DB_MGR: generateNoteChecksum received null/undefined note.");
         return null;
     }
 
-    // Ensure all properties exist, even if empty, for consistent hashing
     var title = note.title || "";
     var content = note.content || "";
     var color = note.color || defaultNoteColor;
@@ -1150,14 +1026,10 @@ function generateNoteChecksum(note) {
     var archived = note.archived ? "1" : "0";
     var deleted = note.deleted ? "1" : "0";
 
-    // Sort tags for consistent checksum generation
-    //var sortedTags = (note.tags && Array.isArray(note.tags)) ? note.tags.slice().sort().join(';') : '';
-
     var data = title + content + color +
                "|pinned:" + pinned +
                "|archived:" + archived +
-               "|deleted:" + deleted; //+
-               //"|tags:" + sortedTags;
+               "|deleted:" + deleted;
 
     var checksum = simpleStringHash(data);
     return checksum;
@@ -1179,17 +1051,15 @@ function getNotesForExport(successCallback, errorCallback) {
     db.transaction(function(tx) {
         try {
             var notes = [];
-            // Select all notes that are not marked as deleted
             var res = tx.executeSql('SELECT id, pinned, title, content, color, created_at, updated_at, deleted, archived, checksum FROM Notes WHERE deleted = 0 ORDER BY updated_at DESC');
             console.log("DB_MGR_DEBUG: Запрос заметок выполнен. Найдено строк: " + res.rows.length);
 
             for (var i = 0; i < res.rows.length; i++) {
                 var note = res.rows.item(i);
-                note.tags = []; // Initialize an empty array for tags for each note
+                note.tags = [];
                 notes.push(note);
             }
 
-            // If there are no notes, return an empty array immediately
             if (notes.length === 0) {
                 console.log("DB_MGR_DEBUG: Нет заметок для экспорта. Вызываем successCallback с пустым массивом.");
                 if (successCallback) {
@@ -1198,7 +1068,6 @@ function getNotesForExport(successCallback, errorCallback) {
                 return;
             }
 
-            // Now get tags for each note synchronously within the transaction
             console.log("DB_MGR_DEBUG: Начинаем обработку тегов для " + notes.length + " заметок.");
             for (var j = 0; j < notes.length; j++) {
                 var currentNote = notes[j];
@@ -1212,7 +1081,6 @@ function getNotesForExport(successCallback, errorCallback) {
                     }
                 } catch (tagSqlError) {
                     console.error("DB_MGR_DEBUG: Ошибка SQL при получении тегов для заметки ID " + currentNote.id + ": " + tagSqlError.message);
-                    // Continue, but the note might be without tags
                 }
             }
             console.log("DB_MGR_DEBUG: Все теги обработаны.");
@@ -1223,14 +1091,12 @@ function getNotesForExport(successCallback, errorCallback) {
                 successCallback(notes);
             }
         } catch (mainSqlError) {
-            // Error at the level of executing the main SQL query
             console.error("DB_MGR_DEBUG: Ошибка выполнения основного SQL-запроса для заметок: " + mainSqlError.message);
             if (errorCallback) {
                 errorCallback(mainSqlError);
             }
         }
     }, function(error) {
-        // Transaction error handling
         console.error("DB_MGR_DEBUG: Ошибка транзакции при получении заметок для экспорта: " + error.message);
         if (errorCallback) {
             errorCallback(error);
@@ -1241,7 +1107,6 @@ function getNotesForExport(successCallback, errorCallback) {
 function addImportedNote(note, tx) {
     console.log("DB_MGR_DEBUG: addImportedNote: Processing note '${note.title}' (ID: ${note.id || 'new'}) for import.");
 
-    // Ensure defaults for note properties if they are undefined in the imported data
     var notePinned = note.pinned === undefined ? 0 : note.pinned;
     var noteColor = note.color || defaultNoteColor;
     var noteDeleted = note.deleted === undefined ? 0 : note.deleted;
@@ -1249,7 +1114,6 @@ function addImportedNote(note, tx) {
     var noteTitle = note.title || "";
     var noteContent = note.content || "";
 
-    // Generate checksum with the *current* state of the note, including its (potentially modified) tags array
     var importedNoteChecksum = generateNoteChecksum({
         title: noteTitle,
         content: noteContent,
@@ -1257,7 +1121,6 @@ function addImportedNote(note, tx) {
         pinned: notePinned,
         deleted: noteDeleted,
         archived: noteArchived,
-        //tags: note.tags // Use the tags array already populated by importNotes
     });
 
     if (!importedNoteChecksum) {
@@ -1281,7 +1144,6 @@ function addImportedNote(note, tx) {
         return null;
     }
 
-    // Process all tags that are now part of the 'note.tags' array (including the new default tag)
     if (note.tags && Array.isArray(note.tags) && note.tags.length > 0) {
         console.log("DB_MGR_DEBUG: addImportedNote: Adding tags for note ID ${noteId}: ${JSON.stringify(note.tags)}");
         for (var j = 0; j < note.tags.length; j++) {
@@ -1324,8 +1186,8 @@ function importNotes(importedNotes, optionalTagForImport, successCallback, error
 
 
     db.transaction(function(tx) {
-        var existingNotesByChecksum = {}; // Stores {checksum: note_id} for local notes
-        var existingNoteIds = {}; // Stores {id: true} for local note IDs (using object as hash map)
+        var existingNotesByChecksum = {};
+        var existingNoteIds = {};
 
         try {
             var result = tx.executeSql('SELECT id, checksum FROM Notes');
@@ -1334,7 +1196,7 @@ function importNotes(importedNotes, optionalTagForImport, successCallback, error
                 if (existingNote.checksum) {
                     existingNotesByChecksum[existingNote.checksum] = existingNote.id;
                 }
-                existingNoteIds[existingNote.id] = true; // Use the ID as a key
+                existingNoteIds[existingNote.id] = true;
             }
             console.log("DB_MGR_IMPORT: [INIT] Found " + Object.keys(existingNotesByChecksum).length + " existing notes by checksum.");
             console.log("DB_MGR_IMPORT: [INIT] Total " + Object.keys(existingNoteIds).length + " existing note IDs: " + JSON.stringify(Object.keys(existingNoteIds)));
@@ -1348,15 +1210,14 @@ function importNotes(importedNotes, optionalTagForImport, successCallback, error
             var noteToImport = importedNotes[z];
             console.log("\nDB_MGR_IMPORT: --- Processing Note #" + (z + 1) + ": '" + (noteToImport.title || "No Title") + "' ---");
 
-            // Ensure imported note has proper defaults for checksum generation and DB insertion
             noteToImport.pinned = noteToImport.pinned === undefined ? 0 : noteToImport.pinned;
             noteToImport.deleted = noteToImport.deleted === undefined ? 0 : noteToImport.deleted;
             noteToImport.archived = noteToImport.archived === undefined ? 0 : noteToImport.archived;
             noteToImport.color = noteToImport.color || defaultNoteColor;
             if (!noteToImport.tags) {
                 noteToImport.tags = [];
-            } else if (!Array.isArray(noteToImport.tags)) { // Ensure it's an array if it exists
-                 noteToImport.tags = [noteToImport.tags]; // Wrap in array if it's a single string
+            } else if (!Array.isArray(noteToImport.tags)) {
+                 noteToImport.tags = [noteToImport.tags];
             }
 
             var generatedChecksumForImportedNote = generateNoteChecksum(noteToImport);
@@ -1369,41 +1230,31 @@ function importNotes(importedNotes, optionalTagForImport, successCallback, error
                 continue;
             }
 
-            var importedFileId = noteToImport.id; // This is the ID from the JSON/CSV
+            var importedFileId = noteToImport.id;
 
-            // Check if an identical note (by checksum) already exists locally
             var existingNoteIdByChecksum = existingNotesByChecksum[generatedChecksumForImportedNote];
 
             console.log("DB_MGR_IMPORT: Comparison - importedFileId: " + importedFileId + " (type: " + typeof importedFileId + ")");
             console.log("DB_MGR_IMPORT: Comparison - existingNoteIdByChecksum (matching checksum): " + existingNoteIdByChecksum);
 
             if (existingNoteIdByChecksum !== undefined) {
-                // Scenario 1: An identical note (by checksum) already exists. Skip.
                 console.log("DB_MGR_IMPORT: [SKIPPED] Note '" + noteToImport.title + "' (checksum: '" + generatedChecksumForImportedNote + "') is identical to existing local note ID: " + existingNoteIdByChecksum + ".");
                 skippedCount++;
             } else {
-                // Scenario 2: No identical note by checksum. Add it as a new note.
-                // This is the path where a tag *should* be added if there's a conflict or user input.
                 var tagToAdd = null;
                 console.log("DB_MGR_IMPORT: No exact checksum match found. Considering adding as new note.");
 
-                // Keep this check to log if an ID conflict was detected for debugging,
-                // but its direct influence on 'tagToAdd' changes below.
                 var isConflictById = (importedFileId !== undefined && existingNoteIds[importedFileId]);
                 console.log("DB_MGR_IMPORT: Conflict check - importedFileId exists: " + (importedFileId !== undefined) + ", importedFileId in existingNoteIds map: " + existingNoteIds[importedFileId] + ", Combined isConflictById: " + isConflictById);
 
                 if (optionalTagForImport && optionalTagForImport.trim() !== '') {
-                    // Always prioritize user-defined tag if present
                     tagToAdd = optionalTagForImport.trim();
                     console.log("DB_MGR_IMPORT: [ADDING NEW - USER TAG PATH] User provided an optional tag. Tag will be: '" + tagToAdd + "'.");
                 } else {
-                    // If no user tag, then apply the auto-generated tag for *any* newly added note
-                    // (since it wasn't skipped by checksum, it's considered "new")
-                    tagToAdd = autoGeneratedConflictTag; // Renamed to a more general "import tag"
+                    tagToAdd = autoGeneratedConflictTag;
                     console.log("DB_MGR_IMPORT: [ADDING NEW - AUTO-GENERATED TAG PATH] No optional tag. Auto-generated tag will be: '" + tagToAdd + "'.");
                 }
 
-                // Add the determined tag to the note's tags array before passing to addImportedNote
                 if (tagToAdd) {
                     if (noteToImport.tags.indexOf(tagToAdd) === -1) {
                         noteToImport.tags.push(tagToAdd);
@@ -1415,7 +1266,6 @@ function importNotes(importedNotes, optionalTagForImport, successCallback, error
                     console.log("DB_MGR_IMPORT: 'tagToAdd' is null. No tag pushed to noteToImport.tags.");
                 }
 
-                // Call addImportedNote, which will now use noteToImport.tags directly
                 var newNoteDbId = addImportedNote(noteToImport, tx);
                 if (newNoteDbId !== null) {
                     importedCount++;
@@ -1553,14 +1403,13 @@ function setSetting(columnName, value) {
     });
 }
 
-
 function getNoteById(noteId) {
     if (!db) {
         console.error("DB_MGR: Database not initialized when trying to get note by ID:", noteId);
         return null;
     }
     var note = null;
-    db.transaction(function(tx) { // Use transaction for consistent read, though readTransaction is often sufficient for pure reads
+    db.transaction(function(tx) {
         var rs = tx.executeSql('SELECT id, title, content, pinned, created_at, updated_at, color FROM Notes WHERE id = ?', [noteId]);
         if (rs.rows.length > 0) {
             var row = rs.rows.item(0);
@@ -1568,19 +1417,18 @@ function getNoteById(noteId) {
                 id: row.id,
                 title: row.title,
                 content: row.content,
-                pinned: row.pinned === 1, // Convert integer to boolean
+                pinned: row.pinned === 1,
                 created_at: row.created_at,
                 updated_at: row.updated_at,
                 color: row.color
             };
-            // CORRECTED: Fetch tags by joining NoteTags and Tags tables
             var tagRs = tx.executeSql(
                 'SELECT T.name FROM Tags T JOIN NoteTags NT ON T.id = NT.tag_id WHERE NT.note_id = ?',
                 [noteId]
             );
             var tags = [];
             for (var i = 0; i < tagRs.rows.length; i++) {
-                tags.push(tagRs.rows.item(i).name); // Get the 'name' from the Tags table
+                tags.push(tagRs.rows.item(i).name);
             }
             note.tags = tags;
         }
@@ -1588,7 +1436,6 @@ function getNoteById(noteId) {
     console.log("DB_MGR: getNoteById for ID " + noteId + " returned:", JSON.stringify(note));
     return note;
 }
-
 
 function bulkPinNotes(noteIds) {
     if (!db) {
@@ -1603,7 +1450,6 @@ function bulkPinNotes(noteIds) {
     console.log("DB: Bulk pinned notes with IDs:", JSON.stringify(noteIds));
 }
 
-// Function to bulk unpin notes
 function bulkUnpinNotes(noteIds) {
     if (!db) {
         console.error("DB_MGR: Database not initialized", key);
@@ -1617,33 +1463,26 @@ function bulkUnpinNotes(noteIds) {
     console.log("DB: Bulk unpinned notes with IDs:", JSON.stringify(noteIds));
 }
 
-function bulkUpdateNoteColor(noteIds, newColor) { // Parameter is noteIds
-    if (!noteIds || noteIds.length === 0) { // Use noteIds here
+function bulkUpdateNoteColor(noteIds, newColor) {
+    if (!noteIds || noteIds.length === 0) {
         console.warn("DB_MGR: No IDs provided for bulkUpdateNoteColor.");
         return;
     }
-    if (!db) initDatabase(LocalStorage); // Ensure DB is initialized
+    if (!db) initDatabase(LocalStorage);
 
     db.transaction(function(tx) {
-        // Iterate through each note ID and update its color and checksum
-        for (var i = 0; i < noteIds.length; i++) { // Use noteIds here
+        for (var i = 0; i < noteIds.length; i++) {
             var noteId = noteIds[i];
 
-            // 1. Get the current note data to generate a correct checksum
-            // This assumes getNoteById exists and fetches all necessary fields (title, content, tags, etc.)
-            // IMPORTANT: getNoteById must be available in this scope (e.g., defined before this function)
             var currentNote = getNoteById(noteId);
             if (currentNote) {
-                // Temporarily update the color for checksum generation
                 currentNote.color = newColor;
-                currentNote.pinned = currentNote.pinned ? 1 : 0; // Ensure boolean is converted back to int for checksum consistency
+                currentNote.pinned = currentNote.pinned ? 1 : 0;
                 currentNote.archived = currentNote.archived ? 1 : 0;
                 currentNote.deleted = currentNote.deleted ? 1 : 0;
 
-                // Generate new checksum with the updated color
                 var newChecksum = generateNoteChecksum(currentNote);
 
-                // Update the note in the database
                 tx.executeSql(
                     'UPDATE Notes SET color = ?, checksum = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
                     [newColor, newChecksum, noteId]
@@ -1654,5 +1493,5 @@ function bulkUpdateNoteColor(noteIds, newColor) { // Parameter is noteIds
             }
         }
     });
-    console.log("DB_MGR: Bulk updated colors for notes with IDs:", JSON.stringify(noteIds), "to", newColor); // Use noteIds here
+    console.log("DB_MGR: Bulk updated colors for notes with IDs:", JSON.stringify(noteIds), "to", newColor);
 }

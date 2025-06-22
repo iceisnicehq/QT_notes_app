@@ -1,0 +1,30 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix="/">
+    <file>qml/Aurora_notes.qml</file>
+    <file>qml/main.qml</file>
+    <file>qml/cover/DefaultPageCover.qml</file>
+    <file>qml/components/AdaptiveButtonComponent.qml</file>
+    <file>qml/components/NavigationButtonComponent.qml</file>
+    <file>qml/components/RippleEffectComponent.qml</file>
+    <file>qml/components/ScrollBarComponent.qml</file>
+    <file>qml/components/SidePanelComponent.qml</file>
+    <file>qml/dialogs/ColorSortDialog.qml</file>
+    <file>qml/dialogs/ConfirmDialog.qml</file>
+    <file>qml/dialogs/SortDialog.qml</file>
+    <file>qml/note_cards/NoteCard.qml</file>
+    <file>qml/note_cards/TrashArchiveNoteCard.qml</file>
+    <file>qml/pages/AboutPage.qml</file>
+    <file>qml/pages/ArchivePage.qml</file>
+    <file>qml/pages/ImportExportPage.qml</file>
+    <file>qml/pages/MainPage.qml</file>
+    <file>qml/pages/NotePage.qml</file>
+    <file>qml/pages/SettingsPage.qml</file>
+    <file>qml/pages/TagEditPage.qml</file>
+    <file>qml/pages/TrashPage.qml</file>
+    <file>qml/services/DatabaseManagerService.js</file>
+    <file>qml/services/ToastManagerService.qml</file>
+    <file>qml/services/ToastService.qml</file>
+    <file>qml/icons/archive.svg</file>
+    <file>qml/icons/back.svg</file>
+    </qresource>
+</RCC>

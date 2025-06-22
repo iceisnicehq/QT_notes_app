@@ -1,4 +1,17 @@
-// /qml/dialogs/SortDialog.qml
+/* Студенты РГУ нефти и газа имени И.М. Губкина
+ * Поляков К.А., Сабиров Д.С.
+ * группы КС-22-03
+ * курсовая работа на тему "Разработка приложения для организации заметок с поддержкой тегов и поиска"
+ *
+ * /qml/dialogs/SortDialog.qml
+ * Этот файл определяет диалоговое окно для выбора параметров сортировки заметок.
+ * Пользователь может выбрать критерий сортировки (например, по дате обновления,
+ * по заголовку) и порядок (по возрастанию/убыванию). Особый пункт "по цвету"
+ * инициирует открытие отдельного диалога для настройки порядка цветов.
+ * Кнопка "Применить" отправляет сигнал sortApplied с выбранными
+ * параметрами.
+ */
+
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import "../services/DatabaseManagerService.js" as DB
@@ -85,7 +98,7 @@ Item {
                         id: adaptiveButton
                         text: modelData.text
                         anchors.centerIn: parent
-                        width: parent.width * 0.9 // Задаем ширину кнопки
+                        width: parent.width * 0.9
                         baseColor: root.dialogBackgroundColor
                         highlighted: root.currentSortBy === modelData.key
                         enabled: modelData.key !== 'color' || root.uniqueColorsInNotesCount > 1

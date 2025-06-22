@@ -1,4 +1,29 @@
-// /qml/pages/NotePage.qml
+/* Студенты РГУ нефти и газа имени И.М. Губкина
+ * Поляков К.А., Сабиров Д.С.
+ * группы КС-22-03
+ * курсовая работа на тему "Разработка приложения для организации заметок с поддержкой тегов и поиска"
+ *
+ * /qml/pages/NotePage.qml
+ * Эта страница является основной для создания, просмотра и редактирования
+ * отдельной заметки. Она обладает высокой степенью адаптивности и
+ * обрабатывает множество сценариев, включая создание новой заметки,
+ * редактирование существующей и режим "только для чтения" для заметок
+ * из архива или корзины.
+ *
+ * Ключевые функции:
+ * - Обработка взаимодействия: при попытке редактирования архивированной
+ * или удаленной заметки предлагает пользователю восстановить ее.
+ * - История изменений: реализует механизм отмены (Undo) и повтора (Redo)
+ * для текстового содержимого.
+ * - Управление свойствами: управляет заголовком, содержанием, тегами,
+ * цветом и статусом закрепления заметки.
+ * - Логика сохранения: автоматически сохраняет изменения при закрытии,
+ * создает новую заметку или удаляет пустую.
+ * - Пользовательский интерфейс: включает заголовок, нижнюю панель
+ * инструментов с кнопками действий и всплывающие панели для выбора
+ * цвета и управления тегами.
+ */
+
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.Layouts 1.1
@@ -16,71 +41,53 @@ Page {
     property int noteId: -1
     property string noteTitle: ""
     property string noteContent: ""
-    property var noteTags: [] // This property holds the tags for the current note being edited/created
+    property var noteTags: []
     property bool noteIsPinned: false
     property date noteCreationDate: new Date()
     property date noteEditDate: new Date()
     property string noteColor: "#121218"
     property bool noteModified: false
+    property bool isFromTrash: false
 
-    property bool isFromTrash: false // мое новое для режима редакта просмотра в корзине как на яблоке в заметках (проверил там)
+    property bool isArchived: false
+    property bool isDeleted: false
+    property bool isReadOnly: isArchived || isDeleted
 
-    // Properties for read-only mode, passed from calling page
-    property bool isArchived: false // True if note is opened from ArchivePage
-    property bool isDeleted: false  // True if note is opened from TrashPage
-    property bool isReadOnly: isArchived || isDeleted // Derived property for overall read-only state
-
-    // Property to track if the note was sent to trash from this page
     property bool sentToTrash: false
-    property bool sentToArchive: false // ADDED: Property to track if the note was sent to archive
+    property bool sentToArchive: false
 
-    // --- Undo/Redo Properties and Functions ---
-    // Stores snapshots of the noteContentInput text and cursor position
     property var contentHistory: []
-    property int historyIndex: -1   // Current position in the contentHistory array
-    property bool isUndoingRedoing: false // Flag to prevent history updates during undo/redo operations
+    property int historyIndex: -1
+    property bool isUndoingRedoing: false
 
-    // Properties for generic confirmation dialog (used by ConfirmDialog component)
     property bool confirmDialogVisible: false
     property string confirmDialogTitle: ""
     property string confirmDialogMessage: ""
     property string confirmButtonText: ""
-    property color confirmButtonHighlightColor: Theme.primaryColor // Default, will be overridden
-    property var onConfirmCallback: null // Function to call when user confirms
+    property color confirmButtonHighlightColor: Theme.primaryColor
+    property var onConfirmCallback: null
 
 
-    // Timer for continuous history saving
     Timer {
         id: historySaveTimer
-        interval: 1000 // Save history every 1 second
-        running: !newNotePage.isReadOnly // Only run if not in read-only mode
-        repeat: true   // Repeat continuously
+        interval: 1000
+        running: !newNotePage.isReadOnly
+        repeat: true
         onTriggered: {
-            // Only save if not currently undoing/redoing AND content has actually changed from the last saved state
             if (!newNotePage.isUndoingRedoing &&
-                newNotePage.contentHistory.length > 0 && // Ensure history exists before comparing
+                newNotePage.contentHistory.length > 0 &&
                 noteContentInput.text !== newNotePage.contentHistory[newNotePage.historyIndex].text) {
                 newNotePage.addToContentHistory(noteContentInput.text, noteContentInput.cursorPosition);
-                console.log(qsTr("History auto-saved: \"%1\" (cursor: %2)").arg(noteContentInput.text).arg(noteContentInput.cursorPosition));
+                console.log("History auto-saved: \"%1\" (cursor: %2)".arg(noteContentInput.text).arg(noteContentInput.cursorPosition));
             } else if (!newNotePage.isUndoingRedoing && newNotePage.contentHistory.length === 0) {
-                // If history is empty, and text is not empty, add initial state
                 if (noteContentInput.text !== "") {
                     newNotePage.addToContentHistory(noteContentInput.text, noteContentInput.cursorPosition);
-                    console.log(qsTr("Initial history state added by timer: \"%1\" (cursor: %2)").arg(noteContentInput.text).arg(noteContentInput.cursorPosition));
+                    console.log("Initial history state added by timer: \"%1\" (cursor: %2)".arg(noteContentInput.text).arg(noteContentInput.cursorPosition));
                 }
             }
         }
     }
 
-    /**
-     * @brief showGeneralConfirmDialog
-     * Helper function to configure and show the single ConfirmDialog component.
-     * @param message Text message for the dialog.
-     * @param callback Function to execute if the user confirms.
-     * @param title Title for the dialog (optional, uses default if not provided).
-     * @param buttonText Text for the confirm button (optional, uses default "Confirm" if not provided).
-     * @param highlightColor Highlight color for the confirm button (optional, uses default Theme.primaryColor if not provided).
-     */
     function showGeneralConfirmDialog(message, callback, title, buttonText, highlightColor) {
         newNotePage.confirmDialogMessage = message;
         newNotePage.onConfirmCallback = callback;
@@ -90,23 +97,15 @@ Page {
         newNotePage.confirmDialogVisible = true;
     }
 
-
-    /**
-     * @brief handleInteractionAttempt
-     * Checks if the note is in a state (deleted or archived) that requires user action
-     * before allowing editing or other modifications. If so, it shows a confirmation dialog.
-     * This function is intended to be called BEFORE any action that modifies the note's content or properties.
-     * @returns {boolean} True if interaction is allowed (note is editable), false otherwise.
-     */
     function handleInteractionAttempt() {
         var needsAction = newNotePage.isDeleted || newNotePage.isArchived;
         if (needsAction) {
-            newNotePage.isReadOnly = true; // Disable inputs immediately
+            newNotePage.isReadOnly = true;
 
             var message = "";
             var title = "";
             var buttonText = "";
-            var highlight = Theme.primaryColor; // Default for restore/unarchive
+            var highlight = Theme.primaryColor;
             var callbackFunction;
 
             if (newNotePage.isDeleted) {
@@ -116,12 +115,12 @@ Page {
                 callbackFunction = function() {
                     DB.restoreNote(newNotePage.noteId);
                     newNotePage.isDeleted = false;
-                    newNotePage.isReadOnly = false; // Allow editing now
+                    newNotePage.isReadOnly = false;
                     toastManager.show(qsTr("Note restored!"));
                     if (onNoteSavedOrDeleted) {
                         onNoteSavedOrDeleted();
                     }
-                    noteContentInput.forceActiveFocus(); // Give focus to content input
+                    noteContentInput.forceActiveFocus();
                 };
             } else if (newNotePage.isArchived) {
                 title = qsTr("Cannot Edit Archived Note");
@@ -130,134 +129,110 @@ Page {
                 callbackFunction = function() {
                     DB.unarchiveNote(newNotePage.noteId);
                     newNotePage.isArchived = false;
-                    newNotePage.isReadOnly = false; // Allow editing now
+                    newNotePage.isReadOnly = false;
                     toastManager.show(qsTr("Note unarchived!"));
                     if (onNoteSavedOrDeleted) {
                         onNoteSavedOrDeleted();
                     }
-                    noteContentInput.forceActiveFocus(); // Give focus to content input
+                    noteContentInput.forceActiveFocus();
                 };
             }
             newNotePage.showGeneralConfirmDialog(message, callbackFunction, title, buttonText, highlight);
-            return false; // Interaction is NOT allowed yet, dialog is shown
+            return false;
         }
         newNotePage.isReadOnly = false;
-        return true; // Interaction is allowed
+        return true;
     }
 
 
-    // Function to add content and cursor position snapshots to history
     function addToContentHistory(content, cursorPos) {
         if (newNotePage.isUndoingRedoing || newNotePage.isReadOnly) {
-            return; // Do not add to history if we are currently undoing/redoing or in read-only mode
+            return;
         }
 
-        // If new changes are made and we are not at the end of history,
-        // clear any "redoable" history.
         if (newNotePage.historyIndex < newNotePage.contentHistory.length - 1) {
             newNotePage.contentHistory.splice(newNotePage.historyIndex + 1);
         }
 
-        // Add the new content and cursor position to history
         newNotePage.contentHistory.push({ text: content, cursorPosition: cursorPos });
         newNotePage.historyIndex = newNotePage.contentHistory.length - 1;
 
-        // Limit history size to prevent excessive memory usage (e.g., last 100 changes)
-        const MAX_HISTORY_SIZE = 100; // You can adjust this value
+        const MAX_HISTORY_SIZE = 100;
         if (newNotePage.contentHistory.length > MAX_HISTORY_SIZE) {
-            newNotePage.contentHistory.shift(); // Remove the oldest entry
-            newNotePage.historyIndex--; // Adjust the index accordingly
+            newNotePage.contentHistory.shift();
+            newNotePage.historyIndex--;
         }
 
-        console.log(qsTr("Added to history: \"%1\"").arg(content), qsTr("History size: %1").arg(newNotePage.contentHistory.length), qsTr("Current index: %1").arg(newNotePage.historyIndex));
+        console.log("Added to history: \"%1\"".arg(content), "History size: %1".arg(newNotePage.contentHistory.length), "Current index: %1".arg(newNotePage.historyIndex));
     }
 
-    // Color palette for note background selection
     readonly property var colorPalette: ["#121218", "#1c1d29", "#3a2c2c", "#2c3a2c", "#2c2c3a", "#3a3a2c",
         "#43484e", "#5c4b37", "#3e4a52", "#503232", "#325032", "#323250"]
-    // Function to darken a given hex color by a percentage
 
-
-    // Actions on component completion (when page is loaded)
     Component.onCompleted: {
-        console.log(qsTr("NewNotePage opened. ReadOnly mode: %1, isArchived: %2, isDeleted: %3").arg(newNotePage.isReadOnly).arg(newNotePage.isArchived).arg(newNotePage.isDeleted));
+        console.log("NewNotePage opened. ReadOnly mode: %1, isArchived: %2, isDeleted: %3".arg(newNotePage.isReadOnly).arg(newNotePage.isArchived).arg(newNotePage.isDeleted));
         if (noteId !== -1) {
-            // If noteId is set, it's an existing note (EDIT or VIEW mode)
             noteTitleInput.text = noteTitle;
             noteContentInput.text = noteContent;
-            // Убедимся, что noteTags - это массив, если он пришел как строка
             if (typeof noteTags === 'string') {
                 newNotePage.noteTags = noteTags.split("_||_").filter(function(tag) { return tag.length > 0; });
             }
-            console.log(qsTr("NewNotePage opened in EDIT mode for ID: %1").arg(noteId));
-            console.log(qsTr("Note color on open: %1").arg(noteColor));
-            noteModified = false; // Reset modified status
+            console.log("NewNotePage opened in EDIT mode for ID: %1".arg(noteId));
+            console.log("Note color on open: %1".arg(noteColor));
+            noteModified = false;
         } else {
-            // Otherwise, it's a new note (CREATE mode)
-            noteContentInput.forceActiveFocus(); // Focus on content input
-            Qt.inputMethod.show(); // Show keyboard
-            console.log(qsTr("NewNotePage opened in CREATE mode. Default color: %1").arg(noteColor));
-            noteModified = true; // New note is inherently modified
+            noteContentInput.forceActiveFocus();
+            Qt.inputMethod.show();
+            console.log("NewNotePage opened in CREATE mode. Default color: %1".arg(noteColor));
+            noteModified = true;
         }
-        // Initialize history with the current note content and cursor position after all initial setup
-        // Only if not in read-only mode
         if (!newNotePage.isReadOnly) {
             newNotePage.addToContentHistory(noteContentInput.text, noteContentInput.cursorPosition);
-            console.log(qsTr("Initial history state: Index %1, History: %2").arg(newNotePage.historyIndex).arg(JSON.stringify(newNotePage.contentHistory)));
+            console.log("Initial history state: Index %1, History: %2".arg(newNotePage.historyIndex).arg(JSON.stringify(newNotePage.contentHistory)));
         } else {
-            console.log(qsTr("Note in read-only mode, history not initialized."));
+            console.log("Note in read-only mode, history not initialized.");
         }
     }
 
-    // Actions on component destruction (when page is closed)
     Component.onDestruction: {
-        console.log(qsTr("NewNotePage being destroyed. Attempting to save/delete note."));
+        console.log("NewNotePage being destroyed. Attempting to save/delete note.");
         var trimmedTitle = noteTitleInput.text.trim();
         var trimmedContent = noteContentInput.text.trim();
 
-        // MODIFIED: Only save if not in read-only mode and not explicitly sent to trash/archive
         if (newNotePage.isReadOnly) {
-            console.log(qsTr("Debug: In read-only mode. Skipping save/delete on destruction."));
+            console.log("Debug: In read-only mode. Skipping save/delete on destruction.");
         } else if (sentToTrash || sentToArchive) {
-            // If note was explicitly sent to trash or archive, do nothing on destruction
-            console.log(qsTr("Debug: Note already sent to trash/archive. Skipping save/delete on destruction."));
+            console.log("Debug: Note already sent to trash/archive. Skipping save/delete on destruction.");
         } else if (trimmedTitle === "" && trimmedContent === "" && newNotePage.noteTags.length === 0 && !newNotePage.noteIsPinned) {
-            // If note is empty (title, content, tags, pinned status)
             if (noteId !== -1) {
-                // If it was an existing note and now empty, permanently delete it
                 DB.permanentlyDeleteNote(noteId);
-                console.log(qsTr("Debug: Empty existing note permanently deleted with ID: %1").arg(noteId));
+                console.log("Debug: Empty existing note permanently deleted with ID: %1".arg(noteId));
             } else {
-                // If it was a new empty note, simply don't save it
-                console.log(qsTr("Debug: New empty note not saved."));
+                console.log("Debug: New empty note not saved.");
             }
         } else {
-            // If note has content and is editable
             if (noteId === -1) {
-                // If it's a new note, add it to DB
                 newNotePage.noteTitle = noteTitleInput.text;
                 newNotePage.noteContent = noteContentInput.text;
                 if (newNotePage.noteTitle === "" && newNotePage.noteContent === "") {
-                    console.log(qTr("Debug: New empty note not saved."))
+                    console.log("Debug: New empty note not saved.")
                 }
                 else {
                     var newId = DB.addNote(noteIsPinned, newNotePage.noteTitle, newNotePage.noteContent, noteTags, noteColor);
-                    console.log(qsTr("Debug: New note added with ID: %1, Color: %2, Tags: %3").arg(newId).arg(noteColor).arg(JSON.stringify(noteTags)));
+                    console.log("Debug: New note added with ID: %1, Color: %2, Tags: %3".arg(newId).arg(noteColor).arg(JSON.stringify(noteTags)));
                 }
            } else {
-                // If it's an existing note, update if modified
                 if (noteModified) {
                     newNotePage.noteTitle = noteTitleInput.text;
                     newNotePage.noteContent = noteContentInput.text;
-                    newNotePage.noteEditDate = new Date(); // Update edit date
+                    newNotePage.noteEditDate = new Date();
                     DB.updateNote(noteId, noteIsPinned, newNotePage.noteTitle, newNotePage.noteContent, noteTags, noteColor);
-                    console.log(qsTr("Debug: Note updated with ID: %1, Color: %2, Tags: %3").arg(noteId).arg(noteColor).arg(JSON.stringify(noteTags)));
+                    console.log("Debug: Note updated with ID: %1, Color: %2, Tags: %3".arg(noteId).arg(noteColor).arg(JSON.stringify(noteTags)));
                 } else {
-                    console.log(qsTr("Debug: Note with ID: %1 not modified, skipping update.").arg(noteId));
+                    console.log("Debug: Note with ID: %1 not modified, skipping update.".arg(noteId));
                 }
             }
         }
-        // Call callback function if provided
         if (onNoteSavedOrDeleted) {
             onNoteSavedOrDeleted();
         }
@@ -267,12 +242,11 @@ Page {
         id: toastManager
     }
 
-    // --- Header Section ---
     Rectangle {
         id: header
         width: parent.width
         height: Theme.itemSizeMedium
-        color: newNotePage.noteColor // Header color matches note color
+        color: newNotePage.noteColor
         anchors.top: parent.top
         z: 2
         Column {
@@ -284,7 +258,7 @@ Page {
                 color: "#e8eaed"
             }
             Column {
-                visible: newNotePage.noteId !== -1 // Only visible in edit mode
+                visible: newNotePage.noteId !== -1
                 anchors.horizontalCenter: parent.horizontalCenter
                 Label {
                     text: qsTr("Created: %1").arg(Qt.formatDateTime(newNotePage.noteCreationDate, "dd.MM.yyyy - hh:mm"))
@@ -293,7 +267,6 @@ Page {
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
                 Label {
-                    // Determine the prefix based on the newNotePage properties
                     property string statusPrefix: {
                         if (newNotePage.isDeleted) {
                             return qsTr("Deleted: %1");
@@ -304,7 +277,6 @@ Page {
                         }
                     }
 
-                    // Use the determined prefix with the formatted date
                     text: statusPrefix.arg(Qt.formatDateTime(newNotePage.noteEditDate, "dd.MM.yyyy - hh:mm"))
                     font.pixelSize: Theme.fontSizeExtraSmall * 0.7
                     color: Theme.secondaryColor
@@ -313,7 +285,6 @@ Page {
 
             }
         }
-        // Close/Check button
         Item {
             width: Theme.fontSizeExtraLarge * 1.1
             height: Theme.fontSizeExtraLarge * 1.1
@@ -322,16 +293,15 @@ Page {
             RippleEffectComponent { id: backRipple }
             Icon {
                 id: closeButton
-                // Dynamic source based on note status and content, and read-only mode
                 source: {
-                        if (newNotePage.noteId === -1) { // If it's a new note
+                        if (newNotePage.noteId === -1) {
                         if (noteTitleInput.text.trim() === "" && noteContentInput.text.trim() === "") {
-                            return "../icons/close.svg"; // New and empty: show close
+                            return "../icons/close.svg";
                         } else {
-                            return "../icons/check.svg"; // New and has content: show check
+                            return "../icons/check.svg";
                         }
                     } else {
-                        return "../icons/back.svg"; // Existing note: always show back
+                        return "../icons/back.svg";
                     }
                 }
                 anchors.centerIn: parent
@@ -342,14 +312,11 @@ Page {
                 anchors.fill: parent
                 onPressed: backRipple.ripple(mouseX, mouseY)
                 onClicked: {
-                        // For new note with content or existing modified note, save on pop if not read-only
-                        // The onDestruction handler will take care of saving
                         pageStack.pop();
 
                 }
             }
         }
-        // Pin button
         Item {
             width: Theme.fontSizeExtraLarge * 1.1
             height: Theme.fontSizeExtraLarge * 1.1
@@ -362,16 +329,15 @@ Page {
                 anchors.centerIn: parent
                 width: parent.width
                 height: parent.height
-                // Visually disable pin button in read-only mode
-                opacity: 1.0 // Always visible
-                color: newNotePage.isReadOnly ? Theme.secondaryColor : Theme.primaryColor // Color changes
+                opacity: 1.0
+                color: newNotePage.isReadOnly ? Theme.secondaryColor : Theme.primaryColor
             }
             MouseArea {
                 anchors.fill: parent
-                enabled: true // Always enabled to allow showing dialog
+                enabled: true
                 onPressed: pinRipple.ripple(mouseX, mouseY)
                 onClicked: {
-                    if (handleInteractionAttempt()) { // Check read-only state and show dialog if needed
+                    if (handleInteractionAttempt()) {
                         noteIsPinned = !noteIsPinned;
                         newNotePage.noteModified = true;
                         var msg = noteIsPinned ? qsTr("The note was pinned") : qsTr("The note was unpinned")
@@ -380,51 +346,46 @@ Page {
                 }
             }
         }
-        // DUPLICATE Button - Added next to Pin button
         Item {
             width: Theme.fontSizeExtraLarge * 1.1
             height: Theme.fontSizeExtraLarge * 1.1
             clip: false
-            // Anchor to the left of the pin button, with some margin
             anchors { right: pinIconButton.parent.left; verticalCenter: parent.verticalCenter; rightMargin: Theme.paddingMedium }
             RippleEffectComponent { id: duplicateRipple }
             Icon {
                 id: duplicateIconButton
-                source: "../icons/copy.svg" // Assuming a copy icon exists in your resources
+                source: "../icons/copy.svg"
                 anchors.centerIn: parent
                 width: parent.width
                 height: parent.height
-                // Visually disable if new note
-                opacity: (newNotePage.noteId !== -1) ? 1.0 : 0.5 // Always visible, opacity changes
+                opacity: (newNotePage.noteId !== -1) ? 1.0 : 0.5
                 color: (newNotePage.noteId !== -1) ? (newNotePage.isReadOnly ? Theme.secondaryColor : Theme.primaryColor) : Theme.secondaryColor
             }
             MouseArea {
                 anchors.fill: parent
-                enabled: newNotePage.noteId !== -1 // Only enabled if it's an existing note
+                enabled: newNotePage.noteId !== -1
                 onPressed: duplicateRipple.ripple(mouseX, mouseY)
                 onClicked: {
                     if (newNotePage.noteId === -1) {
                          toastManager.show(qsTr("Cannot duplicate a new note. Save it first."));
                          return;
                     }
-                    if (handleInteractionAttempt()) { // Check read-only state and show dialog if needed
-                        // Show the confirmation dialog
+                    if (handleInteractionAttempt()) {
                         newNotePage.showGeneralConfirmDialog(
                             qsTr("Do you want to create a copy of this note?"),
                             function() {
-                                // Original duplication logic moved here
-                                console.log(qsTr("Duplicate button clicked for note ID: %1 (confirmed)").arg(newNotePage.noteId));
+                                console.log("Duplicate button clicked for note ID: %1 (confirmed)".arg(newNotePage.noteId));
                                 pageStack.replace(Qt.resolvedUrl("../pages/NotePage.qml"), {
-                                   onNoteSavedOrDeleted: newNotePage.onNoteSavedOrDeleted, // Use the same refresh callback
-                                   noteId: -1, // This makes it a new note
-                                   noteTitle: newNotePage.noteTitle + qsTr(" (copy)"), // Append "(copy)" to title
+                                   onNoteSavedOrDeleted: newNotePage.onNoteSavedOrDeleted,
+                                   noteId: -1,
+                                   noteTitle: newNotePage.noteTitle + qsTr(" (copy)"),
                                    noteContent: newNotePage.noteContent,
                                    noteIsPinned: newNotePage.noteIsPinned,
                                    noteTags: Array.isArray(newNotePage.noteTags) ? newNotePage.noteTags.slice() : [],
-                                   noteColor: newNotePage.noteColor, // Copy current color
-                                   noteCreationDate: new Date(), // New creation date
-                                   noteEditDate: new Date(), // New edit date
-                                   noteModified: true // Mark as modified so it saves automatically
+                                   noteColor: newNotePage.noteColor,
+                                   noteCreationDate: new Date(),
+                                   noteEditDate: new Date(),
+                                   noteModified: true
                                 });
                                 toastManager.show(qsTr("Note duplicated!"));
                             },
@@ -432,28 +393,25 @@ Page {
                             qsTr("Duplicate"),
                             Theme.positiveColor
                         );
-                        console.log(qsTr("Showing duplicate confirmation dialog for note ID: %1").arg(newNotePage.noteId));
+                        console.log("Showing duplicate confirmation dialog for note ID: %1".arg(newNotePage.noteId));
                     }
                 }
             }
         }
     }
 
-    // --- Bottom Toolbar ---
     Rectangle {
         id: bottomToolbar
         width: parent.width
         height: Theme.itemSizeSmall
         anchors.bottom: parent.bottom
-        color: newNotePage.noteColor // Toolbar color matches note color
+        color: newNotePage.noteColor
         z: 11.75
-        // Adjust Y position based on keyboard visibility
         y: Qt.inputMethod.visible ? (Qt.inputMethod.keyboardRectangle.y - height) : (parent.height - height)
         Behavior on y {
             NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
         }
 
-        // Left group: Palette, Tag
         Row {
             id: leftToolbarButtons
             anchors.left: parent.left
@@ -461,7 +419,6 @@ Page {
             anchors.leftMargin: Theme.paddingLarge
             spacing: Theme.paddingMedium
 
-            // Color palette button
             Item {
                 width: Theme.fontSizeExtraLarge * 1.1
                 height: Theme.fontSizeExtraLarge * 1.1
@@ -473,17 +430,16 @@ Page {
                     anchors.centerIn: parent
                     width: parent.width
                     height: parent.height
-                    opacity: 1.0 // Always visible
-                    color: newNotePage.isReadOnly ? Theme.secondaryColor : Theme.primaryColor // Color changes
+                    opacity: 1.0
+                    color: newNotePage.isReadOnly ? Theme.secondaryColor : Theme.primaryColor
                 }
                 MouseArea {
                     anchors.fill: parent
-                    enabled: true // Always enabled to allow showing dialog
+                    enabled: true
                     onPressed: paletteRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        if (handleInteractionAttempt()) { // Check read-only state and show dialog if needed
-                            console.log(qsTr("Change color/theme - toggling panel visibility"));
-                            // Toggle color selection panel visibility
+                        if (handleInteractionAttempt()) {
+                            console.log("Change color/theme - toggling panel visibility");
                             if (colorSelectionPanel.opacity > 0.01) {
                                 colorSelectionPanel.opacity = 0;
                             } else {
@@ -493,7 +449,6 @@ Page {
                     }
                 }
             }
-            // Add Tag button - opens the tag selection panel (MOVED HERE)
             Item {
                 width: Theme.fontSizeExtraLarge * 1.1
                 height: Theme.fontSizeExtraLarge * 1.1
@@ -505,17 +460,16 @@ Page {
                     anchors.centerIn: parent
                     width: parent.width
                     height: parent.height
-                    opacity: 1.0 // Always visible
-                    color: newNotePage.isReadOnly ? Theme.secondaryColor : Theme.primaryColor // Color changes
+                    opacity: 1.0
+                    color: newNotePage.isReadOnly ? Theme.secondaryColor : Theme.primaryColor
                 }
                 MouseArea {
                     anchors.fill: parent
-                    enabled: true // Always enabled to allow showing dialog
+                    enabled: true
                     onPressed: addTagRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        if (handleInteractionAttempt()) { // Check read-only state and show dialog if needed
-                            console.log(qsTr("Add Tag button clicked. Opening tag selection panel."));
-                            // Toggle tag selection panel visibility
+                        if (handleInteractionAttempt()) {
+                            console.log("Add Tag button clicked. Opening tag selection panel.");
                             if (tagSelectionPanel.opacity > 0.01) {
                                 tagSelectionPanel.opacity = 0;
                             } else {
@@ -527,14 +481,12 @@ Page {
             }
         }
 
-        // Center group: Undo, Redo
         Row {
             id: centerToolbarButtons
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
-            spacing: Theme.paddingMedium // Spacing between undo and redo
+            spacing: Theme.paddingMedium
 
-            // Undo button
             Item {
                 width: Theme.fontSizeExtraLarge * 1.1
                 height: Theme.fontSizeExtraLarge * 1.1
@@ -546,29 +498,24 @@ Page {
                     anchors.centerIn: parent
                     width: parent.width
                     height: parent.height
-                    // ОБНОВЛЕННАЯ ЛОГИКА ЦВЕТА И АКТИВНОСТИ
                     opacity: (newNotePage.historyIndex > 0) ? 1.0 : 0.5
                     color: (newNotePage.historyIndex > 0) ? Theme.primaryColor : Theme.secondaryColor
                 }
                 MouseArea {
                     anchors.fill: parent
-                    // ОБНОВЛЕННАЯ ЛОГИКА АКТИВНОСТИ
                     enabled: (newNotePage.historyIndex > 0 && !newNotePage.isReadOnly)
                     onPressed: undoRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        // handleInteractionAttempt() вызывается внутри функции.
-                        // Если noteReadOnly, она покажет диалог и вернет false.
-                        // Если true, то продолжит выполнение.
                         if (handleInteractionAttempt()) {
-                            console.log(qsTr("Undo action triggered!"));
+                            console.log("Undo action triggered!");
                             if (newNotePage.historyIndex > 0) {
-                                newNotePage.isUndoingRedoing = true; // Prevent history update for this programmatic change
-                                newNotePage.historyIndex--; // Move back in history
+                                newNotePage.isUndoingRedoing = true;
+                                newNotePage.historyIndex--;
                                 var historicalState = newNotePage.contentHistory[newNotePage.historyIndex];
-                                noteContentInput.text = historicalState.text; // Set text to previous state
-                                noteContentInput.cursorPosition = historicalState.cursorPosition; // Restore cursor position
-                                newNotePage.isUndoingRedoing = false; // Re-enable history updates
-                                newNotePage.noteModified = true; // Undo/Redo is a modification
+                                noteContentInput.text = historicalState.text;
+                                noteContentInput.cursorPosition = historicalState.cursorPosition;
+                                newNotePage.isUndoingRedoing = false;
+                                newNotePage.noteModified = true;
                                 toastManager.show(qsTr("Undo successful!"));
                             } else {
                                 toastManager.show(qsTr("Nothing to undo."));
@@ -577,7 +524,6 @@ Page {
                     }
                 }
             }
-            // Redo button
             Item {
                 width: Theme.fontSizeExtraLarge * 1.1
                 height: Theme.fontSizeExtraLarge * 1.1
@@ -589,26 +535,24 @@ Page {
                     anchors.centerIn: parent
                     width: parent.width
                     height: parent.height
-                    // ОБНОВЛЕННАЯ ЛОГИКА ЦВЕТА И АКТИВНОСТИ
                     opacity: (newNotePage.historyIndex < newNotePage.contentHistory.length - 1) ? 1.0 : 0.5
                     color: (newNotePage.historyIndex < newNotePage.contentHistory.length - 1) ? Theme.primaryColor : Theme.secondaryColor
                 }
                 MouseArea {
                     anchors.fill: parent
-                    // ОБНОВЛЕННАЯ ЛОГИКА АКТИВНОСТИ
                     enabled: (newNotePage.historyIndex < newNotePage.contentHistory.length - 1 && !newNotePage.isReadOnly)
                     onPressed: redoRipple.ripple(mouseX, mouseY)
                     onClicked: {
-                        if (handleInteractionAttempt()) { // Check read-only state and show dialog if needed
-                            console.log(qsTr("Redo action triggered!"));
+                        if (handleInteractionAttempt()) {
+                            console.log("Redo action triggered!");
                             if (newNotePage.historyIndex < newNotePage.contentHistory.length - 1) {
-                                newNotePage.isUndoingRedoing = true; // Prevent history update for this programmatic change
-                                newNotePage.historyIndex++; // Move forward in history
+                                newNotePage.isUndoingRedoing = true;
+                                newNotePage.historyIndex++;
                                 var historicalState = newNotePage.contentHistory[newNotePage.historyIndex];
-                                noteContentInput.text = historicalState.text; // Set text to next state
-                                noteContentInput.cursorPosition = historicalState.cursorPosition; // Restore cursor position
-                                newNotePage.isUndoingRedoing = false; // Re-enable history updates
-                                newNotePage.noteModified = true; // Undo/Redo is a modification
+                                noteContentInput.text = historicalState.text;
+                                noteContentInput.cursorPosition = historicalState.cursorPosition;
+                                newNotePage.isUndoingRedoing = false;
+                                newNotePage.noteModified = true;
                                 toastManager.show(qsTr("Redo successful!"));
                             } else {
                                 toastManager.show(qsTr("Nothing to redo."));
@@ -627,7 +571,6 @@ Page {
             anchors.rightMargin: Theme.paddingLarge
             spacing: Theme.paddingMedium
 
-            // Archive button (moves note to archive)
             Item {
                 width: Theme.fontSizeExtraLarge * 1.1
                 height: Theme.fontSizeExtraLarge * 1.1
@@ -635,19 +578,16 @@ Page {
                 RippleEffectComponent { id: archiveRipple }
                 Icon {
                     id: archiveIcon
-                    source: "../icons/archive.svg" // Assuming you have an archive icon
+                    source: "../icons/archive.svg"
                     anchors.centerIn: parent
                     width: parent.width
                     height: parent.height
-                    // ОБНОВЛЕННАЯ ЛОГИКА ЦВЕТА
-                    // Затемняется, если это новая заметка (noteId === -1) ИЛИ уже архивирована.
-                    // Иначе обычный цвет.
                     color: (newNotePage.noteId === -1 || newNotePage.isArchived) ? Theme.secondaryColor : Theme.primaryColor
                     opacity: (newNotePage.noteId === -1 || newNotePage.isArchived) ? 0.1 : 1.0
                 }
                 MouseArea {
                     anchors.fill: parent
-                    enabled: newNotePage.noteId !== -1 // Всегда активна, если заметка существует
+                    enabled: newNotePage.noteId !== -1
                     onPressed: archiveRipple.ripple(mouseX, mouseY)
                     onClicked: {
                         if (newNotePage.noteId === -1) {
@@ -658,22 +598,21 @@ Page {
                             toastManager.show(qsTr("Note is already archived"));
                             return;
                         } else {
-                            // If note is not archived and not deleted, show archive confirmation
                             newNotePage.showGeneralConfirmDialog(
                                 qsTr("Do you want to archive this note?"),
                                 function() {
                                     if (newNotePage.noteId !== -1) {
-                                        DB.archiveNote(newNotePage.noteId); // Call archive function
-                                        console.log(qsTr("Note ID: %1 moved to archive after confirmation.").arg(newNotePage.noteId));
-                                        newNotePage.sentToArchive = true; // Mark that it was sent to archive
+                                        DB.archiveNote(newNotePage.noteId);
+                                        console.log("Note ID: %1 moved to archive after confirmation.".arg(newNotePage.noteId));
+                                        newNotePage.sentToArchive = true;
                                         toastManager.show(qsTr("Note archived!"));
                                         if (onNoteSavedOrDeleted) {
-                                            onNoteSavedOrDeleted(); // Refresh data on main page
+                                            onNoteSavedOrDeleted();
                                         }
                                     } else {
-                                        console.log(qsTr("New unsaved note discarded without archiving."));
+                                        console.log("New unsaved note discarded without archiving.");
                                     }
-                                    pageStack.pop(); // Go back to the previous page after action
+                                    pageStack.pop();
                                 },
                                 qsTr("Confirm Archive"),
                                 qsTr("Archive"),
@@ -684,7 +623,6 @@ Page {
                 }
             }
 
-            // Delete button (moves note to trash)
             Item {
                 width: Theme.fontSizeExtraLarge * 1.1
                 height: Theme.fontSizeExtraLarge * 1.1
@@ -696,15 +634,12 @@ Page {
                     anchors.centerIn: parent
                     width: parent.width
                     height: parent.height
-                    // ОБНОВЛЕННАЯ ЛОГИКА ЦВЕТА
-                    // Затемняется, если это новая заметка (noteId === -1) ИЛИ уже удалена.
-                    // Иначе обычный цвет.
                     color: (newNotePage.noteId === -1 || newNotePage.isDeleted) ? Theme.secondaryColor : Theme.negativeColor
                     opacity: (newNotePage.noteId === -1 || newNotePage.isDeleted) ? 0.1 : 1.0
                 }
                 MouseArea {
                     anchors.fill: parent
-                    enabled: newNotePage.noteId !== -1 // Всегда активна, если заметка существует
+                    enabled: newNotePage.noteId !== -1
                     onPressed: deleteRipple.ripple(mouseX, mouseY)
                     onClicked: {
                         if (newNotePage.noteId === -1) {
@@ -712,27 +647,25 @@ Page {
                             return;
                         }
                         if (newNotePage.isDeleted) {
-                            // Если заметка уже в корзине, уведомить пользователя
                             toastManager.show(qsTr("Note is already in the trash"));
-                            return; // Выход, никаких действий
+                            return;
                         }
                         else {
-                            // If note is not deleted and not archived, show delete confirmation
                             newNotePage.showGeneralConfirmDialog(
                                 qsTr("Do you want to move this note to trash?"),
                                 function() {
                                     if (newNotePage.noteId !== -1) {
-                                        DB.deleteNote(newNotePage.noteId); // Move to trash
-                                        console.log(qsTr("Note ID: %1 moved to trash after confirmation.").arg(newNotePage.noteId));
-                                        newNotePage.sentToTrash = true; // Mark that it was sent to trash
+                                        DB.deleteNote(newNotePage.noteId);
+                                        console.log("Note ID: %1 moved to trash after confirmation.".arg(newNotePage.noteId));
+                                        newNotePage.sentToTrash = true;
                                         toastManager.show(qsTr("Note moved to trash!"));
                                         if (onNoteSavedOrDeleted) {
-                                            onNoteSavedOrDeleted(); // Refresh data on main page
+                                            onNoteSavedOrDeleted();
                                         }
                                     } else {
-                                        console.log(qsTr("New unsaved note discarded without deletion."));
+                                        console.log("New unsaved note discarded without deletion.");
                                     }
-                                    pageStack.pop(); // Go back to the previous page after action
+                                    pageStack.pop();
                                 },
                                 qsTr("Confirm Delete"),
                                 qsTr("Delete"),
@@ -745,12 +678,10 @@ Page {
         }
     }
 
-    // --- Main Content Flickable Area (Title, Content, Tags) ---
     SilicaFlickable {
         id: mainContentFlickable
         anchors.fill: parent
         anchors.topMargin: header.height
-        // Adjust bottom margin based on keyboard visibility
         anchors.bottomMargin: bottomToolbar.height + (Qt.inputMethod.visible ? Qt.inputMethod.keyboardRectangle.height : 0)
         contentHeight: contentColumn.implicitHeight
 
@@ -760,16 +691,14 @@ Page {
 
         Column {
             id: contentColumn
-            width: parent.width * 0.98 // Slightly less than full width for padding
+            width: parent.width * 0.98
             anchors.horizontalCenter: parent.horizontalCenter
 
-            // Note Title Input
             TextField {
                 id: noteTitleInput
                 width: parent.width
                 placeholderText: qsTr("Title")
                 text: newNotePage.noteTitle
-                // Set read-only based on the new property
                 readOnly: newNotePage.isReadOnly
                 onTextChanged: {
                     newNotePage.noteTitle = text;
@@ -783,21 +712,16 @@ Page {
                 maximumLength: 256
             }
 
-            // Note Content Input (TextArea)
             TextArea {
                 id: noteContentInput
                 width: parent.width
                 height: implicitHeight > 0 ? implicitHeight : Theme.itemSizeExtraLarge * 3
                 placeholderText: qsTr("Note")
                 text: newNotePage.noteContent
-                // Set read-only based on the new property
                 readOnly: newNotePage.isReadOnly
                 onTextChanged: {
-                    // Update the noteContent property immediately
                     newNotePage.noteContent = text;
                     newNotePage.noteModified = true;
-                    // The historySaveTimer is already running and will check for changes.
-                    // No need to restart it here, as it's meant to save periodically.
                 }
                 wrapMode: Text.Wrap
                 font.pixelSize: Theme.fontSizeMedium
@@ -805,7 +729,6 @@ Page {
                 verticalAlignment: Text.AlignTop
             }
 
-            // Flow layout for displaying selected tags
             Flow {
                 id: tagsFlow
                 width: parent.width
@@ -814,9 +737,9 @@ Page {
                 anchors.left: parent.left
                 anchors.right: parent.right
                 spacing: Theme.paddingMedium
-                visible: newNotePage.noteTags.length > 0 // Only visible if tags exist
+                visible: newNotePage.noteTags.length > 0
                 Repeater {
-                    model: newNotePage.noteTags // Model for tags - напрямую используем noteTags (массив)
+                    model: newNotePage.noteTags
                     delegate: Rectangle {
                         id: tagRectangle
                         property color normalColor: "#a032353a"
@@ -830,7 +753,7 @@ Page {
 
                         Text {
                             id: tagText
-                            text: modelData // modelData - это строка тега
+                            text: modelData
                             color: "#c5c8d0"
                             font.pixelSize: Theme.fontSizeMedium
                             anchors.centerIn: parent
@@ -842,14 +765,13 @@ Page {
 
                         MouseArea {
                             anchors.fill: parent
-                            enabled: true // Always enabled to allow showing dialog
+                            enabled: true
                             onPressed: tagRectangle.color = tagRectangle.pressedColor
                             onReleased: {
                                 tagRectangle.color = tagRectangle.normalColor
-                                console.log(qsTr("Tag clicked for editing: %1").arg(modelData))
+                                console.log("Tag clicked for editing: %1".arg(modelData))
                                 Qt.inputMethod.hide();
-                                // Open tag selection panel when a tag is clicked
-                                if (handleInteractionAttempt()) { // Check read-only state and show dialog if needed
+                                if (handleInteractionAttempt()) {
                                     if (tagSelectionPanel.opacity > 0.01) {
                                         tagSelectionPanel.opacity = 0;
                                     } else {
@@ -866,12 +788,11 @@ Page {
             Item { width: parent.width; height: Theme.paddingLarge * 2 }
         }
 
-        // Overlay MouseArea for handling interaction attempts in read-only mode for main content
         MouseArea {
-            anchors.fill: contentColumn // Covers both title and content inputs
-            visible: newNotePage.isReadOnly // Only active when in read-only mode
+            anchors.fill: contentColumn
+            visible: newNotePage.isReadOnly
             onClicked: {
-                handleInteractionAttempt(); // Call the handler to show the dialog
+                handleInteractionAttempt();
             }
         }
 
@@ -880,18 +801,17 @@ Page {
             id: noTagsLabel
             text: qsTr("No tags")
             font.italic: true
-            visible: newNotePage.noteTags.length === 0 && !newNotePage.isReadOnly // Show "No tags" only if no tags and not in read-only (where it might be misleading)
+            visible: newNotePage.noteTags.length === 0 && !newNotePage.isReadOnly
             font.pixelSize: Theme.fontSizeSmall
             color: Theme.secondaryColor
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top: contentColumn.bottom
             MouseArea {
                 anchors.fill: parent
-                enabled: true // Always enabled to allow showing dialog
+                enabled: true
                 onClicked: {
-                    if (handleInteractionAttempt()) { // Check read-only state and show dialog if needed
-                        console.log(qsTr("Add Tag button clicked. Opening tag selection panel."));
-                        // Toggle tag selection panel visibility
+                    if (handleInteractionAttempt()) {
+                        console.log("Add Tag button clicked. Opening tag selection panel.");
                         if (tagSelectionPanel.opacity > 0.01) {
                             tagSelectionPanel.opacity = 0;
                         } else {
@@ -903,7 +823,6 @@ Page {
         }
     }
 
-    // --- Overlay for Color Selection Panel ---
     Rectangle {
         id: overlayRect
         anchors.fill: parent
@@ -914,7 +833,7 @@ Page {
 
         MouseArea {
             anchors.fill: parent
-            enabled: overlayRect.visible // Enabled if overlay is visible
+            enabled: overlayRect.visible
             onClicked: {
                 if (colorSelectionPanel.opacity > 0.01) {
                     colorSelectionPanel.opacity = 0;
@@ -923,7 +842,6 @@ Page {
         }
     }
 
-    // --- Color Selection Panel ---
     Rectangle {
         id: colorSelectionPanel
         width: parent.width
@@ -934,7 +852,7 @@ Page {
         z: 12
         opacity: 0
         visible: opacity > 0.01
-        color: "transparent" // Outer rectangle is transparent, visual body inside has color
+        color: "transparent"
         clip: true
 
         Behavior on opacity {
@@ -945,8 +863,7 @@ Page {
             id: colorPanelVisualBody
             width: parent.width
             height: colorPanelContentColumn.implicitHeight + Theme.paddingMedium * 2 + 2 * colorSelectionPanel.panelRadius
-            color: newNotePage.noteColor // Color panel's background matches current note color
-            //radius: colorSelectionPanel.panelRadius // Consider if this should be here or on inner content
+            color: newNotePage.noteColor
             y: 0
 
             Column {
@@ -986,7 +903,7 @@ Page {
                             Rectangle {
                                 anchors.fill: parent
                                 radius: width / 2
-                                color: (newNotePage.noteColor === modelData) ? "white" : "#707070" // Outer ring for selected color
+                                color: (newNotePage.noteColor === modelData) ? "white" : "#707070"
                                 border.color: "transparent"
                             }
                             Rectangle {
@@ -1052,112 +969,93 @@ Page {
             onClicked: {
                 if (tagSelectionPanel.opacity > 0.01) {
                     tagSelectionPanel.opacity = 0;
-                    console.log(qsTr("Tag picker closed by clicking overlay."));
+                    console.log("Tag picker closed by clicking overlay.");
                 }
             }
         }
     }
 
-    // --- Main Tag Selection Panel ---
-    // This is the core panel where tags are displayed and managed.
     Rectangle {
-        property string currentNewTagInput: "" // ADD THIS LINE: To hold the text for the new tag input field
+        property string currentNewTagInput: ""
 
         id: tagSelectionPanel
-        width: parent.width // Panel width matches parent
-        height: parent.height * 0.53 // Fixed height as per the desired layout
-        color: DB.darkenColor(newNotePage.noteColor, 0.15) // Darker version of note color
-        radius: 15 // Rounded corners
-        anchors.horizontalCenter: parent.horizontalCenter // Centers horizontally
-        anchors.bottom: bottomToolbar.bottom // Anchors to the bottom of the parent (above keyboard)
-        z: 12 // Z-order to appear above the overlay
-        opacity: 0 // Initial opacity (hidden)
-        visible: opacity > 0.01 // Ensures visibility for animation and content loading
+        width: parent.width
+        height: parent.height * 0.53
+        color: DB.darkenColor(newNotePage.noteColor, 0.15)
+        radius: 15
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: bottomToolbar.bottom
+        z: 12
+        opacity: 0
+        visible: opacity > 0.01
 
-        // Behavior for smooth opacity transitions
         Behavior on opacity {
             NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
         }
 
-        // Action to perform when the panel's visibility changes
         onVisibleChanged: {
             if (visible) {
-                // When the panel becomes visible, load tags and scroll to the top of the list.
                 loadTagsForTagPanel();
-                tagsPanelFlickable.contentY = 0; // Scroll to top
-                console.log(qsTr("Tag selection panel opened. Loading tags and scrolling to top."));
+                tagsPanelFlickable.contentY = 0;
+                console.log("Tag selection panel opened. Loading tags and scrolling to top.");
             }
         }
 
-        // List model to hold available tags and their checked state
         ListModel {
             id: availableTagsModel
         }
         function performAddTagLogic() {
-            // First, check if interaction is allowed (not in read-only state)
             if (!newNotePage.handleInteractionAttempt()) {
-                // If handleInteractionAttempt showed a dialog, it means we can't proceed directly.
-                // It will have handled the feedback.
                 return;
             }
 
             var trimmedTag = tagSelectionPanel.currentNewTagInput.trim();
             if (trimmedTag === "") {
                 if (toastManager) toastManager.show(qsTr("Tag name cannot be empty!"));
-                // You could add a visual error state here if desired (e.g., newTagInput.color = Theme.errorColor)
                 return;
             }
 
-            // Get all existing tags to check for duplicates (case-sensitive)
             var existingTags = DB.getAllTagsWithCounts();
             var tagExists = existingTags.some(function(t) {
                 return t.name === trimmedTag;
             });
 
             if (tagExists) {
-                console.log(qsTr("Error: Tag '%1' already exists.").arg(trimmedTag));
+                console.log("Error: Tag '%1' already exists.".arg(trimmedTag));
                 if (toastManager) toastManager.show(qsTr("Tag '%1' already exists!").arg(trimmedTag));
             } else {
-                // Add the new tag to the database
                 DB.addTag(trimmedTag);
-                console.log(qsTr("New tag '%1' added to DB.").arg(trimmedTag));
+                console.log("New tag '%1' added to DB.".arg(trimmedTag));
 
-                // Add the newly created tag to the current note's tags immediately
-                // This ensures it appears selected in the list right away.
                 var updatedNoteTags = Array.isArray(newNotePage.noteTags) ? newNotePage.noteTags.slice() : [];
                 if (updatedNoteTags.indexOf(trimmedTag) === -1) {
                     updatedNoteTags.push(trimmedTag);
-                    newNotePage.noteTags = updatedNoteTags; // Assign new array instance to trigger updates
-                    newNotePage.noteModified = true; // Mark the note as modified
-                    console.log(qsTr("Tag '%1' also added to current note's tags.").arg(trimmedTag));
+                    newNotePage.noteTags = updatedNoteTags;
+                    newNotePage.noteModified = true;
+                    console.log("Tag '%1' also added to current note's tags.".arg(trimmedTag));
                 }
 
-                tagSelectionPanel.currentNewTagInput = ""; // Clear the input field
-                newTagInput.forceActiveFocus(false); // Hide the keyboard
+                tagSelectionPanel.currentNewTagInput = "";
+                newTagInput.forceActiveFocus(false);
 
-                // Refresh the list model to show the newly added tag in the list view
                 loadTagsForTagPanel();
 
                 if (toastManager) toastManager.show(qsTr("Tag '%1' created and added!").arg(trimmedTag));
             }
         }
 
-        // Function to load tags into the ListModel for the current note
         function loadTagsForTagPanel() {
-            availableTagsModel.clear(); // Clear existing items
-            var allTags = DB.getAllTags(); // Get all available tags from the database (assuming DB is globally accessible)
+            availableTagsModel.clear();
+            var allTags = DB.getAllTags();
 
-            // Always use newNotePage.noteTags for determining selected tags
-            // as it should now be up-to-date (an array).
             var currentNoteTags = Array.isArray(newNotePage.noteTags) ? newNotePage.noteTags.slice() : [];
 
             var selectedTags = [];
             var unselectedTags = [];
 
-            // Populate separate arrays for selected and unselected tags
             for (var i = 0; i < allTags.length; i++) {
                 var tagName = allTags[i];
-                var isChecked = currentNoteTags.indexOf(tagName) !== -1; // Check for presence in the current note's tags
+                var isChecked = currentNoteTags.indexOf(tagName) !== -1;
                 if (isChecked) {
                     selectedTags.push({ name: tagName, isChecked: true });
                 } else {
@@ -1165,7 +1063,6 @@ Page {
                 }
             }
 
-            // Append selected tags first, then unselected tags, to the model
             for (var i = 0; i < selectedTags.length; i++) {
                 availableTagsModel.append(selectedTags[i]);
             }
@@ -1173,29 +1070,25 @@ Page {
                 availableTagsModel.append(unselectedTags[i]);
             }
 
-            console.log(qsTr("TagSelectionPanel: Loaded tags for display in panel. Model items: %1").arg(availableTagsModel.count));
+            console.log("TagSelectionPanel: Loaded tags for display in panel. Model items: %1".arg(availableTagsModel.count));
         }
 
-        // Column layout for header, flickable content, and done button
         Column {
             id: tagPanelContentColumn
             anchors.fill: parent
-            spacing: Theme.paddingMedium // Spacing between items in the column
+            spacing: Theme.paddingMedium
 
-            // --- Header Section for Tag Panel ---
             Rectangle {
                 id: tagPanelHeader
                 width: parent.width
-                height: Theme.itemSizeMedium // Standard header height
-                // Color now dynamically darkened version of note's color
-                color: DB.darkenColor(newNotePage.noteColor, 0.15) // Darker version of note color
+                height: Theme.itemSizeMedium
+                color: DB.darkenColor(newNotePage.noteColor, 0.15)
                 anchors.top: parent.top
                 anchors.horizontalCenter: parent.horizontalCenter
-                anchors.leftMargin: Theme.paddingLarge // Horizontal padding for content within header
+                anchors.leftMargin: Theme.paddingLarge
                 anchors.rightMargin: Theme.paddingLarge
 
             }
-            // Input for new tag creation - CHANGED TO TextField
             SearchField {
                 id: newTagInput
                 width: parent.width * 0.95
@@ -1205,45 +1098,39 @@ Page {
                 font.pixelSize: Theme.fontSizeMedium
                 highlighted: false
                 color: Theme.primaryColor
-                readOnly: newNotePage.isReadOnly // Inherit read-only state
+                readOnly: newNotePage.isReadOnly
 
-                // ADD/MODIFY THESE LINES:
-                text: tagSelectionPanel.currentNewTagInput // Bind text to the new property
-                onTextChanged: tagSelectionPanel.currentNewTagInput = text // Update property on text change
+                text: tagSelectionPanel.currentNewTagInput
+                onTextChanged: tagSelectionPanel.currentNewTagInput = text
 
-                // Add functionality for Enter key press
                 EnterKey.onClicked: {
-                    tagSelectionPanel.performAddTagLogic(); // Call the new function to add the tag
+                    tagSelectionPanel.performAddTagLogic();
                 }
 
-                // Add a right-hand item for the "Add" button (check/plus icon)
                 rightItem: Item {
                     id: addTagButtonContainer
                     width: Theme.fontSizeExtraLarge * 1.1
                     height: Theme.fontSizeExtraLarge * 1.1
                     clip: false
 
-                    // Opacity depends on whether there's text in the input
                     opacity: tagSelectionPanel.currentNewTagInput.trim().length > 0 && !newNotePage.isReadOnly ? 1 : 0.3
                     Behavior on opacity { NumberAnimation { duration: 150 } }
 
                     Icon {
                         id: addTagPanelIcon
-                        // Show check icon if there's text, otherwise show plus icon
                         source: tagSelectionPanel.currentNewTagInput.trim().length > 0 ? "../icons/plus.svg" : "../icons/plus.svg"
                         anchors.centerIn: parent
                         width: parent.width
                         height: parent.height
-                        color: Theme.primaryColor // Keep icon color consistent
+                        color: Theme.primaryColor
                     }
                     RippleEffectComponent { id: addTagRippleEffect }
                     MouseArea {
                         anchors.fill: parent
-                        // Only enabled if there's text and not in read-only mode
                         enabled: tagSelectionPanel.currentNewTagInput.trim().length > 0 && !newNotePage.isReadOnly
                         onPressed: addTagRippleEffect.ripple(mouseX, mouseY)
                         onClicked: {
-                            tagSelectionPanel.performAddTagLogic(); // Call the new function to add the tag
+                            tagSelectionPanel.performAddTagLogic();
                         }
                     }
                 }
@@ -1251,134 +1138,114 @@ Page {
             }
 
 
-            // --- Flickable Area for Tag List ---
-            // Allows scrolling if the list of tags exceeds the panel height.
             SilicaFlickable {
                 id: tagsPanelFlickable
                 width: parent.width
-                anchors.top: newTagInput.bottom // Anchored below the new tag input
-                anchors.bottom: doneButton.top // Anchored above the Done button
+                anchors.top: newTagInput.bottom
+                anchors.bottom: doneButton.top
                 anchors.left: parent.left
                 anchors.right: parent.right
-                anchors.topMargin: Theme.paddingMedium // Space from new tag input
-                anchors.bottomMargin: Theme.paddingMedium // Space from done button
-                contentHeight: tagsPanelListView.contentHeight // Content height dynamically set by ListView
-                clip: true // Clips content that overflows
+                anchors.topMargin: Theme.paddingMedium
+                anchors.bottomMargin: Theme.paddingMedium
+                contentHeight: tagsPanelListView.contentHeight
+                clip: true
 
-                // --- List View for Individual Tags ---
                 ListView {
                     id: tagsPanelListView
                     width: parent.width
-                    height: contentHeight // Height adapts to content
-                    model: availableTagsModel // Uses the ListModel defined above
-                    orientation: ListView.Vertical // Vertical scrolling
-                    spacing: Theme.paddingSmall // Spacing between list items
+                    height: contentHeight
+                    model: availableTagsModel
+                    orientation: ListView.Vertical
+                    spacing: Theme.paddingSmall
 
-                    // Delegate defines how each item in the ListView looks and behaves
-                    delegate: Rectangle { // Using Rectangle for delegate as per the desired style
+                    delegate: Rectangle {
                         id: tagPanelDelegateRoot
                         width: parent.width
-                        height: Theme.itemSizeMedium // Standard item height
+                        height: Theme.itemSizeMedium
                         clip: true
-                        // Dynamic background color based on checked state
-                        // Selected tag uses the note's color, unselected uses a standard darker shade
-                        color: model.isChecked ? DB.darkenColor(newNotePage.noteColor, -0.25) : DB.darkenColor(newNotePage.noteColor, 0.25) // New styling colors
+                        color: model.isChecked ? DB.darkenColor(newNotePage.noteColor, -0.25) : DB.darkenColor(newNotePage.noteColor, 0.25)
 
-                        // Ripple effect for visual feedback on touch/click
                         RippleEffectComponent { id: tagPanelDelegateRipple }
 
-                        // MouseArea for handling clicks on each tag item
                         MouseArea {
                             anchors.fill: parent
-                            enabled: true // Always enabled to allow showing dialog
-                            onPressed: tagPanelDelegateRipple.ripple(mouseX, mouseY) // Trigger ripple on press
+                            enabled: true
+                            onPressed: tagPanelDelegateRipple.ripple(mouseX, mouseY)
                             onClicked: {
-                                if (handleInteractionAttempt()) { // Check read-only state and show dialog if needed
-                                    var newCheckedState = !model.isChecked; // Toggle checked state
+                                if (handleInteractionAttempt()) {
+                                    var newCheckedState = !model.isChecked;
 
-                                    // Update the model for immediate UI reflection
                                     availableTagsModel.set(index, { name: model.name, isChecked: newCheckedState });
 
-                                    // Logic to update newNotePage.noteTags
                                     var currentNoteTagsCopy = Array.isArray(newNotePage.noteTags) ? newNotePage.noteTags.slice() : [];
 
                                     if (newCheckedState) {
-                                        // Add tag if it's checked and not already in the array
                                         if (currentNoteTagsCopy.indexOf(model.name) === -1) {
                                             currentNoteTagsCopy.push(model.name);
                                         }
                                     } else {
-                                        // Remove tag if it's unchecked
                                         currentNoteTagsCopy = currentNoteTagsCopy.filter(function(tag) {
                                             return tag !== model.name;
                                         });
                                     }
-                                    newNotePage.noteTags = currentNoteTagsCopy; // Assign the new array instance
+                                    newNotePage.noteTags = currentNoteTagsCopy;
 
-                                    // Update the database if it's an existing note
                                     if (newNotePage.noteId !== -1) {
                                         if (newCheckedState) {
                                             DB.addTagToNote(newNotePage.noteId, model.name);
-                                            console.log(qsTr("Added tag '%1' to note ID %2").arg(model.name).arg(newNotePage.noteId));
+                                            console.log("Added tag '%1' to note ID %2".arg(model.name).arg(newNotePage.noteId));
                                         } else {
                                             DB.deleteTagFromNote(newNotePage.noteId, model.name);
-                                            console.log(qsTr("Removed tag '%1' from note ID %2").arg(model.name).arg(newNotePage.noteId));
+                                            console.log("Removed tag '%1' from note ID %2".arg(model.name).arg(newNotePage.noteId));
                                         }
                                     }
 
-                                    newNotePage.noteModified = true; // Mark note as modified
-                                    console.log(qsTr("Note's tags updated: %1").arg(JSON.stringify(newNotePage.noteTags)));
+                                    newNotePage.noteModified = true;
+                                    console.log("Note's tags updated: %1".arg(JSON.stringify(newNotePage.noteTags)));
                                 }
                             }
                         }
 
-                        // Row layout for icon, tag name, and checkbox
                         Row {
                             id: tagPanelRow
                             anchors.verticalCenter: parent.verticalCenter
-                            anchors.left: parent.left; anchors.leftMargin: Theme.paddingLarge // Left padding
-                            anchors.right: parent.right; anchors.rightMargin: Theme.paddingLarge // Right padding
-                            spacing: Theme.paddingMedium // Spacing between elements in the row
+                            anchors.left: parent.left; anchors.leftMargin: Theme.paddingLarge
+                            anchors.right: parent.right; anchors.rightMargin: Theme.paddingLarge
+                            spacing: Theme.paddingMedium
 
-                            // Tag icon
                             Icon {
                                 id: tagPanelTagIcon
-                                source: "../icons/tag-white.svg" // Path to tag icon
-                                color: "#e2e3e8" // Icon color
+                                source: "../icons/tag-white.svg"
+                                color: "#e2e3e8"
                                 width: Theme.iconSizeMedium
                                 height: Theme.iconSizeMedium
                                 anchors.verticalCenter: parent.verticalCenter
-                                // Icon component typically handles fillMode and color tinting for SVGs
                             }
 
-                            // Label for the tag name
                             Label {
                                 id: tagPanelTagNameLabel
-                                text: model.name // Display tag name from model
-                                color: "#e2e3e8" // Text color
+                                text: model.name
+                                color: "#e2e3e8"
                                 font.pixelSize: Theme.fontSizeMedium
                                 anchors.verticalCenter: parent.verticalCenter
-                                elide: Text.ElideRight // Elide long text with "..."
-                                // Flexible width, positioned between icon and checkbox
+                                elide: Text.ElideRight
                                 anchors.left: tagPanelTagIcon.right
                                 anchors.leftMargin: tagPanelRow.spacing
                                 anchors.right: tagPanelCheckButtonContainer.left
                                 anchors.rightMargin: tagPanelRow.spacing
                             }
 
-                            // Container for the checkbox icon
                             Item {
                                 id: tagPanelCheckButtonContainer
                                 width: Theme.iconSizeMedium
                                 height: Theme.iconSizeMedium
                                 anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right // Anchored to the far right of the row
+                                anchors.right: parent.right
                                 clip: false
 
-                                // Checkbox icon (changes based on model.isChecked)
-                                Image { // Changed from Icon to Image for flexibility, if Icon causes issues for dynamic source
+                                Image {
                                     id: tagPanelCheckIcon
-                                    source: model.isChecked ? "../icons/box-checked.svg" : "../icons/box.svg" // Checked or unchecked box icon
+                                    source: model.isChecked ? "../icons/box-checked.svg" : "../icons/box.svg"
                                     anchors.centerIn: parent
                                     width: parent.width
                                     height: parent.height
@@ -1398,49 +1265,39 @@ Page {
                 width: Theme.paddingSmall
             }
 
-            // --- Done Button for Tag Panel ---
             Button {
                 id: doneButton
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: qsTr("Done") // Localized text for the button
+                text: qsTr("Done")
                 onClicked: {
-                    tagSelectionPanel.opacity = 0; // Close the tag picker when Done is clicked
-                    // No need to explicitly re-sync noteTags here, as it's updated on each click within the delegate
-                    // Ensure the note is marked as modified if any tag changes happened
+                    tagSelectionPanel.opacity = 0;
                     newNotePage.noteModified = true;
-                    console.log(qsTr("Tag picker closed by Done button."));
+                    console.log("Tag picker closed by Done button.");
                 }
                 anchors.bottom: parent.bottom
-                anchors.bottomMargin: Theme.paddingLarge // Space from the bottom of the panel
+                anchors.bottomMargin: Theme.paddingLarge
             }
         }
     }
 
-    // --- Integrated Generic Confirmation Dialog Component ---
     ConfirmDialog {
         id: generalConfirmDialog
-        // Bind properties from newNotePage to ConfirmDialog
         dialogVisible: newNotePage.confirmDialogVisible
         dialogTitle: newNotePage.confirmDialogTitle
         dialogMessage: newNotePage.confirmDialogMessage
         confirmButtonText: newNotePage.confirmButtonText
         confirmButtonHighlightColor: newNotePage.confirmButtonHighlightColor
-        // Pass the dynamically darkened note color for the dialog background
         dialogBackgroundColor: DB.darkenColor(newNotePage.noteColor, 0.15)
 
-        // Connect signals from ConfirmDialog back to newNotePage's logic
         onConfirmed: {
             if (newNotePage.onConfirmCallback) {
-                newNotePage.onConfirmCallback(); // Execute the stored callback
+                newNotePage.onConfirmCallback();
             }
-            newNotePage.confirmDialogVisible = false; // Hide the dialog after confirmation
+            newNotePage.confirmDialogVisible = false;
         }
         onCancelled: {
-            newNotePage.confirmDialogVisible = false; // Hide the dialog
-            console.log(qsTr("Action cancelled by user."));
-            // Special handling for actionRequiredDialog cancellation:
-            // Re-set isReadOnly to true if it was a read-only note and user cancelled restore/unarchive
-            // This ensures inputs remain disabled if user cancels restore/unarchive
+            newNotePage.confirmDialogVisible = false;
+            console.log("Action cancelled by user.");
             if (newNotePage.isArchived || newNotePage.isDeleted) {
                 newNotePage.isReadOnly = true;
             }

@@ -1,4 +1,12 @@
-// /qml/pages/AboutPage.qml
+/* Студенты РГУ нефти и газа имени И.М. Губкина
+ * Поляков К.А., Сабиров Д.С.
+ * группы КС-22-03
+ * курсовая работа на тему "Разработка приложения для организации заметок с поддержкой тегов и поиска"
+ *
+ * /qml/pages/AboutPage.qml
+ * Эта страница отображает статическую информацию о приложении.
+ */
+
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.Layouts 1.1
@@ -16,7 +24,7 @@ Page {
     property string customBackgroundColor: DB.getThemeColor() || "#121218"
 
     Component.onCompleted: {
-        console.log(qsTr("AboutPage opened. Initializing side panel and theme."));
+        console.log("AboutPage opened. Initializing side panel and theme.");
         sidePanelInstance.currentPage = "about";
         var storedColor = DB.getThemeColor();
         if (storedColor) {
@@ -56,7 +64,7 @@ Page {
                 onPressed: menuRipple.ripple(mouseX, mouseY)
                 onClicked: {
                     aboutPage.panelOpen = true
-                    console.log(qsTr("Menu button clicked in AboutPage → panelOpen = true"));
+                    console.log("Menu button clicked in AboutPage → panelOpen = true");
                 }
             }
         }
@@ -97,10 +105,7 @@ Page {
                 wrapMode: Text.Wrap
                 horizontalAlignment: "AlignJustify"
                 Layout.fillWidth: true
-                text: qsTr("This is a simple yet powerful note-taking application designed to help you organize your thoughts,
-                            ideas, and tasks efficiently. It provides a clean interface for creating, editing, and managing your notes, complete with tagging capabilities and quick search functionality.
-                            Whether for personal reminders or professional project management, this app aims to be your reliable digital notebook."
-                )
+                text: qsTr("This is a simple yet powerful note-taking application designed to help you organize your thoughts, ideas, and tasks efficiently. It provides a clean interface for creating, editing, and managing your notes, complete with tagging capabilities and quick search functionality. Whether for personal reminders or professional project management, this app aims to be your reliable digital notebook.")
             }
             SectionHeader {
                 objectName: "developersHeader"
@@ -115,10 +120,7 @@ Page {
                 wrapMode: Text.Wrap
                 horizontalAlignment: "AlignJustify"
                 Layout.fillWidth: true
-                text: qsTr("This application was developed with passion and dedication by a team committed to creating intuitive and effective tools for everyday use.
-                            We believe in open-source principles and continuously work to improve the app based on user feedback. Special thanks to the Sailfish OS community for their
-                            invaluable support and resources."
-                )
+                text: qsTr("This application was developed with passion and dedication by a team committed to creating intuitive and effective tools for everyday use. We believe in open-source principles and continuously work to improve the app based on user feedback. Special thanks to the Sailfish OS community for their invaluable support and resources.")
             }
 
 
@@ -135,18 +137,7 @@ Page {
                 wrapMode: Text.Wrap
                 horizontalAlignment: "AlignJustify"
                 Layout.fillWidth: true
-                text: qsTr("Copyright (c) [Year], [Developer Name/Organization]\nAll rights
-                    reserved.\n\nRedistribution and use in source and binary forms, with or without\nmodification,
-                    are permitted provided that the following conditions are met:\n\n1. Redistributions of source code must retain the above copyright notice, this\n
-                    list of conditions and the following disclaimer.\n\n2. Redistributions in binary form must reproduce the above copyright notice,\n
-                    this list of conditions and the following disclaimer in the documentation\n   and/or other materials provided with the distribution.\n\n3.
-                    Neither the name of the copyright holder nor the names of its\n   contributors may be used to endorse or promote products derived from\n
-                    this software without specific prior written permission.\n\nTHIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\"\nAND ANY EXPRESS
-                    OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\nIMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE\nDISCLAIMED. IN NO
-                    EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE\nFOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL\nDAMAGES (INCLUDING, BUT
-                    NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\nSERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER\nCAUSED AND ON ANY THEORY OF LIABILITY,
-                    WHETHER IN CONTRACT, STRICT LIABILITY,\nOR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\nOF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
-                )
+                text: qsTr("Copyright (c) [Year], [Developer Name/Organization]\nAll rights reserved.\n\nRedistribution and use in source and binary forms, with or without\nmodification, are permitted provided that the following conditions are met:\n\n1. Redistributions of source code must retain the above copyright notice, this\n list of conditions and the following disclaimer.\n\n2. Redistributions in binary form must reproduce the above copyright notice,\n this list of conditions and the following disclaimer in the documentation\n   and/or other materials provided with the distribution.\n\n3. Neither the name of the copyright holder nor the names of its\n   contributors may be used to endorse or promote products derived from\n this software without specific prior written permission.\n\nTHIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\"\nAND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\nIMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE\nDISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE\nFOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL\nDAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\nSERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER\nCAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,\nOR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\nOF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.")
             }
         }
     }

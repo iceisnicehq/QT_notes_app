@@ -1,4 +1,19 @@
-// /qml/pages/SettingsPage.qml
+/* Студенты РГУ нефти и газа имени И.М. Губкина
+ * Поляков К.А., Сабиров Д.С.
+ * группы КС-22-03
+ * курсовая работа на тему "Разработка приложения для организации заметок с поддержкой тегов и поиска"
+ *
+ * /qml/pages/SettingsPage.qml
+ * Эта страница предоставляет пользователю доступ к глобальным настройкам
+ * приложения. Она включает следующие функции:
+ * Выбор языка. Карусельный переключатель для изменения языка интерфейса,
+ * что приводит к полной перезагрузке стека страниц для применения переводов.
+ * Выбор цвета темы. Палитра для настройки основного цвета оформления приложения.
+ * Управление данными. Кнопки для массовых операций, таких как архивирование
+ * всех заметок, перемещение всех заметок в корзину и полное удаление
+ * всех данных, защищенные диалогом подтверждения.
+ */
+
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.Layouts 1.1
@@ -17,7 +32,7 @@ Page {
     property bool panelOpen: false
 
     readonly property var colorPalette: ["#121218", "#1c1d29", "#3a2c2c", "#2c3a2c", "#2c2c3a", "#3a3a2c",
-        "#43484e", "#5c4b37", "#3e4a52", "#503232", "#325032", "#323250"]
+        "#43484e", "#5c4b37", "#3e4a52", "#503232", "#325032", "#325032"]
 
     readonly property var languageModel: [
         { name: qsTr("English"), code: "en" },
@@ -49,7 +64,7 @@ Page {
                 return settingsPage.languageModel[i].name;
             }
         }
-        return "English"; // Fallback
+        return "English";
     }
 
     Component.onCompleted: {
@@ -69,25 +84,20 @@ Page {
     function applyLanguageChange(newLangCode) {
         if (AppSettings.setApplicationLanguage(newLangCode)) {
             DB.setLanguage(newLangCode);
-            settingsPage.currentLanguageSetting = newLangCode; // Update for getCurrentLanguageDisplayName
+            settingsPage.currentLanguageSetting = newLangCode;
 
             toastManager.show(qsTr("Language changed to %1").arg(settingsPage.getCurrentLanguageDisplayName()));
-            if (pageStack.currentPage === settingsPage) { // Ensure we are on settings page
+            if (pageStack.currentPage === settingsPage) {
                 refreshPageStack();
                 console.log("SettingsPage: Replaced current SettingsPage instance to apply language changes.");
             } else {
-                // If the language was changed from somewhere else (e.g., via DB direct edit, unlikely for this UI),
-                // or if it wasn't the current page, just log.
                 console.log("SettingsPage: Language changed, but SettingsPage is not current page. UI will update on next visit.");
             }
-            // --- END CRITICAL CHANGE ---
 
         } else {
             toastManager.show(qsTr("Failed to change language."));
         }
     }
-    // --- END MODIFIED section ---
-
 
     function updateNoteCounts() {
         var activeNotes = DB.getAllNotes();
@@ -186,10 +196,9 @@ Page {
                 anchors.horizontalCenter: parent.horizontalCenter
                 spacing: Theme.paddingMedium
 
-                // MODIFIED: Use anchors to center the RowLayout containing the icon and label
                 RowLayout {
                     id: languageHeaderRow
-                    anchors.horizontalCenter: parent.horizontalCenter // This centers THIS RowLayout within languageSection
+                    anchors.horizontalCenter: parent.horizontalCenter
                     spacing: Theme.paddingSmall
 
                     Item {
@@ -275,7 +284,7 @@ Page {
                             Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
 
                             Icon {
-                                source: "../icons/right.svg" // сюда правую
+                                source: "../icons/right.svg"
                                 anchors.fill: parent
                                 color: Theme.primaryColor
                                 fillMode: Image.PreserveAspectFit

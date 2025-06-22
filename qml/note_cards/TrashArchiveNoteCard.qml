@@ -1,21 +1,32 @@
-// qml/note_cards/TrashArchiveNoteCard.qml
+/* Студенты РГУ нефти и газа имени И.М. Губкина
+ * Поляков К.А., Сабиров Д.С.
+ * группы КС-22-03
+ * курсовая работа на тему "Разработка приложения для организации заметок с поддержкой тегов и поиска"
+ *
+ * /qml/note_cards/TrashArchiveNoteCard.qml
+ * Этот файл представляет собой специализированный компонент карточки
+ * для отображения заметок в корзине или архиве. Отличается от
+ * обычной карточки наличием чекбокса для массового выбора.
+ * Нажатие на саму карточку открывает заметку для просмотра, а нажатие
+ * на чекбокс изменяет состояние ее выбора. Также отображает информацию
+ * о дате окончательного удаления для заметок в корзине.
+ */
+
 import QtQuick 2.0
-import Sailfish.Silica 1.0 
-import QtQuick.Layouts 1.1 
+import Sailfish.Silica 1.0
+import QtQuick.Layouts 1.1
 import "../services/DatabaseManagerService.js" as DB
 
-Item { 
+Item {
     id: root
-    width: parent ? parent.width : 360 
-    
+    width: parent ? parent.width : 360
+
     implicitHeight: mainCardRectangle.implicitHeight + 10
-    // --- Properties ---
     property string title: ""
     property string content: ""
     property string tags: ""
-    property string cardColor: DB.getThemeColor() || "#121218" 
+    property string cardColor: DB.getThemeColor() || "#121218"
     property string borderColor:  DB.darkenColor((root.cardColor), -0.3)
-    // isSelected property will be driven *only* by the parent (e.g., TrashPage or UnifiedNotesPage)
     property bool isSelected: false
     property int noteId: -1
 
@@ -23,44 +34,32 @@ Item {
     property date noteCreationDate: new Date()
     property date noteEditDate: new Date()
 
-    
-    
+    property color selectedBorderColor: "#00000000"
+    property int selectedBorderWidth: 0
 
-
-    // Properties for selection state (now directly used by the Rectangle below)
-    property color selectedBorderColor: "#00000000" // Default to transparent
-    property int selectedBorderWidth: 0 // Default to no border
-
-    // --- Signals ---
     signal selectionToggled(int noteId, bool isCurrentlySelected)
-    // Updated signal to include isArchived and isDeleted flags, as they were passed previously
     signal noteClicked(int noteId, string title, string content, bool isPinned, var tags, date creationDate, date editDate, string color, bool isArchived, bool isDeleted)
 
-
-    // --- UI Components ---
     Rectangle {
-        id: mainCardRectangle // Main visual container for the note card
+        id: mainCardRectangle
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottomMargin: 20
-        implicitHeight: cardColumn.implicitHeight + (Theme.paddingLarge * 2) // Height determined by inner content + padding
+        implicitHeight: cardColumn.implicitHeight + (Theme.paddingLarge * 2)
         color: root.cardColor
         radius: 20
-        // Initial default border
         border.color: root.borderColor
         border.width: 2
 
-
-        // States for the main card's border based on selection
         states: [
             State {
                 name: "selectedCard"
                 when: root.isSelected === true
                 PropertyChanges {
                     target: mainCardRectangle
-                    border.color: "#FFFFFF" // White border
-                    border.width: 4        // Width 4
+                    border.color: "#FFFFFF"
+                    border.width: 4
                 }
             },
             State {
@@ -68,19 +67,16 @@ Item {
                 when: root.isSelected === false
                 PropertyChanges {
                     target: mainCardRectangle
-                    border.color: root.borderColor // Revert to original border color
-                    border.width: 2        // Revert to original border width
+                    border.color: root.borderColor
+                    border.width: 2
                 }
             }
         ]
 
-        // Add animations for border changes
         transitions: Transition {
             PropertyAnimation { properties: "border.color,border.width"; duration: 150 }
         }
 
-
-        // MouseArea for clicking the entire card (to open NotePage)
         MouseArea {
             id: wholeCardMouseArea
             anchors.fill: parent
@@ -96,14 +92,13 @@ Item {
                     root.noteCreationDate,
                     root.noteEditDate,
                     root.cardColor,
-                    false, // isArchived - This card component itself doesn't know its archive status
-                    true // isDeleted - Assuming this component is always used for deleted/archived notes
+                    false,
+                    true
                 );
                 Qt.inputMethod.hide();
             }
         }
 
-        // --- Container for the checkbox with enlarged click area ---
         Item {
             id: checkboxClickArea
             anchors {  right: parent.right; rightMargin: Theme.paddingMedium }
@@ -113,12 +108,11 @@ Item {
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
-                    root.selectionToggled(root.noteId, root.isSelected); // Pass current state to parent
+                    root.selectionToggled(root.noteId, root.isSelected);
                     console.log("TrashArchiveNoteCard (ID:", root.noteId, "): Checkbox click detected. Emitting selectionToggled for ID:", root.noteId, "Current isSelected:", root.isSelected);
                 }
             }
 
-            // --- The visual checkbox itself (Rectangle) ---
             Rectangle {
                 id: visualCheckbox
                 anchors.centerIn: parent
@@ -126,20 +120,18 @@ Item {
                 width: 47
                 radius: 17
 
-                // Default properties for the checkbox (e.g., deselected state visual)
-                color: Theme.backgroundColor !== undefined ? Theme.backgroundColor : "#32353a" // Fallback to a dark gray
-                border.color: Theme.secondaryColor !== undefined ? Theme.secondaryColor : "#00bcd4" // Fallback to a teal/cyan
-                border.width: 2 // Reverted to original border width for deselected state
+                color: Theme.backgroundColor !== undefined ? Theme.backgroundColor : "#32353a"
+                border.color: Theme.secondaryColor !== undefined ? Theme.secondaryColor : "#00bcd4"
+                border.width: 2
 
-                // Define states for the checkbox based on the isSelected property
                 states: [
                     State {
                         name: "selected"
                         when: root.isSelected === true
                         PropertyChanges {
                             target: visualCheckbox
-                            color: "#FFFFFF" 
-                            border.color: "transparent" // No border when selected
+                            color: "#FFFFFF"
+                            border.color: "transparent"
                             border.width: 0
                         }
                     },
@@ -155,15 +147,13 @@ Item {
                     }
                 ]
 
-                
                 transitions: Transition {
                     PropertyAnimation { properties: "color,border.color,border.width"; duration: 150 }
                 }
             }
         }
 
-        // Column for card content
-        ColumnLayout { // Changed to ColumnLayout for better control over implicitHeight and alignment
+        ColumnLayout {
             id: cardColumn
             anchors {
                 left: parent.left; leftMargin: Theme.paddingLarge
@@ -171,9 +161,8 @@ Item {
                 top: parent.top; topMargin: Theme.paddingLarge
                 bottom: parent.bottom; bottomMargin: Theme.paddingLarge
             }
-            spacing: Theme.paddingSmall // Spacing between elements within the card
+            spacing: Theme.paddingSmall
 
-            // Note Title
             Label {
                 Layout.fillWidth: true
                 text: (root.title && root.title.trim()) ? root.title : qsTr("Empty")
@@ -185,13 +174,11 @@ Item {
                 wrapMode: Text.Wrap
 
             }
-            // Spacer between title and content, matching NoteCard
             Rectangle {
                 width: parent.width
                 height: 8
                 color: "transparent"
             }
-            // Note Content Snippet
             Label {
                 Layout.fillWidth: true
                 text: (root.content && root.content.trim()) ? root.content : qsTr("Empty")
@@ -204,7 +191,6 @@ Item {
                 font.pixelSize: Theme.fontSizeSmall
                 color: "#c5c8d0"
             }
-            // Spacer between title and content, matching NoteCard
             Rectangle {
                 width: parent.width
                 height: 4
@@ -217,7 +203,6 @@ Item {
                 spacing: Theme.paddingSmall
                 visible: root.tags && root.tags.trim().length > 0
 
-                // Repeater to display each tag
                 Repeater {
                     model: root.tags.split("_||_").filter(function(tag) { return tag.trim() !== "" })
                     delegate: Rectangle {
@@ -240,7 +225,6 @@ Item {
                     }
                 }
 
-                // "+X" bubble for more than 2 tags
                 Rectangle {
                     visible: root.tags.split("_||_").filter(function(tag) { return tag.trim() !== "" }).length > 2
                     color: "#a032353a"
@@ -257,11 +241,9 @@ Item {
                     }
                 }
             }
-            // Label for deletion date, now explicitly outside TrashArchiveNoteCard
             Label {
-                // Only visible if modelData.updated_at exists and is a string
                 visible: modelData.updated_at !== undefined && modelData.updated_at !== null && modelData.updated_at !== "" && modelData.deleted
-                width: parent.width // Match card width
+                width: parent.width
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: {
                     if (modelData.updated_at) {
@@ -269,7 +251,6 @@ Item {
                         var thirtyDaysLater = new Date(deletedAt);
                         thirtyDaysLater.setDate(deletedAt.getDate() + 30);
 
-                        // Use Qt.formatDateTime for dd.mm.yyyy format
                         var formattedDate = Qt.formatDateTime(thirtyDaysLater, "dd.MM.yyyy");
 
                         return qsTr("Will be permanently deleted on: %1").arg(formattedDate);
@@ -277,12 +258,11 @@ Item {
                     return "";
                 }
                 font.italic: true
-                font.pixelSize: Theme.fontSizeExtraSmall // Smaller font for auxiliary info
-                color: Theme.secondaryColor // Subtle color
+                font.pixelSize: Theme.fontSizeExtraSmall
+                color: Theme.secondaryColor
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.Wrap
             }
         }
-
     }
 }

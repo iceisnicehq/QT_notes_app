@@ -1,4 +1,20 @@
-// /qml/pages/MainPage.qml
+/* Студенты РГУ нефти и газа имени И.М. Губкина
+ * Поляков К.А., Сабиров Д.С.
+ * группы КС-22-03
+ * курсовая работа на тему "Разработка приложения для организации заметок с поддержкой тегов и поиска"
+ *
+ * /qml/pages/MainPage.qml
+ * Это главная и наиболее сложная страница приложения. Она отображает списки
+ * закрепленных и обычных заметок. Ключевой элемент — многофункциональный
+ * заголовок, который служит строкой поиска и трансформируется в панель
+ * массовых действий при переходе в режим выбора. Страница поддерживает
+ * поиск по тексту, фильтрацию по тегам и различные виды сортировки.
+ * На ней расположены плавающие кнопки для добавления заметки и вызова
+ * диалога сортировки. Реализована сложная логика для управления
+ * выбором заметок и выполнения массовых операций - надо зажать заметку
+ * и тогда появится меню (закрепить, архивировать, удалить, изменить цвет).
+ */
+
 import QtQuick.LocalStorage 2.0
 import QtQuick 2.0
 import Sailfish.Silica 1.0
@@ -22,10 +38,10 @@ Page {
     property bool panelOpen: false
     property var allNotes: []
     property var allTags: []
-    property var selectedTags: [] // Tags currently selected for filtering
-    property var currentSearchText: "" // Current text in the main note search field
-    property var searchResults: [] // Notes matching the search criteria
-    property bool tagPickerOpen: false // Controls visibility of the tag picker overlay
+    property var selectedTags: []
+    property var currentSearchText: ""
+    property var searchResults: []
+    property bool tagPickerOpen: false
     property bool allVisibleNotesSelected: (selectedNoteIds.length === searchResults.length) && (searchResults.length > 0)
     property bool selectionMode: false
     property var selectedNoteIds: []
@@ -40,19 +56,16 @@ Page {
     property bool sortDialogVisible: false
     property bool colorSortDialogVisible: false
     property var customColorSortOrder: []
-    // NEW: Property to control the visibility of the bulk color picker
     property bool bulkColorPickerOpen: false
 
     ToastManagerService {
         id: toastManager
     }
 
-    // Model for the tag selection panel
     ListModel {
         id: availableTagsModel
     }
 
-    // Model for tags displayed in the DrawerMenu (used in the Drawer)
     ListModel {
         id: tagsModel
     }
@@ -61,12 +74,6 @@ Page {
         console.log(("MainPage created."));
         DB.initDatabase()
         DB.permanentlyDeleteExpiredDeletedNotes();
-//        var savedSettings = DB.loadSortSettings();
-//        if (savedSettings) {
-//            mainPage.currentSortBy = savedSettings.sortBy;
-//            mainPage.currentSortOrder = savedSettings.sortOrder;
-//            mainPage.customColorSortOrder = savedSettings.colorOrder;
-//        }
         refreshData()
     }
 
@@ -77,13 +84,11 @@ Page {
             sidePanel.currentPage = "notes"
             Qt.inputMethod.hide();
             resetSelection();
-            // Ensure bulk color picker is closed when selection mode is exited
             mainPage.bulkColorPickerOpen = false;
             console.log(("MainPage active (status changed to Active), search field focus cleared and keyboard hidden."));
         }
     }
 
-    // Refreshes all notes and tags from the database
     function refreshData() {
         allNotes = DB.getAllNotes();
         allTags = DB.getAllTags();
@@ -91,7 +96,6 @@ Page {
         loadTagsForDrawer();
     }
 
-    // Main search function that calls the DatabaseManager and updates searchResults
     function performSearch() {
         searchResults = DB.searchNotes(
             mainPage.currentSearchText,
@@ -103,7 +107,6 @@ Page {
         console.log("MAIN_PAGE: Search performed. SortBy: " + mainPage.currentSortBy);
     }
 
-    // Function to handle adding/removing tags from selectedTags
     function toggleTagSelection(tagName) {
         if (selectedTags.indexOf(tagName) !== -1) {
             selectedTags = selectedTags.filter(function(tag) { return tag !== tagName; });
@@ -115,7 +118,6 @@ Page {
         performSearch();
     }
 
-    // Function to load tags into the ListModel for the tag selection panel
     function loadTagsForTagPanel(filterText) {
         availableTagsModel.clear();
         var currentSearchLower = (filterText || "").toLowerCase();
@@ -144,7 +146,6 @@ Page {
         console.log(("MAIN_PAGE: loadTagsForTagPanel executed. Filter:", filterText, "Model items:", availableTagsModel.count));
     }
 
-    // Function to load tags for the drawer menu
     function loadTagsForDrawer() {
         tagsModel.clear();
         var tagsWithCounts = DB.getAllTagsWithCounts();
@@ -154,7 +155,6 @@ Page {
         console.log(("Loaded %1 tags for drawer.").arg(tagsWithCounts.length));
     }
 
-    // --- Selection Mode Functions ---
     function isNoteSelected(noteId) {
         return mainPage.selectedNoteIds.indexOf(noteId) !== -1;
     }
@@ -176,7 +176,6 @@ Page {
         Qt.inputMethod.hide();
         if (pinnedNotes) pinnedNotes.forceLayout();
         if (otherNotes) otherNotes.forceLayout();
-        // Close the color picker if selection mode is exited
         if (!mainPage.selectionMode) {
             mainPage.bulkColorPickerOpen = false;
         }
@@ -185,7 +184,6 @@ Page {
     function resetSelection() {
         mainPage.selectedNoteIds = [];
         mainPage.selectionMode = false;
-        // Ensure bulk color picker is closed on selection reset
         mainPage.bulkColorPickerOpen = false;
         console.log(("Selection reset."));
         if (pinnedNotes) pinnedNotes.forceLayout();
@@ -232,7 +230,6 @@ Page {
         console.log(("Showing pin/unpin confirmation dialog."));
     }
 
-    // NEW: Function to handle bulk color change
     function bulkChangeNoteColor(newColor) {
         if (mainPage.selectedNoteIds.length === 0) {
             toastManager.show(qsTr("No notes selected."));
@@ -245,10 +242,10 @@ Page {
         mainPage.confirmButtonHighlightColor = Theme.primaryColor;
         mainPage.onConfirmCallback = function() {
             var idsToChangeColor = mainPage.selectedNoteIds;
-            DB.bulkUpdateNoteColor(idsToChangeColor, newColor); // This function needs to be added to DatabaseManager.js
+            DB.bulkUpdateNoteColor(idsToChangeColor, newColor);
             toastManager.show(qsTr("Color changed for %1 note(s)!").arg(idsToChangeColor.length));
-            mainPage.resetSelection(); // Reset selection after action
-            mainPage.refreshData(); // Refresh main view
+            mainPage.resetSelection();
+            mainPage.refreshData();
         };
         mainPage.confirmDialogVisible = true;
         console.log(("Showing bulk color change confirmation dialog."));
@@ -267,7 +264,6 @@ Page {
         visible: allNotes.length === 0
     }
 
-    // Wrapper for the search bar and selection toolbar
     Column {
         id: searchAreaWrapper
         width: parent.width
@@ -281,13 +277,11 @@ Page {
             NumberAnimation { duration: 250; easing.type: Easing.OutQuad }
         }
 
-        // Search Bar Area and Selection Toolbar Container
         Item {
             id: searchBarArea
             width: parent.width
             height: 80
 
-            // Search Field Container (Visible in default mode)
             Rectangle {
                 id: searchBarContainer
                 width: parent.width - (noteMargin * 2)
@@ -317,7 +311,6 @@ Page {
                         searchField.focus = false;
                     }
 
-                    // Left Item: Menu / Clear Search
                     leftItem: Item {
                         width: Theme.fontSizeExtraLarge * 1.1
                         height: Theme.fontSizeExtraLarge * 0.95
@@ -353,7 +346,6 @@ Page {
                         }
                     }
 
-                    // Right Item: Open Tag Picker
                     rightItem: Item {
                         width: Theme.fontSizeExtraLarge * 1.25
                         height: Theme.fontSizeExtraLarge * 1.25
@@ -383,7 +375,6 @@ Page {
                 }
             }
 
-            // Selection Mode Toolbar
             Rectangle {
                 id: selectionToolbarBackground
                 width: parent.width - (noteMargin * 2)
@@ -396,7 +387,6 @@ Page {
 
                 Behavior on opacity { NumberAnimation { duration: 150 } }
 
-                // Left: Close button
                 Item {
                     id: closeButton
                     width: Theme.fontSizeExtraLarge * 1.1
@@ -414,7 +404,6 @@ Page {
                     }
                 }
 
-                // Counter Label
                 Label {
                     id: selectedCountLabel
                     text: mainPage.selectedNoteIds.length.toString()
@@ -462,13 +451,12 @@ Page {
                     }
                 }
 
-                // Pin button
                 Item {
                     id: pinButton
                     width: Theme.fontSizeExtraLarge * 1.1
                     height: Theme.fontSizeExtraLarge * 0.95
                     anchors.verticalCenter: parent.verticalCenter
-                    anchors.right: paletteButton.left // NOW ANCHORED TO THE LEFT OF NEW PALETTE BUTTON
+                    anchors.right: paletteButton.left
                     anchors.rightMargin: Theme.paddingMedium
 
                     Icon {
@@ -495,19 +483,17 @@ Page {
                         onPressed: pinRipple.ripple(mouseX, mouseY)
                         onClicked: {
                             mainPage.pinSelectedNotes();
-                            // Ensure color picker is closed when other actions are performed
                             mainPage.bulkColorPickerOpen = false;
                         }
                     }
                 }
 
-                // NEW: Palette button (between pin and archive)
                 Item {
                     id: paletteButton
                     width: Theme.fontSizeExtraLarge * 1.1
                     height: Theme.fontSizeExtraLarge * 0.95
                     anchors.verticalCenter: parent.verticalCenter
-                    anchors.right: archiveButton.left // Anchored to the left of the archive button
+                    anchors.right: archiveButton.left
                     anchors.rightMargin: Theme.paddingMedium
 
                     Icon {
@@ -516,7 +502,7 @@ Page {
                         anchors.centerIn: parent
                         width: parent.width
                         height: parent.height
-                        color: Theme.primaryColor // Always primary color
+                        color: Theme.primaryColor
                     }
                     RippleEffectComponent { id: paletteRipple }
                     MouseArea {
@@ -527,14 +513,12 @@ Page {
                                 toastManager.show(qsTr("No notes selected."));
                                 return;
                             }
-                            // Toggle the visibility of the bulk color picker
                             mainPage.bulkColorPickerOpen = !mainPage.bulkColorPickerOpen;
                             console.log("Bulk color palette button clicked. bulkColorPickerOpen:", mainPage.bulkColorPickerOpen);
                         }
                     }
                 }
 
-                // Right: Delete button (rightmost)
                 Item {
                     id: deleteButton
                     width: Theme.fontSizeExtraLarge * 1.1
@@ -561,7 +545,6 @@ Page {
                                     mainPage.refreshData();
                                 };
                                 mainPage.confirmDialogVisible = true;
-                                // Ensure color picker is closed when other actions are performed
                                 mainPage.bulkColorPickerOpen = false;
                                 console.log(("Showing delete confirmation dialog."));
                             } else {
@@ -571,7 +554,6 @@ Page {
                         onPressed: deleteRipple.ripple(mouseX, mouseY)
                     }
                 }
-                // Right: Archive button (left of delete button)
                 Item {
                     id: archiveButton
                     width: Theme.fontSizeExtraLarge * 1.1
@@ -598,7 +580,6 @@ Page {
                                     mainPage.refreshData();
                                 };
                                 mainPage.confirmDialogVisible = true;
-                                // Ensure color picker is closed when other actions are performed
                                 mainPage.bulkColorPickerOpen = false;
                                 console.log(("Showing archive confirmation dialog."));
                             } else {
@@ -683,7 +664,6 @@ Page {
                 }
             }
 
-            // Pinned Notes Section
             Column {
                 id: pinnedSection
                 width: parent.width
@@ -726,7 +706,6 @@ Page {
                 }
             }
 
-            // Other Notes Section
             Column {
                 id: othersSection
                 width: parent.width
@@ -790,7 +769,7 @@ Page {
         anchors.bottomMargin: Theme.paddingLarge * 2
         z: 5
         antialiasing: true
-        visible: !mainPage.selectionMode && !mainPage.tagPickerOpen && allNotes.length > 1 && !mainPage.bulkColorPickerOpen // Hide when color picker is open
+        visible: !mainPage.selectionMode && !mainPage.tagPickerOpen && allNotes.length > 1 && !mainPage.bulkColorPickerOpen
         property real baseOpacity: 0.8
         property real minOpacity: 0.1
         property real fadeDistance: Theme.itemSizeExtraLarge * 1.5
@@ -857,7 +836,7 @@ Page {
         anchors.bottomMargin: Theme.paddingLarge * 2
         z: 5
         antialiasing: true
-        visible: !mainPage.selectionMode && !mainPage.tagPickerOpen && !mainPage.bulkColorPickerOpen // Hide when color picker is open
+        visible: !mainPage.selectionMode && !mainPage.tagPickerOpen && !mainPage.bulkColorPickerOpen
 
         property real baseOpacity: 0.8
         property real minOpacity: 0.1
@@ -914,44 +893,40 @@ Page {
                 console.log(("Opening NewNotePage in CREATE mode (from FAB)."));
                 Qt.inputMethod.hide();
                 searchField.focus = false;
-                mainPage.bulkColorPickerOpen = false; // Close color picker if open
+                mainPage.bulkColorPickerOpen = false;
             }
         }
     }
 
-    // --- Overlay for Bulk Color Selection Panel ---
     Rectangle {
         id: bulkColorOverlayRect
         anchors.fill: parent
         color: "#000000"
         visible: bulkColorSelectionPanel.opacity > 0.01
         opacity: bulkColorSelectionPanel.opacity * 0.4
-        z: 10.5 // Higher than notes, lower than color panel
+        z: 10.5
 
         MouseArea {
             anchors.fill: parent
             enabled: bulkColorOverlayRect.visible
             onClicked: {
-                mainPage.bulkColorPickerOpen = false; // Close the color picker
+                mainPage.bulkColorPickerOpen = false;
             }
         }
     }
 
-    // --- Bulk Color Selection Panel (adapted from NotePage) ---
     Rectangle {
         id: bulkColorSelectionPanel
         width: parent.width
         property real panelRadius: Theme.itemSizeSmall / 2
         height: colorPanelContentColumn.implicitHeight + Theme.paddingMedium * 2 + panelRadius
         anchors.horizontalCenter: parent.horizontalCenter
-        // Position it just above the bottom of the page, similar to how it would be above a toolbar
-        // Adjust this anchor if your layout has a persistent bottom element
-        anchors.bottom: parent.bottom // Anchored to the very bottom of the page
-        z: 12 // Higher than overlay
+        anchors.bottom: parent.bottom
+        z: 12
         opacity: mainPage.bulkColorPickerOpen ? 1 : 0
-        visible: opacity > 0.01 // Ensures visibility for animation
-        color: "transparent" // Outer rectangle is transparent, visual body inside has color
-        clip: true // Ensure content doesn't bleed outside rounded corners if any
+        visible: opacity > 0.01
+        color: "transparent"
+        clip: true
 
         Behavior on opacity {
             NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
@@ -961,10 +936,8 @@ Page {
             id: colorPanelVisualBody
             width: parent.width
             height: colorPanelContentColumn.implicitHeight + Theme.paddingMedium * 2 + 2 * bulkColorSelectionPanel.panelRadius
-            // Keep the background derived from main page background for consistency in bulk picker
             color: DB.darkenColor(mainPage.customBackgroundColor, 0.15)
             y: 0
-            // If you want rounded corners on the panel itself, add: radius: bulkColorSelectionPanel.panelRadius
 
             Column {
                 id: colorPanelContentColumn
@@ -995,12 +968,9 @@ Page {
                     readonly property int columns: 6
                     readonly property real itemWidth: (parent.width - (spacing * (columns - 1))) / columns
 
-                    // Use the same color palette as NotePage
                     readonly property var colorPalette: ["#121218", "#1c1d29", "#3a2c2c", "#2c3a2c", "#2c2c3a", "#3a3a2c",
                         "#43484e", "#5c4b37", "#3e4a52", "#503232", "#325032", "#323250"]
 
-                    // Define a placeholder property to track the last selected bulk color for visual feedback.
-                    // You will need to add 'property string lastSelectedBulkColor: ""' to your 'mainPage' component.
                     property string currentSelectedBulkColor: mainPage.lastSelectedBulkColor || ""
 
                     Repeater {
@@ -1009,40 +979,35 @@ Page {
                             width: parent.itemWidth
                             height: parent.itemWidth
 
-                            // Outer ring for selected color, copied from the styled panel
                             Rectangle {
                                 anchors.fill: parent
                                 radius: width / 2
-                                // Color depends on whether this color is the currently selected bulk color
                                 color: (bulkColorFlow.currentSelectedBulkColor === modelData) ? "white" : "#707070"
                                 border.color: "transparent"
                             }
 
-                            // Inner actual color swatch
                             Rectangle {
                                 anchors.centerIn: parent
                                 width: parent.width * 0.95
                                 height: parent.height * 0.95
                                 radius: width / 2
-                                color: modelData // Actual color swatch
+                                color: modelData
                                 border.color: "transparent"
 
-                                // Checkmark for selected color, copied from the styled panel
                                 Rectangle {
-                                    visible: bulkColorFlow.currentSelectedBulkColor === modelData // Visible if this color is selected
+                                    visible: bulkColorFlow.currentSelectedBulkColor === modelData
                                     anchors.centerIn: parent
                                     width: parent.width * 0.7
                                     height: parent.height * 0.7
                                     radius: width / 2
-                                    color: modelData // Match swatch color
+                                    color: modelData
 
-                                    // Icon for the checkmark - ensure your 'check.svg' path is correct
                                     Icon {
-                                        source: "../icons/check.svg" // Adjust path if necessary
+                                        source: "../icons/check.svg"
                                         anchors.centerIn: parent
                                         width: parent.width * 0.75
                                         height: parent.height * 0.75
-                                        color: "white" // Checkmark color
+                                        color: "white"
                                     }
                                 }
                             }
@@ -1053,11 +1018,9 @@ Page {
                                 anchors.fill: parent
                                 onPressed: colorRipple.ripple(mouseX, mouseY)
                                 onClicked: {
-                                    // Call the bulk change function with the selected color
                                     mainPage.bulkChangeNoteColor(modelData);
-                                    // Update the property that tracks the last selected color for visual feedback
                                     mainPage.lastSelectedBulkColor = modelData;
-                                    mainPage.bulkColorPickerOpen = false; // Close panel after selection
+                                    mainPage.bulkColorPickerOpen = false;
                                 }
                             }
                         }
@@ -1068,7 +1031,6 @@ Page {
     }
 
 
-    // --- Tag Picker Overlay ---
     Rectangle {
         id: tagPickerOverlay
         anchors.fill: parent
@@ -1089,7 +1051,6 @@ Page {
         }
     }
 
-    // --- Tag Picker Panel ---
         Rectangle {
             id: tagPickerPanel
             property string tagPickerSearchText: ""
@@ -1348,7 +1309,6 @@ Page {
                 visible: allTags.length === 0
             }
         }
-    // --- Integrated Generic Confirmation Dialog ---
     ConfirmDialog {
         id: confirmDialogInstance
         dialogVisible: mainPage.confirmDialogVisible

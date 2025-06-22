@@ -1,10 +1,25 @@
+/* Студенты РГУ нефти и газа имени И.М. Губкина
+ * Поляков К.А., Сабиров Д.С.
+ * группы КС-22-03
+ * курсовая работа на тему "Разработка приложения для организации заметок с поддержкой тегов и поиска"
+ *
+ * /src/main.cpp
+ * Это главный файл приложения, точка входа в программу.
+ * Он инициализирует приложение Aurora, создает основной
+ * QQuickView и экземпляр класса AppSettings для управления
+ * настройками. AppSettings регистрируется как контекстное
+ * свойство в QML, что позволяет вызывать его функции из
+ * интерфейса. После инициализации языка загружается
+ * главный QML-файл и отображается окно приложения.
+ */
+
 #include <auroraapp.h>
 #include <QtQuick>
 #include <QTranslator>
 #include <QLocale>
 #include <QSettings>
 #include <QQmlApplicationEngine>
-#include <QQuickView> // Keep this for createView() return type, even if we avoid explicit declaration
+#include <QQuickView>
 
 #include "appsettings.h"
 
@@ -24,10 +39,8 @@ int main(int argc, char *argv[])
         qWarning() << "QQmlApplicationEngine not found for the view. Cannot set AppSettings context property.";
     }
 
-    // Pass only the application to loadInitialLanguage, as the view will be handled in QML
-    appSettings.loadInitialLanguage(application.data()); // <--- CHANGED CALL
+    appSettings.loadInitialLanguage(application.data());
 
-    // Load your main QML file that will contain the Loader
     view->setSource(Aurora::Application::pathTo(QStringLiteral("qml/Aurora_notes.qml")));
     view->show();
 

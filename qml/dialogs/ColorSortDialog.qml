@@ -1,4 +1,18 @@
-// /qml/dialogs/ColorSortDialog.qml
+/* Студенты РГУ нефти и газа имени И.М. Губкина
+ * Поляков К.А., Сабиров Д.С.
+ * группы КС-22-03
+ * курсовая работа на тему "Разработка приложения для организации заметок с поддержкой тегов и поиска"
+ *
+ * /qml/dialogs/ColorSortDialog.qml
+ * Этот файл реализует диалоговое окно для ручной сортировки цветов.
+ * Пользователь может изменять порядок цветов двумя способами:
+ * 1. Перетаскиванием (long press, drag and drop).
+ * 2. Выбором двух цветов для их обмена местами (click-to-swap).
+ * Компонент использует GridView для отображения цветов и ListModel для
+ * управления их порядком. По завершении он отправляет сигнал
+ * colorOrderApplied с отсортированным массивом цветов.
+ */
+
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import "../services/DatabaseManagerService.js" as DB
@@ -13,19 +27,15 @@ Item {
     property var colorsToOrder: []
     property color dialogBackgroundColor: DB.darkenColor(DB.getThemeColor() || "#121218", 0.15)
 
-    // Properties for click-to-swap
     property int selectedIndex: -1
-
-    // Properties for drag and drop
-    property int draggedIndex: -1 // This will be the *current* model index of the item being dragged
-    property var draggedColorData: null // Stores the color value of the item being dragged visually
+    property int draggedIndex: -1
+    property var draggedColorData: null
 
     signal colorOrderApplied(var orderedColors)
     signal cancelled()
 
     ListModel { id: colorSortOrderModel }
 
-    // Function to swap items using set, which is safer when dealing with indices
     function swapItems(indexA, indexB) {
         if (indexA === indexB || indexA < 0 || indexB < 0 ||
             indexA >= colorSortOrderModel.count || indexB >= colorSortOrderModel.count) {
@@ -38,19 +48,17 @@ Item {
         var itemA = colorSortOrderModel.get(indexA);
         var itemB = colorSortOrderModel.get(indexB);
 
-        // Temporarily store values to avoid conflicts
         var tempValueA = itemA.colorValue;
         var tempValueB = itemB.colorValue;
 
-        // Set the values
         colorSortOrderModel.set(indexA, { "colorValue": tempValueB });
         colorSortOrderModel.set(indexB, { "colorValue": tempValueA });
     }
 
     onColorsToOrderChanged: {
         colorSortOrderModel.clear();
-        root.selectedIndex = -1; // Reset selection on new data
-        root.draggedIndex = -1; // Reset drag state
+        root.selectedIndex = -1;
+        root.draggedIndex = -1;
         root.draggedColorData = null;
 
         if (colorsToOrder && colorsToOrder.length > 0) {
@@ -60,7 +68,7 @@ Item {
         }
     }
 
-    Rectangle { // Background dimming overlay
+    Rectangle {
         anchors.fill: parent
         color: "#000000"
         opacity: root.dialogVisible ? 0.6 : 0
@@ -72,7 +80,7 @@ Item {
         id: dialogBody
         width: Math.min(parent.width * 0.9, Theme.itemSizeExtraLarge * 9)
         height: Math.min(parent.height * 0.8, contentColumn.implicitHeight + Theme.paddingLarge * 2)
-        color: root.dialogBackgroundColor // Dialog's main background color
+        color: root.dialogBackgroundColor
         radius: Theme.itemSizeSmall / 2
         anchors.centerIn: parent
         clip: true
@@ -117,104 +125,84 @@ Item {
                     cellHeight: cellWidth
                     model: colorSortOrderModel
                     clip: true
-                    interactive: false // Disable GridView's default interaction
+                    interactive: false
 
-                    // MouseArea covering the entire GridView for drag-and-drop and click-to-swap
                     MouseArea {
                         id: gridDragHandler
                         anchors.fill: parent
-                        enabled: root.dialogVisible // Only active when dialog is visible
+                        enabled: root.dialogVisible
 
-                        property int currentDraggedDelegateInitialIndex: -1 // The *initial* index of the delegate that started the drag
+                        property int currentDraggedDelegateInitialIndex: -1
 
                         onPressAndHold: {
                             var clickedIndex = colorSortGrid.indexAt(mouseX, mouseY);
                             if (clickedIndex !== -1) {
                                 currentDraggedDelegateInitialIndex = clickedIndex;
-                                root.draggedIndex = clickedIndex; // Set the root property to indicate dragging is active
-                                root.draggedColorData = colorSortOrderModel.get(clickedIndex).colorValue; // Store data
-                                root.selectedIndex = -1; // Deselect any clicked item when drag starts
+                                root.draggedIndex = clickedIndex;
+                                root.draggedColorData = colorSortOrderModel.get(clickedIndex).colorValue;
+                                root.selectedIndex = -1;
 
-                                // Configure and show the separate dragVisual
                                 dragVisual.color = root.draggedColorData;
                                 dragVisual.width = colorSortGrid.cellWidth * 0.8;
                                 dragVisual.height = colorSortGrid.cellHeight * 0.8;
 
-                                // --- IMPORTANT FIX HERE: Use mapToItem for correct coordinate translation ---
                                 var localMousePointInDialogBody = mapToItem(dialogBody, mouseX, mouseY);
                                 dragVisual.x = localMousePointInDialogBody.x - dragVisual.width / 2;
                                 dragVisual.y = localMousePointInDialogBody.y - dragVisual.height / 2;
-                                // --- END FIX ---
-
-                                // console.log("onPressAndHold - MouseX:", mouseX, "MouseY:", mouseY);
-                                // console.log("onPressAndHold - dragVisual X:", dragVisual.x, "Y:", dragVisual.y);
 
                                 dragVisual.visible = true;
-                                dragVisual.opacity = 1; // Ensure it's visible after being configured
-                                dragVisual.z = 10; // Bring to front
+                                dragVisual.opacity = 1;
+                                dragVisual.z = 10;
                             }
                         }
 
                         onReleased: {
-                            // Reset pressed visual state for the item that was initially pressed
                             var pressedItem = colorSortGrid.itemAt(mouseX, mouseY);
                             if (pressedItem && pressedItem.colorCircle) {
                                 pressedItem.colorCircle.isPressedInternal = false;
                             }
 
-                            if (root.draggedIndex !== -1) { // If a drag operation was active
-                                // Hide and reset the dragVisual
+                            if (root.draggedIndex !== -1) {
                                 dragVisual.visible = false;
                                 dragVisual.opacity = 0;
-                                dragVisual.z = 0; // Reset z-index
+                                dragVisual.z = 0;
 
                                 currentDraggedDelegateInitialIndex = -1;
-                                root.draggedIndex = -1; // Clear drag active flag
+                                root.draggedIndex = -1;
                                 root.draggedColorData = null;
                             }
                         }
 
                         onPositionChanged: {
-                            if (root.draggedIndex !== -1) { // If a drag is active
-                                // --- IMPORTANT FIX HERE: Use mapToItem for correct coordinate translation ---
+                            if (root.draggedIndex !== -1) {
                                 var localMousePointInDialogBody = mapToItem(dialogBody, mouseX, mouseY);
-                                // Move the floating visual element (dragVisual)
                                 dragVisual.x = localMousePointInDialogBody.x - dragVisual.width / 2;
                                 dragVisual.y = localMousePointInDialogBody.y - dragVisual.height / 2;
-                                // console.log("onPositionChanged - dragVisual X:", dragVisual.x, "Y:", dragVisual.y);
-                                // --- END FIX ---
 
-
-                                // Determine the new target index in the grid
-                                // Use the dragVisual's center point for accurate indexAt lookup
                                 var targetXInGrid = dragVisual.mapToItem(colorSortGrid, dragVisual.width/2, dragVisual.height/2).x;
                                 var targetYInGrid = dragVisual.mapToItem(colorSortGrid, dragVisual.width/2, dragVisual.height/2).y;
                                 var newTargetIndex = colorSortGrid.indexAt(targetXInGrid, targetYInGrid);
 
-                                // If the target index is valid and different from the current position of the dragged item
                                 if (newTargetIndex !== -1 && newTargetIndex !== root.draggedIndex) {
                                     console.log("Moving model item from " + root.draggedIndex + " to " + newTargetIndex);
                                     colorSortOrderModel.move(root.draggedIndex, newTargetIndex, 1);
-                                    // Crucial: Update root.draggedIndex to the item's *new* model position
-                                    // This keeps `root.draggedIndex` in sync with the actual item's position in the model
                                     root.draggedIndex = newTargetIndex;
                                 }
                             }
                         }
 
-                        onClicked: { // Handle click-to-swap only if no drag was active
-                            if (root.draggedIndex === -1) { // Ensure no drag operation is in progress
+                        onClicked: {
+                            if (root.draggedIndex === -1) {
                                 var clickedIndex = colorSortGrid.indexAt(mouseX, mouseY);
                                 if (clickedIndex !== -1) {
                                     if (root.selectedIndex === -1) {
-                                        root.selectedIndex = clickedIndex; // Select this item
+                                        root.selectedIndex = clickedIndex;
                                     } else {
                                         if (root.selectedIndex === clickedIndex) {
-                                            root.selectedIndex = -1; // Deselect this item if already selected
+                                            root.selectedIndex = -1;
                                         } else {
-                                            // Swap with the previously selected item
                                             root.swapItems(root.selectedIndex, clickedIndex);
-                                            root.selectedIndex = -1; // Deselect after swap
+                                            root.selectedIndex = -1;
                                         }
                                     }
                                 }
@@ -222,21 +210,18 @@ Item {
                         }
 
                         onPressed: {
-                            // Visual feedback for press (before potential long press or quick click)
                             var pressedItem = colorSortGrid.itemAt(mouseX, mouseY);
                             if (pressedItem && pressedItem.colorCircle) {
                                 pressedItem.colorCircle.isPressedInternal = true;
                             }
                         }
-                    } // End of gridDragHandler MouseArea
+                    }
 
                     delegate: Item {
                         id: delegateRoot
                         width: colorSortGrid.cellWidth
                         height: colorSortGrid.cellHeight
 
-                        // Behaviors for delegateRoot's x and y for smooth grid movements
-                        // These apply to the *underlying* grid items as the model changes
                         Behavior on x {
                             enabled: root.draggedIndex === -1 || (root.draggedIndex !== index)
                             NumberAnimation { duration: 150; easing.type: Easing.OutQuad }
@@ -252,27 +237,24 @@ Item {
                             width: parent.width * 0.8; height: parent.height * 0.8
                             radius: width / 2; color: model.colorValue
                             border.color: "white"
-                            border.width: 1 // Default border width
-                            z: 0 // Default z-index for grid items
+                            border.width: 1
+                            z: 0
 
-                            // Hide the original item when its model index matches the currently dragged item's index
                             opacity: (root.draggedIndex === index) ? 0 : 1
 
-                            property bool isPressedInternal: false // For visual pressed feedback
+                            property bool isPressedInternal: false
 
                             states: [
                                 State {
                                     name: "selected"
-                                    when: root.selectedIndex === index && root.draggedIndex === -1 // Only selected if not dragging
+                                    when: root.selectedIndex === index && root.draggedIndex === -1
                                     PropertyChanges { target: colorCircle; scale: 1.2; border.width: 3 }
                                 },
                                 State {
                                     name: "pressed"
-                                    // Only show pressed state if not in a drag operation and not the item currently being dragged (invisible)
                                     when: colorCircle.isPressedInternal && root.draggedIndex === -1
                                     PropertyChanges { target: colorCircle; scale: 1.1; border.width: 2 }
                                 },
-                                // Default normal state for when neither dragging, selected nor pressed
                                 State {
                                     name: "normal"
                                     when: root.selectedIndex !== index && !colorCircle.isPressedInternal && root.draggedIndex === -1
@@ -280,7 +262,6 @@ Item {
                                 }
                             ]
                             transitions: [
-                                // Transition for original item's opacity when drag starts/ends
                                 Transition {
                                     from: "*"; to: "dragging"
                                     NumberAnimation { properties: "opacity"; duration: 150 }
@@ -310,33 +291,30 @@ Item {
                     }
                 }
 
-                // --- Floating visual for drag and drop ---
                 Rectangle {
                     id: dragVisual
-                    parent: dialogBody // Parent to dialogBody so it floats above flickable content
-                    width: 0; height: 0 // Will be set dynamically based on dragged item
+                    parent: dialogBody
+                    width: 0; height: 0
                     radius: width / 2
-                    color: "transparent" // Will be set dynamically
+                    color: "transparent"
                     border.color: "white"
                     border.width: 3
-                    visible: false // Hidden by default
-                    opacity: 0 // Hidden by default, will fade in/out
-                    scale: 1.2 // Visually larger when dragged
-                    z: 20 // Ensure it's on top of everything else
+                    visible: false
+                    opacity: 0
+                    scale: 1.2
+                    z: 20
 
-                    // Transitions for drag object appearance
                     transitions: [
                         Transition {
-                            from: "false"; to: "true" // When becoming visible
+                            from: "false"; to: "true"
                             NumberAnimation { properties: "opacity"; duration: 100 }
                         },
                         Transition {
-                            from: "true"; to: "false" // When becoming invisible
+                            from: "true"; to: "false"
                             NumberAnimation { properties: "opacity"; duration: 100 }
                         }
                     ]
                 }
-                // --- END Floating visual ---
 
                 Item { width: 1; height: Theme.paddingLarge }
 

@@ -1,4 +1,17 @@
-// /qml/pages/ArchivePage.qml
+/* Студенты РГУ нефти и газа имени И.М. Губкина
+ * Поляков К.А., Сабиров Д.С.
+ * группы КС-22-03
+ * курсовая работа на тему "Разработка приложения для организации заметок с поддержкой тегов и поиска"
+ *
+ * /qml/pages/ArchivePage.qml
+ * Эта страница представляет собой универсальный интерфейс для разделов
+ * "Архив" и "Корзина". Режим работы определяется свойством `pageMode`.
+ * Страница поддерживает массовые операции с заметками, такие как
+ * "выбрать все", "восстановить/разархивировать" и "удалить навсегда",
+ * через панель инструментов, которая появляется при выборе элементов.
+ * Для отображения заметок используется `TrashArchiveNoteCard`.
+ */
+
 import QtQuick.LocalStorage 2.0
 import QtQuick 2.0
 import Sailfish.Silica 1.0
@@ -16,7 +29,7 @@ Page {
     property string customBackgroundColor: DB.getThemeColor() || "#121218"
     showNavigationIndicator: false
     property int noteMargin: 20
-    property string pageMode: qsTr("archive")
+    property string pageMode: "archive"
     property var notesToDisplay: []
     property var selectedNoteIds: []
     property bool panelOpen: false
@@ -37,10 +50,10 @@ Page {
     }
 
     function refreshNotes() {
-        if (pageMode === qsTr("trash")) {
+        if (pageMode === "trash") {
             notesToDisplay = DB.getDeletedNotes();
             console.log("DB_MGR: getDeletedNotes found %1 deleted notes.".arg(notesToDisplay.length));
-        } else if (pageMode === qsTr("archive")) {
+        } else if (pageMode === "archive") {
             notesToDisplay = DB.getArchivedNotes();
             console.log("DB_MGR: getArchivedNotes found %1 archived notes.".arg(notesToDisplay.length));
         }
@@ -105,7 +118,7 @@ Page {
         }
 
         Label {
-            text: pageMode === qsTr("trash") ? qsTr("Trash") : qsTr("Archive")
+            text: pageMode === "trash" ? qsTr("Trash") : qsTr("Archive")
             anchors.centerIn: parent
             font.pixelSize: Theme.fontSizeExtraLarge
             font.bold: true
@@ -185,13 +198,13 @@ Page {
                         anchors.horizontalCenter: parent.horizontalCenter
 
                         Icon {
-                            source: pageMode === qsTr("trash") ? "../icons/restore_notes.svg" : "../icons/unarchive.svg"
+                            source: pageMode === "trash" ? "../icons/restore_notes.svg" : "../icons/unarchive.svg"
                             anchors.fill: parent
                             color: Theme.primaryColor
                         }
                     }
                     Label {
-                        text: pageMode === qsTr("trash") ? qsTr("Restore") : qsTr("Unarchive")
+                        text: pageMode === "trash" ? qsTr("Restore") : qsTr("Unarchive")
                         color: Theme.primaryColor
                         font.pixelSize: Theme.fontSizeSmall
                         horizontalAlignment: Text.AlignHCenter
@@ -205,7 +218,7 @@ Page {
                         var highlight = Theme.highlightColor;
                         var callbackFunction;
 
-                        if (pageMode === qsTr("trash")) {
+                        if (pageMode === "trash") {
                             message = qsTr("Are you sure you want to restore %1 selected notes to your main notes?").arg(selectedNoteIds.length);
                             confirmTitle = qsTr("Confirm Restoration");
                             confirmButton = qsTr("Restore");
@@ -216,7 +229,7 @@ Page {
                                 toastManager.show(qsTr("%1 note(s) restored!").arg(restoredCount));
                                 console.log("%1 note(s) restored from trash.".arg(restoredCount));
                             };
-                        } else if (pageMode === qsTr("archive")) {
+                        } else if (pageMode === "archive") {
                             message = qsTr("Are you sure you want to unarchive %1 selected notes?").arg(selectedNoteIds.length);
                             confirmTitle = qsTr("Confirm Unarchive");
                             confirmButton = qsTr("Unarchive");
@@ -244,7 +257,7 @@ Page {
 
             Button {
                 id: deleteSelectedButton
-                visible: archivePage.pageMode === qsTr("trash")
+                visible: archivePage.pageMode === "trash"
                 width: parent.calculatedButtonWidth
                 highlightColor: Theme.errorColor
 
@@ -368,8 +381,8 @@ Page {
                                     noteCreationDate: creationDate,
                                     noteEditDate: editDate,
                                     noteColor: color,
-                                    isArchived: archivePage.pageMode === qsTr("archive"),
-                                    isDeleted: archivePage.pageMode === qsTr("trash")
+                                    isArchived: archivePage.pageMode === "archive",
+                                    isDeleted: archivePage.pageMode === "trash"
                                 });
                             }
                         }
@@ -408,7 +421,7 @@ Page {
     Label {
         id: emptyLabel
         visible: archivePage.showEmptyLabel
-        text: pageMode === qsTr("trash") ? qsTr("Trash is empty.") : qsTr("Archive is empty.")
+        text: pageMode === "trash" ? qsTr("Trash is empty.") : qsTr("Archive is empty.")
         font.italic: true
         color: Theme.secondaryColor
         anchors.horizontalCenter: parent.horizontalCenter

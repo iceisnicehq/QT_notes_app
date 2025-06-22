@@ -1,13 +1,19 @@
-// /qml/services/ToastManagerService.js
+/* Студенты РГУ нефти и газа имени И.М. Губкина
+ * Поляков К.А., Сабиров Д.С.
+ * группы КС-22-03
+ * курсовая работа на тему "Разработка приложения для организации заметок с поддержкой тегов и поиска"
+ *
+ * /qml/services/ToastManagerService.qml
+ * Этот QML компонент управляет очередью всплывающих уведомлений (тостов).
+ * Он реализован как ListView, который отображает элементы ToastService.
+ * Публичная функция show(text, duration) позволяет динамически
+ * добавлять новые уведомления в список. Уведомления появляются снизу
+ * экрана и выстраиваются вверх.
+ */
+
 import QtQuick 2.0
 
-/**
-  * @brief Manager that creates Toasts dynamically
-  */
 ListView {
-    /**
-      * @brief Shows a Toast
-      */
     function show(text, duration) {
         model.insert(0, {text: text, duration: duration});
     }
