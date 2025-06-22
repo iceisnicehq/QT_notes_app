@@ -416,6 +416,7 @@ Page {
                     id: selectedCountLabel
                     text: mainPage.selectedNoteIds.length.toString()
                     font.pixelSize: Theme.fontSizeSmall
+                    font.bold: true
                     color: Theme.secondaryColor
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.left: closeButton.right
@@ -519,6 +520,10 @@ Page {
                         anchors.fill: parent
                         onPressed: paletteRipple.ripple(mouseX, mouseY)
                         onClicked: {
+                            if (mainPage.selectedNoteIds.length === 0) {
+                                toastManager.show(qsTr("No notes selected."));
+                                return;
+                            }
                             // Toggle the visibility of the bulk color picker
                             mainPage.bulkColorPickerOpen = !mainPage.bulkColorPickerOpen;
                             console.log("Bulk color palette button clicked. bulkColorPickerOpen:", mainPage.bulkColorPickerOpen);
@@ -932,6 +937,8 @@ Page {
         z: 12 // Higher than overlay
         opacity: mainPage.bulkColorPickerOpen ? 1 : 0
         visible: opacity > 0.01 // Ensures visibility for animation
+        color: "transparent" // Outer rectangle is transparent, visual body inside has color
+        clip: true // Ensure content doesn't bleed outside rounded corners if any
 
         Behavior on opacity {
             NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
@@ -941,8 +948,10 @@ Page {
             id: colorPanelVisualBody
             width: parent.width
             height: colorPanelContentColumn.implicitHeight + Theme.paddingMedium * 2 + 2 * bulkColorSelectionPanel.panelRadius
-            color: DB.darkenColor(mainPage.customBackgroundColor, 0.15) // Use a slightly darker version of main page background
+            // Keep the background derived from main page background for consistency in bulk picker
+            color: DB.darkenColor(mainPage.customBackgroundColor, 0.15)
             y: 0
+            // If you want rounded corners on the panel itself, add: radius: bulkColorSelectionPanel.panelRadius
 
             Column {
                 id: colorPanelContentColumn
@@ -977,18 +986,52 @@ Page {
                     readonly property var colorPalette: ["#121218", "#1c1d29", "#3a2c2c", "#2c3a2c", "#2c2c3a", "#3a3a2c",
                         "#43484e", "#5c4b37", "#3e4a52", "#503232", "#325032", "#323250"]
 
+                    // Define a placeholder property to track the last selected bulk color for visual feedback.
+                    // You will need to add 'property string lastSelectedBulkColor: ""' to your 'mainPage' component.
+                    property string currentSelectedBulkColor: mainPage.lastSelectedBulkColor || ""
+
                     Repeater {
                         model: bulkColorFlow.colorPalette
                         delegate: Item {
                             width: parent.itemWidth
                             height: parent.itemWidth
 
-                            // No outer ring or checkmark needed for bulk action as there's no "current" note color here
+                            // Outer ring for selected color, copied from the styled panel
                             Rectangle {
                                 anchors.fill: parent
                                 radius: width / 2
+                                // Color depends on whether this color is the currently selected bulk color
+                                color: (bulkColorFlow.currentSelectedBulkColor === modelData) ? "white" : "#707070"
+                                border.color: "transparent"
+                            }
+
+                            // Inner actual color swatch
+                            Rectangle {
+                                anchors.centerIn: parent
+                                width: parent.width * 0.95
+                                height: parent.height * 0.95
+                                radius: width / 2
                                 color: modelData // Actual color swatch
                                 border.color: "transparent"
+
+                                // Checkmark for selected color, copied from the styled panel
+                                Rectangle {
+                                    visible: bulkColorFlow.currentSelectedBulkColor === modelData // Visible if this color is selected
+                                    anchors.centerIn: parent
+                                    width: parent.width * 0.7
+                                    height: parent.height * 0.7
+                                    radius: width / 2
+                                    color: modelData // Match swatch color
+
+                                    // Icon for the checkmark - ensure your 'check.svg' path is correct
+                                    Icon {
+                                        source: "../icons/check.svg" // Adjust path if necessary
+                                        anchors.centerIn: parent
+                                        width: parent.width * 0.75
+                                        height: parent.height * 0.75
+                                        color: "white" // Checkmark color
+                                    }
+                                }
                             }
 
                             RippleEffect { id: colorRipple }
@@ -999,6 +1042,8 @@ Page {
                                 onClicked: {
                                     // Call the bulk change function with the selected color
                                     mainPage.bulkChangeNoteColor(modelData);
+                                    // Update the property that tracks the last selected color for visual feedback
+                                    mainPage.lastSelectedBulkColor = modelData;
                                     mainPage.bulkColorPickerOpen = false; // Close panel after selection
                                 }
                             }
