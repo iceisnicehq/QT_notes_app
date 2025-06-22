@@ -36,6 +36,9 @@ Page {
     property bool sortDialogVisible: false
     property bool colorSortDialogVisible: false
     property var customColorSortOrder: []
+    // NEW: Property to control the visibility of the bulk color picker
+    property bool bulkColorPickerOpen: false
+
     // --- ToastManager ---
     ToastManager {
         id: toastManager
@@ -71,6 +74,8 @@ Page {
             sidePanel.currentPage = "notes"
             Qt.inputMethod.hide();
             resetSelection();
+            // Ensure bulk color picker is closed when selection mode is exited
+            mainPage.bulkColorPickerOpen = false;
             console.log(("MainPage active (status changed to Active), search field focus cleared and keyboard hidden."));
         }
     }
@@ -85,14 +90,12 @@ Page {
 
     // Main search function that calls the DatabaseManager and updates searchResults
     function performSearch() {
-        // Теперь функция не принимает аргументов, а использует свойства mainPage.
-        // Это делает ее поведение предсказуемым и надежным.
         searchResults = DB.searchNotes(
             mainPage.currentSearchText,
             mainPage.selectedTags,
             mainPage.currentSortBy,
             mainPage.currentSortOrder,
-            mainPage.customColorSortOrder // Всегда передаем актуальный порядок цветов
+            mainPage.customColorSortOrder
         );
         console.log("MAIN_PAGE: Search performed. SortBy: " + mainPage.currentSortBy);
     }
@@ -110,17 +113,15 @@ Page {
     }
 
     // Function to load tags into the ListModel for the tag selection panel
-    // This function now accepts an optional 'filterText' parameter
     function loadTagsForTagPanel(filterText) {
         availableTagsModel.clear();
-        var currentSearchLower = (filterText || "").toLowerCase(); // Use the provided filterText
+        var currentSearchLower = (filterText || "").toLowerCase();
 
         var selectedOnlyTags = [];
         var unselectedTags = [];
 
         for (var i = 0; i < allTags.length; i++) {
             var tagName = allTags[i];
-            // Filter logic: if filterText is provided, include only matching tags.
             if (currentSearchLower === "" || tagName.toLowerCase().indexOf(currentSearchLower) !== -1) {
                 if (selectedTags.indexOf(tagName) !== -1) {
                     selectedOnlyTags.push({ name: tagName, isChecked: true });
@@ -156,8 +157,7 @@ Page {
     }
 
     function toggleNoteSelection(noteId) {
-        // Create a new array reference to ensure property change detection in QML
-        var newSelectedIds = mainPage.selectedNoteIds.slice(); // Use slice to create a shallow copy
+        var newSelectedIds = mainPage.selectedNoteIds.slice();
 
         var index = newSelectedIds.indexOf(noteId);
         if (index === -1) {
@@ -168,33 +168,36 @@ Page {
             console.log(("Deselected note ID: %1").arg(noteId));
         }
 
-        mainPage.selectedNoteIds = newSelectedIds; // Assign the new array reference
+        mainPage.selectedNoteIds = newSelectedIds;
         mainPage.selectionMode = mainPage.selectedNoteIds.length > 0;
         Qt.inputMethod.hide();
         if (pinnedNotes) pinnedNotes.forceLayout();
         if (otherNotes) otherNotes.forceLayout();
+        // Close the color picker if selection mode is exited
+        if (!mainPage.selectionMode) {
+            mainPage.bulkColorPickerOpen = false;
+        }
     }
 
     function resetSelection() {
         mainPage.selectedNoteIds = [];
         mainPage.selectionMode = false;
+        // Ensure bulk color picker is closed on selection reset
+        mainPage.bulkColorPickerOpen = false;
         console.log(("Selection reset."));
         if (pinnedNotes) pinnedNotes.forceLayout();
         if (otherNotes) otherNotes.forceLayout();
     }
 
-    // New function to handle pinning/unpinning selected notes
     function pinSelectedNotes() {
         if (mainPage.selectedNoteIds.length === 0) {
             toastManager.show(qsTr("No notes selected."));
             return;
         }
 
-        // Determine if all selected notes are currently pinned
         var allArePinned = true;
         for (var i = 0; i < mainPage.selectedNoteIds.length; i++) {
-            var noteId = mainPage.selectedNoteIds[i];
-            var note = DB.getNoteById(noteId); // Assuming DB.getNoteById exists
+            var note = DB.getNoteById(mainPage.selectedNoteIds[i]);
             if (!note || !note.pinned) {
                 allArePinned = false;
                 break;
@@ -203,7 +206,7 @@ Page {
 
         var actionText = allArePinned ? qsTr("unpin") : qsTr("pin");
         var message = qsTr("Are you sure you want to %1 %2 selected note(s)?").arg(actionText).arg(mainPage.selectedNoteIds.length);
-        var buttonText = actionText.charAt(0).toUpperCase() + actionText.slice(1); // Capitalize first letter
+        var buttonText = actionText.charAt(0).toUpperCase() + actionText.slice(1);
         var highlightColor = Theme.primaryColor;
 
         mainPage.confirmDialogTitle = qsTr("Confirm Pin/Unpin");
@@ -213,10 +216,10 @@ Page {
         mainPage.onConfirmCallback = function() {
             var idsToToggle = mainPage.selectedNoteIds;
             if (allArePinned) {
-                DB.bulkUnpinNotes(idsToToggle); // Assuming DB.bulkUnpinNotes exists
+                DB.bulkUnpinNotes(idsToToggle);
                 toastManager.show(qsTr("%1 note(s) unpinned!").arg(idsToToggle.length));
             } else {
-                DB.bulkPinNotes(idsToToggle); // Assuming DB.bulkPinNotes exists
+                DB.bulkPinNotes(idsToToggle);
                 toastManager.show(qsTr("%1 note(s) pinned!").arg(idsToToggle.length));
             }
             mainPage.resetSelection();
@@ -224,6 +227,28 @@ Page {
         };
         mainPage.confirmDialogVisible = true;
         console.log(("Showing pin/unpin confirmation dialog."));
+    }
+
+    // NEW: Function to handle bulk color change
+    function bulkChangeNoteColor(newColor) {
+        if (mainPage.selectedNoteIds.length === 0) {
+            toastManager.show(qsTr("No notes selected."));
+            return;
+        }
+
+        mainPage.confirmDialogTitle = qsTr("Confirm Color Change");
+        mainPage.confirmDialogMessage = qsTr("Are you sure you want to change the color of %1 selected note(s) to the chosen color?").arg(mainPage.selectedNoteIds.length);
+        mainPage.confirmButtonText = qsTr("Change Color");
+        mainPage.confirmButtonHighlightColor = Theme.primaryColor;
+        mainPage.onConfirmCallback = function() {
+            var idsToChangeColor = mainPage.selectedNoteIds;
+            DB.bulkUpdateNoteColor(idsToChangeColor, newColor); // This function needs to be added to DatabaseManager.js
+            toastManager.show(qsTr("Color changed for %1 note(s)!").arg(idsToChangeColor.length));
+            mainPage.resetSelection(); // Reset selection after action
+            mainPage.refreshData(); // Refresh main view
+        };
+        mainPage.confirmDialogVisible = true;
+        console.log(("Showing bulk color change confirmation dialog."));
     }
 
     Label {
@@ -276,7 +301,7 @@ Page {
                     anchors.fill: parent
                     placeholderText: qsTr("Search notes...")
                     highlighted: false
-                    text: currentSearchText // This binds to mainPage.currentSearchText
+                    text: currentSearchText
                     readOnly: allNotes.length === 0
                     onTextChanged: {
                         mainPage.currentSearchText = text;
@@ -361,7 +386,7 @@ Page {
                 width: parent.width - (noteMargin * 2)
                 height: parent.height
                 anchors.centerIn: parent
-                color: mainPage.backgroundColor // Changed to match page background
+                color: mainPage.backgroundColor
                 radius: 80
                 visible: mainPage.selectionMode
                 opacity: visible ? 1 : 0
@@ -386,24 +411,25 @@ Page {
                     }
                 }
 
+                // Counter Label
                 Label {
                     id: selectedCountLabel
-                    text: mainPage.selectedNoteIds.length.toString() // Display the count
-                    font.pixelSize: Theme.fontSizeLarge // Use Theme.fontSizeSmall like in NavigationButton
-                    color: white         // Use Theme.secondaryColor like in NavigationButton
-                    // No font.bold property here, as counts in NavigationButton typically aren't bold
+                    text: mainPage.selectedNoteIds.length.toString()
+                    font.pixelSize: Theme.fontSizeSmall
+                    color: Theme.secondaryColor
                     anchors.verticalCenter: parent.verticalCenter
-                    anchors.left: closeButton.right // Position next to the close button
-                    anchors.leftMargin: Theme.paddingSmall // Small margin between icon and text
-                    visible: mainPage.selectionMode // Only visible in selection mode
+                    anchors.left: closeButton.right
+                    anchors.leftMargin: Theme.paddingSmall
+                    visible: mainPage.selectionMode
                 }
+
 
                 Item {
                     id: selectAllButton
                     width: Theme.fontSizeExtraLarge * 1.1
                     height: Theme.fontSizeExtraLarge * 0.95
                     anchors.verticalCenter: parent.verticalCenter
-                    anchors.right: pinButton.left // Anchored to the left of the new pin button
+                    anchors.right: pinButton.left
                     anchors.rightMargin: Theme.paddingMedium
 
                     Icon {
@@ -432,29 +458,28 @@ Page {
                     }
                 }
 
-                // NEW: Pin button (between select all and archive)
+                // Pin button
                 Item {
                     id: pinButton
                     width: Theme.fontSizeExtraLarge * 1.1
                     height: Theme.fontSizeExtraLarge * 0.95
                     anchors.verticalCenter: parent.verticalCenter
-                    anchors.right: archiveButton.left // Anchored to the left of the archive button
+                    anchors.right: paletteButton.left // NOW ANCHORED TO THE LEFT OF NEW PALETTE BUTTON
                     anchors.rightMargin: Theme.paddingMedium
 
                     Icon {
                         id: pinAllIconButton
-                        // Determine if all selected notes are pinned to choose the icon
                         property bool allSelectedPinned: {
                             if (mainPage.selectedNoteIds.length === 0) return false;
                             for (var i = 0; i < mainPage.selectedNoteIds.length; i++) {
-                                var note = DB.getNoteById(mainPage.selectedNoteIds[i]); // Assuming getNoteById exists in your DB
+                                var note = DB.getNoteById(mainPage.selectedNoteIds[i]);
                                 if (!note || !note.pinned) {
                                     return false;
                                 }
                             }
                             return true;
                         }
-                        source: allSelectedPinned ? "../icons/pin-enabled.svg" : "../icons/pin.svg" // Use pin-enabled if you have it
+                        source: allSelectedPinned ? "../icons/pin-enabled.svg" : "../icons/pin.svg"
                         color: Theme.primaryColor
                         anchors.centerIn: parent
                         width: parent.width
@@ -466,6 +491,37 @@ Page {
                         onPressed: pinRipple.ripple(mouseX, mouseY)
                         onClicked: {
                             mainPage.pinSelectedNotes();
+                            // Ensure color picker is closed when other actions are performed
+                            mainPage.bulkColorPickerOpen = false;
+                        }
+                    }
+                }
+
+                // NEW: Palette button (between pin and archive)
+                Item {
+                    id: paletteButton
+                    width: Theme.fontSizeExtraLarge * 1.1
+                    height: Theme.fontSizeExtraLarge * 0.95
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.right: archiveButton.left // Anchored to the left of the archive button
+                    anchors.rightMargin: Theme.paddingMedium
+
+                    Icon {
+                        id: paletteIcon
+                        source: "../icons/palette.svg"
+                        anchors.centerIn: parent
+                        width: parent.width
+                        height: parent.height
+                        color: Theme.primaryColor // Always primary color
+                    }
+                    RippleEffect { id: paletteRipple }
+                    MouseArea {
+                        anchors.fill: parent
+                        onPressed: paletteRipple.ripple(mouseX, mouseY)
+                        onClicked: {
+                            // Toggle the visibility of the bulk color picker
+                            mainPage.bulkColorPickerOpen = !mainPage.bulkColorPickerOpen;
+                            console.log("Bulk color palette button clicked. bulkColorPickerOpen:", mainPage.bulkColorPickerOpen);
                         }
                     }
                 }
@@ -485,7 +541,6 @@ Page {
                         anchors.fill: parent
                         onClicked: {
                             if (mainPage.selectedNoteIds.length > 0) {
-                                // Configure and show the generic confirmation dialog for deletion
                                 mainPage.confirmDialogTitle = qsTr("Confirm Deletion");
                                 mainPage.confirmDialogMessage = qsTr("Are you sure you want to move %1 selected note(s) to trash?").arg(mainPage.selectedNoteIds.length);
                                 mainPage.confirmButtonText = qsTr("Delete");
@@ -498,6 +553,8 @@ Page {
                                     mainPage.refreshData();
                                 };
                                 mainPage.confirmDialogVisible = true;
+                                // Ensure color picker is closed when other actions are performed
+                                mainPage.bulkColorPickerOpen = false;
                                 console.log(("Showing delete confirmation dialog."));
                             } else {
                                 toastManager.show(qsTr("No notes selected."));
@@ -521,7 +578,6 @@ Page {
                         anchors.fill: parent
                         onClicked: {
                             if (mainPage.selectedNoteIds.length > 0) {
-                                // Configure and show the generic confirmation dialog for archiving
                                 mainPage.confirmDialogTitle = qsTr("Confirm Archiving");
                                 mainPage.confirmDialogMessage = qsTr("Are you sure you want to archive %1 selected note(s)?").arg(mainPage.selectedNoteIds.length);
                                 mainPage.confirmButtonText = qsTr("Archive");
@@ -534,6 +590,8 @@ Page {
                                     mainPage.refreshData();
                                 };
                                 mainPage.confirmDialogVisible = true;
+                                // Ensure color picker is closed when other actions are performed
+                                mainPage.bulkColorPickerOpen = false;
                                 console.log(("Showing archive confirmation dialog."));
                             } else {
                                 toastManager.show(qsTr("No notes selected."));
@@ -552,15 +610,13 @@ Page {
         anchors.bottom: parent.bottom
         open: panelOpen
         tags: allTags
-        onClosed: mainPage.panelOpen = false // Listen for the 'closed' signal and update page's property
+        onClosed: mainPage.panelOpen = false
     }
 
     SilicaFlickable {
         id: flickable
         anchors.left: parent.left
         anchors.right: parent.right
-        // Dynamic bottom anchor: if in selection mode or tag picker is open, extend to parent bottom.
-        // Otherwise, anchor above the fabButton.
         anchors.bottom: parent.bottom
         anchors.top: searchAreaWrapper.bottom
         contentHeight: column.height
@@ -618,7 +674,6 @@ Page {
                     }
                 }
             }
-
 
             // Pinned Notes Section
             Column {
@@ -720,16 +775,14 @@ Page {
         width: Theme.itemSizeLarge
         height: Theme.itemSizeLarge
         radius: width / 2
-        // Используем тот же цвет, что и у основной кнопки
         color:  DB.darkenColor((mainPage.customBackgroundColor), -0.3)
-        // Анкеры для размещения СЛЕВА снизу
         anchors.left: parent.left
         anchors.bottom: parent.bottom
         anchors.leftMargin: Theme.paddingLarge * 2
         anchors.bottomMargin: Theme.paddingLarge * 2
         z: 5
         antialiasing: true
-        visible: !mainPage.selectionMode && !mainPage.tagPickerOpen && allNotes.length > 1
+        visible: !mainPage.selectionMode && !mainPage.tagPickerOpen && allNotes.length > 1 && !mainPage.bulkColorPickerOpen // Hide when color picker is open
         property real baseOpacity: 0.8
         property real minOpacity: 0.1
         property real fadeDistance: Theme.itemSizeExtraLarge * 1.5
@@ -753,7 +806,6 @@ Page {
         }
 
         Icon {
-            // Убедитесь, что у вас есть иконка sort.svg в папке icons
             source: "../icons/sort.svg"
             color: Theme.primaryColor
             anchors.centerIn: parent
@@ -770,6 +822,7 @@ Page {
             onClicked: {
                 console.log("Кнопка сортировки нажата. Открываем диалог.");
                 mainPage.sortDialogVisible = true;
+                mainPage.bulkColorPickerOpen = false; // Close color picker if open
             }
         }
     }
@@ -786,8 +839,7 @@ Page {
         anchors.bottomMargin: Theme.paddingLarge * 2
         z: 5
         antialiasing: true
-        // Set visible based on selection mode and tag picker.
-        visible: !mainPage.selectionMode && !mainPage.tagPickerOpen
+        visible: !mainPage.selectionMode && !mainPage.tagPickerOpen && !mainPage.bulkColorPickerOpen // Hide when color picker is open
 
         property real baseOpacity: 0.8
         property real minOpacity: 0.1
@@ -826,7 +878,7 @@ Page {
 
         MouseArea {
             anchors.fill: parent
-            enabled: fabButton.visible // Enable/disable based on fabButton's visible property
+            enabled: fabButton.visible
             onPressed: plusButtonRipple.ripple(mouseX, mouseY)
             onClicked: {
                 pageStack.push(Qt.resolvedUrl("NotePage.qml"), {
@@ -835,7 +887,7 @@ Page {
                     noteTitle: "",
                     noteContent: "",
                     noteIsPinned: false,
-                    noteTags: "", // Pass empty string for new note tags
+                    noteTags: "",
                     noteCreationDate: new Date(),
                     noteEditDate: new Date(),
                     noteColor: DB.getThemeColor() || "#121218"
@@ -844,6 +896,115 @@ Page {
                 console.log(("Opening NewNotePage in CREATE mode (from FAB)."));
                 Qt.inputMethod.hide();
                 searchField.focus = false;
+                mainPage.bulkColorPickerOpen = false; // Close color picker if open
+            }
+        }
+    }
+
+    // --- Overlay for Bulk Color Selection Panel ---
+    Rectangle {
+        id: bulkColorOverlayRect
+        anchors.fill: parent
+        color: "#000000"
+        visible: bulkColorSelectionPanel.opacity > 0.01
+        opacity: bulkColorSelectionPanel.opacity * 0.4
+        z: 10.5 // Higher than notes, lower than color panel
+
+        MouseArea {
+            anchors.fill: parent
+            enabled: bulkColorOverlayRect.visible
+            onClicked: {
+                mainPage.bulkColorPickerOpen = false; // Close the color picker
+            }
+        }
+    }
+
+    // --- Bulk Color Selection Panel (adapted from NotePage) ---
+    Rectangle {
+        id: bulkColorSelectionPanel
+        width: parent.width
+        property real panelRadius: Theme.itemSizeSmall / 2
+        height: colorPanelContentColumn.implicitHeight + Theme.paddingMedium * 2 + panelRadius
+        anchors.horizontalCenter: parent.horizontalCenter
+        // Position it just above the bottom of the page, similar to how it would be above a toolbar
+        // Adjust this anchor if your layout has a persistent bottom element
+        anchors.bottom: parent.bottom // Anchored to the very bottom of the page
+        z: 12 // Higher than overlay
+        opacity: mainPage.bulkColorPickerOpen ? 1 : 0
+        visible: opacity > 0.01 // Ensures visibility for animation
+
+        Behavior on opacity {
+            NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
+        }
+
+        Rectangle {
+            id: colorPanelVisualBody
+            width: parent.width
+            height: colorPanelContentColumn.implicitHeight + Theme.paddingMedium * 2 + 2 * bulkColorSelectionPanel.panelRadius
+            color: DB.darkenColor(mainPage.customBackgroundColor, 0.15) // Use a slightly darker version of main page background
+            y: 0
+
+            Column {
+                id: colorPanelContentColumn
+                width: parent.width
+                height: implicitHeight
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.topMargin: bulkColorSelectionPanel.panelRadius
+                anchors.bottomMargin: Theme.paddingMedium
+                spacing: Theme.paddingMedium
+
+                Label {
+                    id: bulkColorTitle
+                    text: qsTr("Select Color for Notes")
+                    font.pixelSize: Theme.fontSizeLarge
+                    color: "#e8eaed"
+                    horizontalAlignment: Text.AlignHCenter
+                    width: parent.width
+                }
+
+                Flow {
+                    id: bulkColorFlow
+                    width: parent.width
+                    spacing: Theme.paddingSmall
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    layoutDirection: Qt.LeftToRight
+                    readonly property int columns: 6
+                    readonly property real itemWidth: (parent.width - (spacing * (columns - 1))) / columns
+
+                    // Use the same color palette as NotePage
+                    readonly property var colorPalette: ["#121218", "#1c1d29", "#3a2c2c", "#2c3a2c", "#2c2c3a", "#3a3a2c",
+                        "#43484e", "#5c4b37", "#3e4a52", "#503232", "#325032", "#323250"]
+
+                    Repeater {
+                        model: bulkColorFlow.colorPalette
+                        delegate: Item {
+                            width: parent.itemWidth
+                            height: parent.itemWidth
+
+                            // No outer ring or checkmark needed for bulk action as there's no "current" note color here
+                            Rectangle {
+                                anchors.fill: parent
+                                radius: width / 2
+                                color: modelData // Actual color swatch
+                                border.color: "transparent"
+                            }
+
+                            RippleEffect { id: colorRipple }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                onPressed: colorRipple.ripple(mouseX, mouseY)
+                                onClicked: {
+                                    // Call the bulk change function with the selected color
+                                    mainPage.bulkChangeNoteColor(modelData);
+                                    mainPage.bulkColorPickerOpen = false; // Close panel after selection
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -873,12 +1034,11 @@ Page {
     // --- Tag Picker Panel ---
         Rectangle {
             id: tagPickerPanel
-            // New property for the tag picker's internal search text
-            property string tagPickerSearchText: "" // Initialize as empty
+            property string tagPickerSearchText: ""
 
             width: parent.width
             height: parent.height * 0.53
-            color: mainPage.customBackgroundColor // Tag picker panel background color
+            color: mainPage.customBackgroundColor
             radius: 15
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottom: parent.bottom
@@ -906,62 +1066,52 @@ Page {
                 anchors.fill: parent
                 spacing: Theme.paddingMedium
 
-                // Header section for the tag picker panel, now including the search field.
                 Rectangle {
                     id: tagPanelHeader
                     width: parent.width
-                    // Adjusted height to accommodate both the "Select Tags" label and the search field.
-                    height: Theme.itemSizeMedium // Increased height for both label and search field
-                    color: DB.darkenColor(mainPage.customBackgroundColor, 0.15) // Header background color
+                    height: Theme.itemSizeMedium
+                    color: DB.darkenColor(mainPage.customBackgroundColor, 0.15)
                     anchors.top: parent.top
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.leftMargin: Theme.paddingLarge
                     anchors.rightMargin: Theme.paddingLarge
 
-                    // Column to stack the label and the search field vertically within the header.
                     Column {
                         width: parent.width
                         height: parent.height
                         anchors.centerIn: parent
-                        spacing: Theme.paddingSmall // Spacing between the label and the search field.
+                        spacing: Theme.paddingSmall
 
-                        // SearchField for filtering the list of available tags.
                         SearchField {
                             id: tagSearchInput
-                            width: parent.width * 0.95 // Take up 90% of the parent's width.
-                            anchors.horizontalCenter: parent.horizontalCenter // Center horizontally within the column.
-                            placeholderText: qsTr("Search tags...") // Placeholder text for the input field.
+                            width: parent.width * 0.95
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            placeholderText: qsTr("Search tags...")
                             font.pixelSize: Theme.fontSizeMedium
                             highlighted: false
-                            color: "#e2e3e8" // Text color for the input.
-                            readOnly: false // The search field should always be editable.
+                            color: "#e2e3e8"
+                            readOnly: false
 
-                            // Bind the text property of the SearchField to tagPickerPanel.tagPickerSearchText.
                             text: tagPickerPanel.tagPickerSearchText
 
-                            // When the text in the search field changes, update tagPickerPanel.tagPickerSearchText
-                            // and then call mainPage's function to reload/filter the tags in the list view.
                             onTextChanged: {
-                                tagPickerPanel.tagPickerSearchText = text; // Update the internal property
-                                mainPage.loadTagsForTagPanel(tagPickerPanel.tagPickerSearchText); // Use the internal property for filtering
+                                tagPickerPanel.tagPickerSearchText = text;
+                                mainPage.loadTagsForTagPanel(tagPickerPanel.tagPickerSearchText);
                             }
 
-                            // Left Item: Search Icon (Static as requested)
                             leftItem: Item { }
 
-                            // Right Item: Close/Clear Search Icon
                             rightItem: Item {
                                 width: Theme.fontSizeExtraLarge * 1.25
                                 height: Theme.fontSizeExtraLarge * 1.25
                                 clip: false
 
-                                // Opacity depends on whether the tag picker's search field has text.
                                 opacity: tagSearchInput.text.length > 0 ? 1 : 0.3
                                 Behavior on opacity { NumberAnimation { duration: 150 } }
 
                                 Icon {
                                     id: rightIconCloseTagSearch
-                                    source: "../icons/close.svg" // Static close icon.
+                                    source: "../icons/close.svg"
                                     color: Theme.primaryColor
                                     anchors.centerIn: parent
                                     width: parent.width
@@ -972,15 +1122,12 @@ Page {
 
                                 MouseArea {
                                     anchors.fill: parent
-                                    // Enabled only if there is text in the search field to clear.
                                     enabled: tagSearchInput.text.length > 0
                                     onPressed: rightClearRippleTagSearch.ripple(mouseX, mouseY)
                                     onClicked: {
-                                        // Clear the tag picker's search field and its internal property.
                                         tagPickerPanel.tagPickerSearchText = "";
                                         tagSearchInput.text = "";
-                                        // Reload tags to show all tags after clearing search.
-                                        mainPage.loadTagsForTagPanel(""); // Use empty filter for all tags
+                                        mainPage.loadTagsForTagPanel("");
                                         console.log(("Tag picker search field cleared by right icon."));
                                     }
                                 }
@@ -989,102 +1136,88 @@ Page {
                     }
                 }
 
-                // Flickable area for the list of tags, allowing scrolling.
                 SilicaFlickable {
                     id: tagsPanelFlickable
                     width: parent.width
-                    anchors.top: tagPanelHeader.bottom // Anchored below the header.
-                    anchors.bottom: doneButton.top // Anchored above the Done button.
+                    anchors.top: tagPanelHeader.bottom
+                    anchors.bottom: doneButton.top
                     anchors.left: parent.left
                     anchors.right: parent.right
                     anchors.topMargin: Theme.paddingMedium
                     anchors.bottomMargin: Theme.paddingMedium
-                    contentHeight: tagsPanelListView.contentHeight // Content height is driven by the ListView.
-                    clip: true // Clip content that extends beyond the flickable's bounds.
-                    ScrollBar { flickableSource: tagsPanelFlickable; z: 5 } // Scrollbar for the flickable.
+                    contentHeight: tagsPanelListView.contentHeight
+                    clip: true
+                    ScrollBar { flickableSource: tagsPanelFlickable; z: 5 }
 
-                    // ListView to display the individual tag items.
                     ListView {
                         id: tagsPanelListView
                         width: parent.width
-                        height: contentHeight // Height adapts to the content of the model.
-                        model: availableTagsModel // Uses the ListModel defined above.
-                        orientation: ListView.Vertical // Tags are arranged vertically.
-                        spacing: Theme.paddingSmall // Spacing between each tag item.
+                        height: contentHeight
+                        model: availableTagsModel
+                        orientation: ListView.Vertical
+                        spacing: Theme.paddingSmall
 
-                        // Delegate defines how each item in the ListView looks and behaves.
                         delegate: Rectangle {
                             id: tagPanelDelegateRoot
                             width: parent.width
-                            height: Theme.itemSizeMedium // Fixed height for each tag item.
+                            height: Theme.itemSizeMedium
                             clip: true
-                            // Background color changes based on whether the tag is checked/selected.
                             color: model.isChecked ? DB.darkenColor(mainPage.customBackgroundColor, -0.25) : DB.darkenColor(mainPage.customBackgroundColor, 0.25)
 
-                            RippleEffect { id: tagPanelDelegateRipple } // Visual feedback on touch/click.
+                            RippleEffect { id: tagPanelDelegateRipple }
 
                             MouseArea {
                                 anchors.fill: parent
-                                onPressed: tagPanelDelegateRipple.ripple(mouseX, mouseY) // Trigger ripple effect.
+                                onPressed: tagPanelDelegateRipple.ripple(mouseX, mouseY)
                                 onClicked: {
-                                    var newCheckedState = !model.isChecked; // Toggle the checked state.
-                                    // Update the model immediately to reflect the change in UI.
+                                    var newCheckedState = !model.isChecked;
                                     availableTagsModel.set(index, { name: model.name, isChecked: newCheckedState });
-
-                                    // Use mainPage.toggleTagSelection to update the global selectedTags and trigger a note search.
                                     mainPage.toggleTagSelection(model.name);
                                     console.log(("MAIN_PAGE: Toggling tag from picker: " + model.name + ", isChecked: " + newCheckedState + ", Current selectedTags:", JSON.stringify(mainPage.selectedTags)));
-                                    // mainPage.performSearch is called by mainPage.toggleTagSelection, so no need to call it here.
                                 }
                             }
 
-                            // Row layout for icon, tag name, and checkbox icon.
                             Row {
                                 id: tagPanelRow
                                 anchors.verticalCenter: parent.verticalCenter
-                                anchors.left: parent.left; anchors.leftMargin: Theme.paddingLarge // Left padding.
-                                anchors.right: parent.right; anchors.rightMargin: Theme.paddingLarge // Right padding.
-                                spacing: Theme.paddingMedium // Spacing between elements in the row.
+                                anchors.left: parent.left; anchors.leftMargin: Theme.paddingLarge
+                                anchors.right: parent.right; anchors.rightMargin: Theme.paddingLarge
+                                spacing: Theme.paddingMedium
 
-                                // Icon for the tag.
                                 Icon {
                                     id: tagPanelTagIcon
-                                    source: "../icons/tag-white.svg" // Path to the tag icon SVG.
-                                    color: "#e2e3e8" // Color of the tag icon.
+                                    source: "../icons/tag-white.svg"
+                                    color: "#e2e3e8"
                                     width: Theme.iconSizeMedium
                                     height: Theme.iconSizeMedium
                                     anchors.verticalCenter: parent.verticalCenter
                                     fillMode: Image.PreserveAspectFit
                                 }
 
-                                // Label to display the tag name.
                                 Text {
                                     id: tagPanelTagNameLabel
-                                    text: model.name // Display the tag name from the model.
-                                    color: "#e2e3e8" // Text color.
+                                    text: model.name
+                                    color: "#e2e3e8"
                                     font.pixelSize: Theme.fontSizeMedium
                                     anchors.verticalCenter: parent.verticalCenter
-                                    elide: Text.ElideRight // Elide long tag names with "..."
-                                    // Positioned flexibly between the icon and the checkbox.
+                                    elide: Text.ElideRight
                                     anchors.left: tagPanelTagIcon.right
                                     anchors.leftMargin: tagPanelRow.spacing
                                     anchors.right: tagPanelCheckButtonContainer.left
                                     anchors.rightMargin: tagPanelRow.spacing
                                 }
 
-                                // Container for the checkbox icon.
                                 Item {
                                     id: tagPanelCheckButtonContainer
                                     width: Theme.iconSizeMedium
                                     height: Theme.iconSizeMedium
                                     anchors.verticalCenter: parent.verticalCenter
-                                    anchors.right: parent.right // Anchored to the far right.
+                                    anchors.right: parent.right
                                     clip: false
 
-                                    // Image component for the checkbox icon (checked or unchecked).
                                     Image {
                                         id: tagPanelCheckIcon
-                                        source: model.isChecked ? "../icons/box-checked.svg" : "../icons/box.svg" // Dynamic source based on checked state.
+                                        source: model.isChecked ? "../icons/box-checked.svg" : "../icons/box.svg"
                                         anchors.centerIn: parent
                                         width: parent.width
                                         height: parent.height
@@ -1095,7 +1228,6 @@ Page {
                         }
                     }
                 }
-                // Scrollbar for the tag list.
                 ScrollBar {
                     flickableSource: tagsPanelFlickable
                     anchors.top: tagsPanelFlickable.top
@@ -1104,33 +1236,32 @@ Page {
                     width: Theme.paddingSmall
                 }
 
-                // Done button to close the tag picker panel.
                 Button {
                     id: doneButton
                     anchors.horizontalCenter: parent.horizontalCenter
-                    text: qsTr("Done") // Localized text for the button.
+                    text: qsTr("Done")
                     onClicked: {
-                        mainPage.tagPickerOpen = false; // Close the tag picker panel.
+                        mainPage.tagPickerOpen = false;
                         console.log(("MAIN_PAGE: Tag picker closed by Done button."));
                     }
                     anchors.bottom: parent.bottom
-                    anchors.bottomMargin: Theme.paddingLarge // Space from the bottom of the panel.
+                    anchors.bottomMargin: Theme.paddingLarge
                     visible: allTags.length !== 0
                 }
                 Button {
                     id: createTagButton
                     anchors.horizontalCenter: parent.horizontalCenter
-                    text: qsTr("Create") // Localized text for the button.
+                    text: qsTr("Create")
                     onClicked: {
-                        mainPage.tagPickerOpen = false; // Close the tag picker panel.
+                        mainPage.tagPickerOpen = false;
                         pageStack.push(Qt.resolvedUrl("TagEditPage.qml"), {
-                                onTagsChanged: mainPage.refreshData, // Pass callback
-                                creatingNewTag: true // Optionally start directly in new tag creation mode
+                                onTagsChanged: mainPage.refreshData,
+                                creatingNewTag: true
                                 });
                         console.log(("MAIN_PAGE: Tag creation page opened by button."));
                     }
                     anchors.bottom: parent.bottom
-                    anchors.bottomMargin: Theme.paddingLarge // Space from the bottom of the panel.
+                    anchors.bottomMargin: Theme.paddingLarge
                     visible: allTags.length === 0
                 }
             }
@@ -1143,7 +1274,7 @@ Page {
                 font.italic: true
                 color: Theme.secondaryColor
                 font.pixelSize: Theme.fontSizeSmall
-                anchors.centerIn: parent // Center within the flickable
+                anchors.centerIn: parent
                 visible: availableTagsModel.count === 0 && tagPickerPanel.tagPickerSearchText !== ""
             }
             Label {
@@ -1162,22 +1293,20 @@ Page {
     // --- Integrated Generic Confirmation Dialog ---
     ConfirmDialog {
         id: confirmDialogInstance
-        // Bind properties from mainPage to ConfirmDialog
         dialogVisible: mainPage.confirmDialogVisible
         dialogTitle: mainPage.confirmDialogTitle
         dialogMessage: mainPage.confirmDialogMessage
         confirmButtonText: mainPage.confirmButtonText
         confirmButtonHighlightColor: mainPage.confirmButtonHighlightColor
 
-        // Connect signals from ConfirmDialog back to mainPage's logic
         onConfirmed: {
             if (mainPage.onConfirmCallback) {
-                mainPage.onConfirmCallback(); // Execute the stored callback
+                mainPage.onConfirmCallback();
             }
-            mainPage.confirmDialogVisible = false; // Hide the dialog after confirmation
+            mainPage.confirmDialogVisible = false;
         }
         onCancelled: {
-            mainPage.confirmDialogVisible = false; // Hide the dialog
+            mainPage.confirmDialogVisible = false;
             console.log(("Action cancelled by user."));
         }
     }
