@@ -1228,7 +1228,7 @@ Go to edit tags page to create one!</source>
         <translation>Настройки</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="203"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="208"/>
         <source>Language</source>
         <translation>Язык</translation>
     </message>
@@ -1243,77 +1243,77 @@ Go to edit tags page to create one!</source>
         <translation>Английский</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="312"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="317"/>
         <source>Theme Color</source>
         <translation>Цвет темы</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="425"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="430"/>
         <source>Data Management Actions</source>
         <translation>Действия по управлению данными</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="448"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="453"/>
         <source>Archive All Notes</source>
-        <translation>Архивировать</translation>
+        <translation>Архивировать все заметки</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="457"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="462"/>
         <source>Are you sure you want to archive all your notes?</source>
         <translation>Вы уверены, что хотите архивировать все свои заметки?</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="463"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="468"/>
         <source>Confirm Archive</source>
         <translation>Подтвердить архивацию</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="464"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="469"/>
         <source>Archive All</source>
-        <translation>Архивировать все</translation>
+        <translation>Архивировать</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="480"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="485"/>
         <source>Move All Notes to Trash</source>
-        <translation>Переместить</translation>
+        <translation>Переместить все заметки в корзину</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="489"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="494"/>
         <source>Are you sure you want to move all your notes to trash?</source>
         <translation>Вы уверены, что хотите переместить все свои заметки в корзину?</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="495"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="500"/>
         <source>Confirm Move to Trash</source>
         <translation>Подтвердить перемещение в корзину</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="496"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="501"/>
         <source>Move to Trash</source>
-        <translation>Переместить в корзину</translation>
+        <translation>Переместить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="514"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="519"/>
         <source>Permanently Delete All Notes</source>
         <translation>Безвозвратно удалить все заметки</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="524"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="529"/>
         <source>Are you sure you want to permanently delete ALL your notes and associated tags? This action cannot be undone.</source>
         <translation>Вы уверены, что хотите безвозвратно удалить ВСЕ свои заметки и связанные с ними теги? Это действие невозможно отменить.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="530"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="535"/>
         <source>Confirm Permanent Deletion</source>
         <translation>Подтвердить безвозвратное удаление</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="531"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="536"/>
         <source>Delete</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="340"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="345"/>
         <source>Select Theme Color</source>
         <translation>Выбрать цвет темы</translation>
     </message>
