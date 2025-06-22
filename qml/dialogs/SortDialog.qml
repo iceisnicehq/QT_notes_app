@@ -19,15 +19,10 @@ Item {
     signal sortApplied(string sortBy, string sortOrder)
     signal cancelled()
     signal colorSortRequested()
+    signal showDisabledToast()
 
-    property int uniqueColorsInNotesCount: 0
-
-    onDialogVisibleChanged: {
-    if (dialogVisible) {
-        uniqueColorsInNotesCount = DB.getUniqueNoteColors().length; // Or DB.getUniqueNoteColorsCount() if you make that function
-        }
-    }
-
+    property var availableColors: []
+    readonly property int uniqueColorsInNotesCount: availableColors.length
 
     readonly property var sortOptions: [
         { key: "updated_at", text: qsTr("By update date") },
@@ -82,25 +77,38 @@ Item {
 
             Repeater {
                 model: root.sortOptions
-                delegate: AdaptiveButtonComponent {
-                    text: modelData.text
-                    baseColor: root.dialogBackgroundColor
-                    highlighted: root.currentSortBy === modelData.key
-                    onClicked: {
-                        if (!enabled) return;
-                        root.currentSortBy = modelData.key;
-                        if (modelData.key === 'color') {
-                            root.colorSortRequested();
+                delegate: Item {
+                    width: parent.width
+                    height: adaptiveButton.height
+
+                    AdaptiveButtonComponent {
+                        id: adaptiveButton
+                        text: modelData.text
+                        anchors.centerIn: parent
+                        width: parent.width * 0.9 // Задаем ширину кнопки
+                        baseColor: root.dialogBackgroundColor
+                        highlighted: root.currentSortBy === modelData.key
+                        enabled: modelData.key !== 'color' || root.uniqueColorsInNotesCount > 1
+                        onClicked: {
+                            if (!enabled) return;
+                            root.currentSortBy = modelData.key;
+                            if (modelData.key === 'color') {
+                                root.colorSortRequested();
+                            }
+                        }
+                    }
+
+                    MouseArea {
+                        anchors.fill: adaptiveButton
+                        enabled: modelData.key === 'color' && !adaptiveButton.enabled
+
+                        onClicked: {
+                            console.log("Tapped on disabled 'By color' button. Emitting toast signal.");
+                            root.showDisabledToast();
                         }
                     }
                 }
             }
-
-            states: [
-                State { when: modelData.key === 'color';
-                PropertyChanges { target: AdaptiveButton;
-                enabled: root.uniqueColorsInNotesCount > 1 } }
-            ]
 
             Item { width: 1; height: Theme.paddingMedium }
 

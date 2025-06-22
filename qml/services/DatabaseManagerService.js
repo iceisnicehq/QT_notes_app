@@ -959,63 +959,64 @@ function searchNotes(searchText, selectedTagNames, sortBy, sortOrder, customColo
     if (!db) return [];
     var notes = [];
 
-    // --- НАЧАЛО БЛОКА ЛОГИРОВАНИЯ ---
     console.log("SEARCH_NOTES: --- New Search Initiated ---");
     console.log("SEARCH_NOTES: searchText:", searchText);
     console.log("SEARCH_NOTES: selectedTagNames:", JSON.stringify(selectedTagNames));
     console.log("SEARCH_NOTES: sortBy:", sortBy);
     console.log("SEARCH_NOTES: sortOrder:", sortOrder);
-    // Проверяем, что массив с порядком цветов действительно пришел
     console.log("SEARCH_NOTES: customColorOrder:", JSON.stringify(customColorOrder));
-    // --- КОНЕЦ БЛОКА ЛОГИРОВАНИЯ ---
 
     db.readTransaction(function(tx) {
         var query = 'SELECT N.* FROM Notes N ';
         var params = [];
         var whereConditions = ['N.deleted = 0', 'N.archived = 0'];
 
+        // --- ИСПРАВЛЕНИЕ НАЧАЛО ---
+        // Всегда добавляем условие поиска по тексту в основной массив условий,
+        // чтобы оно корректно применялось вместе с тегами.
+        if (searchText) {
+            var searchTerm = '%' + searchText + '%';
+            whereConditions.push('(N.title LIKE ? OR N.content LIKE ?)');
+            params.push(searchTerm, searchTerm);
+        }
+
         if (selectedTagNames && selectedTagNames.length > 0) {
             query += 'JOIN NoteTags NT ON N.id = NT.note_id JOIN Tags T ON NT.tag_id = T.id ';
             var tagPlaceholders = selectedTagNames.map(function() { return '?'; }).join(',');
             whereConditions.push('T.name IN (' + tagPlaceholders + ')');
             params = params.concat(selectedTagNames);
+
+            // Теперь, когда все условия в массиве, строим единый WHERE
             query += 'WHERE ' + whereConditions.join(' AND ') + ' ';
+
+            // И добавляем условие для фильтрации по ВСЕМ тегам
             query += 'GROUP BY N.id HAVING COUNT(DISTINCT T.id) = ' + selectedTagNames.length + ' ';
-            if (searchText) {
-                var searchTerm = '%' + searchText + '%';
-                query += 'AND (N.title LIKE ? OR N.content LIKE ?)';
-                params.push(searchTerm, searchTerm);
-            }
         } else {
-            if (searchText) {
-                var searchTerm = '%' + searchText + '%';
-                whereConditions.push('(N.title LIKE ? OR N.content LIKE ?)');
-                params.push(searchTerm, searchTerm);
-            }
+            // Если тегов нет, просто используем условия из массива
             if (whereConditions.length > 0) {
                 query += 'WHERE ' + whereConditions.join(' AND ') + ' ';
             }
         }
+        // --- ИСПРАВЛЕНИЕ КОНЕЦ ---
 
         var orderByClause = "";
         var sortDirection = (sortOrder && sortOrder.toLowerCase() === 'asc') ? "ASC" : "DESC";
 
-        // Важная проверка - сортировка по цвету сработает только если sortBy === 'color'
         if (sortBy === 'color' && customColorOrder && customColorOrder.length > 0) {
             orderByClause = "CASE N.color ";
             for (var i = 0; i < customColorOrder.length; i++) {
                 orderByClause += "WHEN ? THEN " + i + " ";
                 params.push(customColorOrder[i]);
             }
-            orderByClause += "ELSE 999 END, N.updated_at DESC"; // Добавим вторичную сортировку для стабильности
+            orderByClause += "ELSE 999 END, N.updated_at DESC";
         } else {
             var sortMap = {
                 "updated_at": "N.updated_at",
                 "created_at": "N.created_at",
-                "title_alpha": "LOWER(N.title)", // Используем LOWER для корректной алфавитной сортировки
+                "title_alpha": "LOWER(N.title)",
                 "title_length": "LENGTH(N.title)",
                 "content_length": "LENGTH(N.content)",
-                "color": "N.color" // Обычная сортировка по цвету (алфавитная по hex-коду)
+                "color": "N.color"
             };
             var sortColumn = sortMap[sortBy] || "N.updated_at";
             orderByClause = sortColumn + " " + sortDirection;
@@ -1023,10 +1024,8 @@ function searchNotes(searchText, selectedTagNames, sortBy, sortOrder, customColo
 
         query += " ORDER BY N.pinned DESC, " + orderByClause;
 
-        // --- ЛОГИРОВАНИЕ SQL-ЗАПРОСА ---
         console.log("SEARCH_NOTES: SQL Query:", query);
         console.log("SEARCH_NOTES: SQL Params:", JSON.stringify(params));
-        // --- КОНЕЦ ЛОГИРОВАНИЯ ---
 
         var result = tx.executeSql(query, params);
 
@@ -1040,17 +1039,15 @@ function searchNotes(searchText, selectedTagNames, sortBy, sortOrder, customColo
         notes = tempNotes;
     });
 
-    // --- ЛОГИРОВАНИЕ РЕЗУЛЬТАТА ---
     console.log("SEARCH_NOTES: Found " + notes.length + " notes.");
     if (notes.length > 0) {
-        // Выводим цвета первых 5 заметок, чтобы увидеть порядок
         console.log("SEARCH_NOTES: Resulting order (colors of first 5 notes):", JSON.stringify(notes.slice(0, 5).map(function(n) { return n.color; })));
     }
     console.log("SEARCH_NOTES: --- Search Finished ---");
-    // --- КОНЕЦ ЛОГИРОВАНИЯ ---
 
     return notes;
 }
+
 
 
 function getUniqueNoteColors() {
