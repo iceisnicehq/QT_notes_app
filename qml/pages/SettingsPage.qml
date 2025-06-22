@@ -191,13 +191,20 @@ Page {
                     anchors.horizontalCenter: parent.horizontalCenter // This centers THIS RowLayout within languageSection
                     spacing: Theme.paddingSmall
 
-                    Icon {
-                        source: "../icons/lang.png"
-                        width: Theme.iconSizeSmall
-                        height: Theme.iconSizeSmall
-                        color: "white"
+                    Item {
+                        Layout.preferredHeight: Them.iconSizeSmall
+                        Layout.preferredWidth: Them.iconSizeSmall
                         Layout.alignment: Qt.AlignVCenter
+                        Icon {
+                            source: "../icons/language.svg"
+                            width: 100
+                            height: width
+                            color: "white"
+                            //Layout.alignment: Qt.AlignVCenter
+                            anchors.fill: parent
+                        }
                     }
+
 
                     Label {
                         text: qsTr("Language")
@@ -221,8 +228,8 @@ Page {
                         spacing: Theme.paddingMedium
 
                         Item {
-                            Layout.preferredWidth: Theme.iconSizeLarge
-                            Layout.preferredHeight: Theme.iconSizeLarge
+                            Layout.preferredWidth: Theme.iconSizeSmallPlus
+                            Layout.preferredHeight: Theme.iconSizeSmallPlus
                             Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
 
                             Icon {
@@ -262,8 +269,8 @@ Page {
                         }
 
                         Item {
-                            Layout.preferredWidth: Theme.iconSizeLarge
-                            Layout.preferredHeight: Theme.iconSizeLarge
+                            Layout.preferredWidth: Theme.iconSizeSmallPlus
+                            Layout.preferredHeight: Theme.iconSizeSmallPlus
                             Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
 
                             Icon {
