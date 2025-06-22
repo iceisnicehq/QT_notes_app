@@ -34,9 +34,7 @@ bool AppSettings::setApplicationLanguage(const QString& languageCode)
     }
 
     m_app->removeTranslator(&m_translator);
-
-    // --- CORRECTED: Convert QUrl to QString for translation path ---
-    QString baseTranslationDir = Aurora::Application::pathTo(QStringLiteral("translations")).toLocalFile(); // <--- THIS IS THE CHANGE
+    QString baseTranslationDir = Aurora::Application::pathTo(QStringLiteral("translations")).toLocalFile();
 
     QString specificQmFile;
     if (languageCode == "ru") {
@@ -45,6 +43,10 @@ bool AppSettings::setApplicationLanguage(const QString& languageCode)
         specificQmFile = "ru.template.Aurora_notes-de.qm";
     } else if (languageCode == "ch") {
         specificQmFile = "ru.template.Aurora_notes-ch.qm";
+    } else if (languageCode == "es") {
+        specificQmFile = "ru.template.Aurora_notes-es.qm";
+    } else if (languageCode == "fr") {
+        specificQmFile = "ru.template.Aurora_notes-fr.qm";
     } else {
         specificQmFile = "ru.template.Aurora_notes-en.qm";
     }
@@ -93,9 +95,3 @@ QString AppSettings::loadLanguageSetting()
     qDebug() << "Language setting loaded:" << lang;
     return lang;
 }
-
-// Keep this commented out or removed if you have it elsewhere.
-// QString AppSettings::currentLanguage() const
-// {
-//     return m_currentLanguage;
-// }

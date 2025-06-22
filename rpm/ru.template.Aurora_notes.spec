@@ -1,6 +1,6 @@
 Name:       ru.template.Aurora_notes
 Summary:    Notes App for Aurora OS
-Version:    0.1
+Version:    1.0
 Release:    1
 License:    BSD-3-Clause
 URL:        https://auroraos.ru
@@ -38,6 +38,12 @@ cp %{_builddir}/translations/ru.template.Aurora_notes-de.qm \
 cp %{_builddir}/translations/ru.template.Aurora_notes-ch.qm \
    %{buildroot}%{_datadir}/ru.template.Aurora_notes/translations/
 
+cp %{_builddir}/translations/ru.template.Aurora_notes-es.qm \
+   %{buildroot}%{_datadir}/ru.template.Aurora_notes/translations/
+
+cp %{_builddir}/translations/ru.template.Aurora_notes-fr.qm \
+   %{buildroot}%{_datadir}/ru.template.Aurora_notes/translations/
+
 %files
 %defattr(-,root,root,-)
 %{_bindir}/%{name}
@@ -50,3 +56,5 @@ cp %{_builddir}/translations/ru.template.Aurora_notes-ch.qm \
 %{_datadir}/%{name}/translations/ru.template.Aurora_notes-ru.qm
 %{_datadir}/%{name}/translations/ru.template.Aurora_notes-de.qm
 %{_datadir}/%{name}/translations/ru.template.Aurora_notes-ch.qm
+%{_datadir}/%{name}/translations/ru.template.Aurora_notes-es.qm
+%{_datadir}/%{name}/translations/ru.template.Aurora_notes-fr.qm

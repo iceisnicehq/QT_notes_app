@@ -34,3 +34,5 @@ TRANSLATIONS += \
     translations/ru.template.Aurora_notes-en.ts \
     translations/ru.template.Aurora_notes-de.ts \
     translations/ru.template.Aurora_notes-ch.ts \
+    translations/ru.template.Aurora_notes-es.ts \
+    translations/ru.template.Aurora_notes-fr.ts \

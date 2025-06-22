@@ -1225,29 +1225,29 @@ Go to edit tags page to create one!</translation>
 <context>
     <name>SettingsPage</name>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="29"/>
-        <location filename="../qml/pages/SettingsPage.qml" line="109"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="31"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="106"/>
         <source>Confirm Action</source>
         <translation>Confirm Action</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="31"/>
-        <location filename="../qml/pages/SettingsPage.qml" line="110"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="33"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="107"/>
         <source>Confirm</source>
         <translation>Confirm</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="161"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="158"/>
         <source>Settings</source>
         <translation>Settings</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="210"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="207"/>
         <source>Language</source>
         <translation>Language</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="85"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="82"/>
         <source>Failed to change language.</source>
         <translation>Failed to change language.</translation>
     </message>
@@ -1257,77 +1257,87 @@ Go to edit tags page to create one!</translation>
         <translation>English</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="339"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="22"/>
+        <source>Français</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="23"/>
+        <source>Español</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/SettingsPage.qml" line="336"/>
         <source>Theme Color</source>
         <translation>Theme Color</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="474"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="471"/>
         <source>Data Management Actions</source>
         <translation>Data Management Actions</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="498"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="495"/>
         <source>Archive All Notes</source>
         <translation>Archive All Notes</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="507"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="504"/>
         <source>Are you sure you want to archive all your notes?</source>
         <translation>Are you sure you want to archive all your notes?</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="513"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="510"/>
         <source>Confirm Archive</source>
         <translation>Confirm Archive</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="514"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="511"/>
         <source>Archive All</source>
         <translation>Archive All</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="530"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="527"/>
         <source>Move All Notes to Trash</source>
         <translation>Move All Notes to Trash</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="539"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="536"/>
         <source>Are you sure you want to move all your notes to trash?</source>
         <translation>Are you sure you want to move all your notes to trash?</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="545"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="542"/>
         <source>Confirm Move to Trash</source>
         <translation>Confirm Move to Trash</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="546"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="543"/>
         <source>Move to Trash</source>
         <translation>Move to Trash</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="564"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="561"/>
         <source>Permanently Delete All Notes</source>
         <translation>Permanently Delete All Notes</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="574"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="571"/>
         <source>Are you sure you want to permanently delete ALL your notes and associated tags? This action cannot be undone.</source>
         <translation>Are you sure you want to permanently delete ALL your notes and associated tags? This action cannot be undone.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="580"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="577"/>
         <source>Confirm Permanent Deletion</source>
         <translation>Confirm Permanent Deletion</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="581"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="578"/>
         <source>Delete</source>
         <translation>Delete</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="367"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="364"/>
         <source>Select Theme Color</source>
         <translation>Select Theme Color</translation>
     </message>
@@ -1342,12 +1352,12 @@ Go to edit tags page to create one!</translation>
         <translation>Deutsch</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="22"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="24"/>
         <source>中國人</source>
         <translation>中國人</translation>
     </message>
     <message>
-        <location filename="../qml/pages/SettingsPage.qml" line="68"/>
+        <location filename="../qml/pages/SettingsPage.qml" line="70"/>
         <source>Language changed to %1</source>
         <translation>Language changed to %1</translation>
     </message>
