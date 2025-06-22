@@ -1555,3 +1555,67 @@ function setSetting(columnName, value) {
         console.log("DB_MGR: Setting '" + columnName + "' updated to '" + value + "'.");
     });
 }
+
+
+function getNoteById(noteId) {
+    if (!db) {
+        console.error("DB_MGR: Database not initialized when trying to get note by ID:", noteId);
+        return null;
+    }
+    var note = null;
+    db.transaction(function(tx) { // Use transaction for consistent read, though readTransaction is often sufficient for pure reads
+        var rs = tx.executeSql('SELECT id, title, content, pinned, created_at, updated_at, color FROM Notes WHERE id = ?', [noteId]);
+        if (rs.rows.length > 0) {
+            var row = rs.rows.item(0);
+            note = {
+                id: row.id,
+                title: row.title,
+                content: row.content,
+                pinned: row.pinned === 1, // Convert integer to boolean
+                created_at: row.created_at,
+                updated_at: row.updated_at,
+                color: row.color
+            };
+            // CORRECTED: Fetch tags by joining NoteTags and Tags tables
+            var tagRs = tx.executeSql(
+                'SELECT T.name FROM Tags T JOIN NoteTags NT ON T.id = NT.tag_id WHERE NT.note_id = ?',
+                [noteId]
+            );
+            var tags = [];
+            for (var i = 0; i < tagRs.rows.length; i++) {
+                tags.push(tagRs.rows.item(i).name); // Get the 'name' from the Tags table
+            }
+            note.tags = tags;
+        }
+    });
+    console.log("DB_MGR: getNoteById for ID " + noteId + " returned:", JSON.stringify(note));
+    return note;
+}
+
+
+function bulkPinNotes(noteIds) {
+    if (!db) {
+        console.error("DB_MGR: Database not initialized", key);
+        return null;
+    }
+    db.transaction(function(tx) {
+        for (var i = 0; i < noteIds.length; i++) {
+            tx.executeSql('UPDATE Notes SET pinned = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [noteIds[i]]);
+        }
+    });
+    console.log("DB: Bulk pinned notes with IDs:", JSON.stringify(noteIds));
+}
+
+// Function to bulk unpin notes
+function bulkUnpinNotes(noteIds) {
+    if (!db) {
+        console.error("DB_MGR: Database not initialized", key);
+        return null;
+    }
+    db.transaction(function(tx) {
+        for (var i = 0; i < noteIds.length; i++) {
+            tx.executeSql('UPDATE Notes SET pinned = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [noteIds[i]]);
+        }
+    });
+    console.log("DB: Bulk unpinned notes with IDs:", JSON.stringify(noteIds));
+}
