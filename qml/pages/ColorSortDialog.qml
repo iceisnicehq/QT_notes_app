@@ -97,7 +97,8 @@ Item {
                 Label {
                     width: parent.width
                     text: qsTr("Set Color Order")
-                    font.pixelSize: Theme.fontSizeLarge; font.bold: true; color: "white"
+                    font.pixelSize: Theme.fontSizeLarge;
+                    font.bold: true; color: "white"
                     horizontalAlignment: Text.AlignHCenter
                 }
                 Label {
