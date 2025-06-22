@@ -182,6 +182,50 @@ Page {
         if (pinnedNotes) pinnedNotes.forceLayout();
         if (otherNotes) otherNotes.forceLayout();
     }
+
+    // New function to handle pinning/unpinning selected notes
+    function pinSelectedNotes() {
+        if (mainPage.selectedNoteIds.length === 0) {
+            toastManager.show(qsTr("No notes selected."));
+            return;
+        }
+
+        // Determine if all selected notes are currently pinned
+        var allArePinned = true;
+        for (var i = 0; i < mainPage.selectedNoteIds.length; i++) {
+            var noteId = mainPage.selectedNoteIds[i];
+            var note = DB.getNoteById(noteId); // Assuming DB.getNoteById exists
+            if (!note || !note.pinned) {
+                allArePinned = false;
+                break;
+            }
+        }
+
+        var actionText = allArePinned ? qsTr("unpin") : qsTr("pin");
+        var message = qsTr("Are you sure you want to %1 %2 selected note(s)?").arg(actionText).arg(mainPage.selectedNoteIds.length);
+        var buttonText = actionText.charAt(0).toUpperCase() + actionText.slice(1); // Capitalize first letter
+        var highlightColor = Theme.primaryColor;
+
+        mainPage.confirmDialogTitle = qsTr("Confirm Pin/Unpin");
+        mainPage.confirmDialogMessage = message;
+        mainPage.confirmButtonText = buttonText;
+        mainPage.confirmButtonHighlightColor = highlightColor;
+        mainPage.onConfirmCallback = function() {
+            var idsToToggle = mainPage.selectedNoteIds;
+            if (allArePinned) {
+                DB.bulkUnpinNotes(idsToToggle); // Assuming DB.bulkUnpinNotes exists
+                toastManager.show(qsTr("%1 note(s) unpinned!").arg(idsToToggle.length));
+            } else {
+                DB.bulkPinNotes(idsToToggle); // Assuming DB.bulkPinNotes exists
+                toastManager.show(qsTr("%1 note(s) pinned!").arg(idsToToggle.length));
+            }
+            mainPage.resetSelection();
+            mainPage.refreshData();
+        };
+        mainPage.confirmDialogVisible = true;
+        console.log(("Showing pin/unpin confirmation dialog."));
+    }
+
     Label {
         id: noNotesLabel
         width: parent.width
@@ -347,7 +391,7 @@ Page {
                     width: Theme.fontSizeExtraLarge * 1.1
                     height: Theme.fontSizeExtraLarge * 0.95
                     anchors.verticalCenter: parent.verticalCenter
-                    anchors.right: archiveButton.left
+                    anchors.right: pinButton.left // Anchored to the left of the new pin button
                     anchors.rightMargin: Theme.paddingMedium
 
                     Icon {
@@ -372,6 +416,44 @@ Page {
                                 console.log("Deselect");
                             }
                             mainPage.selectedNoteIds = newSelectedIds;
+                        }
+                    }
+                }
+
+                // NEW: Pin button (between select all and archive)
+                Item {
+                    id: pinButton
+                    width: Theme.fontSizeExtraLarge * 1.1
+                    height: Theme.fontSizeExtraLarge * 0.95
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.right: archiveButton.left // Anchored to the left of the archive button
+                    anchors.rightMargin: Theme.paddingMedium
+
+                    Icon {
+                        id: pinAllIconButton
+                        // Determine if all selected notes are pinned to choose the icon
+                        property bool allSelectedPinned: {
+                            if (mainPage.selectedNoteIds.length === 0) return false;
+                            for (var i = 0; i < mainPage.selectedNoteIds.length; i++) {
+                                var note = DB.getNoteById(mainPage.selectedNoteIds[i]); // Assuming getNoteById exists in your DB
+                                if (!note || !note.pinned) {
+                                    return false;
+                                }
+                            }
+                            return true;
+                        }
+                        source: allSelectedPinned ? "../icons/pin-enabled.svg" : "../icons/pin.svg" // Use pin-enabled if you have it
+                        color: Theme.primaryColor
+                        anchors.centerIn: parent
+                        width: parent.width
+                        height: parent.height
+                    }
+                    RippleEffect { id: pinRipple }
+                    MouseArea {
+                        anchors.fill: parent
+                        onPressed: pinRipple.ripple(mouseX, mouseY)
+                        onClicked: {
+                            mainPage.pinSelectedNotes();
                         }
                     }
                 }
@@ -863,7 +945,7 @@ Page {
 
                                 // Opacity depends on whether the tag picker's search field has text.
                                 opacity: tagSearchInput.text.length > 0 ? 1 : 0.3
-                                Behavior on opacity { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+                                Behavior on opacity { NumberAnimation { duration: 150 } }
 
                                 Icon {
                                     id: rightIconCloseTagSearch
