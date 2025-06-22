@@ -1,10 +1,11 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import Sailfish.Pickers 1.0 // FolderPickerPage находится здесь
+import Sailfish.Pickers 1.0
 import QtQuick.Layouts 1.1
 import Nemo.Configuration 1.0
-import "DatabaseManager.js" as DB
+import "../services/DatabaseManager.js" as DB
 import QtQuick.LocalStorage 2.0
+import "../dialogs"
 
 Page {
     id: importExportPage
