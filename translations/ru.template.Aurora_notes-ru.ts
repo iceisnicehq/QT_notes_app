@@ -371,12 +371,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</source>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="517"/>
         <source>Export as JSON</source>
-        <translation>Экспортировать как JSON</translation>
+        <translation>Экспорт в JSON</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="526"/>
         <source>Export as CSV</source>
-        <translation>Экспортировать как CSV</translation>
+        <translation>Экспорт в CSV</translation>
     </message>
     <message>
         <location filename="../qml/pages/ImportExportPage.qml" line="549"/>
