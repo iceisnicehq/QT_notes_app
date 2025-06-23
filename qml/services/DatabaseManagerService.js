@@ -13,178 +13,208 @@
  * управляет настройками приложения (тема, язык), а также реализует
  * сложную логику для поиска, фильтрации, сортировки, импорта/экспорта
  * и массовых операций с заметками.
- * + Миграция БД. В случае расширения структуры необходимо будет проработать версию 3.
+ * + Миграция БД. 
  */
 
 var db = null;
 var dbName = "AuroraNotesDB";
-var LATEST_DB_VERSION = 2;
+var dbVersion = "1.0";
 var dbDescription = "Aurora Notes Database";
 var dbSize = 1000000;
+
 var defaultNoteColor = "#1c1d29";
 
-
-var migrations = [
-            {
-                version: 1,
-                migrate: function(tx) {
-                    console.log("DB_MIGRATOR: Applying migration to version 1 (with consolidated schema)...");
-
-                    // The Notes table now includes all columns from the start for new installations.
-                    tx.executeSql(
-                        'CREATE TABLE IF NOT EXISTS Notes (' +
-                        'id INTEGER PRIMARY KEY AUTOINCREMENT, ' +
-                        'pinned BOOLEAN NOT NULL DEFAULT 0, ' +
-                        'title TEXT, ' +
-                        'content TEXT, ' +
-                        'color TEXT, ' +
-                        'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, ' +
-                        'updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, ' +
-                        'deleted BOOLEAN NOT NULL DEFAULT 0, ' + // From v2
-                        'archived BOOLEAN NOT NULL DEFAULT 0, ' + // From v2
-                        'checksum TEXT' + // From v2
-                        ')'
-                    );
-                    tx.executeSql(
-                        'CREATE TABLE IF NOT EXISTS Tags (' +
-                        'id INTEGER PRIMARY KEY AUTOINCREMENT, ' +
-                        'name TEXT UNIQUE NOT NULL' +
-                        ')'
-                    );
-                    tx.executeSql(
-                        'CREATE TABLE IF NOT EXISTS NoteTags (' +
-                        'note_id INTEGER NOT NULL, ' +
-                        'tag_id INTEGER NOT NULL, ' +
-                        'PRIMARY KEY (note_id, tag_id), ' +
-                        'FOREIGN KEY(note_id) REFERENCES Notes(id) ON DELETE CASCADE, ' +
-                        'FOREIGN KEY(tag_id) REFERENCES Tags(id) ON DELETE CASCADE' +
-                        ')'
-                    );
-                    // The AppSettings table also includes all columns from the start.
-                    tx.executeSql(
-                        'CREATE TABLE IF NOT EXISTS AppSettings (' +
-                        'id INTEGER PRIMARY KEY, ' +
-                        'themeColor TEXT, ' +
-                        'language TEXT, ' +
-                        'lastExportDate TIMESTAMP, ' + // From v2
-                        'notesExportedCount INTEGER DEFAULT 0, ' + // From v2
-                        'lastImportDate TIMESTAMP, ' + // From v2
-                        'notesImportedCount INTEGER DEFAULT 0, ' + // From v2
-                        'sort_by TEXT, ' + // From v2
-                        'sort_order TEXT, ' + // From v2
-                        'color_sort_order TEXT, ' + // From v2
-                        'exportDirectoryPath TEXT' + // From v2
-                        ')'
-                    );
-                     tx.executeSql(
-                        'INSERT OR IGNORE INTO AppSettings (id, themeColor, language) VALUES (?, ?, ?)',
-                        [1, "#121218", "en"]
-                    );
-                }
-            },
-            {
-                version: 2,
-                migrate: function(tx) {
-                    // This migration is now a "catch-up" script for users who had version 1.
-                    // For new users, this will run but all addColumnIfNotExists calls will do nothing, which is safe.
-                    console.log("DB_MIGRATOR: Applying migration to version 2 (compatibility check)...");
-
-                    var addColumnIfNotExists = function(transaction, tableName, columnName, columnDefinition) {
-                        var result = transaction.executeSql('PRAGMA table_info(' + tableName + ')');
-                        var columnExists = false;
-                        for (var i = 0; i < result.rows.length; i++) {
-                            if (result.rows.item(i).name === columnName) {
-                                columnExists = true;
-                                break;
-                            }
-                        }
-
-                        if (!columnExists) {
-                            console.log('DB_MIGRATOR: [v2 Catch-up] Adding column "' + columnName + '" to table "' + tableName + '".');
-                            transaction.executeSql('ALTER TABLE ' + tableName + ' ADD COLUMN ' + columnName + ' ' + columnDefinition);
-                        } else {
-                            // This will be the common case for new installations.
-                            console.log('DB_MIGRATOR: [v2] Column "' + columnName + '" already exists in table "' + tableName + '". Skipping.');
-                        }
-                    };
-
-                    // --- Migrate 'Notes' table ---
-                    addColumnIfNotExists(tx, 'Notes', 'deleted', 'BOOLEAN NOT NULL DEFAULT 0');
-                    addColumnIfNotExists(tx, 'Notes', 'archived', 'BOOLEAN NOT NULL DEFAULT 0');
-                    addColumnIfNotExists(tx, 'Notes', 'checksum', 'TEXT');
-
-                    // --- Migrate 'AppSettings' table ---
-                    addColumnIfNotExists(tx, 'AppSettings', 'lastExportDate', 'TIMESTAMP');
-                    addColumnIfNotExists(tx, 'AppSettings', 'notesExportedCount', 'INTEGER DEFAULT 0');
-                    addColumnIfNotExists(tx, 'AppSettings', 'lastImportDate', 'TIMESTAMP');
-                    addColumnIfNotExists(tx, 'AppSettings', 'notesImportedCount', 'INTEGER DEFAULT 0');
-                    addColumnIfNotExists(tx, 'AppSettings', 'sort_by', 'TEXT');
-                    addColumnIfNotExists(tx, 'AppSettings', 'sort_order', 'TEXT');
-                    addColumnIfNotExists(tx, 'AppSettings', 'color_sort_order', 'TEXT');
-                    addColumnIfNotExists(tx, 'AppSettings', 'exportDirectoryPath', 'TEXT');
-
-
-                    // --- Populate Checksums ---
-                    // This is still important for users upgrading from the original version 1.
-                    var result = tx.executeSql('SELECT id, pinned, title, content, color, deleted, archived FROM Notes WHERE checksum IS NULL OR checksum = ""');
-                    if (result.rows.length > 0) {
-                        console.log('DB_MIGRATOR: [v2 Catch-up] Found ' + result.rows.length + ' old notes missing checksums. Populating now.');
-                        for (var i = 0; i < result.rows.length; i++) {
-                            var note = result.rows.item(i);
-                            var generatedChecksum = generateNoteChecksum(note);
-                            if (generatedChecksum) {
-                                tx.executeSql('UPDATE Notes SET checksum = ? WHERE id = ?', [generatedChecksum, note.id]);
-                            }
-                        }
-                    }
-                }
-            }
-];
-
 function initDatabase(localStorageInstance) {
+
     if (!localStorageInstance) {
         console.error("DB_MGR: LocalStorage instance not provided to initDatabase.");
         return;
     }
     if (db) return;
-
+    console.log("DB_MGR: Инициализация базы данных...");
     try {
-        db = localStorageInstance.openDatabaseSync(dbName, "2", dbDescription, dbSize);
-
+        db = localStorageInstance.openDatabaseSync(dbName, dbVersion, dbDescription, dbSize);
         db.transaction(function(tx) {
-            tx.executeSql('CREATE TABLE IF NOT EXISTS DB_Info (version INTEGER)');
-            var result = tx.executeSql('SELECT version FROM DB_Info');
-            var currentVersion = 0;
-            if (result.rows.length > 0) {
-                currentVersion = result.rows.item(0).version;
-            } else {
-                tx.executeSql('INSERT INTO DB_Info (version) VALUES (?)', [0]);
+            tx.executeSql(
+                'CREATE TABLE IF NOT EXISTS Notes (' +
+                'id INTEGER PRIMARY KEY AUTOINCREMENT, ' +
+                'pinned BOOLEAN NOT NULL DEFAULT 0, ' +
+                'title TEXT, ' +
+                'content TEXT, ' +
+                'color TEXT DEFAULT "' + defaultNoteColor + '", ' +
+                'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, ' +
+                'updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, ' +
+                'deleted BOOLEAN NOT NULL DEFAULT 0, ' +
+                'archived BOOLEAN NOT NULL DEFAULT 0, ' +
+                'checksum TEXT' +
+                ')'
+            );
+            tx.executeSql(
+                'CREATE TABLE IF NOT EXISTS Tags (' +
+                'id INTEGER PRIMARY KEY AUTOINCREMENT, ' +
+                'name TEXT UNIQUE NOT NULL' +
+                ')'
+            );
+            tx.executeSql(
+                'CREATE TABLE IF NOT EXISTS NoteTags (' +
+                'note_id INTEGER NOT NULL, ' +
+                'tag_id INTEGER NOT NULL, ' +
+                'PRIMARY KEY (note_id, tag_id), ' +
+                'FOREIGN KEY(note_id) REFERENCES Notes(id) ON DELETE CASCADE, ' +
+                'FOREIGN KEY(tag_id) REFERENCES Tags(id) ON DELETE CASCADE' +
+                ')'
+            );
+
+            try {
+                tx.executeSql('SELECT color FROM Notes LIMIT 1');
+            } catch (e) {
+                console.log("DB_MGR: Adding 'color' column to Notes table.");
+                tx.executeSql('ALTER TABLE Notes ADD COLUMN color TEXT DEFAULT "' + defaultNoteColor + '"');
+            }
+            try {
+                tx.executeSql('SELECT checksum FROM Notes LIMIT 1');
+            } catch (e) {
+                console.log("DB_MGR: Adding 'checksum' column to Notes table.");
+                tx.executeSql('ALTER TABLE Notes ADD COLUMN checksum TEXT'); 
+            }
+            try {
+                tx.executeSql('SELECT deleted FROM Notes LIMIT 1');
+            } catch (e) {
+                console.log("DB_MGR: Adding 'deleted' column to Notes table.");
+                tx.executeSql('ALTER TABLE Notes ADD COLUMN deleted BOOLEAN NOT NULL DEFAULT 0');
+            }
+            try {
+                tx.executeSql('SELECT archived FROM Notes LIMIT 1');
+            } catch (e) {
+                console.log("DB_MGR: Adding 'archived' column to Notes table.");
+                tx.executeSql('ALTER TABLE Notes ADD COLUMN archived BOOLEAN NOT NULL DEFAULT 0');
             }
 
-            console.log("DB_MGR: Current DB version: " + currentVersion, " | Target DB version: " + LATEST_DB_VERSION);
-            if (currentVersion < LATEST_DB_VERSION) {
-                console.log("DB_MIGRATOR: Database update required. Applying migrations...");
+            tx.executeSql(
+                'CREATE TABLE IF NOT EXISTS AppSettings (' +
+                'id INTEGER PRIMARY KEY, ' + 
+                'themeColor TEXT, ' +
+                'language TEXT, ' +
+                'lastExportDate TIMESTAMP, ' +
+                'notesExportedCount INTEGER, ' +
+                'lastImportDate TIMESTAMP, ' +
+                'notesImportedCount INTEGER,' +
+                'sort_by TEXT,' +
+                'sort_order TEXT,' +
+                'color_sort_order TEXT,' +
+                'exportDirectoryPath TEXT' +
+                ')'
+            );
 
-                for (var i = currentVersion; i < LATEST_DB_VERSION; i++) {
-                    var migration = migrations[i];
-                    if (migration && migration.version === i + 1) {
-                        migration.migrate(tx);
-                        tx.executeSql('UPDATE DB_Info SET version = ?', [migration.version]);
-                        console.log("DB_MIGRATOR: Successfully migrated to version " + migration.version);
+            var settingsCount = tx.executeSql('SELECT COUNT(*) AS count FROM AppSettings');
+            if (settingsCount.rows.item(0).count === 0) {
+                console.log("DB_MGR: AppSettings table is empty, inserting default values.");
+                tx.executeSql(
+                    'INSERT INTO AppSettings (id, themeColor, language, notesExportedCount, notesImportedCount, exportDirectoryPath) ' +
+                    'VALUES (?, ?, ?, ?, ?, ?)',
+                    [1, "#121218", "en", 0, 0, ""] 
+                );
+            }
+
+            try { tx.executeSql('SELECT themeColor FROM AppSettings LIMIT 1'); }
+            catch (e) { console.log("DB_MGR: Adding 'themeColor' column to AppSettings."); tx.executeSql('ALTER TABLE AppSettings ADD COLUMN themeColor TEXT'); }
+
+            try { tx.executeSql('SELECT language FROM AppSettings LIMIT 1'); }
+            catch (e) { console.log("DB_MGR: Adding 'language' column to AppSettings."); tx.executeSql('ALTER TABLE AppSettings ADD COLUMN language TEXT'); }
+
+            try { tx.executeSql('SELECT lastExportDate FROM AppSettings LIMIT 1'); }
+            catch (e) { console.log("DB_MGR: Adding 'lastExportDate' column to AppSettings."); tx.executeSql('ALTER TABLE AppSettings ADD COLUMN lastExportDate TIMESTAMP'); }
+
+            try { tx.executeSql('SELECT notesExportedCount FROM AppSettings LIMIT 1'); }
+            catch (e) { console.log("DB_MGR: Adding 'notesExportedCount' column to AppSettings."); tx.executeSql('ALTER TABLE AppSettings ADD COLUMN notesExportedCount INTEGER DEFAULT 0'); }
+
+            try { tx.executeSql('SELECT lastImportDate FROM AppSettings LIMIT 1'); }
+            catch (e) { console.log("DB_MGR: Adding 'lastImportDate' column to AppSettings."); tx.executeSql('ALTER TABLE AppSettings ADD COLUMN lastImportDate TIMESTAMP'); }
+
+            try { tx.executeSql('SELECT notesImportedCount FROM AppSettings LIMIT 1'); }
+            catch (e) { console.log("DB_MGR: Adding 'notesImportedCount' column to AppSettings."); tx.executeSql('ALTER TABLE AppSettings ADD COLUMN notesImportedCount INTEGER DEFAULT 0'); }
+
+            try { tx.executeSql('SELECT sort_by FROM AppSettings LIMIT 1'); }
+            catch (e) { console.log("DB_MGR: Adding 'sort_by' column to AppSettings."); tx.executeSql('ALTER TABLE AppSettings ADD COLUMN sort_by TEXT'); }
+
+            try { tx.executeSql('SELECT sort_order FROM AppSettings LIMIT 1'); }
+            catch (e) { console.log("DB_MGR: Adding 'sort_order' column to AppSettings."); tx.executeSql('ALTER TABLE AppSettings ADD COLUMN sort_order TEXT'); }
+
+            try { tx.executeSql('SELECT color_sort_order FROM AppSettings LIMIT 1'); }
+            catch (e) { console.log("DB_MGR: Adding 'color_sort_order' column to AppSettings."); tx.executeSql('ALTER TABLE AppSettings ADD COLUMN color_sort_order TEXT'); }
+
+            try { tx.executeSql('SELECT exportDirectoryPath FROM AppSettings LIMIT 1'); }
+            catch (e) { console.log("DB_MGR: Adding 'color_sort_order' column to AppSettings."); tx.executeSql('ALTER TABLE AppSettings ADD COLUMN exportDirectoryPath TEXT'); }
+
+            try {
+            var result = tx.executeSql('SELECT id, pinned, title, content, color, deleted, archived FROM Notes WHERE checksum IS NULL OR checksum = ""');
+            if (result.rows.length > 0) {
+                console.log('DB_MGR_MIGRATION: Found ${result.rows.length} notes with missing checksums. Populating now.');
+                for (var i = 0; i < result.rows.length; i++) {
+                    var note = result.rows.item(i);
+                    var tempNote = {
+                        id: note.id,
+                        pinned: note.pinned,
+                        title: note.title,
+                        content: note.content,
+                        color: note.color,
+                        deleted: note.deleted,
+                        archived: note.archived,
+                    };
+
+                    var generatedChecksum = generateNoteChecksum(tempNote);
+
+                    if (generatedChecksum) {
+                        tx.executeSql('UPDATE Notes SET checksum = ? WHERE id = ?', [generatedChecksum, note.id]);
+                        console.log('DB_MGR_MIGRATION: Updated note ID ${note.id} with checksum: ${generatedChecksum}');
                     } else {
-                        console.error("DB_MIGRATOR: Migration for version " + (i + 1) + " not found! Halting.");
-                        throw new Error("Migration failed: Missing migration script for version " + (i + 1));
+                        console.warn('DB_MGR_MIGRATION: Failed to generate checksum for note ID ${note.id}. Skipping update.');
                     }
                 }
+                console.log("DB_MGR_MIGRATION: Checksum migration complete.");
             } else {
-                console.log("DB_MGR: Database is up to date.");
+                console.log("DB_MGR_MIGRATION: No notes found with missing checksums. Migration skipped.");
+            }
+        } catch (e) {
+            console.error("DB_MGR_MIGRATION: Error during checksum migration: " + e.message);
+        }
+                    
+            console.log("DB_MGR: Checking for notes without checksums..."); 
+            var notesWithoutChecksum = tx.executeSql('SELECT id, title, content, color FROM Notes WHERE checksum IS NULL');
+            if (notesWithoutChecksum.rows.length > 0) {
+                console.log("DB_MGR: Found " + notesWithoutChecksum.rows.length + " notes without checksums. Generating them...");
+                for (var i = 0; i < notesWithoutChecksum.rows.length; i++) {
+                    var note = notesWithoutChecksum.rows.item(i);
+                    var noteTags = getTagsForNote(tx, note.id); 
+                    var tempNoteForChecksum = {
+                        id: note.id,
+                        pinned: note.pinned,
+                        title: note.title,
+                        content: note.content,
+                        color: note.color,
+                        deleted: note.deleted,
+                        archived: note.archived,
+                    };
+                    var generatedChecksum = generateNoteChecksum(tempNoteForChecksum);
+
+                    if (generatedChecksum) {
+                        tx.executeSql('UPDATE Notes SET checksum = ? WHERE id = ?', [generatedChecksum, note.id]);
+                        console.log("DB_MGR: Generated checksum for note ID " + note.id);
+                    } else {
+                        console.warn("DB_MGR: Failed to generate checksum for old note ID " + note.id);
+                    }
+                }
+                console.log("DB_MGR: Finished generating checksums for old notes.");
+            } else {
+                console.log("DB_MGR: All notes already have checksums.");
             }
         });
-        console.log("DB_MGR: Database initialization and migration check complete.");
+        console.log("DB_MGR: Database initialized successfully.");
     } catch (e) {
-        console.error("DB_MGR: FATAL: Failed to initialize or migrate database: " + e.message);
+        console.error("DB_MGR: Failed to open or initialize database: " + e);
     }
 }
+
 
 function getSetting(key) {
     if (!db) {
